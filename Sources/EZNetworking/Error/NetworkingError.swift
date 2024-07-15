@@ -2,6 +2,7 @@ import Foundation
 
 public enum NetworkingError: Error {
     case unknown
+    case noURL
     case couldNotParse
     case invalidError
     case noData

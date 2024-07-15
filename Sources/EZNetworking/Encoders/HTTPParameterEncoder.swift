@@ -8,7 +8,7 @@ struct HTTPParameterEncoderImpl: HTTPParameterEncoder {
     init() {}
     func encodeParameters(for urlRequest: inout URLRequest, with parameters: [HTTPParameter]) throws {
         guard let url = urlRequest.url else {
-            throw NSError(domain: "Invalid URL", code: 400, userInfo: nil)
+            throw NetworkingError.noURL
         }
         
         if var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false), !parameters.isEmpty {

@@ -1,14 +1,14 @@
 import Foundation
 
 enum HTTPHeader {
-    case accept(String)
+    case accept(MedisType)
     case acceptCharset(String)
     case acceptEncoding(String)
     case acceptLanguage(String)
     case authorization(Authorization)
     case cacheControl(String)
     case contentLength(String)
-    case contentType(ContentType)
+    case contentType(MedisType)
     case cookie(String)
     case host(String)
     case ifModifiedSince(String)
@@ -41,7 +41,7 @@ enum HTTPHeader {
     
     var value: String {
         switch self {
-        case .accept(let value): return value
+        case .accept(let accept): return accept.value
         case .acceptCharset(let value): return value
         case .acceptEncoding(let value): return value
         case .acceptLanguage(let value): return value
@@ -61,7 +61,7 @@ enum HTTPHeader {
     }
 }
 
-enum ContentType {
+enum MedisType {
     case json
     case xml
     case formUrlEncoded
