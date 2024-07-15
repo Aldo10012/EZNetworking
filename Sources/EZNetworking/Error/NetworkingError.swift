@@ -70,3 +70,73 @@ public enum NetworkingError: Error {
     case notExtended
     case networkAuthenticationRequired
 }
+
+extension NetworkingError: Equatable {
+    public static func ==(lhs: NetworkingError, rhs: NetworkingError) -> Bool {
+            switch (lhs, rhs) {
+            case (.unknown, .unknown),
+                 (.noURL, .noURL),
+                 (.couldNotParse, .couldNotParse),
+                 (.invalidError, .invalidError),
+                 (.noData, .noData),
+                 (.noResponse, .noResponse),
+                 (.noRequest, .noRequest),
+                 (.ok, .ok),
+                 (.multipleChoices, .multipleChoices),
+                 (.movedPermanently, .movedPermanently),
+                 (.found, .found),
+                 (.seeOther, .seeOther),
+                 (.notModified, .notModified),
+                 (.useProxy, .useProxy),
+                 (.temporaryRedirect, .temporaryRedirect),
+                 (.permanentRedirect, .permanentRedirect),
+                 (.badRequest, .badRequest),
+                 (.unauthorized, .unauthorized),
+                 (.paymentRequired, .paymentRequired),
+                 (.forbidden, .forbidden),
+                 (.notFound, .notFound),
+                 (.methodNotAllowed, .methodNotAllowed),
+                 (.notAcceptable, .notAcceptable),
+                 (.proxyAuthenticationRequired, .proxyAuthenticationRequired),
+                 (.requestTimeout, .requestTimeout),
+                 (.conflict, .conflict),
+                 (.gone, .gone),
+                 (.lengthRequired, .lengthRequired),
+                 (.preconditionFailed, .preconditionFailed),
+                 (.payloadTooLarge, .payloadTooLarge),
+                 (.uriTooLong, .uriTooLong),
+                 (.unsupportedMediaType, .unsupportedMediaType),
+                 (.rangeNotSatisfiable, .rangeNotSatisfiable),
+                 (.expectationFailed, .expectationFailed),
+                 (.imATeapot, .imATeapot),
+                 (.misdirectedRequest, .misdirectedRequest),
+                 (.unprocessableEntity, .unprocessableEntity),
+                 (.locked, .locked),
+                 (.failedDependency, .failedDependency),
+                 (.tooEarly, .tooEarly),
+                 (.upgradeRequired, .upgradeRequired),
+                 (.preconditionRequired, .preconditionRequired),
+                 (.tooManyRequests, .tooManyRequests),
+                 (.requestHeaderFieldsTooLarge, .requestHeaderFieldsTooLarge),
+                 (.unavailableForLegalReasons, .unavailableForLegalReasons),
+                 (.internalServerError, .internalServerError),
+                 (.notImplemented, .notImplemented),
+                 (.badGateway, .badGateway),
+                 (.serviceUnavailable, .serviceUnavailable),
+                 (.gatewayTimeout, .gatewayTimeout),
+                 (.httpVersionNotSupported, .httpVersionNotSupported),
+                 (.variantAlsoNegotiates, .variantAlsoNegotiates),
+                 (.insufficientStorage, .insufficientStorage),
+                 (.loopDetected, .loopDetected),
+                 (.notExtended, .notExtended),
+                 (.networkAuthenticationRequired, .networkAuthenticationRequired):
+                return true
+            case let (.requestFailed(lhsError), .requestFailed(rhsError)):
+                return (lhsError as NSError) == (rhsError as NSError)
+            default:
+                return false
+            }
+        }
+    
+    
+}
