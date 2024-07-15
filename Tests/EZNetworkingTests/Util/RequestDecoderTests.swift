@@ -33,6 +33,7 @@ final class RequestDecoderTests: XCTestCase {
 
 }
 
+// TODO: move to a dedicated Mock file
 struct Person: Decodable {
     var name: String
     var age: Int
