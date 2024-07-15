@@ -16,11 +16,11 @@ public protocol RequestPerformable {
 
 public struct RequestPerformerImpl: RequestPerformable {
     
-    private let urlSession: URLSession
+    private let urlSession: URLSessionTaskProtocol
     private let urlResponseValidator: URLResponseValidator
     private let requestDecoder: RequestDecodable
     
-    public init(urlSession: URLSession = URLSession.shared,
+    public init(urlSession: URLSessionTaskProtocol = URLSession.shared,
                 urlResponseValidator: URLResponseValidator = URLResponseValidatorImpl(),
                 requestDecoder: RequestDecodable = RequestDecoder()) {
         self.urlSession = urlSession
@@ -31,7 +31,7 @@ public struct RequestPerformerImpl: RequestPerformable {
     // MARK: perform request with Async Await and return Decodable
     public func perform<T: Decodable>(request: URLRequest, decodeTo decodableObject: T.Type) async throws -> T {
         do {
-            let (data, response) = try await urlSession.data(for: request)
+            let (data, response) = try await urlSession.data(for: request, delegate: nil)
             try urlResponseValidator.validate(response, withData: data)
             let result = try requestDecoder.decode(decodableObject.self, from: data)
             return result
@@ -45,7 +45,7 @@ public struct RequestPerformerImpl: RequestPerformable {
     // MARK: perform request with Async Await
     public func perform(request: URLRequest) async throws {
         do {
-            let (data, response) = try await urlSession.data(for: request)
+            let (data, response) = try await urlSession.data(for: request, delegate: nil)
             try urlResponseValidator.validate(response, withData: data)
         } catch let error as NetworkingError {
             throw error
@@ -124,3 +124,11 @@ public enum VoidResult<T: Error> {
     case success
     case failure(T)
 }
+
+
+public protocol URLSessionTaskProtocol {
+    func data(for request: URLRequest, delegate: (URLSessionTaskDelegate)?) async throws -> (Data, URLResponse)
+    func dataTask(with request: URLRequest, completionHandler: @escaping @Sendable (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTask
+}
+
+extension URLSession: URLSessionTaskProtocol {}

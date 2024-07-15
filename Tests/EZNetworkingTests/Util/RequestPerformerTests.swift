@@ -9,7 +9,149 @@ import XCTest
 @testable import EZNetworking
 
 final class RequestPerformerTests: XCTestCase {
+    
+    // MARK: Unit test for perform request with Async Await and return Decodable
 
+    func testPerformAsyncSuccess() async throws {
+        let urlSession = MockURLSession(
+            data: mockPersonJsonData,
+            urlResponse: buildResponse(statusCode: 200),
+            error: nil
+        )
+        let validator = MockURLResponseValidator(error: nil)
+        let decoder = RequestDecoder()
+        let sut = RequestPerformerImpl(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
+        
+        guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
+            XCTFail("Failed to create URLRequest")
+            return
+        }
+        
+        do {
+            let person: Person = try await sut.perform(request: request, decodeTo: Person.self)
+            XCTAssertEqual(person.name, "John")
+            XCTAssertEqual(person.age, 30)
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+    
+    func testPerformAsyncFailsWhenThereIsError() async throws {
+        let urlSession = MockURLSession(
+            data: mockPersonJsonData,
+            urlResponse: buildResponse(statusCode: 200),
+            error: NetworkingError.badRequest
+        )
+        let validator = MockURLResponseValidator(error: nil)
+        let decoder = RequestDecoder()
+        let sut = RequestPerformerImpl(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
+        
+        guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
+            XCTFail("Failed to create URLRequest")
+            return
+        }
+        
+        do {
+            let person: Person = try await sut.perform(request: request, decodeTo: Person.self)
+            XCTFail()
+        } catch {
+            XCTAssertTrue(true)
+        }
+    }
+    
+    func testPerformAsyncFailsWhenThereIsValidatorThrowsError() async throws {
+        let urlSession = MockURLSession(
+            data: mockPersonJsonData,
+            urlResponse: buildResponse(statusCode: 200),
+            error: nil
+        )
+        let validator = MockURLResponseValidator(error: .forbidden)
+        let decoder = RequestDecoder()
+        let sut = RequestPerformerImpl(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
+        
+        guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
+            XCTFail("Failed to create URLRequest")
+            return
+        }
+        
+        do {
+            let person: Person = try await sut.perform(request: request, decodeTo: Person.self)
+            XCTFail()
+        } catch {
+            XCTAssertTrue(true)
+        }
+    }
+    
+    // MARK: Unit test for perform request with Async Await and return Decodable
+
+    func testPerformAsyncWithoutResponseSuccess() async throws {
+        let urlSession = MockURLSession(
+            data: mockPersonJsonData,
+            urlResponse: buildResponse(statusCode: 200),
+            error: nil
+        )
+        let validator = MockURLResponseValidator(error: nil)
+        let decoder = RequestDecoder()
+        let sut = RequestPerformerImpl(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
+        
+        guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
+            XCTFail("Failed to create URLRequest")
+            return
+        }
+        
+        do {
+            try await sut.perform(request: request)
+            XCTAssertTrue(true)
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+    
+    func testPerformAsyncWIthoutResponseFailsWhenThereIsError() async throws {
+        let urlSession = MockURLSession(
+            data: mockPersonJsonData,
+            urlResponse: buildResponse(statusCode: 200),
+            error: NetworkingError.badRequest
+        )
+        let validator = MockURLResponseValidator(error: nil)
+        let decoder = RequestDecoder()
+        let sut = RequestPerformerImpl(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
+        
+        guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
+            XCTFail("Failed to create URLRequest")
+            return
+        }
+        
+        do {
+            try await sut.perform(request: request)
+            XCTFail()
+        } catch {
+            XCTAssertTrue(true)
+        }
+    }
+    
+    func testPerformAsyncWithoutResponseFailsWhenThereIsValidatorThrowsError() async throws {
+        let urlSession = MockURLSession(
+            data: mockPersonJsonData,
+            urlResponse: buildResponse(statusCode: 200),
+            error: nil
+        )
+        let validator = MockURLResponseValidator(error: .forbidden)
+        let decoder = RequestDecoder()
+        let sut = RequestPerformerImpl(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
+        
+        guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
+            XCTFail("Failed to create URLRequest")
+            return
+        }
+        
+        do {
+            try await sut.perform(request: request)
+            XCTFail()
+        } catch {
+            XCTAssertTrue(true)
+        }
+    }
     
     // MARK: Unit tests for perform using Completion Handler
     
@@ -301,7 +443,7 @@ final class RequestPerformerTests: XCTestCase {
 
 }
 
-class MockURLSession: URLSession {
+class MockURLSession: URLSessionTaskProtocol {
     var data: Data?
     var urlResponse: URLResponse?
     var error: Error?
@@ -313,12 +455,24 @@ class MockURLSession: URLSession {
         self.error = error
     }
     
-    override func dataTask(with request: URLRequest, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTask {
+    func dataTask(with request: URLRequest, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTask {
         self.completion = completionHandler
         return MockURLSessionDataTask {
             completionHandler(self.data, self.urlResponse, self.error)
         }
     }
+    
+    func data(for request: URLRequest, delegate: (URLSessionTaskDelegate)? = nil) async throws -> (Data, URLResponse) {
+        if let error = error {
+            throw error
+        }
+        
+        guard let data, let urlResponse else {
+            throw NetworkingError.unknown
+        }
+        return (data, urlResponse)
+    }
+
 }
 
 class MockURLSessionDataTask: URLSessionDataTask {

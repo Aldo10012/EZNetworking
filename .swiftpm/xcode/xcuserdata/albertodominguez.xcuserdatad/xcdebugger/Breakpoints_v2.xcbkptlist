@@ -14,8 +14,8 @@
             filePath = "Tests/EZNetworkingTests/Util/RequestPerformerTests.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "31"
-            endingLineNumber = "31"
+            startingLineNumber = "173"
+            endingLineNumber = "173"
             landmarkName = "testPerformWithCompletionHandlerDoesDecodePerson()"
             landmarkType = "7">
             <Locations>
@@ -249,8 +249,8 @@
             filePath = "Tests/EZNetworkingTests/Util/RequestPerformerTests.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "317"
-            endingLineNumber = "317"
+            startingLineNumber = "459"
+            endingLineNumber = "459"
             landmarkName = "dataTask(with:completionHandler:)"
             landmarkType = "7">
             <Locations>
@@ -342,8 +342,8 @@
             filePath = "Tests/EZNetworkingTests/Util/RequestPerformerTests.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "332"
-            endingLineNumber = "332"
+            startingLineNumber = "486"
+            endingLineNumber = "486"
             landmarkName = "resume()"
             landmarkType = "7">
             <Locations>
@@ -420,8 +420,8 @@
             filePath = "Tests/EZNetworkingTests/Util/RequestPerformerTests.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "82"
-            endingLineNumber = "82"
+            startingLineNumber = "224"
+            endingLineNumber = "224"
             landmarkName = "testPerformWithCompletionHandlerWithBadStatusCodeFails()"
             landmarkType = "7">
             <Locations>
@@ -498,8 +498,8 @@
             filePath = "Tests/EZNetworkingTests/Util/RequestPerformerTests.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "83"
-            endingLineNumber = "83"
+            startingLineNumber = "225"
+            endingLineNumber = "225"
             landmarkName = "testPerformWithCompletionHandlerWithBadStatusCodeFails()"
             landmarkType = "7">
             <Locations>
