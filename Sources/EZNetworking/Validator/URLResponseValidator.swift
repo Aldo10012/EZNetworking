@@ -16,7 +16,7 @@ public struct URLResponseValidatorImpl: URLResponseValidator {
     
     public func validate(_ response: URLResponse, withData data: Data) throws {
         guard let httpResponse = response as? HTTPURLResponse else {
-            throw NSError(domain: "No response", code: 400, userInfo: nil)
+            throw NetworkingError.noHTTPURLResponse
         }
         
         let errorResponse = httpResponse.networkingError
