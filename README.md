@@ -162,3 +162,64 @@ let request = RequestBuilder().build(
 ```
 
 ### Performing a Request
+
+You can easily execute Requests using `RequestPerformerImpl()` It can manage error handling and is capable of performing requests and returning responses using Async/Await and Completion Handlers.
+
+#### How to get an api response using `Async/Await`?
+```
+func asyncMethodName() async throws {
+    let request = RequestBuilder().build(httpMethod: .GET, urlString: "http://www.example.com", parameters: [])!
+    let performer = RequestPerformerImpl()
+    
+    do {
+        let person = try await performer.perform(request: request, decodeTo: Person.self)
+        print(person.age, person.name)
+    } catch let error as NetworkingError {
+        print(error)
+    }
+}
+```
+
+#### How to make api call using `Async/Await` without decoding a response?
+```
+func asyncMethodName() async throws {
+    let request = RequestBuilder().build(httpMethod: .GET, urlString: "http://www.example.com", parameters: [])!
+    let performer = RequestPerformerImpl()
+    
+    do {
+        let person = try await performer.perform(request: request)
+        print("Did succeed")
+    } catch let error as NetworkingError {
+        print(error)
+    }
+}
+```
+
+
+#### How to get an api response using completion handlers?
+```
+let request = RequestBuilder().build(httpMethod: .GET, urlString: "http://www.example.com", parameters: [])
+let performer = RequestPerformerImpl()
+performer.perform(request: request, decodeTo: Person.self) { result in
+    switch result {
+    case .success(let person):
+        print(person.name, person.age)
+    case .failure(let error):
+        print(error)
+    }
+}
+```
+
+#### How to make api call using completion handlers without decoding a response?
+```
+let request = RequestBuilder().build(httpMethod: .GET, urlString: "http://www.example.com", parameters: [])
+let performer = RequestPerformerImpl()
+performer.perform(request: request) { result in
+    switch result {
+    case .success:
+        print("did succeed")
+    case .failure(let error):
+        print(error)
+    }
+}
+```
