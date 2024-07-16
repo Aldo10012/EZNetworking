@@ -1,12 +1,12 @@
 import Foundation
 
-protocol HTTPParameterEncoder {
+public protocol HTTPParameterEncoder {
     func encodeParameters(for urlRequest: inout URLRequest, with parameters: [HTTPParameter]) throws
 }
 
-struct HTTPParameterEncoderImpl: HTTPParameterEncoder {
-    init() {}
-    func encodeParameters(for urlRequest: inout URLRequest, with parameters: [HTTPParameter]) throws {
+public struct HTTPParameterEncoderImpl: HTTPParameterEncoder {
+    public init() {}
+    public func encodeParameters(for urlRequest: inout URLRequest, with parameters: [HTTPParameter]) throws {
         guard let url = urlRequest.url else {
             throw NetworkingError.noURL
         }

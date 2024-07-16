@@ -1,13 +1,13 @@
 import Foundation
 
-protocol HTTPHeaderEncoder {
+public protocol HTTPHeaderEncoder {
    func encodeHeaders(for urlRequest: inout URLRequest, with headers: [HTTPHeader])
 }
 
-struct HTTPHeaderEncoderImpl: HTTPHeaderEncoder {
-    init() {}
+public struct HTTPHeaderEncoderImpl: HTTPHeaderEncoder {
+    public init() {}
     
-    func encodeHeaders(for urlRequest: inout URLRequest, with headers: [HTTPHeader]) {
+    public func encodeHeaders(for urlRequest: inout URLRequest, with headers: [HTTPHeader]) {
         for header in headers {
             urlRequest.setValue(header.value, forHTTPHeaderField: header.key)
         }

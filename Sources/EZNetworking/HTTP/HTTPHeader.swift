@@ -1,6 +1,6 @@
 import Foundation
 
-enum HTTPHeader {
+public enum HTTPHeader {
     case accept(MedisType)
     case acceptCharset(String)
     case acceptEncoding(String)
@@ -61,7 +61,7 @@ enum HTTPHeader {
     }
 }
 
-enum MedisType {
+public enum MedisType {
     case json
     case xml
     case formUrlEncoded
@@ -77,7 +77,7 @@ enum MedisType {
     }
 }
 
-enum AuthorizationType {
+public enum AuthorizationType {
     case bearer(String)
     case custom(String)
     

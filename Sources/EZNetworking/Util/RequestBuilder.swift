@@ -1,6 +1,6 @@
 import Foundation
 
-protocol RequestBuildable {
+public protocol RequestBuildable {
     func build(httpMethod: HTTPMethod,
                urlString: String,
                parameters: [HTTPParameter]?,
@@ -9,17 +9,17 @@ protocol RequestBuildable {
                timeoutInterval: TimeInterval) -> URLRequest?
 }
 
-class RequestBuilder: RequestBuildable {
+public class RequestBuilder: RequestBuildable {
     private let headerEncoder: HTTPHeaderEncoder
     private let paramEncoder: HTTPParameterEncoder
 
-    init(headerEncoder: HTTPHeaderEncoder = HTTPHeaderEncoderImpl(),
+    public init(headerEncoder: HTTPHeaderEncoder = HTTPHeaderEncoderImpl(),
          paramEncoder: HTTPParameterEncoder = HTTPParameterEncoderImpl()) {
         self.headerEncoder = headerEncoder
         self.paramEncoder = paramEncoder
     }
 
-    func build(httpMethod: HTTPMethod,
+    public func build(httpMethod: HTTPMethod,
                urlString: String,
                parameters: [HTTPParameter]?,
                headers: [HTTPHeader]? = nil,
