@@ -5,7 +5,7 @@ enum HTTPHeader {
     case acceptCharset(String)
     case acceptEncoding(String)
     case acceptLanguage(String)
-    case authorization(Authorization)
+    case authorization(AuthorizationType)
     case cacheControl(String)
     case contentLength(String)
     case contentType(MedisType)
@@ -77,7 +77,7 @@ enum MedisType {
     }
 }
 
-enum Authorization {
+enum AuthorizationType {
     case bearer(String)
     case custom(String)
     
