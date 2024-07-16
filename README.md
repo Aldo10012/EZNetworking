@@ -2,6 +2,20 @@
 
 AwesomeSwiftPackage is a Swift package that provides a set of awesome utilities to make Swift development easier and more fun. It includes various extensions, custom UI components, and helper functions.
 
+## Table of Content
+- [Installation](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#installation)
+- [Building a Request](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#building-a-request)
+    - [How to add query params?](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#how-to-add-query-parameters)
+    - [How to add headers?](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#how-to-add-headers)
+    - [What about Authorization?](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#what-about-authorization)
+    - [How to add a body?](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#how-to-add-a-body)
+    - [How to add a time interval?](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#how-do-i-add-a-time-interval)
+- [Performing a Request](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#performing-a-request)
+    - [How to get an api response using Async/Await?](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#how-to-get-an-api-response-using-asyncawait)
+    - [How to make api call with Async/Await without decoding a response?](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#how-to-make-api-call-using-asyncawait-without-decoding-a-response)
+    - [How to get an api response using Completion Handler?](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#how-to-get-an-api-response-using-completion-handlers)
+    - [How to make api call with Completion Handler without decoding a response?](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#how-to-make-api-call-using-completion-handlers-without-decoding-a-response)
+ 
 
 ## Installation
 
@@ -22,6 +36,8 @@ Open your project in Xcode.
 Go to File > Add Packages....
 Enter the package repository URL: https://github.com/Aldo10012/EZNetworking.git.
 Choose the version and add the package to your project.
+
+
 
 ## Usage
 
@@ -95,7 +111,7 @@ let request = RequestBuilder().build(
 ```
 
 
-#### How do I set custom headers if not handled by `HTTPHeader`?
+##### How do I set custom headers if not handled by `HTTPHeader`?
 
 If you are not using "Bearer" for authorizaiton, you can use `Authorization.custom(String)`. Here's an example:
 ```swift
