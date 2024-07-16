@@ -29,7 +29,7 @@ Choose the version and add the package to your project.
 
 To quickly and easily create a URLRequest utilize the RequestBuilder()
 
-```
+```swift
 let request = RequestBuilder().build(httpMethod: .GET, urlString: "http://www.example.com", parameters: [])
 ```
 - `httpMethod`: inject the http method you want to use: `GET`, `POST`, `PUT`, `DELETE`
@@ -38,7 +38,7 @@ let request = RequestBuilder().build(httpMethod: .GET, urlString: "http://www.ex
 
 #### How to add query parameters?
 Just pass in an array of `HTTPParameter` into the `parameters` argument. Here's an example.
-```
+```swift
 let request = RequestBuilder().build(
         httpMethod: .GET,
         urlString: "http://www.example.com",
@@ -55,7 +55,7 @@ let request = RequestBuilder().build(
 The next argument in you can pass in an array of `HTTPHeader`. `HTTPHeader` is an enum where each case is associated with a different http header. Some common ones are `.accept(MediaType)` and `.contentType(MediaType)`.
 
 Here's an example.
-```
+```swift
 let request = RequestBuilder().build(
         httpMethod: .GET,
         urlString: "http://www.example.com",
@@ -77,7 +77,7 @@ Many API calls require the "Authorization" field. This is handled by `HTTPHeader
 The most common method of authorization is Bearer. ex: `"Authorization": "Bearer YOUR_API_KEY"` You can easily do this with the `Authorization.bearer(String)`
 Here's an example
 
-```
+```swift
 let request = RequestBuilder().build(
         httpMethod: .GET,
         urlString: "http://www.example.com",
@@ -98,7 +98,7 @@ let request = RequestBuilder().build(
 #### How do I set custom headers if not handled by `HTTPHeader`?
 
 If you are not using "Bearer" for authorizaiton, you can use `Authorization.custom(String)`. Here's an example:
-```
+```swift
 let request = RequestBuilder().build(
         httpMethod: .GET,
         urlString: "http://www.example.com",
@@ -119,7 +119,7 @@ let request = RequestBuilder().build(
 
 Inject a `Data` object into the `body` parameter. 
 
-```
+```swift
 let myData: Data()
 let request = RequestBuilder().build(
         httpMethod: .GET,
@@ -141,7 +141,7 @@ let request = RequestBuilder().build(
 #### How do I add a time interval?
 
 Assign a value to `timeoutInterval`
-```
+```swift
 let myData: Data()
 let request = RequestBuilder().build(
         httpMethod: .GET,
@@ -166,7 +166,7 @@ let request = RequestBuilder().build(
 You can easily execute Requests using `RequestPerformerImpl()` It can manage error handling and is capable of performing requests and returning responses using Async/Await and Completion Handlers.
 
 #### How to get an api response using `Async/Await`?
-```
+```swift
 func asyncMethodName() async throws {
     let request = RequestBuilder().build(httpMethod: .GET, urlString: "http://www.example.com", parameters: [])!
     let performer = RequestPerformerImpl()
@@ -181,7 +181,7 @@ func asyncMethodName() async throws {
 ```
 
 #### How to make api call using `Async/Await` without decoding a response?
-```
+```swift
 func asyncMethodName() async throws {
     let request = RequestBuilder().build(httpMethod: .GET, urlString: "http://www.example.com", parameters: [])!
     let performer = RequestPerformerImpl()
@@ -197,7 +197,7 @@ func asyncMethodName() async throws {
 
 
 #### How to get an api response using completion handlers?
-```
+```swift
 let request = RequestBuilder().build(httpMethod: .GET, urlString: "http://www.example.com", parameters: [])
 let performer = RequestPerformerImpl()
 performer.perform(request: request, decodeTo: Person.self) { result in
@@ -211,7 +211,7 @@ performer.perform(request: request, decodeTo: Person.self) { result in
 ```
 
 #### How to make api call using completion handlers without decoding a response?
-```
+```swift
 let request = RequestBuilder().build(httpMethod: .GET, urlString: "http://www.example.com", parameters: [])
 let performer = RequestPerformerImpl()
 performer.perform(request: request) { result in
