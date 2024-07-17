@@ -1,14 +1,14 @@
 import Foundation
 
 public enum HTTPHeader {
-    case accept(MedisType)
+    case accept(MediaType)
     case acceptCharset(String)
     case acceptEncoding(String)
     case acceptLanguage(String)
     case authorization(AuthorizationType)
     case cacheControl(String)
     case contentLength(String)
-    case contentType(MedisType)
+    case contentType(MediaType)
     case cookie(String)
     case host(String)
     case ifModifiedSince(String)
@@ -61,7 +61,7 @@ public enum HTTPHeader {
     }
 }
 
-public enum MedisType {
+public enum MediaType {
     case json
     case xml
     case formUrlEncoded
