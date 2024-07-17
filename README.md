@@ -203,7 +203,7 @@ func asyncMethodName() async throws {
     let performer = RequestPerformerImpl()
     
     do {
-        let person = try await performer.perform(request: request)
+        try await performer.perform(request: request)
         print("Did succeed")
     } catch let error as NetworkingError {
         print(error)
