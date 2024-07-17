@@ -8,18 +8,27 @@
 import Foundation
 
 public protocol URLResponseValidator {
-    func validate(_ response: URLResponse, withData data: Data) throws
+    func validate(data: Data?, urlResponse: URLResponse?, error: Error?) throws
 }
 
 public struct URLResponseValidatorImpl: URLResponseValidator {
     public init() {}
-    
-    public func validate(_ response: URLResponse, withData data: Data) throws {
-        guard let httpResponse = response as? HTTPURLResponse else {
+
+    public func validate(data: Data?, urlResponse: URLResponse?, error: Error?) throws {
+        guard let data else {
+            throw NetworkingError.noData
+        }
+        guard let urlResponse else {
+            throw NetworkingError.noResponse
+        }
+        if let error = error {
+            throw NetworkingError.requestFailed(error)
+        }
+        guard let httpURLResponse = urlResponse as? HTTPURLResponse else {
             throw NetworkingError.noHTTPURLResponse
         }
         
-        let errorResponse = httpResponse.networkingError
+        let errorResponse = httpURLResponse.networkingError
         if case .ok = errorResponse {
             return
         } else {

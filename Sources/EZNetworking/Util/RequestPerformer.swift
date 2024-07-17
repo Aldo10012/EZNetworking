@@ -32,7 +32,7 @@ public struct RequestPerformerImpl: RequestPerformable {
     public func perform<T: Decodable>(request: URLRequest, decodeTo decodableObject: T.Type) async throws -> T {
         do {
             let (data, response) = try await urlSession.data(for: request, delegate: nil)
-            try urlResponseValidator.validate(response, withData: data)
+            try urlResponseValidator.validate(data: data, urlResponse: response, error: nil)
             let result = try requestDecoder.decode(decodableObject.self, from: data)
             return result
         } catch let error as NetworkingError {
@@ -46,7 +46,7 @@ public struct RequestPerformerImpl: RequestPerformable {
     public func perform(request: URLRequest) async throws {
         do {
             let (data, response) = try await urlSession.data(for: request, delegate: nil)
-            try urlResponseValidator.validate(response, withData: data)
+            try urlResponseValidator.validate(data: data, urlResponse: response, error: nil)
         } catch let error as NetworkingError {
             throw error
         } catch {
@@ -60,21 +60,13 @@ public struct RequestPerformerImpl: RequestPerformable {
                                       completion: @escaping ((Result<T, NetworkingError>)) -> Void
     ) {
         let dataTask = urlSession.dataTask(with: request) { data, urlResponse, error in
-            if let error = error {
-                completion(.failure(NetworkingError.requestFailed(error)))
-                return
-            }
             guard let data else {
                 completion(.failure(NetworkingError.noData))
                 return
             }
-            guard let urlResponse else {
-                completion(.failure(NetworkingError.noResponse))
-                return
-            }
             
             do {
-                try urlResponseValidator.validate(urlResponse, withData: data)
+                try urlResponseValidator.validate(data: data, urlResponse: urlResponse, error: error)
                 let decodedObject = try requestDecoder.decode(decodableObject.self, from: data)
                 completion(.success(decodedObject))
             } catch let httpError as NetworkingError {
@@ -91,21 +83,8 @@ public struct RequestPerformerImpl: RequestPerformable {
     // MARK: perform using Completion Handler without returning Decodable
     public func perform(request: URLRequest, completion: @escaping ((VoidResult<NetworkingError>) -> Void)) {
         let dataTask = urlSession.dataTask(with: request) { data, urlResponse, error in
-            if let error = error {
-                completion(.failure(NetworkingError.requestFailed(error)))
-                return
-            }
-            guard let data else {
-                completion(.failure(NetworkingError.noData))
-                return
-            }
-            guard let urlResponse else {
-                completion(.failure(NetworkingError.noResponse))
-                return
-            }
-            
             do {
-                try urlResponseValidator.validate(urlResponse, withData: data)
+                try urlResponseValidator.validate(data: data, urlResponse: urlResponse, error: error)
                 completion(.success)
             } catch let httpError as NetworkingError {
                 completion(.failure(httpError))

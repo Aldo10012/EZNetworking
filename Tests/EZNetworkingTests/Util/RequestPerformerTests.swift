@@ -18,7 +18,7 @@ final class RequestPerformerTests: XCTestCase {
             urlResponse: buildResponse(statusCode: 200),
             error: nil
         )
-        let validator = MockURLResponseValidator(error: nil)
+        let validator = MockURLResponseValidator(throwError: nil)
         let decoder = RequestDecoder()
         let sut = RequestPerformerImpl(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
@@ -42,7 +42,7 @@ final class RequestPerformerTests: XCTestCase {
             urlResponse: buildResponse(statusCode: 200),
             error: NetworkingError.badRequest
         )
-        let validator = MockURLResponseValidator(error: nil)
+        let validator = MockURLResponseValidator(throwError: nil)
         let decoder = RequestDecoder()
         let sut = RequestPerformerImpl(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
@@ -65,7 +65,7 @@ final class RequestPerformerTests: XCTestCase {
             urlResponse: buildResponse(statusCode: 200),
             error: nil
         )
-        let validator = MockURLResponseValidator(error: .forbidden)
+        let validator = MockURLResponseValidator(throwError: .forbidden)
         let decoder = RequestDecoder()
         let sut = RequestPerformerImpl(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
@@ -90,7 +90,7 @@ final class RequestPerformerTests: XCTestCase {
             urlResponse: buildResponse(statusCode: 200),
             error: nil
         )
-        let validator = MockURLResponseValidator(error: nil)
+        let validator = MockURLResponseValidator(throwError: nil)
         let decoder = RequestDecoder()
         let sut = RequestPerformerImpl(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
@@ -113,7 +113,7 @@ final class RequestPerformerTests: XCTestCase {
             urlResponse: buildResponse(statusCode: 200),
             error: NetworkingError.badRequest
         )
-        let validator = MockURLResponseValidator(error: nil)
+        let validator = MockURLResponseValidator(throwError: nil)
         let decoder = RequestDecoder()
         let sut = RequestPerformerImpl(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
@@ -136,7 +136,7 @@ final class RequestPerformerTests: XCTestCase {
             urlResponse: buildResponse(statusCode: 200),
             error: nil
         )
-        let validator = MockURLResponseValidator(error: .forbidden)
+        let validator = MockURLResponseValidator(throwError: .forbidden)
         let decoder = RequestDecoder()
         let sut = RequestPerformerImpl(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
@@ -161,7 +161,7 @@ final class RequestPerformerTests: XCTestCase {
             urlResponse: buildResponse(statusCode: 200),
             error: nil
         )
-        let validator = MockURLResponseValidator(error: nil)
+        let validator = MockURLResponseValidator(throwError: nil)
         let decoder = RequestDecoder()
         let sut = RequestPerformerImpl(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
@@ -187,7 +187,7 @@ final class RequestPerformerTests: XCTestCase {
             urlResponse: buildResponse(statusCode: 200),
             error: NetworkingError.forbidden
         )
-        let validator = MockURLResponseValidator(error: nil)
+        let validator = MockURLResponseValidator(throwError: NetworkingError.forbidden)
         let decoder = RequestDecoder()
         let sut = RequestPerformerImpl(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
@@ -212,7 +212,7 @@ final class RequestPerformerTests: XCTestCase {
             urlResponse: buildResponse(statusCode: 400),
             error: nil
         )
-        let validator = MockURLResponseValidator(error: NetworkingError.badRequest)
+        let validator = MockURLResponseValidator(throwError: NetworkingError.badRequest)
         let decoder = RequestDecoder()
         let sut = RequestPerformerImpl(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
@@ -237,7 +237,7 @@ final class RequestPerformerTests: XCTestCase {
             urlResponse: buildResponse(statusCode: 200),
             error: nil
         )
-        let validator = MockURLResponseValidator(error: nil)
+        let validator = MockURLResponseValidator(throwError: nil)
         let decoder = RequestDecoder()
         let sut = RequestPerformerImpl(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
@@ -262,7 +262,7 @@ final class RequestPerformerTests: XCTestCase {
             urlResponse: buildResponse(statusCode: 200),
             error: nil
         )
-        let validator = MockURLResponseValidator(error: nil)
+        let validator = MockURLResponseValidator(throwError: nil)
         let decoder = RequestDecoder()
         let sut = RequestPerformerImpl(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
@@ -287,7 +287,7 @@ final class RequestPerformerTests: XCTestCase {
             urlResponse: nil,
             error: nil
         )
-        let validator = MockURLResponseValidator(error: nil)
+        let validator = MockURLResponseValidator(throwError: nil)
         let decoder = RequestDecoder()
         let sut = RequestPerformerImpl(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
@@ -314,7 +314,7 @@ final class RequestPerformerTests: XCTestCase {
             urlResponse: buildResponse(statusCode: 200),
             error: nil
         )
-        let validator = MockURLResponseValidator(error: nil)
+        let validator = MockURLResponseValidator(throwError: nil)
         let decoder = RequestDecoder()
         let sut = RequestPerformerImpl(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
@@ -339,7 +339,7 @@ final class RequestPerformerTests: XCTestCase {
             urlResponse: buildResponse(statusCode: 200),
             error: NetworkingError.forbidden
         )
-        let validator = MockURLResponseValidator(error: nil)
+        let validator = MockURLResponseValidator(throwError: NetworkingError.forbidden)
         let decoder = RequestDecoder()
         let sut = RequestPerformerImpl(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
@@ -364,7 +364,7 @@ final class RequestPerformerTests: XCTestCase {
             urlResponse: buildResponse(statusCode: 400),
             error: nil
         )
-        let validator = MockURLResponseValidator(error: NetworkingError.badRequest)
+        let validator = URLResponseValidatorImpl()
         let decoder = RequestDecoder()
         let sut = RequestPerformerImpl(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
@@ -389,7 +389,7 @@ final class RequestPerformerTests: XCTestCase {
             urlResponse: buildResponse(statusCode: 200),
             error: nil
         )
-        let validator = MockURLResponseValidator(error: nil)
+        let validator = URLResponseValidatorImpl()
         let decoder = RequestDecoder()
         let sut = RequestPerformerImpl(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
@@ -414,7 +414,7 @@ final class RequestPerformerTests: XCTestCase {
             urlResponse: nil,
             error: nil
         )
-        let validator = MockURLResponseValidator(error: nil)
+        let validator = URLResponseValidatorImpl()
         let decoder = RequestDecoder()
         let sut = RequestPerformerImpl(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
@@ -488,11 +488,11 @@ class MockURLSessionDataTask: URLSessionDataTask {
 }
 
 struct MockURLResponseValidator: URLResponseValidator {
-    var error: NetworkingError?
-    func validate(_ response: URLResponse, withData data: Data) throws {
-        guard let error else {
+    var throwError: NetworkingError?
+    func validate(data: Data?, urlResponse: URLResponse?, error: Error?) throws {
+        guard let throwError else {
             return
         }
-        throw error
+        throw throwError
     }
 }
