@@ -15,7 +15,7 @@ public struct URLResponseValidatorImpl: URLResponseValidator {
     public init() {}
 
     public func validate(data: Data?, urlResponse: URLResponse?, error: Error?) throws {
-        guard let data else {
+        guard data != nil else {
             throw NetworkingError.noData
         }
         guard let urlResponse else {

@@ -52,7 +52,7 @@ final class RequestPerformerTests: XCTestCase {
         }
         
         do {
-            let person: Person = try await sut.perform(request: request, decodeTo: Person.self)
+            _ = try await sut.perform(request: request, decodeTo: Person.self)
             XCTFail()
         } catch let error as NetworkingError{
             XCTAssertEqual(error, NetworkingError.badRequest)
@@ -75,7 +75,7 @@ final class RequestPerformerTests: XCTestCase {
         }
         
         do {
-            let person: Person = try await sut.perform(request: request, decodeTo: Person.self)
+            _ = try await sut.perform(request: request, decodeTo: Person.self)
             XCTFail()
         } catch let error as NetworkingError{
             XCTAssertEqual(error, NetworkingError.forbidden)
@@ -175,7 +175,7 @@ final class RequestPerformerTests: XCTestCase {
             case .success(let person):
                 XCTAssertEqual(person.name, "John")
                 XCTAssertEqual(person.age, 30)
-            case .failure(let failure):
+            case .failure:
                 XCTFail()
             }
         }
@@ -198,7 +198,7 @@ final class RequestPerformerTests: XCTestCase {
         
         sut.perform(request: request, decodeTo: Person.self) { result in
             switch result {
-            case .success(let person):
+            case .success:
                 XCTFail()
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.forbidden)
@@ -223,7 +223,7 @@ final class RequestPerformerTests: XCTestCase {
         
         sut.perform(request: request, decodeTo: Person.self) { result in
             switch result {
-            case .success(let person):
+            case .success:
                 XCTFail()
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.badRequest)
@@ -248,7 +248,7 @@ final class RequestPerformerTests: XCTestCase {
         
         sut.perform(request: request, decodeTo: Person.self) { result in
             switch result {
-            case .success(let person):
+            case .success:
                 XCTFail()
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.couldNotParse)
@@ -273,7 +273,7 @@ final class RequestPerformerTests: XCTestCase {
         
         sut.perform(request: request, decodeTo: Person.self) { result in
             switch result {
-            case .success(let person):
+            case .success:
                 XCTFail()
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.noData)
@@ -298,7 +298,7 @@ final class RequestPerformerTests: XCTestCase {
         
         sut.perform(request: request, decodeTo: Person.self) { result in
             switch result {
-            case .success(let person):
+            case .success:
                 XCTFail()
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.couldNotParse)
@@ -327,7 +327,7 @@ final class RequestPerformerTests: XCTestCase {
             switch result {
             case .success:
                 XCTAssertTrue(true)
-            case .failure(let failure):
+            case .failure:
                 XCTFail()
             }
         }
