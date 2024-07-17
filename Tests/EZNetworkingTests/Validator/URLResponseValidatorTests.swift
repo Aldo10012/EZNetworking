@@ -76,7 +76,7 @@ final class URLResponseValidatorTests: XCTestCase {
             try validator.validate(data: Data(), urlResponse: response, error: NetworkingError.badGateway)
             XCTFail("Unexpected error)")
         } catch let error as NetworkingError {
-            XCTAssertTrue(true)
+            XCTAssertEqual(error, NetworkingError.requestFailed(NetworkingError.badGateway))
         }
     }
     
