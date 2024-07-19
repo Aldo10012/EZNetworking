@@ -179,13 +179,16 @@ let request = RequestBuilder().build(
 
 ### Performing a Request
 
-You can easily execute Requests using `RequestPerformerImpl()` It can manage error handling and is capable of performing requests and returning responses using Async/Await and Completion Handlers.
+You can easily execute Requests using `AsyncRequestPerformer()` or `RequestPerformer()` It can manage error handling and is capable of performing requests and returning responses using Async/Await and Completion Handlers.
+
+- If you opt to performing your network requests using `Async/Await`, try using `AsyncRequestPerformer()`
+- If you opt to performing your network requests using callbacks, try using `RequestPerformer()`
 
 #### How to get an api response using `Async/Await`?
 ```swift
 func asyncMethodName() async throws {
     let request = RequestBuilder().build(httpMethod: .GET, urlString: "http://www.example.com", parameters: [])!
-    let performer = RequestPerformerImpl()
+    let performer = AsyncRequestPerformer()
     
     do {
         let person = try await performer.perform(request: request, decodeTo: Person.self)
@@ -200,7 +203,7 @@ func asyncMethodName() async throws {
 ```swift
 func asyncMethodName() async throws {
     let request = RequestBuilder().build(httpMethod: .GET, urlString: "http://www.example.com", parameters: [])!
-    let performer = RequestPerformerImpl()
+    let performer = AsyncRequestPerformer()
     
     do {
         try await performer.perform(request: request)
@@ -215,7 +218,7 @@ func asyncMethodName() async throws {
 #### How to get an api response using completion handlers?
 ```swift
 let request = RequestBuilder().build(httpMethod: .GET, urlString: "http://www.example.com", parameters: [])
-let performer = RequestPerformerImpl()
+let performer = RequestPerformer()
 performer.perform(request: request, decodeTo: Person.self) { result in
     switch result {
     case .success(let person):
@@ -229,7 +232,7 @@ performer.perform(request: request, decodeTo: Person.self) { result in
 #### How to make api call using completion handlers without decoding a response?
 ```swift
 let request = RequestBuilder().build(httpMethod: .GET, urlString: "http://www.example.com", parameters: [])
-let performer = RequestPerformerImpl()
+let performer = RequestPerformer()
 performer.perform(request: request) { result in
     switch result {
     case .success:
