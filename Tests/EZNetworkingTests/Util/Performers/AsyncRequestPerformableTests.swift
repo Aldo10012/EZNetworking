@@ -1,10 +1,3 @@
-//
-//  File.swift
-//  
-//
-//  Created by Alberto Dominguez on 7/18/24.
-//
-
 import XCTest
 @testable import EZNetworking
 

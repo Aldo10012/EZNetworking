@@ -14,8 +14,8 @@
             filePath = "Tests/EZNetworkingTests/Util/RequestPerformerTests.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "173"
-            endingLineNumber = "173"
+            startingLineNumber = "40"
+            endingLineNumber = "40"
             landmarkName = "testPerformWithCompletionHandlerDoesDecodePerson()"
             landmarkType = "7">
             <Locations>
@@ -124,101 +124,35 @@
                   endingLineNumber = "31"
                   offsetFromSymbolStart = "113">
                </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "6277D4CC-9ED4-4603-B339-55CB2A378A33"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "Sources/EZNetworking/Util/RequestPerformer.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "62"
-            endingLineNumber = "62"
-            landmarkName = "perform(request:decodeTo:completion:)"
-            landmarkType = "7">
-            <Locations>
                <Location
-                  uuid = "6277D4CC-9ED4-4603-B339-55CB2A378A33 - 447ff9c7fedc7bcd"
+                  uuid = "9E5EF47F-7A03-410D-9BF5-4F632C874F82 - 50ae8fd11fd3fd38"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "EZNetworking.RequestPerformerImpl.perform&lt;&#x3c4;_0_0 where &#x3c4;_0_0: Swift.Decodable&gt;(request: Foundation.URLRequest, decodeTo: &#x3c4;_0_0.Type, completion: (Swift.Result&lt;&#x3c4;_0_0, EZNetworking.NetworkingError&gt;) -&gt; ()) -&gt; ()"
+                  symbolName = "EZNetworkingTests.RequestPerformerTests.testPerformWithCompletionHandlerDoesDecodePerson() -&gt; ()"
                   moduleName = "EZNetworkingTests"
                   usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/albertodominguez/dev/MySDKs/EZNetworking/Sources/EZNetworking/Util/RequestPerformer.swift"
+                  urlString = "file:///Users/albertodominguez/dev/MySDKs/EZNetworking/Tests/EZNetworkingTests/Util/RequestPerformerTests.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "62"
-                  endingLineNumber = "62"
-                  offsetFromSymbolStart = "238">
+                  startingLineNumber = "173"
+                  endingLineNumber = "173"
+                  offsetFromSymbolStart = "784">
                </Location>
                <Location
-                  uuid = "6277D4CC-9ED4-4603-B339-55CB2A378A33 - 96cd324207333299"
+                  uuid = "9E5EF47F-7A03-410D-9BF5-4F632C874F82 - 3a4f2a3eaf29bacc"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "closure #1 @Sendable (Swift.Optional&lt;Foundation.Data&gt;, Swift.Optional&lt;__C.NSURLResponse&gt;, Swift.Optional&lt;Swift.Error&gt;) -&gt; () in EZNetworking.RequestPerformerImpl.perform&lt;&#x3c4;_0_0 where &#x3c4;_0_0: Swift.Decodable&gt;(request: Foundation.URLRequest, decodeTo: &#x3c4;_0_0.Type, completion: (Swift.Result&lt;&#x3c4;_0_0, EZNetworking.NetworkingError&gt;) -&gt; ()) -&gt; ()"
+                  symbolName = "closure #1 (Swift.Result&lt;EZNetworkingTests.Person, EZNetworking.NetworkingError&gt;) -&gt; () in EZNetworkingTests.RequestPerformerTests.testPerformWithCompletionHandlerDoesDecodePerson() -&gt; ()"
                   moduleName = "EZNetworkingTests"
                   usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/albertodominguez/dev/MySDKs/EZNetworking/Sources/EZNetworking/Util/RequestPerformer.swift"
+                  urlString = "file:///Users/albertodominguez/dev/MySDKs/EZNetworking/Tests/EZNetworkingTests/Util/RequestPerformerTests.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "62"
-                  endingLineNumber = "62"
-                  offsetFromSymbolStart = "433">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "2612D34C-B5E9-412B-9247-CFE67E724A0F"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "Sources/EZNetworking/Util/RequestPerformer.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "63"
-            endingLineNumber = "63"
-            landmarkName = "perform(request:decodeTo:completion:)"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "2612D34C-B5E9-412B-9247-CFE67E724A0F - 96cd3242073332be"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 @Sendable (Swift.Optional&lt;Foundation.Data&gt;, Swift.Optional&lt;__C.NSURLResponse&gt;, Swift.Optional&lt;Swift.Error&gt;) -&gt; () in EZNetworking.RequestPerformerImpl.perform&lt;&#x3c4;_0_0 where &#x3c4;_0_0: Swift.Decodable&gt;(request: Foundation.URLRequest, decodeTo: &#x3c4;_0_0.Type, completion: (Swift.Result&lt;&#x3c4;_0_0, EZNetworking.NetworkingError&gt;) -&gt; ()) -&gt; ()"
-                  moduleName = "EZNetworkingTests"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/albertodominguez/dev/MySDKs/EZNetworking/Sources/EZNetworking/Util/RequestPerformer.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "63"
-                  endingLineNumber = "63"
-                  offsetFromSymbolStart = "451">
-               </Location>
-               <Location
-                  uuid = "2612D34C-B5E9-412B-9247-CFE67E724A0F - 96cd3242073332be"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 @Sendable (Swift.Optional&lt;Foundation.Data&gt;, Swift.Optional&lt;__C.NSURLResponse&gt;, Swift.Optional&lt;Swift.Error&gt;) -&gt; () in EZNetworking.RequestPerformerImpl.perform&lt;&#x3c4;_0_0 where &#x3c4;_0_0: Swift.Decodable&gt;(request: Foundation.URLRequest, decodeTo: &#x3c4;_0_0.Type, completion: (Swift.Result&lt;&#x3c4;_0_0, EZNetworking.NetworkingError&gt;) -&gt; ()) -&gt; ()"
-                  moduleName = "EZNetworkingTests"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/albertodominguez/dev/MySDKs/EZNetworking/Sources/EZNetworking/Util/RequestPerformer.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "63"
-                  endingLineNumber = "63"
-                  offsetFromSymbolStart = "611">
+                  startingLineNumber = "173"
+                  endingLineNumber = "173"
+                  offsetFromSymbolStart = "113">
                </Location>
             </Locations>
          </BreakpointContent>
@@ -233,8 +167,8 @@
             filePath = "Sources/EZNetworking/Util/RequestPerformer.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "88"
-            endingLineNumber = "88"
+            startingLineNumber = "41"
+            endingLineNumber = "41"
             landmarkName = "perform(request:decodeTo:completion:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -249,8 +183,8 @@
             filePath = "Tests/EZNetworkingTests/Util/RequestPerformerTests.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "459"
-            endingLineNumber = "459"
+            startingLineNumber = "326"
+            endingLineNumber = "326"
             landmarkName = "dataTask(with:completionHandler:)"
             landmarkType = "7">
             <Locations>
@@ -329,6 +263,21 @@
                   endingLineNumber = "342"
                   offsetFromSymbolStart = "85">
                </Location>
+               <Location
+                  uuid = "2A60CD83-86C2-4565-9E40-8E8295677754 - 2cfe4022fd2e1af6"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "EZNetworkingTests.MockURLSession.dataTask(with: Foundation.URLRequest, completionHandler: (Swift.Optional&lt;Foundation.Data&gt;, Swift.Optional&lt;__C.NSURLResponse&gt;, Swift.Optional&lt;Swift.Error&gt;) -&gt; ()) -&gt; __C.NSURLSessionDataTask"
+                  moduleName = "EZNetworkingTests"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/albertodominguez/dev/MySDKs/EZNetworking/Tests/EZNetworkingTests/Util/RequestPerformerTests.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "459"
+                  endingLineNumber = "459"
+                  offsetFromSymbolStart = "85">
+               </Location>
             </Locations>
          </BreakpointContent>
       </BreakpointProxy>
@@ -342,9 +291,9 @@
             filePath = "Tests/EZNetworkingTests/Util/RequestPerformerTests.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "486"
-            endingLineNumber = "486"
-            landmarkName = "resume()"
+            startingLineNumber = "363"
+            endingLineNumber = "363"
+            landmarkName = "validate(data:urlResponse:error:)"
             landmarkType = "7">
             <Locations>
                <Location
@@ -407,6 +356,21 @@
                   endingLineNumber = "357"
                   offsetFromSymbolStart = "39">
                </Location>
+               <Location
+                  uuid = "D42B0C68-A720-4ACC-9C9F-B1544CAF8CDC - dca5f044e6bed82a"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "EZNetworkingTests.MockURLSessionDataTask.resume() -&gt; ()"
+                  moduleName = "EZNetworkingTests"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/albertodominguez/dev/MySDKs/EZNetworking/Tests/EZNetworkingTests/Util/RequestPerformerTests.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "486"
+                  endingLineNumber = "486"
+                  offsetFromSymbolStart = "39">
+               </Location>
             </Locations>
          </BreakpointContent>
       </BreakpointProxy>
@@ -420,8 +384,8 @@
             filePath = "Tests/EZNetworkingTests/Util/RequestPerformerTests.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "224"
-            endingLineNumber = "224"
+            startingLineNumber = "91"
+            endingLineNumber = "91"
             landmarkName = "testPerformWithCompletionHandlerWithBadStatusCodeFails()"
             landmarkType = "7">
             <Locations>
@@ -485,6 +449,36 @@
                   endingLineNumber = "82"
                   offsetFromSymbolStart = "113">
                </Location>
+               <Location
+                  uuid = "E5813A77-4693-4D7C-BC7A-36F26EE50F88 - b013677ce3403f17"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "EZNetworkingTests.RequestPerformerTests.testPerformWithCompletionHandlerWithBadStatusCodeFails() -&gt; ()"
+                  moduleName = "EZNetworkingTests"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/albertodominguez/dev/MySDKs/EZNetworking/Tests/EZNetworkingTests/Util/RequestPerformerTests.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "224"
+                  endingLineNumber = "224"
+                  offsetFromSymbolStart = "784">
+               </Location>
+               <Location
+                  uuid = "E5813A77-4693-4D7C-BC7A-36F26EE50F88 - 6506a7358ebe85ee"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 (Swift.Result&lt;EZNetworkingTests.Person, EZNetworking.NetworkingError&gt;) -&gt; () in EZNetworkingTests.RequestPerformerTests.testPerformWithCompletionHandlerWithBadStatusCodeFails() -&gt; ()"
+                  moduleName = "EZNetworkingTests"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/albertodominguez/dev/MySDKs/EZNetworking/Tests/EZNetworkingTests/Util/RequestPerformerTests.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "224"
+                  endingLineNumber = "224"
+                  offsetFromSymbolStart = "113">
+               </Location>
             </Locations>
          </BreakpointContent>
       </BreakpointProxy>
@@ -498,8 +492,8 @@
             filePath = "Tests/EZNetworkingTests/Util/RequestPerformerTests.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "225"
-            endingLineNumber = "225"
+            startingLineNumber = "92"
+            endingLineNumber = "92"
             landmarkName = "testPerformWithCompletionHandlerWithBadStatusCodeFails()"
             landmarkType = "7">
             <Locations>
@@ -563,6 +557,36 @@
                   endingLineNumber = "84"
                   offsetFromSymbolStart = "207">
                </Location>
+               <Location
+                  uuid = "BEF13392-4413-4404-81AD-3E4316761454 - 6506a7358ebe85a8"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 (Swift.Result&lt;EZNetworkingTests.Person, EZNetworking.NetworkingError&gt;) -&gt; () in EZNetworkingTests.RequestPerformerTests.testPerformWithCompletionHandlerWithBadStatusCodeFails() -&gt; ()"
+                  moduleName = "EZNetworkingTests"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/albertodominguez/dev/MySDKs/EZNetworking/Tests/EZNetworkingTests/Util/RequestPerformerTests.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "226"
+                  endingLineNumber = "226"
+                  offsetFromSymbolStart = "159">
+               </Location>
+               <Location
+                  uuid = "BEF13392-4413-4404-81AD-3E4316761454 - 6506a7358ebe85a8"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 (Swift.Result&lt;EZNetworkingTests.Person, EZNetworking.NetworkingError&gt;) -&gt; () in EZNetworkingTests.RequestPerformerTests.testPerformWithCompletionHandlerWithBadStatusCodeFails() -&gt; ()"
+                  moduleName = "EZNetworkingTests"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/albertodominguez/dev/MySDKs/EZNetworking/Tests/EZNetworkingTests/Util/RequestPerformerTests.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "226"
+                  endingLineNumber = "226"
+                  offsetFromSymbolStart = "207">
+               </Location>
             </Locations>
          </BreakpointContent>
       </BreakpointProxy>
@@ -576,10 +600,10 @@
             filePath = "Sources/EZNetworking/Util/RequestPerformer.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "94"
-            endingLineNumber = "94"
-            landmarkName = "perform(request:completion:)"
-            landmarkType = "7">
+            startingLineNumber = "47"
+            endingLineNumber = "47"
+            landmarkName = "RequestPerformer"
+            landmarkType = "14">
             <Locations>
                <Location
                   uuid = "8194E7BE-EDB6-4371-8957-A918133A66AF - 34d2309a12c91e6e"
@@ -611,7 +635,102 @@
                   endingLineNumber = "94"
                   offsetFromSymbolStart = "436">
                </Location>
+               <Location
+                  uuid = "8194E7BE-EDB6-4371-8957-A918133A66AF - 34d2309a12c91f81"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 @Sendable (Swift.Optional&lt;Foundation.Data&gt;, Swift.Optional&lt;__C.NSURLResponse&gt;, Swift.Optional&lt;Swift.Error&gt;) -&gt; () in EZNetworking.RequestPerformerImpl.perform(request: Foundation.URLRequest, completion: (EZNetworking.VoidResult&lt;EZNetworking.NetworkingError&gt;) -&gt; ()) -&gt; ()"
+                  moduleName = "EZNetworkingTests"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/albertodominguez/dev/MySDKs/EZNetworking/Sources/EZNetworking/Util/RequestPerformer.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "87"
+                  endingLineNumber = "87"
+                  offsetFromSymbolStart = "186">
+               </Location>
             </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "FFFFD15A-A6AC-449F-BC49-4520D892F35D"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Tests/EZNetworkingTests/Util/RequestPerformerTests.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "268"
+            endingLineNumber = "268"
+            landmarkName = "testPerformWithCompletionHandlerWithoutDecodableWithNilData()"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "FFFFD15A-A6AC-449F-BC49-4520D892F35D - 8285f7f3906ea6b9"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "EZNetworkingTests.RequestPerformerTests.testPerformWithCompletionHandlerWithoutDecodableWithNilData() -&gt; ()"
+                  moduleName = "EZNetworkingTests"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/albertodominguez/dev/MySDKs/EZNetworking/Tests/EZNetworkingTests/Util/RequestPerformerTests.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "401"
+                  endingLineNumber = "401"
+                  offsetFromSymbolStart = "755">
+               </Location>
+               <Location
+                  uuid = "FFFFD15A-A6AC-449F-BC49-4520D892F35D - bcb4171228d0be31"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 (EZNetworking.VoidResult&lt;EZNetworking.NetworkingError&gt;) -&gt; () in EZNetworkingTests.RequestPerformerTests.testPerformWithCompletionHandlerWithoutDecodableWithNilData() -&gt; ()"
+                  moduleName = "EZNetworkingTests"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/albertodominguez/dev/MySDKs/EZNetworking/Tests/EZNetworkingTests/Util/RequestPerformerTests.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "401"
+                  endingLineNumber = "401"
+                  offsetFromSymbolStart = "52">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "A58D206C-5BFE-4927-A908-FFB2857AAAAC"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Sources/EZNetworking/Validator/URLResponseValidator.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "14"
+            endingLineNumber = "14"
+            landmarkName = "validate(data:urlResponse:error:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "5E1E2B9E-9948-403D-AA4E-C3635A899ACA"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Sources/EZNetworking/Validator/URLResponseValidator.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "17"
+            endingLineNumber = "17"
+            landmarkName = "validate(data:urlResponse:error:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

@@ -1,10 +1,3 @@
-//
-//  File.swift
-//  
-//
-//  Created by Alberto Dominguez on 6/19/24.
-//
-
 import Foundation
 
 public protocol URLResponseValidator {

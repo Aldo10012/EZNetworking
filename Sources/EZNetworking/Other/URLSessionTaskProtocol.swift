@@ -1,10 +1,3 @@
-//
-//  File.swift
-//  
-//
-//  Created by Alberto Dominguez on 7/17/24.
-//
-
 import Foundation
 
 public protocol URLSessionTaskProtocol {

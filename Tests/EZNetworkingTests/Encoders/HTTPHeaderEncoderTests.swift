@@ -1,10 +1,3 @@
-//
-//  HTTPHeaderEncoderTests.swift
-//  
-//
-//  Created by Alberto Dominguez on 7/14/24.
-//
-
 import XCTest
 @testable import EZNetworking
 

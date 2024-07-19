@@ -1,7 +1,7 @@
 import Foundation
 
 public protocol RequestPerformable {
-    func perform<T: Decodable>( request: URLRequest, decodeTo decodableObject: T.Type, completion: @escaping( (Result<T, NetworkingError>)) -> Void)    
+    func perform<T: Decodable>(request: URLRequest, decodeTo decodableObject: T.Type, completion: @escaping((Result<T, NetworkingError>)) -> Void)
     func perform(request: URLRequest, completion: @escaping((VoidResult<NetworkingError>) -> Void))
 }
 
@@ -20,10 +20,7 @@ public struct RequestPerformer: RequestPerformable {
     }
     
     // MARK: perform using Completion Handler
-    public func perform<T: Decodable>(request: URLRequest,
-                                      decodeTo decodableObject: T.Type,
-                                      completion: @escaping ((Result<T, NetworkingError>)) -> Void
-    ) {
+    public func perform<T: Decodable>(request: URLRequest, decodeTo decodableObject: T.Type, completion: @escaping ((Result<T, NetworkingError>)) -> Void) {
         let dataTask = urlSession.dataTask(with: request) { data, urlResponse, error in
             guard let data else {
                 completion(.failure(NetworkingError.noData))

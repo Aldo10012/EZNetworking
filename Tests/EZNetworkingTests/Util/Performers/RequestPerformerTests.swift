@@ -1,27 +1,10 @@
-//
-//  RequestPerformerTests.swift
-//  
-//
-//  Created by Alberto Dominguez on 7/14/24.
-//
-
 import XCTest
 @testable import EZNetworking
 
 final class RequestPerformerTests: XCTestCase {
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
     // MARK: Unit tests for perform using Completion Handler
-    
+
     func testPerformWithCompletionHandlerDoesDecodePerson() {
         let urlSession = MockURLSession(
             data: mockPersonJsonData,
