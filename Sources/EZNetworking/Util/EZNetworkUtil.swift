@@ -3,15 +3,21 @@ import Foundation
 class EZNetworkUtil {
     private let builder: RequestBuildable
     private let performer: RequestPerformable
+    private let asyncPerformer: AsyncRequestPerformable
     private var request: URLRequest?
     
     public convenience init() {
-        self.init(builder: RequestBuilder(), performer: RequestPerformer())
+        self.init(builder: RequestBuilder(),
+                  performer: RequestPerformer(),
+                  asyncPerformer: AsyncRequestPerformer())
     }
     
-    init(builder: RequestBuildable, performer: RequestPerformable) {
+    init(builder: RequestBuildable, 
+         performer: RequestPerformable,
+         asyncPerformer: AsyncRequestPerformable) {
         self.builder = builder
         self.performer = performer
+        self.asyncPerformer = asyncPerformer
     }
     
     func request(httpMethod: HTTPMethod,
@@ -28,14 +34,14 @@ class EZNetworkUtil {
         guard let request = request else {
             throw NetworkingError.noRequest
         }
-        return try await performer.perform(request: request, decodeTo: decodableObject)
+        return try await asyncPerformer.perform(request: request, decodeTo: decodableObject)
     }
     
     func perform() async throws {
         guard let request = request else {
             throw NetworkingError.noRequest
         }
-        try await performer.perform(request: request)
+        try await asyncPerformer.perform(request: request)
     }
     
     func perform<T: Decodable>(decodeTo type: T.Type, completion: @escaping (Result<T, NetworkingError>) -> Void) {

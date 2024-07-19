@@ -1,16 +1,7 @@
 import Foundation
 
 public protocol RequestPerformable {
-    // MARK: perform using Async/Await
-    func perform<T: Decodable>(request: URLRequest, decodeTo decodableObject: T.Type) async throws -> T
-    
-    // MARK: perform using Async Await without returning Decodable
-    func perform(request: URLRequest) async throws
-    
-    // MARK: perform using Completion Handler
-    func perform<T: Decodable>( request: URLRequest, decodeTo decodableObject: T.Type, completion: @escaping( (Result<T, NetworkingError>)) -> Void)
-    
-    // MARK: perform using Completion Handler without returning Decodable
+    func perform<T: Decodable>( request: URLRequest, decodeTo decodableObject: T.Type, completion: @escaping( (Result<T, NetworkingError>)) -> Void)    
     func perform(request: URLRequest, completion: @escaping((VoidResult<NetworkingError>) -> Void))
 }
 
@@ -26,32 +17,6 @@ public struct RequestPerformer: RequestPerformable {
         self.urlSession = urlSession
         self.urlResponseValidator = urlResponseValidator
         self.requestDecoder = requestDecoder
-    }
-    
-    // MARK: perform request with Async Await and return Decodable
-    public func perform<T: Decodable>(request: URLRequest, decodeTo decodableObject: T.Type) async throws -> T {
-        do {
-            let (data, response) = try await urlSession.data(for: request, delegate: nil)
-            try urlResponseValidator.validate(data: data, urlResponse: response, error: nil)
-            let result = try requestDecoder.decode(decodableObject.self, from: data)
-            return result
-        } catch let error as NetworkingError {
-            throw error
-        } catch {
-            throw NetworkingError.unknown
-        }
-    }
-    
-    // MARK: perform request with Async Await
-    public func perform(request: URLRequest) async throws {
-        do {
-            let (data, response) = try await urlSession.data(for: request, delegate: nil)
-            try urlResponseValidator.validate(data: data, urlResponse: response, error: nil)
-        } catch let error as NetworkingError {
-            throw error
-        } catch {
-            throw NetworkingError.unknown
-        }
     }
     
     // MARK: perform using Completion Handler
