@@ -22,14 +22,9 @@ public struct RequestPerformer: RequestPerformable {
     // MARK: perform using Completion Handler
     public func perform<T: Decodable>(request: URLRequest, decodeTo decodableObject: T.Type, completion: @escaping ((Result<T, NetworkingError>)) -> Void) {
         let dataTask = urlSession.dataTask(with: request) { data, urlResponse, error in
-            guard let data else {
-                completion(.failure(NetworkingError.noData))
-                return
-            }
-            
             do {
-                try urlResponseValidator.validate(data: data, urlResponse: urlResponse, error: error)
-                let decodedObject = try requestDecoder.decode(decodableObject.self, from: data)
+                let validData = try urlResponseValidator.validate(data: data, urlResponse: urlResponse, error: error)
+                let decodedObject = try requestDecoder.decode(decodableObject.self, from: validData)
                 completion(.success(decodedObject))
             } catch let httpError as NetworkingError {
                 completion(.failure(httpError))
@@ -46,7 +41,7 @@ public struct RequestPerformer: RequestPerformable {
     public func perform(request: URLRequest, completion: @escaping ((VoidResult<NetworkingError>) -> Void)) {
         let dataTask = urlSession.dataTask(with: request) { data, urlResponse, error in
             do {
-                try urlResponseValidator.validate(data: data, urlResponse: urlResponse, error: error)
+                _ = try urlResponseValidator.validate(data: data, urlResponse: urlResponse, error: error)
                 completion(.success)
             } catch let httpError as NetworkingError {
                 completion(.failure(httpError))

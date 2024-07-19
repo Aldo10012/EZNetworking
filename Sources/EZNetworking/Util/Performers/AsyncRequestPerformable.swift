@@ -23,8 +23,8 @@ public struct AsyncRequestPerformer: AsyncRequestPerformable {
     public func perform<T: Decodable>(request: URLRequest, decodeTo decodableObject: T.Type) async throws -> T {
         do {
             let (data, response) = try await urlSession.data(for: request, delegate: nil)
-            try urlResponseValidator.validate(data: data, urlResponse: response, error: nil)
-            let result = try requestDecoder.decode(decodableObject.self, from: data)
+            let validData = try urlResponseValidator.validate(data: data, urlResponse: response, error: nil)
+            let result = try requestDecoder.decode(decodableObject.self, from: validData)
             return result
         } catch let error as NetworkingError {
             throw error
@@ -37,7 +37,7 @@ public struct AsyncRequestPerformer: AsyncRequestPerformable {
     public func perform(request: URLRequest) async throws {
         do {
             let (data, response) = try await urlSession.data(for: request, delegate: nil)
-            try urlResponseValidator.validate(data: data, urlResponse: response, error: nil)
+            _ = try urlResponseValidator.validate(data: data, urlResponse: response, error: nil)
         } catch let error as NetworkingError {
             throw error
         } catch {
