@@ -6,7 +6,7 @@ class EZNetworkUtil {
     private var request: URLRequest?
     
     public convenience init() {
-        self.init(builder: RequestBuilder(), performer: RequestPerformerImpl())
+        self.init(builder: RequestBuilder(), performer: RequestPerformer())
     }
     
     init(builder: RequestBuildable, performer: RequestPerformable) {

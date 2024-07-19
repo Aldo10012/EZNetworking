@@ -14,7 +14,7 @@ public protocol RequestPerformable {
     func perform(request: URLRequest, completion: @escaping((VoidResult<NetworkingError>) -> Void))
 }
 
-public struct RequestPerformerImpl: RequestPerformable {
+public struct RequestPerformer: RequestPerformable {
     
     private let urlSession: URLSessionTaskProtocol
     private let urlResponseValidator: URLResponseValidator

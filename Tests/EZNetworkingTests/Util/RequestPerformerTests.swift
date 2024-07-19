@@ -20,7 +20,7 @@ final class RequestPerformerTests: XCTestCase {
         )
         let validator = MockURLResponseValidator(throwError: nil)
         let decoder = RequestDecoder()
-        let sut = RequestPerformerImpl(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
+        let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
         guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
             XCTFail("Failed to create URLRequest")
@@ -44,7 +44,7 @@ final class RequestPerformerTests: XCTestCase {
         )
         let validator = MockURLResponseValidator(throwError: nil)
         let decoder = RequestDecoder()
-        let sut = RequestPerformerImpl(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
+        let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
         guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
             XCTFail("Failed to create URLRequest")
@@ -67,7 +67,7 @@ final class RequestPerformerTests: XCTestCase {
         )
         let validator = MockURLResponseValidator(throwError: .forbidden)
         let decoder = RequestDecoder()
-        let sut = RequestPerformerImpl(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
+        let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
         guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
             XCTFail("Failed to create URLRequest")
@@ -92,7 +92,7 @@ final class RequestPerformerTests: XCTestCase {
         )
         let validator = MockURLResponseValidator(throwError: nil)
         let decoder = RequestDecoder()
-        let sut = RequestPerformerImpl(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
+        let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
         guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
             XCTFail("Failed to create URLRequest")
@@ -115,7 +115,7 @@ final class RequestPerformerTests: XCTestCase {
         )
         let validator = MockURLResponseValidator(throwError: nil)
         let decoder = RequestDecoder()
-        let sut = RequestPerformerImpl(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
+        let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
         guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
             XCTFail("Failed to create URLRequest")
@@ -138,7 +138,7 @@ final class RequestPerformerTests: XCTestCase {
         )
         let validator = MockURLResponseValidator(throwError: .forbidden)
         let decoder = RequestDecoder()
-        let sut = RequestPerformerImpl(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
+        let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
         guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
             XCTFail("Failed to create URLRequest")
@@ -163,7 +163,7 @@ final class RequestPerformerTests: XCTestCase {
         )
         let validator = MockURLResponseValidator(throwError: nil)
         let decoder = RequestDecoder()
-        let sut = RequestPerformerImpl(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
+        let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
         guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
             XCTFail()
@@ -189,7 +189,7 @@ final class RequestPerformerTests: XCTestCase {
         )
         let validator = MockURLResponseValidator(throwError: NetworkingError.forbidden)
         let decoder = RequestDecoder()
-        let sut = RequestPerformerImpl(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
+        let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
         guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
             XCTFail()
@@ -214,7 +214,7 @@ final class RequestPerformerTests: XCTestCase {
         )
         let validator = MockURLResponseValidator(throwError: NetworkingError.badRequest)
         let decoder = RequestDecoder()
-        let sut = RequestPerformerImpl(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
+        let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
         guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
             XCTFail()
@@ -239,7 +239,7 @@ final class RequestPerformerTests: XCTestCase {
         )
         let validator = MockURLResponseValidator(throwError: nil)
         let decoder = RequestDecoder()
-        let sut = RequestPerformerImpl(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
+        let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
         guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
             XCTFail()
@@ -264,7 +264,7 @@ final class RequestPerformerTests: XCTestCase {
         )
         let validator = MockURLResponseValidator(throwError: nil)
         let decoder = RequestDecoder()
-        let sut = RequestPerformerImpl(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
+        let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
         guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
             XCTFail()
@@ -289,7 +289,7 @@ final class RequestPerformerTests: XCTestCase {
         )
         let validator = MockURLResponseValidator(throwError: nil)
         let decoder = RequestDecoder()
-        let sut = RequestPerformerImpl(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
+        let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
         guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
             XCTFail()
@@ -316,7 +316,7 @@ final class RequestPerformerTests: XCTestCase {
         )
         let validator = MockURLResponseValidator(throwError: nil)
         let decoder = RequestDecoder()
-        let sut = RequestPerformerImpl(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
+        let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
         guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
             XCTFail()
@@ -341,7 +341,7 @@ final class RequestPerformerTests: XCTestCase {
         )
         let validator = MockURLResponseValidator(throwError: NetworkingError.forbidden)
         let decoder = RequestDecoder()
-        let sut = RequestPerformerImpl(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
+        let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
         guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
             XCTFail()
@@ -366,7 +366,7 @@ final class RequestPerformerTests: XCTestCase {
         )
         let validator = URLResponseValidatorImpl()
         let decoder = RequestDecoder()
-        let sut = RequestPerformerImpl(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
+        let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
         guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
             XCTFail()
@@ -391,7 +391,7 @@ final class RequestPerformerTests: XCTestCase {
         )
         let validator = URLResponseValidatorImpl()
         let decoder = RequestDecoder()
-        let sut = RequestPerformerImpl(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
+        let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
         guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
             XCTFail()
@@ -416,7 +416,7 @@ final class RequestPerformerTests: XCTestCase {
         )
         let validator = URLResponseValidatorImpl()
         let decoder = RequestDecoder()
-        let sut = RequestPerformerImpl(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
+        let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
         guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
             XCTFail()
