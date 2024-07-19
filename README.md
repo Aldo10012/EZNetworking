@@ -1,6 +1,6 @@
 # EZNetworking
 
-AwesomeSwiftPackage is a Swift package that provides a set of awesome utilities to make Swift development easier and more fun. It includes various extensions, custom UI components, and helper functions.
+EZNetworking is a Swift package that provides a set of awesome utilities to make Swift networking development easier and more fun.
 
 ## Table of Content
 - [Installation](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#installation)
