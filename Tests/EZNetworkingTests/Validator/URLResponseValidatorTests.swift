@@ -83,10 +83,10 @@ final class URLResponseValidatorTests: XCTestCase {
         let response = HTTPURLResponse(url: url, statusCode: 200, httpVersion: nil, headerFields: nil)!
         
         do {
-            try validator.validateDownloadTask(url: url, urlResponse: response, error: nil)
+            _ = try validator.validateDownloadTask(url: url, urlResponse: response, error: nil)
             XCTAssertTrue(true)
         } catch let error as NetworkingError {
-            XCTFail("Unexpected error")
+            XCTFail("Unexpected error: \(error)")
         }
     }
     
@@ -96,7 +96,7 @@ final class URLResponseValidatorTests: XCTestCase {
         let response = HTTPURLResponse(url: url, statusCode: 200, httpVersion: nil, headerFields: nil)!
         
         do {
-            try validator.validateDownloadTask(url: nil, urlResponse: response, error: nil)
+            _ = try validator.validateDownloadTask(url: nil, urlResponse: response, error: nil)
             XCTFail("Unexpected error")
         } catch let error as NetworkingError {
             XCTAssertEqual(error, NetworkingError.noURL)
@@ -106,10 +106,9 @@ final class URLResponseValidatorTests: XCTestCase {
     func testValidateDownloadTaskFailsWhenUrlResponseIsNil() throws {
         let validator = URLResponseValidatorImpl()
         let url = URL(string: "https://example.com")!
-        let response = HTTPURLResponse(url: url, statusCode: 200, httpVersion: nil, headerFields: nil)!
         
         do {
-            try validator.validateDownloadTask(url: url, urlResponse: nil, error: nil)
+            _ = try validator.validateDownloadTask(url: url, urlResponse: nil, error: nil)
             XCTFail("Unexpected error")
         } catch let error as NetworkingError {
             XCTAssertEqual(error, NetworkingError.noResponse)
@@ -122,7 +121,7 @@ final class URLResponseValidatorTests: XCTestCase {
         let response = HTTPURLResponse(url: url, statusCode: 200, httpVersion: nil, headerFields: nil)!
         
         do {
-            try validator.validateDownloadTask(url: url, urlResponse: response, error: NetworkingError.unknown)
+            _ = try validator.validateDownloadTask(url: url, urlResponse: response, error: NetworkingError.unknown)
             XCTFail("Unexpected error")
         } catch let error as NetworkingError {
             XCTAssertEqual(error, NetworkingError.requestFailed(NetworkingError.unknown))
@@ -135,7 +134,7 @@ final class URLResponseValidatorTests: XCTestCase {
         let response = URLResponse(url: url, mimeType: nil, expectedContentLength: 0, textEncodingName: nil)
 
         do {
-            try validator.validateDownloadTask(url: url, urlResponse: response, error: nil)
+            _ = try validator.validateDownloadTask(url: url, urlResponse: response, error: nil)
             XCTFail("Unexpected error")
         } catch let error as NetworkingError {
             XCTAssertEqual(error, NetworkingError.noHTTPURLResponse)
@@ -148,7 +147,7 @@ final class URLResponseValidatorTests: XCTestCase {
         let response = HTTPURLResponse(url: url, statusCode: 400, httpVersion: nil, headerFields: nil)!
         
         do {
-            try validator.validateDownloadTask(url: url, urlResponse: response, error: nil)
+            _ = try validator.validateDownloadTask(url: url, urlResponse: response, error: nil)
             XCTFail("Unexpected error")
         } catch let error as NetworkingError {
             XCTAssertEqual(error, NetworkingError.badRequest)
