@@ -2,6 +2,7 @@ import Foundation
 
 public protocol URLResponseValidator {
     func validate(data: Data?, urlResponse: URLResponse?, error: Error?) throws -> Data
+    func validateDownloadTask(url: URL?, urlResponse: URLResponse?, error: Error?) throws -> URL
 }
 
 public struct URLResponseValidatorImpl: URLResponseValidator {
@@ -24,6 +25,28 @@ public struct URLResponseValidatorImpl: URLResponseValidator {
         let errorResponse = httpURLResponse.networkingError
         if case .ok = errorResponse {
             return data
+        } else {
+            throw errorResponse
+        }
+    }
+    
+    public func validateDownloadTask(url: URL?, urlResponse: URLResponse?, error: Error?) throws -> URL {
+        guard let url else {
+            throw NetworkingError.noURL
+        }
+        guard let urlResponse else {
+            throw NetworkingError.noResponse
+        }
+        if let error = error {
+            throw NetworkingError.requestFailed(error)
+        }
+        guard let httpURLResponse = urlResponse as? HTTPURLResponse else {
+            throw NetworkingError.noHTTPURLResponse
+        }
+        
+        let errorResponse = httpURLResponse.networkingError
+        if case .ok = errorResponse {
+            return url
         } else {
             throw errorResponse
         }
