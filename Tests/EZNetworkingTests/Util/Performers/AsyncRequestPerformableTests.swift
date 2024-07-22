@@ -146,6 +146,85 @@ final class AsyncRequestPerformableTests: XCTestCase {
         }
     }
     
+    // MARK: Unit tests for downloadFile
+
+    func testDownloadFileSuccess() async throws {
+        let testURL = URL(string: "https://example.com/example.pdf")!
+        let urlSession = MockURLSession(
+            url: testURL,
+            urlResponse: buildResponse(statusCode: 200),
+            error: nil
+        )
+        let validator = MockURLResponseValidator(throwError: nil)
+        let decoder = RequestDecoder()
+        let sut = AsyncRequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
+        
+        do {
+            let localURL = try await sut.downloadFile(with: testURL)
+            XCTAssertEqual(localURL.absoluteString, "file:///tmp/test.pdf")
+        } catch let error as NetworkingError{
+            XCTFail()
+        }
+    }
+    
+    func testDownloadFileFailsWhenValidatorThrowsAnyError() async throws {
+        let testURL = URL(string: "https://example.com/example.pdf")!
+        let urlSession = MockURLSession(
+            url: testURL,
+            urlResponse: buildResponse(statusCode: 200),
+            error: nil
+        )
+        let validator = MockURLResponseValidator(throwError: .forbidden)
+        let decoder = RequestDecoder()
+        let sut = AsyncRequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
+        
+        do {
+            let localURL = try await sut.downloadFile(with: testURL)
+            XCTFail("unexpected error")
+        } catch let error as NetworkingError{
+            XCTAssertEqual(error, NetworkingError.forbidden)
+        }
+    }
+    
+    func testDownloadFileFailsWhenStatusCodeIsNot200() async throws {
+        let testURL = URL(string: "https://example.com/example.pdf")!
+        let urlSession = MockURLSession(
+            url: testURL,
+            urlResponse: buildResponse(statusCode: 400),
+            error: nil
+        )
+        let validator = URLResponseValidatorImpl()
+        let decoder = RequestDecoder()
+        let sut = AsyncRequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
+        
+        do {
+            let localURL = try await sut.downloadFile(with: testURL)
+            XCTFail("unexpected error")
+        } catch let error as NetworkingError{
+            XCTAssertEqual(error, NetworkingError.badRequest)
+        }
+    }
+    
+    func testDownloadFileFailsWhenErrorIsNotNil() async throws {
+        let testURL = URL(string: "https://example.com/example.pdf")!
+        let urlSession = MockURLSession(
+            url: testURL,
+            urlResponse: buildResponse(statusCode: 200),
+            error: NetworkingError.unknown
+        )
+        let validator = URLResponseValidatorImpl()
+        let decoder = RequestDecoder()
+        let sut = AsyncRequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
+        
+        do {
+            let localURL = try await sut.downloadFile(with: testURL)
+            XCTFail("unexpected error")
+        } catch let error as NetworkingError{
+            XCTAssertEqual(error, NetworkingError.unknown)
+        }
+    }
+    
+    
     private func buildResponse(statusCode: Int) -> HTTPURLResponse {
         HTTPURLResponse(url: URL(string: "https://example.com")!,
                         statusCode: statusCode,

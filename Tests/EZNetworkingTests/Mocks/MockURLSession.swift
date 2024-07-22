@@ -46,6 +46,16 @@ class MockURLSession: URLSessionTaskProtocol {
             completionHandler(URL(fileURLWithPath: "/tmp/test.pdf"), self.urlResponse, self.error) // TODO: update later
         }
     }
+    
+    func download(from url: URL, delegate: (URLSessionTaskDelegate)?) async throws -> (URL, URLResponse) {
+        if let error = error {
+            throw error
+        }
+        guard let urlResponse else {
+            throw NetworkingError.unknown
+        }
+        return (URL(fileURLWithPath: "/tmp/test.pdf"), urlResponse)
+    }
 }
 
 class MockURLSessionDataTask: URLSessionDataTask {
