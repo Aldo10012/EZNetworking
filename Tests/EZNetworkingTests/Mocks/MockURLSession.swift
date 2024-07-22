@@ -30,10 +30,30 @@ class MockURLSession: URLSessionTaskProtocol {
         }
         return (data, urlResponse)
     }
+    
+    func downloadTask(with request: URLRequest, completionHandler: @escaping @Sendable (URL?, URLResponse?, Error?) -> Void) -> URLSessionDownloadTask {
+        
+        return MockURLSessionDownloadTask {
+            completionHandler(nil, nil, nil) // TODO: update later
+        }
+    }
+
 
 }
 
 class MockURLSessionDataTask: URLSessionDataTask {
+    private let closure: () -> Void
+    
+    init(closure: @escaping () -> Void) {
+        self.closure = closure
+    }
+    
+    override func resume() {
+        closure()
+    }
+}
+
+class MockURLSessionDownloadTask: URLSessionDownloadTask {
     private let closure: () -> Void
     
     init(closure: @escaping () -> Void) {
