@@ -162,7 +162,7 @@ final class AsyncRequestPerformableTests: XCTestCase {
         do {
             let localURL = try await sut.downloadFile(with: testURL)
             XCTAssertEqual(localURL.absoluteString, "file:///tmp/test.pdf")
-        } catch let error as NetworkingError{
+        } catch {
             XCTFail()
         }
     }
@@ -179,7 +179,7 @@ final class AsyncRequestPerformableTests: XCTestCase {
         let sut = AsyncRequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
         do {
-            let localURL = try await sut.downloadFile(with: testURL)
+            _ = try await sut.downloadFile(with: testURL)
             XCTFail("unexpected error")
         } catch let error as NetworkingError{
             XCTAssertEqual(error, NetworkingError.forbidden)
@@ -198,7 +198,7 @@ final class AsyncRequestPerformableTests: XCTestCase {
         let sut = AsyncRequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
         do {
-            let localURL = try await sut.downloadFile(with: testURL)
+            _ = try await sut.downloadFile(with: testURL)
             XCTFail("unexpected error")
         } catch let error as NetworkingError{
             XCTAssertEqual(error, NetworkingError.badRequest)
@@ -217,7 +217,7 @@ final class AsyncRequestPerformableTests: XCTestCase {
         let sut = AsyncRequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
         do {
-            let localURL = try await sut.downloadFile(with: testURL)
+            _ = try await sut.downloadFile(with: testURL)
             XCTFail("unexpected error")
         } catch let error as NetworkingError{
             XCTAssertEqual(error, NetworkingError.unknown)
