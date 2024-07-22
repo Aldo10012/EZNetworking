@@ -282,7 +282,47 @@ final class RequestPerformerTests: XCTestCase {
             }
         }
     }
-
+    
+    // MARK: Unit tests for downloadFile
+    
+    func testDownloadFileSuccess() {
+        let testURL = URL(string: "https://example.com/example.pdf")!
+        let urlSession = MockURLSession(url: testURL,
+                                        urlResponse: buildResponse(statusCode: 200),
+                                        error: nil)
+        let sut = RequestPerformer(urlSession: urlSession,
+                                   urlResponseValidator: MockURLResponseValidator(),
+                                   requestDecoder: RequestDecoder())
+        
+        sut.downloadFile(url: testURL) { result in
+            switch result {
+            case .success(let localURL):
+                XCTAssertEqual(localURL.absoluteString, "file:///tmp/test.pdf")
+            case .failure:
+                XCTFail()
+            }
+        }
+    }
+    
+    func testDownloadFileFailsIfValidatorThrowsAnyError() {
+        let testURL = URL(string: "https://example.com/example.pdf")!
+        let validator = MockURLResponseValidator(throwError: .conflict)
+        let urlSession = MockURLSession(url: testURL,
+                                        urlResponse: buildResponse(statusCode: 200),
+                                        error: nil)
+        let sut = RequestPerformer(urlSession: urlSession,
+                                   urlResponseValidator: validator,
+                                   requestDecoder: RequestDecoder())
+        
+        sut.downloadFile(url: testURL) { result in
+            switch result {
+            case .success:
+                XCTFail()
+            case .failure(let error):
+                XCTAssertEqual(error, NetworkingError.conflict)
+            }
+        }
+    }
     
     private func buildResponse(statusCode: Int) -> HTTPURLResponse {
         HTTPURLResponse(url: URL(string: "https://example.com")!,
