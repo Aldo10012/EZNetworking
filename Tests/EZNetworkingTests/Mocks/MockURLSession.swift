@@ -43,7 +43,7 @@ class MockURLSession: URLSessionTaskProtocol {
     func downloadTask(with url: URL, completionHandler: @escaping @Sendable (URL?, URLResponse?, Error?) -> Void) -> URLSessionDownloadTask {
         
         return MockURLSessionDownloadTask {
-            completionHandler(URL(fileURLWithPath: "/tmp/test.pdf"), self.urlResponse, self.error) // TODO: update later
+            completionHandler(URL(fileURLWithPath: "/tmp/test.pdf"), self.urlResponse, self.error)
         }
     }
     
