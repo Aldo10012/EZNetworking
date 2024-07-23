@@ -44,4 +44,16 @@ public struct AsyncRequestPerformer: AsyncRequestPerformable {
             throw NetworkingError.unknown
         }
     }
+    
+    public func downloadFile(with url: URL) async throws -> URL {
+        do {
+            let (url, urlResponse) = try await urlSession.download(from: url, delegate: nil)
+            let localURL = try urlResponseValidator.validateDownloadTask(url: url, urlResponse: urlResponse, error: nil)
+            return localURL
+        } catch let error as NetworkingError {
+            throw error
+        } catch {
+            throw NetworkingError.unknown
+        }
+    }
 }
