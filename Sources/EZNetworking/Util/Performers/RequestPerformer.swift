@@ -5,6 +5,7 @@ public protocol RequestPerformable {
     func perform<T: Decodable>(request: URLRequest, decodeTo decodableObject: T.Type, completion: @escaping((Result<T, NetworkingError>)) -> Void)
     func perform(request: URLRequest, completion: @escaping((VoidResult<NetworkingError>) -> Void))
     func downloadFile(url: URL, completion: @escaping((Result<URL, NetworkingError>) -> Void))
+    func downloadImage(url: URL, completion: @escaping((Result<UIImage, NetworkingError>) -> Void))
 }
 
 public struct RequestPerformer: RequestPerformable {

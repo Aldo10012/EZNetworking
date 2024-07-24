@@ -5,6 +5,7 @@ public protocol AsyncRequestPerformable {
     func perform<T: Decodable>(request: URLRequest, decodeTo decodableObject: T.Type) async throws -> T
     func perform(request: URLRequest) async throws
     func downloadFile(with url: URL) async throws -> URL
+    func downloadImage(from url: URL) async throws -> UIImage
 }
 
 public struct AsyncRequestPerformer: AsyncRequestPerformable {
