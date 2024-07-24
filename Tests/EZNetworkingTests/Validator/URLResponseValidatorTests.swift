@@ -140,6 +140,19 @@ final class URLResponseValidatorTests: XCTestCase {
         }
     }
     
+    func testValidateDownloadTaskFailsWhenNotConnectedToInternet() throws {
+        let validator = URLResponseValidatorImpl()
+        let url = URL(string: "https://example.com")!
+        let response = HTTPURLResponse(url: url, statusCode: 200, httpVersion: nil, headerFields: nil)!
+        
+        do {
+            _ = try validator.validateDownloadTask(url: url, urlResponse: response, error: URLError(.notConnectedToInternet))
+            XCTFail("Unexpected error")
+        } catch let error as NetworkingError {
+            XCTAssertEqual(error, NetworkingError.noConnection)
+        }
+    }
+    
     func testValidateDownloadTaskFailsWhenResposneIsNotHTTPURLResponse() throws {
         let validator = URLResponseValidatorImpl()
         let url = URL(string: "https://example.com")!
