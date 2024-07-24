@@ -11,6 +11,7 @@ public enum NetworkingError: Error {
     case noRequest
     case noHTTPURLResponse
     case noConnection
+    case invalidImageData
     
     
     // MARK: - HTTP Status Code errors
@@ -85,6 +86,7 @@ extension NetworkingError: Equatable {
                  (.noRequest, .noRequest),
                  (.noHTTPURLResponse, .noHTTPURLResponse),
                  (.noConnection, .noConnection),
+                 (.invalidImageData, .invalidImageData),
                  (.ok, .ok),
                  (.multipleChoices, .multipleChoices),
                  (.movedPermanently, .movedPermanently),

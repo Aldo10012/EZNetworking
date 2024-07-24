@@ -22,7 +22,21 @@ class MockURLSession: URLSessionTaskProtocol {
         self.data = nil
     }
     
+    init(data: Data? = nil, url: URL? = nil, urlResponse: URLResponse? = nil, error: Error? = nil) {
+        self.data = data
+        self.url = url
+        self.urlResponse = urlResponse
+        self.error = error
+    }
+    
     func dataTask(with request: URLRequest, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTask {
+        self.completion = completionHandler
+        return MockURLSessionDataTask {
+            completionHandler(self.data, self.urlResponse, self.error)
+        }
+    }
+    
+    func dataTask(with url: URL, completionHandler: @escaping @Sendable (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTask {
         self.completion = completionHandler
         return MockURLSessionDataTask {
             completionHandler(self.data, self.urlResponse, self.error)
@@ -38,6 +52,18 @@ class MockURLSession: URLSessionTaskProtocol {
             throw NetworkingError.unknown
         }
         return (data, urlResponse)
+    }
+    
+    func data(from url: URL, delegate: (URLSessionTaskDelegate)?) async throws -> (Data, URLResponse) {
+        if let error = error {
+            throw error
+        }
+        self.url = url
+        
+        guard let data, let url = self.url else {
+            throw NetworkingError.unknown
+        }
+        return (data, URLResponse(url: url, mimeType: nil, expectedContentLength: 0, textEncodingName: nil))
     }
     
     func downloadTask(with url: URL, completionHandler: @escaping @Sendable (URL?, URLResponse?, Error?) -> Void) -> URLSessionDownloadTask {

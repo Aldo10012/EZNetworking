@@ -1,9 +1,11 @@
 import Foundation
+import UIKit
 
 public protocol RequestPerformable {
     func perform<T: Decodable>(request: URLRequest, decodeTo decodableObject: T.Type, completion: @escaping((Result<T, NetworkingError>)) -> Void)
     func perform(request: URLRequest, completion: @escaping((VoidResult<NetworkingError>) -> Void))
     func downloadFile(url: URL, completion: @escaping((Result<URL, NetworkingError>) -> Void))
+    func downloadImage(url: URL, completion: @escaping((Result<UIImage, NetworkingError>) -> Void))
 }
 
 public struct RequestPerformer: RequestPerformable {
@@ -60,6 +62,23 @@ public struct RequestPerformer: RequestPerformable {
             do {
                 let localURL = try urlResponseValidator.validateDownloadTask(url: localURL, urlResponse: response, error: error)
                 completion(.success(localURL))
+            } catch let networkError as NetworkingError {
+                completion(.failure(networkError))
+            } catch {
+                completion(.failure(.unknown))
+            }
+        }
+        dataTask.resume()
+    }
+    
+    public func downloadImage(url: URL, completion: @escaping((Result<UIImage, NetworkingError>) -> Void)) {
+        let dataTask = urlSession.dataTask(with: url) { data, response, error in
+            do {
+                let validData = try self.urlResponseValidator.validate(data: data, urlResponse: response, error: error)
+                guard let image = UIImage(data: validData) else {
+                    throw NetworkingError.invalidImageData
+                }                
+                completion(.success(image))
             } catch let networkError as NetworkingError {
                 completion(.failure(networkError))
             } catch {

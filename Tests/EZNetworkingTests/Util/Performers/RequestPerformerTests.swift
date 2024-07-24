@@ -1,3 +1,4 @@
+import UIKit
 import XCTest
 @testable import EZNetworking
 
@@ -323,6 +324,43 @@ final class RequestPerformerTests: XCTestCase {
             }
         }
     }
+    
+    // MARK: - downloadImage
+    
+    func testDownloadImageSuccess() { // note: this is an async test as it actually decodes url to generate the image
+        let testURL = URL(string: "https://i.natgeofe.com/n/4f5aaece-3300-41a4-b2a8-ed2708a0a27c/domestic-dog_thumb_square.jpg")!
+        let sut = RequestPerformer()
+        
+        sut.downloadImage(url: testURL) { result in
+            switch result {
+            case .success:
+                XCTAssertTrue(true)
+            case .failure:
+                XCTFail()
+            }
+        }
+    }
+    
+    func testDownloadImageFailsWhenValidatorThrowsAnyError() {
+        let testURL = URL(string: "https://i.natgeofe.com/n/4f5aaece-3300-41a4-b2a8-ed2708a0a27c/domestic-dog_thumb_square.jpg")!
+        let urlSession = MockURLSession(url: testURL,
+                                        urlResponse: buildResponse(statusCode: 200),
+                                        error: nil)
+        let validator = MockURLResponseValidator(throwError: .conflict)
+        let sut = RequestPerformer(urlSession: urlSession,
+                                   urlResponseValidator: validator,
+                                   requestDecoder: RequestDecoder())
+        
+        sut.downloadImage(url: testURL) { result in
+            switch result {
+            case .success:
+                XCTFail()
+            case .failure(let error):
+                XCTAssertEqual(error, NetworkingError.conflict)
+            }
+        }
+    }
+    
     
     private func buildResponse(statusCode: Int) -> HTTPURLResponse {
         HTTPURLResponse(url: URL(string: "https://example.com")!,
