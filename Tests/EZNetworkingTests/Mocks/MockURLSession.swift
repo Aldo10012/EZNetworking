@@ -29,6 +29,13 @@ class MockURLSession: URLSessionTaskProtocol {
         }
     }
     
+    func dataTask(with url: URL, completionHandler: @escaping @Sendable (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTask {
+        self.completion = completionHandler
+        return MockURLSessionDataTask {
+            completionHandler(self.data, self.urlResponse, self.error)
+        }
+    }
+    
     func data(for request: URLRequest, delegate: (URLSessionTaskDelegate)? = nil) async throws -> (Data, URLResponse) {
         if let error = error {
             throw error
