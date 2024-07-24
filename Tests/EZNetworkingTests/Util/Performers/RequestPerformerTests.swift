@@ -333,7 +333,7 @@ final class RequestPerformerTests: XCTestCase {
         
         sut.downloadImage(url: testURL) { result in
             switch result {
-            case .success(let image):
+            case .success:
                 XCTAssertTrue(true)
             case .failure:
                 XCTFail()
@@ -353,7 +353,7 @@ final class RequestPerformerTests: XCTestCase {
         
         sut.downloadImage(url: testURL) { result in
             switch result {
-            case .success(let image):
+            case .success:
                 XCTFail()
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.conflict)
