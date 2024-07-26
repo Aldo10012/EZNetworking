@@ -5,7 +5,7 @@ public protocol RequestPerformable {
     func perform<T: Decodable>(request: URLRequest, decodeTo decodableObject: T.Type, completion: @escaping((Result<T, NetworkingError>)) -> Void) -> URLSessionDataTask
     func perform(request: URLRequest, completion: @escaping((VoidResult<NetworkingError>) -> Void)) -> URLSessionDataTask
     func downloadFile(url: URL, completion: @escaping((Result<URL, NetworkingError>) -> Void)) -> URLSessionDownloadTask
-    func downloadImage(url: URL, completion: @escaping((Result<UIImage, NetworkingError>) -> Void))
+    func downloadImage(url: URL, completion: @escaping((Result<UIImage, NetworkingError>) -> Void)) -> URLSessionDataTask
 }
 
 public struct RequestPerformer: RequestPerformable {
@@ -68,8 +68,8 @@ public struct RequestPerformer: RequestPerformable {
         }
     }
     
-    public func downloadImage(url: URL, completion: @escaping((Result<UIImage, NetworkingError>) -> Void)) {
-        let dataTask = urlSession.dataTask(with: url) { data, response, error in
+    public func downloadImage(url: URL, completion: @escaping((Result<UIImage, NetworkingError>) -> Void)) -> URLSessionDataTask {
+        return urlSession.dataTask(with: url) { data, response, error in
             do {
                 let validData = try self.urlResponseValidator.validate(data: data, urlResponse: response, error: error)
                 guard let image = UIImage(data: validData) else {
@@ -82,6 +82,5 @@ public struct RequestPerformer: RequestPerformable {
                 completion(.failure(.unknown))
             }
         }
-        dataTask.resume()
     }
 }
