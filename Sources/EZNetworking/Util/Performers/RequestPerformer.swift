@@ -2,8 +2,8 @@ import Foundation
 import UIKit
 
 public protocol RequestPerformable {
-    func perform<T: Decodable>(request: URLRequest, decodeTo decodableObject: T.Type, completion: @escaping((Result<T, NetworkingError>)) -> Void)
-    func perform(request: URLRequest, completion: @escaping((VoidResult<NetworkingError>) -> Void))
+    func perform<T: Decodable>(request: URLRequest, decodeTo decodableObject: T.Type, completion: @escaping((Result<T, NetworkingError>)) -> Void) -> URLSessionDataTask
+    func perform(request: URLRequest, completion: @escaping((VoidResult<NetworkingError>) -> Void)) -> URLSessionDataTask
     func downloadFile(url: URL, completion: @escaping((Result<URL, NetworkingError>) -> Void))
     func downloadImage(url: URL, completion: @escaping((Result<UIImage, NetworkingError>) -> Void))
 }
@@ -23,8 +23,8 @@ public struct RequestPerformer: RequestPerformable {
     }
     
     // MARK: perform using Completion Handler
-    public func perform<T: Decodable>(request: URLRequest, decodeTo decodableObject: T.Type, completion: @escaping ((Result<T, NetworkingError>)) -> Void) {
-        let dataTask = urlSession.dataTask(with: request) { data, urlResponse, error in
+    public func perform<T: Decodable>(request: URLRequest, decodeTo decodableObject: T.Type, completion: @escaping ((Result<T, NetworkingError>)) -> Void) -> URLSessionDataTask {
+        return urlSession.dataTask(with: request) { data, urlResponse, error in
             do {
                 let validData = try urlResponseValidator.validate(data: data, urlResponse: urlResponse, error: error)
                 let decodedObject = try requestDecoder.decode(decodableObject.self, from: validData)
@@ -37,12 +37,11 @@ public struct RequestPerformer: RequestPerformable {
                 return
             }
         }
-        dataTask.resume()
     }
     
     // MARK: perform using Completion Handler without returning Decodable
-    public func perform(request: URLRequest, completion: @escaping ((VoidResult<NetworkingError>) -> Void)) {
-        let dataTask = urlSession.dataTask(with: request) { data, urlResponse, error in
+    public func perform(request: URLRequest, completion: @escaping ((VoidResult<NetworkingError>) -> Void)) -> URLSessionDataTask {
+        return urlSession.dataTask(with: request) { data, urlResponse, error in
             do {
                 _ = try urlResponseValidator.validate(data: data, urlResponse: urlResponse, error: error)
                 completion(.success)
@@ -54,7 +53,6 @@ public struct RequestPerformer: RequestPerformable {
                 return
             }
         }
-        dataTask.resume()
     }
     
     public func downloadFile(url: URL, completion: @escaping((Result<URL, NetworkingError>) -> Void)) {

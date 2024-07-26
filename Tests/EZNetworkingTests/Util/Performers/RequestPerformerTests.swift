@@ -21,7 +21,9 @@ final class RequestPerformerTests: XCTestCase {
             return
         }
         
+        var didExecute = false
         sut.perform(request: request, decodeTo: Person.self) { result in
+            didExecute = true
             switch result {
             case .success(let person):
                 XCTAssertEqual(person.name, "John")
@@ -29,7 +31,8 @@ final class RequestPerformerTests: XCTestCase {
             case .failure:
                 XCTFail()
             }
-        }
+        }.resume()
+        XCTAssertTrue(didExecute)
     }
     
     func testPerformWithCompletionHandlerWithErrorFails() {
@@ -47,14 +50,17 @@ final class RequestPerformerTests: XCTestCase {
             return
         }
         
+        var didExecute = false
         sut.perform(request: request, decodeTo: Person.self) { result in
+            didExecute = true
             switch result {
             case .success:
                 XCTFail()
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.forbidden)
             }
-        }
+        }.resume()
+        XCTAssertTrue(didExecute)
     }
     
     func testPerformWithCompletionHandlerWithBadStatusCodeFails() {
@@ -72,14 +78,17 @@ final class RequestPerformerTests: XCTestCase {
             return
         }
         
+        var didExecute = false
         sut.perform(request: request, decodeTo: Person.self) { result in
+            didExecute = true
             switch result {
             case .success:
                 XCTFail()
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.badRequest)
             }
-        }
+        }.resume()
+        XCTAssertTrue(didExecute)
     }
     
     func testPerformWithCompletionHandlerWithInvalidData() {
@@ -97,14 +106,17 @@ final class RequestPerformerTests: XCTestCase {
             return
         }
         
+        var didExecute = false
         sut.perform(request: request, decodeTo: Person.self) { result in
+            didExecute = true
             switch result {
             case .success:
                 XCTFail()
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.couldNotParse)
             }
-        }
+        }.resume()
+        XCTAssertTrue(didExecute)
     }
     
     func testPerformWithCompletionHandlerWithNilData() {
@@ -122,14 +134,17 @@ final class RequestPerformerTests: XCTestCase {
             return
         }
         
+        var didExecute = false
         sut.perform(request: request, decodeTo: Person.self) { result in
+            didExecute = true
             switch result {
             case .success:
                 XCTFail()
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.noData)
             }
-        }
+        }.resume()
+        XCTAssertTrue(didExecute)
     }
     
     func testPerformWithCompletionHandlerWithNilResponse() {
@@ -147,14 +162,17 @@ final class RequestPerformerTests: XCTestCase {
             return
         }
         
+        var didExecute = false
         sut.perform(request: request, decodeTo: Person.self) { result in
+            didExecute = true
             switch result {
             case .success:
                 XCTFail()
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.couldNotParse)
             }
-        }
+        }.resume()
+        XCTAssertTrue(didExecute)
     }
     
     // MARK: Unit tests for perform using Completion Handler without Decodable response
@@ -174,14 +192,17 @@ final class RequestPerformerTests: XCTestCase {
             return
         }
         
+        var didExecute = false
         sut.perform(request: request) { result in
+            didExecute = true
             switch result {
             case .success:
                 XCTAssertTrue(true)
             case .failure:
                 XCTFail()
             }
-        }
+        }.resume()
+        XCTAssertTrue(didExecute)
     }
     
     func testPerformWithCompletionHandlerWithoutDecodableWithErrorFails() {
@@ -199,14 +220,17 @@ final class RequestPerformerTests: XCTestCase {
             return
         }
         
+        var didExecute = false
         sut.perform(request: request) { result in
+            didExecute = true
             switch result {
             case .success:
                 XCTFail()
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.forbidden)
             }
-        }
+        }.resume()
+        XCTAssertTrue(didExecute)
     }
     
     func testPerformWithCompletionHandlerWithoutDecodableWithBadStatusCodeFails() {
@@ -224,14 +248,17 @@ final class RequestPerformerTests: XCTestCase {
             return
         }
         
+        var didExecute = false
         sut.perform(request: request) { result in
+            didExecute = true
             switch result {
             case .success:
                 XCTFail()
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.badRequest)
             }
-        }
+        }.resume()
+        XCTAssertTrue(didExecute)
     }
     
     func testPerformWithCompletionHandlerWithoutDecodableWithNilData() {
@@ -249,14 +276,17 @@ final class RequestPerformerTests: XCTestCase {
             return
         }
         
+        var didExecute = false
         sut.perform(request: request) { result in
+            didExecute = true
             switch result {
             case .success:
                 XCTFail()
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.noData)
             }
-        }
+        }.resume()
+        XCTAssertTrue(didExecute)
     }
     
     func testPerformWithCompletionHandlerWithoutDecodableWithNilResponse() {
@@ -274,14 +304,17 @@ final class RequestPerformerTests: XCTestCase {
             return
         }
         
+        var didExecute = false
         sut.perform(request: request) { result in
+            didExecute = true
             switch result {
             case .success:
                 XCTFail()
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.noResponse)
             }
-        }
+        }.resume()
+        XCTAssertTrue(didExecute)
     }
     
     // MARK: Unit tests for downloadFile
