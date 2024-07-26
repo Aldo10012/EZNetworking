@@ -50,7 +50,7 @@ class EZNetworkUtil {
             return
         }
         
-        performer.perform(request: request, decodeTo: type, completion: completion).resume()
+        performer.performTask(request: request, decodeTo: type, completion: completion).resume()
     }
     
     
@@ -59,6 +59,6 @@ class EZNetworkUtil {
             completion(.failure(NetworkingError.noRequest))
             return
         }
-        performer.perform(request: request, completion: completion).resume()
+        performer.performTask(request: request, completion: completion).resume()
     }
 }

@@ -22,7 +22,7 @@ final class RequestPerformerTests: XCTestCase {
         }
         
         var didExecute = false
-        sut.perform(request: request, decodeTo: Person.self) { result in
+        sut.performTask(request: request, decodeTo: Person.self) { result in
             didExecute = true
             switch result {
             case .success(let person):
@@ -51,7 +51,7 @@ final class RequestPerformerTests: XCTestCase {
         }
         
         var didExecute = false
-        sut.perform(request: request, decodeTo: Person.self) { result in
+        sut.performTask(request: request, decodeTo: Person.self) { result in
             didExecute = true
             switch result {
             case .success:
@@ -79,7 +79,7 @@ final class RequestPerformerTests: XCTestCase {
         }
         
         var didExecute = false
-        sut.perform(request: request, decodeTo: Person.self) { result in
+        sut.performTask(request: request, decodeTo: Person.self) { result in
             didExecute = true
             switch result {
             case .success:
@@ -107,7 +107,7 @@ final class RequestPerformerTests: XCTestCase {
         }
         
         var didExecute = false
-        sut.perform(request: request, decodeTo: Person.self) { result in
+        sut.performTask(request: request, decodeTo: Person.self) { result in
             didExecute = true
             switch result {
             case .success:
@@ -135,7 +135,7 @@ final class RequestPerformerTests: XCTestCase {
         }
         
         var didExecute = false
-        sut.perform(request: request, decodeTo: Person.self) { result in
+        sut.performTask(request: request, decodeTo: Person.self) { result in
             didExecute = true
             switch result {
             case .success:
@@ -163,7 +163,7 @@ final class RequestPerformerTests: XCTestCase {
         }
         
         var didExecute = false
-        sut.perform(request: request, decodeTo: Person.self) { result in
+        sut.performTask(request: request, decodeTo: Person.self) { result in
             didExecute = true
             switch result {
             case .success:
@@ -193,7 +193,7 @@ final class RequestPerformerTests: XCTestCase {
         }
         
         var didExecute = false
-        sut.perform(request: request) { result in
+        sut.performTask(request: request) { result in
             didExecute = true
             switch result {
             case .success:
@@ -221,7 +221,7 @@ final class RequestPerformerTests: XCTestCase {
         }
         
         var didExecute = false
-        sut.perform(request: request) { result in
+        sut.performTask(request: request) { result in
             didExecute = true
             switch result {
             case .success:
@@ -249,7 +249,7 @@ final class RequestPerformerTests: XCTestCase {
         }
         
         var didExecute = false
-        sut.perform(request: request) { result in
+        sut.performTask(request: request) { result in
             didExecute = true
             switch result {
             case .success:
@@ -277,7 +277,7 @@ final class RequestPerformerTests: XCTestCase {
         }
         
         var didExecute = false
-        sut.perform(request: request) { result in
+        sut.performTask(request: request) { result in
             didExecute = true
             switch result {
             case .success:
@@ -305,7 +305,7 @@ final class RequestPerformerTests: XCTestCase {
         }
         
         var didExecute = false
-        sut.perform(request: request) { result in
+        sut.performTask(request: request) { result in
             didExecute = true
             switch result {
             case .success:
@@ -329,7 +329,7 @@ final class RequestPerformerTests: XCTestCase {
                                    requestDecoder: RequestDecoder())
         
         var didExecute = false
-        sut.downloadFile(url: testURL) { result in
+        sut.downloadFileTask(url: testURL) { result in
             didExecute = true
             switch result {
             case .success(let localURL):
@@ -352,7 +352,7 @@ final class RequestPerformerTests: XCTestCase {
                                    requestDecoder: RequestDecoder())
         
         var didExecute = false
-        sut.downloadFile(url: testURL) { result in
+        sut.downloadFileTask(url: testURL) { result in
             didExecute = true
             switch result {
             case .success:
@@ -375,7 +375,7 @@ final class RequestPerformerTests: XCTestCase {
         let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator)
         
         var didExecute = false
-        sut.downloadImage(url: testURL) { result in
+        sut.downloadImageTask(url: testURL) { result in
             didExecute = true
             switch result {
             case .success:
@@ -402,7 +402,7 @@ final class RequestPerformerTests: XCTestCase {
                                    requestDecoder: RequestDecoder())
         
         var didExecute = false
-        sut.downloadImage(url: testURL) { result in
+        sut.downloadImageTask(url: testURL) { result in
             didExecute = true
             switch result {
             case .success:
