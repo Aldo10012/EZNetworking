@@ -328,14 +328,17 @@ final class RequestPerformerTests: XCTestCase {
                                    urlResponseValidator: MockURLResponseValidator(),
                                    requestDecoder: RequestDecoder())
         
+        var didExecute = false
         sut.downloadFile(url: testURL) { result in
+            didExecute = true
             switch result {
             case .success(let localURL):
                 XCTAssertEqual(localURL.absoluteString, "file:///tmp/test.pdf")
             case .failure:
                 XCTFail()
             }
-        }
+        }.resume()
+        XCTAssertTrue(didExecute)
     }
     
     func testDownloadFileFailsIfValidatorThrowsAnyError() {
@@ -348,14 +351,17 @@ final class RequestPerformerTests: XCTestCase {
                                    urlResponseValidator: validator,
                                    requestDecoder: RequestDecoder())
         
+        var didExecute = false
         sut.downloadFile(url: testURL) { result in
+            didExecute = true
             switch result {
             case .success:
                 XCTFail()
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.conflict)
             }
-        }
+        }.resume()
+        XCTAssertTrue(didExecute)
     }
     
     // MARK: - downloadImage

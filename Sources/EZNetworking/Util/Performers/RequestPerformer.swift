@@ -4,7 +4,7 @@ import UIKit
 public protocol RequestPerformable {
     func perform<T: Decodable>(request: URLRequest, decodeTo decodableObject: T.Type, completion: @escaping((Result<T, NetworkingError>)) -> Void) -> URLSessionDataTask
     func perform(request: URLRequest, completion: @escaping((VoidResult<NetworkingError>) -> Void)) -> URLSessionDataTask
-    func downloadFile(url: URL, completion: @escaping((Result<URL, NetworkingError>) -> Void))
+    func downloadFile(url: URL, completion: @escaping((Result<URL, NetworkingError>) -> Void)) -> URLSessionDownloadTask
     func downloadImage(url: URL, completion: @escaping((Result<UIImage, NetworkingError>) -> Void))
 }
 
@@ -55,8 +55,8 @@ public struct RequestPerformer: RequestPerformable {
         }
     }
     
-    public func downloadFile(url: URL, completion: @escaping((Result<URL, NetworkingError>) -> Void)) {
-        let dataTask = urlSession.downloadTask(with: url) { localURL, response, error in
+    public func downloadFile(url: URL, completion: @escaping((Result<URL, NetworkingError>) -> Void)) -> URLSessionDownloadTask {
+        return urlSession.downloadTask(with: url) { localURL, response, error in
             do {
                 let localURL = try urlResponseValidator.validateDownloadTask(url: localURL, urlResponse: response, error: error)
                 completion(.success(localURL))
@@ -66,7 +66,6 @@ public struct RequestPerformer: RequestPerformable {
                 completion(.failure(.unknown))
             }
         }
-        dataTask.resume()
     }
     
     public func downloadImage(url: URL, completion: @escaping((Result<UIImage, NetworkingError>) -> Void)) {
