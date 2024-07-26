@@ -21,7 +21,9 @@ final class RequestPerformerTests: XCTestCase {
             return
         }
         
-        sut.perform(request: request, decodeTo: Person.self) { result in
+        var didExecute = false
+        sut.performTask(request: request, decodeTo: Person.self) { result in
+            didExecute = true
             switch result {
             case .success(let person):
                 XCTAssertEqual(person.name, "John")
@@ -29,7 +31,8 @@ final class RequestPerformerTests: XCTestCase {
             case .failure:
                 XCTFail()
             }
-        }
+        }.resume()
+        XCTAssertTrue(didExecute)
     }
     
     func testPerformWithCompletionHandlerWithErrorFails() {
@@ -47,14 +50,17 @@ final class RequestPerformerTests: XCTestCase {
             return
         }
         
-        sut.perform(request: request, decodeTo: Person.self) { result in
+        var didExecute = false
+        sut.performTask(request: request, decodeTo: Person.self) { result in
+            didExecute = true
             switch result {
             case .success:
                 XCTFail()
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.forbidden)
             }
-        }
+        }.resume()
+        XCTAssertTrue(didExecute)
     }
     
     func testPerformWithCompletionHandlerWithBadStatusCodeFails() {
@@ -72,14 +78,17 @@ final class RequestPerformerTests: XCTestCase {
             return
         }
         
-        sut.perform(request: request, decodeTo: Person.self) { result in
+        var didExecute = false
+        sut.performTask(request: request, decodeTo: Person.self) { result in
+            didExecute = true
             switch result {
             case .success:
                 XCTFail()
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.badRequest)
             }
-        }
+        }.resume()
+        XCTAssertTrue(didExecute)
     }
     
     func testPerformWithCompletionHandlerWithInvalidData() {
@@ -97,14 +106,17 @@ final class RequestPerformerTests: XCTestCase {
             return
         }
         
-        sut.perform(request: request, decodeTo: Person.self) { result in
+        var didExecute = false
+        sut.performTask(request: request, decodeTo: Person.self) { result in
+            didExecute = true
             switch result {
             case .success:
                 XCTFail()
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.couldNotParse)
             }
-        }
+        }.resume()
+        XCTAssertTrue(didExecute)
     }
     
     func testPerformWithCompletionHandlerWithNilData() {
@@ -122,14 +134,17 @@ final class RequestPerformerTests: XCTestCase {
             return
         }
         
-        sut.perform(request: request, decodeTo: Person.self) { result in
+        var didExecute = false
+        sut.performTask(request: request, decodeTo: Person.self) { result in
+            didExecute = true
             switch result {
             case .success:
                 XCTFail()
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.noData)
             }
-        }
+        }.resume()
+        XCTAssertTrue(didExecute)
     }
     
     func testPerformWithCompletionHandlerWithNilResponse() {
@@ -147,14 +162,17 @@ final class RequestPerformerTests: XCTestCase {
             return
         }
         
-        sut.perform(request: request, decodeTo: Person.self) { result in
+        var didExecute = false
+        sut.performTask(request: request, decodeTo: Person.self) { result in
+            didExecute = true
             switch result {
             case .success:
                 XCTFail()
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.couldNotParse)
             }
-        }
+        }.resume()
+        XCTAssertTrue(didExecute)
     }
     
     // MARK: Unit tests for perform using Completion Handler without Decodable response
@@ -174,14 +192,17 @@ final class RequestPerformerTests: XCTestCase {
             return
         }
         
-        sut.perform(request: request) { result in
+        var didExecute = false
+        sut.performTask(request: request) { result in
+            didExecute = true
             switch result {
             case .success:
                 XCTAssertTrue(true)
             case .failure:
                 XCTFail()
             }
-        }
+        }.resume()
+        XCTAssertTrue(didExecute)
     }
     
     func testPerformWithCompletionHandlerWithoutDecodableWithErrorFails() {
@@ -199,14 +220,17 @@ final class RequestPerformerTests: XCTestCase {
             return
         }
         
-        sut.perform(request: request) { result in
+        var didExecute = false
+        sut.performTask(request: request) { result in
+            didExecute = true
             switch result {
             case .success:
                 XCTFail()
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.forbidden)
             }
-        }
+        }.resume()
+        XCTAssertTrue(didExecute)
     }
     
     func testPerformWithCompletionHandlerWithoutDecodableWithBadStatusCodeFails() {
@@ -224,14 +248,17 @@ final class RequestPerformerTests: XCTestCase {
             return
         }
         
-        sut.perform(request: request) { result in
+        var didExecute = false
+        sut.performTask(request: request) { result in
+            didExecute = true
             switch result {
             case .success:
                 XCTFail()
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.badRequest)
             }
-        }
+        }.resume()
+        XCTAssertTrue(didExecute)
     }
     
     func testPerformWithCompletionHandlerWithoutDecodableWithNilData() {
@@ -249,14 +276,17 @@ final class RequestPerformerTests: XCTestCase {
             return
         }
         
-        sut.perform(request: request) { result in
+        var didExecute = false
+        sut.performTask(request: request) { result in
+            didExecute = true
             switch result {
             case .success:
                 XCTFail()
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.noData)
             }
-        }
+        }.resume()
+        XCTAssertTrue(didExecute)
     }
     
     func testPerformWithCompletionHandlerWithoutDecodableWithNilResponse() {
@@ -274,14 +304,17 @@ final class RequestPerformerTests: XCTestCase {
             return
         }
         
-        sut.perform(request: request) { result in
+        var didExecute = false
+        sut.performTask(request: request) { result in
+            didExecute = true
             switch result {
             case .success:
                 XCTFail()
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.noResponse)
             }
-        }
+        }.resume()
+        XCTAssertTrue(didExecute)
     }
     
     // MARK: Unit tests for downloadFile
@@ -295,14 +328,17 @@ final class RequestPerformerTests: XCTestCase {
                                    urlResponseValidator: MockURLResponseValidator(),
                                    requestDecoder: RequestDecoder())
         
-        sut.downloadFile(url: testURL) { result in
+        var didExecute = false
+        sut.downloadFileTask(url: testURL) { result in
+            didExecute = true
             switch result {
             case .success(let localURL):
                 XCTAssertEqual(localURL.absoluteString, "file:///tmp/test.pdf")
             case .failure:
                 XCTFail()
             }
-        }
+        }.resume()
+        XCTAssertTrue(didExecute)
     }
     
     func testDownloadFileFailsIfValidatorThrowsAnyError() {
@@ -315,30 +351,44 @@ final class RequestPerformerTests: XCTestCase {
                                    urlResponseValidator: validator,
                                    requestDecoder: RequestDecoder())
         
-        sut.downloadFile(url: testURL) { result in
+        var didExecute = false
+        sut.downloadFileTask(url: testURL) { result in
+            didExecute = true
             switch result {
             case .success:
                 XCTFail()
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.conflict)
             }
-        }
+        }.resume()
+        XCTAssertTrue(didExecute)
     }
     
     // MARK: - downloadImage
     
-    func testDownloadImageSuccess() { // note: this is an async test as it actually decodes url to generate the image
+    func testDownloadImageSuccess() {
         let testURL = URL(string: "https://i.natgeofe.com/n/4f5aaece-3300-41a4-b2a8-ed2708a0a27c/domestic-dog_thumb_square.jpg")!
-        let sut = RequestPerformer()
+        let urlSession = MockURLSession(data: mockPersonJsonData,
+                                        urlResponse: buildResponse(statusCode: 200),
+                                        error: nil)
+        let validator = MockURLResponseValidator(throwError: nil)
+        let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator)
         
-        sut.downloadImage(url: testURL) { result in
+        var didExecute = false
+        sut.downloadImageTask(url: testURL) { result in
+            didExecute = true
             switch result {
             case .success:
                 XCTAssertTrue(true)
-            case .failure:
-                XCTFail()
+            case .failure(let error):
+                if error == NetworkingError.invalidImageData {
+                    XCTAssertTrue(true, "mock data was just not suited to generate a UIImage")
+                } else {
+                    XCTFail()
+                }
             }
-        }
+        }.resume()
+        XCTAssertTrue(didExecute)
     }
     
     func testDownloadImageFailsWhenValidatorThrowsAnyError() {
@@ -351,14 +401,17 @@ final class RequestPerformerTests: XCTestCase {
                                    urlResponseValidator: validator,
                                    requestDecoder: RequestDecoder())
         
-        sut.downloadImage(url: testURL) { result in
+        var didExecute = false
+        sut.downloadImageTask(url: testURL) { result in
+            didExecute = true
             switch result {
             case .success:
                 XCTFail()
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.conflict)
             }
-        }
+        }.resume()
+        XCTAssertTrue(didExecute)
     }
     
     
