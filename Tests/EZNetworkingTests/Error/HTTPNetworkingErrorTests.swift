@@ -1,7 +1,7 @@
 import XCTest
 @testable import EZNetworking
 
-final class NetworkingErrorTests: XCTestCase {
+final class HTTPNetworkingErrorTests: XCTestCase {
     
     func testStatusCode200IsOk() {
         XCTAssertEqual(buildResponse(statusCode: 200).networkingError, nil)
