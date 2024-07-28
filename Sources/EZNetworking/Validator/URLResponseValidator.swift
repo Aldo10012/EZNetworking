@@ -16,6 +16,9 @@ public struct URLResponseValidatorImpl: URLResponseValidator {
             throw NetworkingError.noResponse
         }
         if let error = error {
+            if let urlError = error as? URLError {
+                throw NetworkingError.urlError(urlError)
+            }
             throw NetworkingError.requestFailed(error)
         }
         guard let httpURLResponse = urlResponse as? HTTPURLResponse else {
@@ -37,6 +40,9 @@ public struct URLResponseValidatorImpl: URLResponseValidator {
             throw NetworkingError.noResponse
         }
         if let error = error {
+            if let urlError = error as? URLError {
+                throw NetworkingError.urlError(urlError)
+            }
             throw NetworkingError.requestFailed(error)
         }
         guard let httpURLResponse = urlResponse as? HTTPURLResponse else {

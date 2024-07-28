@@ -775,8 +775,8 @@
             filePath = "Sources/EZNetworking/Validator/URLResponseValidator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "33"
-            endingLineNumber = "33"
+            startingLineNumber = "36"
+            endingLineNumber = "36"
             landmarkName = "validateDownloadTask(url:urlResponse:error:)"
             landmarkType = "7">
          </BreakpointContent>

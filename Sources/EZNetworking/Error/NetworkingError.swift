@@ -10,11 +10,13 @@ public enum NetworkingError: Error {
     case requestFailed(Error)
     case noRequest
     case noHTTPURLResponse
-    case noConnection
     case invalidImageData
     
     // MARK: - HTTP Status Code errors
     case httpError(HTTPNetworkingError)
+    
+    // MARK: - URL Errors
+    case urlError(URLError)
 }
 
 extension NetworkingError: Equatable {
@@ -28,16 +30,18 @@ extension NetworkingError: Equatable {
             (.noResponse, .noResponse),
             (.noRequest, .noRequest),
             (.noHTTPURLResponse, .noHTTPURLResponse),
-            (.noConnection, .noConnection),
             (.invalidImageData, .invalidImageData):
             return true
-            
+
         case let (.httpError(statusCodeError), .httpError(statusCodeError2)):
             return statusCodeError == statusCodeError2
-            
+
+        case let (.urlError(error), .urlError(error2)):
+            return error == error2
+
         case let (.requestFailed(lhsError), .requestFailed(rhsError)):
             return (lhsError as NSError) == (rhsError as NSError)
-            
+
         default:
             return false
         }
