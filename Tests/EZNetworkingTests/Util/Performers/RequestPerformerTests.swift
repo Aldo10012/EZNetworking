@@ -39,9 +39,9 @@ final class RequestPerformerTests: XCTestCase {
         let urlSession = MockURLSession(
             data: mockPersonJsonData,
             urlResponse: buildResponse(statusCode: 200),
-            error: NetworkingError.forbidden
+            error: HTTPNetworkingError.forbidden
         )
-        let validator = MockURLResponseValidator(throwError: NetworkingError.forbidden)
+        let validator = MockURLResponseValidator(throwError: NetworkingError.httpError(.forbidden))
         let decoder = RequestDecoder()
         let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
@@ -57,7 +57,7 @@ final class RequestPerformerTests: XCTestCase {
             case .success:
                 XCTFail()
             case .failure(let error):
-                XCTAssertEqual(error, NetworkingError.forbidden)
+                XCTAssertEqual(error, NetworkingError.httpError(.forbidden))
             }
         }.resume()
         XCTAssertTrue(didExecute)
@@ -69,7 +69,7 @@ final class RequestPerformerTests: XCTestCase {
             urlResponse: buildResponse(statusCode: 400),
             error: nil
         )
-        let validator = MockURLResponseValidator(throwError: NetworkingError.badRequest)
+        let validator = MockURLResponseValidator(throwError: NetworkingError.httpError(.badRequest))
         let decoder = RequestDecoder()
         let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
@@ -85,7 +85,7 @@ final class RequestPerformerTests: XCTestCase {
             case .success:
                 XCTFail()
             case .failure(let error):
-                XCTAssertEqual(error, NetworkingError.badRequest)
+                XCTAssertEqual(error, NetworkingError.httpError(.badRequest))
             }
         }.resume()
         XCTAssertTrue(didExecute)
@@ -209,9 +209,9 @@ final class RequestPerformerTests: XCTestCase {
         let urlSession = MockURLSession(
             data: mockPersonJsonData,
             urlResponse: buildResponse(statusCode: 200),
-            error: NetworkingError.forbidden
+            error: NetworkingError.httpError(.forbidden)
         )
-        let validator = MockURLResponseValidator(throwError: NetworkingError.forbidden)
+        let validator = MockURLResponseValidator(throwError: NetworkingError.httpError(.forbidden))
         let decoder = RequestDecoder()
         let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
@@ -227,7 +227,7 @@ final class RequestPerformerTests: XCTestCase {
             case .success:
                 XCTFail()
             case .failure(let error):
-                XCTAssertEqual(error, NetworkingError.forbidden)
+                XCTAssertEqual(error, NetworkingError.httpError(.forbidden))
             }
         }.resume()
         XCTAssertTrue(didExecute)
@@ -255,7 +255,7 @@ final class RequestPerformerTests: XCTestCase {
             case .success:
                 XCTFail()
             case .failure(let error):
-                XCTAssertEqual(error, NetworkingError.badRequest)
+                XCTAssertEqual(error, NetworkingError.httpError(.badRequest))
             }
         }.resume()
         XCTAssertTrue(didExecute)
@@ -343,7 +343,7 @@ final class RequestPerformerTests: XCTestCase {
     
     func testDownloadFileFailsIfValidatorThrowsAnyError() {
         let testURL = URL(string: "https://example.com/example.pdf")!
-        let validator = MockURLResponseValidator(throwError: .conflict)
+        let validator = MockURLResponseValidator(throwError: NetworkingError.httpError(.conflict))
         let urlSession = MockURLSession(url: testURL,
                                         urlResponse: buildResponse(statusCode: 200),
                                         error: nil)
@@ -358,7 +358,7 @@ final class RequestPerformerTests: XCTestCase {
             case .success:
                 XCTFail()
             case .failure(let error):
-                XCTAssertEqual(error, NetworkingError.conflict)
+                XCTAssertEqual(error, NetworkingError.httpError(.conflict))
             }
         }.resume()
         XCTAssertTrue(didExecute)
@@ -396,7 +396,7 @@ final class RequestPerformerTests: XCTestCase {
         let urlSession = MockURLSession(url: testURL,
                                         urlResponse: buildResponse(statusCode: 200),
                                         error: nil)
-        let validator = MockURLResponseValidator(throwError: .conflict)
+        let validator = MockURLResponseValidator(throwError: NetworkingError.httpError(.conflict))
         let sut = RequestPerformer(urlSession: urlSession,
                                    urlResponseValidator: validator,
                                    requestDecoder: RequestDecoder())
@@ -408,7 +408,7 @@ final class RequestPerformerTests: XCTestCase {
             case .success:
                 XCTFail()
             case .failure(let error):
-                XCTAssertEqual(error, NetworkingError.conflict)
+                XCTAssertEqual(error, NetworkingError.httpError(.conflict))
             }
         }.resume()
         XCTAssertTrue(didExecute)

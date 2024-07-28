@@ -23,7 +23,7 @@ public struct URLResponseValidatorImpl: URLResponseValidator {
         }
         
         if let errorResponse = httpURLResponse.networkingError {
-            throw errorResponse
+            throw NetworkingError.httpError(errorResponse)
         }
 
         return data
@@ -44,7 +44,7 @@ public struct URLResponseValidatorImpl: URLResponseValidator {
         }
         
         if let errorResponse = httpURLResponse.networkingError {
-            throw errorResponse
+            throw NetworkingError.httpError(errorResponse)
         }
 
         return url        

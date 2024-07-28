@@ -731,6 +731,54 @@
             endingLineNumber = "17"
             landmarkName = "validate(data:urlResponse:error:)"
             landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "5E1E2B9E-9948-403D-AA4E-C3635A899ACA - f0d0cb3c6411e18c"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "EZNetworking.URLResponseValidatorImpl.validate(data: Swift.Optional&lt;Foundation.Data&gt;, urlResponse: Swift.Optional&lt;__C.NSURLResponse&gt;, error: Swift.Optional&lt;Swift.Error&gt;) throws -&gt; Foundation.Data"
+                  moduleName = "EZNetworkingTests"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/albertodominguez/dev/MySDKs/EZNetworking/Sources/EZNetworking/Validator/URLResponseValidator.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "18"
+                  endingLineNumber = "18"
+                  offsetFromSymbolStart = "369">
+               </Location>
+               <Location
+                  uuid = "5E1E2B9E-9948-403D-AA4E-C3635A899ACA - f0d0cb3c6411e18c"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "EZNetworking.URLResponseValidatorImpl.validate(data: Swift.Optional&lt;Foundation.Data&gt;, urlResponse: Swift.Optional&lt;__C.NSURLResponse&gt;, error: Swift.Optional&lt;Swift.Error&gt;) throws -&gt; Foundation.Data"
+                  moduleName = "EZNetworkingTests"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/albertodominguez/dev/MySDKs/EZNetworking/Sources/EZNetworking/Validator/URLResponseValidator.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "18"
+                  endingLineNumber = "18"
+                  offsetFromSymbolStart = "417">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "9EC7A53E-75A5-4058-B0B0-733DBB583BC7"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Sources/EZNetworking/Validator/URLResponseValidator.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "33"
+            endingLineNumber = "33"
+            landmarkName = "validateDownloadTask(url:urlResponse:error:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

@@ -25,7 +25,7 @@ final class URLResponseValidatorTests: XCTestCase {
             _ = try validator.validate(data: Data(), urlResponse: response, error: nil)
             XCTFail("Unexpected error)")
         } catch let error as NetworkingError {
-            XCTAssertEqual(error, NetworkingError.notFound)
+            XCTAssertEqual(error, NetworkingError.httpError(.notFound))
         }
     }
     
@@ -68,10 +68,10 @@ final class URLResponseValidatorTests: XCTestCase {
         let response = HTTPURLResponse(url: URL(string: "https://example.com")!, statusCode: 200, httpVersion: nil, headerFields: nil)!
         
         do {
-            _ = try validator.validate(data: Data(), urlResponse: response, error: NetworkingError.badGateway)
+            _ = try validator.validate(data: Data(), urlResponse: response, error: HTTPNetworkingError.badGateway)
             XCTFail("Unexpected error)")
         } catch let error as NetworkingError {
-            XCTAssertEqual(error, NetworkingError.requestFailed(NetworkingError.badGateway))
+            XCTAssertEqual(error, NetworkingError.requestFailed(HTTPNetworkingError.badGateway))
         }
     }
     
@@ -175,7 +175,8 @@ final class URLResponseValidatorTests: XCTestCase {
             _ = try validator.validateDownloadTask(url: url, urlResponse: response, error: nil)
             XCTFail("Unexpected error")
         } catch let error as NetworkingError {
-            XCTAssertEqual(error, NetworkingError.badRequest)
+            print(error)
+            XCTAssertEqual(error, NetworkingError.httpError(.badRequest))
         }
     }
 }

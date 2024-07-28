@@ -1,7 +1,7 @@
 import Foundation
 
 extension HTTPURLResponse {
-    var networkingError: NetworkingError? {
+    var networkingError: HTTPNetworkingError? {
         switch statusCode {
         
         // Successful Responses (200-299)

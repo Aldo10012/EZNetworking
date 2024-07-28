@@ -33,7 +33,7 @@ final class AsyncRequestPerformableTests: XCTestCase {
         let urlSession = MockURLSession(
             data: mockPersonJsonData,
             urlResponse: buildResponse(statusCode: 200),
-            error: NetworkingError.badRequest
+            error: NetworkingError.httpError(.badRequest)
         )
         let validator = MockURLResponseValidator(throwError: nil)
         let decoder = RequestDecoder()
@@ -48,7 +48,7 @@ final class AsyncRequestPerformableTests: XCTestCase {
             _ = try await sut.perform(request: request, decodeTo: Person.self)
             XCTFail()
         } catch let error as NetworkingError{
-            XCTAssertEqual(error, NetworkingError.badRequest)
+            XCTAssertEqual(error, NetworkingError.httpError(.badRequest))
         }
     }
     
@@ -58,7 +58,7 @@ final class AsyncRequestPerformableTests: XCTestCase {
             urlResponse: buildResponse(statusCode: 200),
             error: nil
         )
-        let validator = MockURLResponseValidator(throwError: .forbidden)
+        let validator = MockURLResponseValidator(throwError: NetworkingError.httpError(.forbidden))
         let decoder = RequestDecoder()
         let sut = AsyncRequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
@@ -71,7 +71,7 @@ final class AsyncRequestPerformableTests: XCTestCase {
             _ = try await sut.perform(request: request, decodeTo: Person.self)
             XCTFail()
         } catch let error as NetworkingError{
-            XCTAssertEqual(error, NetworkingError.forbidden)
+            XCTAssertEqual(error, NetworkingError.httpError(.forbidden))
         }
     }
     
@@ -104,7 +104,7 @@ final class AsyncRequestPerformableTests: XCTestCase {
         let urlSession = MockURLSession(
             data: mockPersonJsonData,
             urlResponse: buildResponse(statusCode: 200),
-            error: NetworkingError.badRequest
+            error: NetworkingError.httpError(.badRequest)
         )
         let validator = MockURLResponseValidator(throwError: nil)
         let decoder = RequestDecoder()
@@ -119,7 +119,7 @@ final class AsyncRequestPerformableTests: XCTestCase {
             try await sut.perform(request: request)
             XCTFail()
         } catch let error as NetworkingError{
-            XCTAssertEqual(error, NetworkingError.badRequest)
+            XCTAssertEqual(error, NetworkingError.httpError(.badRequest))
         }
     }
     
@@ -129,7 +129,7 @@ final class AsyncRequestPerformableTests: XCTestCase {
             urlResponse: buildResponse(statusCode: 200),
             error: nil
         )
-        let validator = MockURLResponseValidator(throwError: .forbidden)
+        let validator = MockURLResponseValidator(throwError: NetworkingError.httpError(.forbidden))
         let decoder = RequestDecoder()
         let sut = AsyncRequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
@@ -141,8 +141,8 @@ final class AsyncRequestPerformableTests: XCTestCase {
         do {
             try await sut.perform(request: request)
             XCTFail()
-        } catch let error as NetworkingError{
-            XCTAssertEqual(error, NetworkingError.forbidden)
+        } catch let error as NetworkingError {
+            XCTAssertEqual(error, NetworkingError.httpError(.forbidden))
         }
     }
     
@@ -174,7 +174,7 @@ final class AsyncRequestPerformableTests: XCTestCase {
             urlResponse: buildResponse(statusCode: 200),
             error: nil
         )
-        let validator = MockURLResponseValidator(throwError: .forbidden)
+        let validator = MockURLResponseValidator(throwError: NetworkingError.httpError(.forbidden))
         let decoder = RequestDecoder()
         let sut = AsyncRequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
@@ -182,7 +182,7 @@ final class AsyncRequestPerformableTests: XCTestCase {
             _ = try await sut.downloadFile(with: testURL)
             XCTFail("unexpected error")
         } catch let error as NetworkingError{
-            XCTAssertEqual(error, NetworkingError.forbidden)
+            XCTAssertEqual(error, NetworkingError.httpError(.forbidden))
         }
     }
     
@@ -201,7 +201,7 @@ final class AsyncRequestPerformableTests: XCTestCase {
             _ = try await sut.downloadFile(with: testURL)
             XCTFail("unexpected error")
         } catch let error as NetworkingError{
-            XCTAssertEqual(error, NetworkingError.badRequest)
+            XCTAssertEqual(error, NetworkingError.httpError(.badRequest))
         }
     }
     
@@ -244,7 +244,7 @@ final class AsyncRequestPerformableTests: XCTestCase {
                                         url: testURL,
                                         urlResponse: buildResponse(statusCode: 200),
                                         error: nil)
-        let validator = MockURLResponseValidator(throwError: .badRequest)
+        let validator = MockURLResponseValidator(throwError: NetworkingError.httpError(.badRequest))
         let sut = AsyncRequestPerformer(urlSession: urlSession,
                                    urlResponseValidator: validator,
                                    requestDecoder: RequestDecoder())
@@ -252,7 +252,7 @@ final class AsyncRequestPerformableTests: XCTestCase {
             _ = try await sut.downloadImage(from: testURL)
             XCTFail()
         } catch let error as NetworkingError {
-            XCTAssertEqual(error, NetworkingError.badRequest)
+            XCTAssertEqual(error, NetworkingError.httpError(.badRequest))
         }
     }
 

@@ -13,9 +13,42 @@ public enum NetworkingError: Error {
     case noConnection
     case invalidImageData
     
-    
     // MARK: - HTTP Status Code errors
-    
+    case httpError(HTTPNetworkingError)
+}
+
+extension NetworkingError: Equatable {
+    public static func ==(lhs: NetworkingError, rhs: NetworkingError) -> Bool {
+        switch (lhs, rhs) {
+        case (.unknown, .unknown),
+            (.noURL, .noURL),
+            (.couldNotParse, .couldNotParse),
+            (.invalidError, .invalidError),
+            (.noData, .noData),
+            (.noResponse, .noResponse),
+            (.noRequest, .noRequest),
+            (.noHTTPURLResponse, .noHTTPURLResponse),
+            (.noConnection, .noConnection),
+            (.invalidImageData, .invalidImageData):
+            return true
+            
+        case let (.httpError(statusCodeError), .httpError(statusCodeError2)):
+            return statusCodeError == statusCodeError2
+            
+        case let (.requestFailed(lhsError), .requestFailed(rhsError)):
+            return (lhsError as NSError) == (rhsError as NSError)
+            
+        default:
+            return false
+        }
+    }
+}
+
+
+
+
+
+public enum HTTPNetworkingError: Error {
     // Successful Responses (200-299)
     case ok
     
@@ -72,22 +105,14 @@ public enum NetworkingError: Error {
     case loopDetected
     case notExtended
     case networkAuthenticationRequired
+    
+    case unknown
 }
 
-extension NetworkingError: Equatable {
-    public static func ==(lhs: NetworkingError, rhs: NetworkingError) -> Bool {
+extension HTTPNetworkingError: Equatable {
+    public static func ==(lhs: HTTPNetworkingError, rhs: HTTPNetworkingError) -> Bool {
             switch (lhs, rhs) {
-            case (.unknown, .unknown),
-                 (.noURL, .noURL),
-                 (.couldNotParse, .couldNotParse),
-                 (.invalidError, .invalidError),
-                 (.noData, .noData),
-                 (.noResponse, .noResponse),
-                 (.noRequest, .noRequest),
-                 (.noHTTPURLResponse, .noHTTPURLResponse),
-                 (.noConnection, .noConnection),
-                 (.invalidImageData, .invalidImageData),
-                 (.ok, .ok),
+            case (.ok, .ok),
                  (.multipleChoices, .multipleChoices),
                  (.movedPermanently, .movedPermanently),
                  (.found, .found),
@@ -135,14 +160,11 @@ extension NetworkingError: Equatable {
                  (.insufficientStorage, .insufficientStorage),
                  (.loopDetected, .loopDetected),
                  (.notExtended, .notExtended),
-                 (.networkAuthenticationRequired, .networkAuthenticationRequired):
+                 (.networkAuthenticationRequired, .networkAuthenticationRequired),
+                 (.unknown, .unknown):
                 return true
-            case let (.requestFailed(lhsError), .requestFailed(rhsError)):
-                return (lhsError as NSError) == (rhsError as NSError)
             default:
                 return false
             }
         }
-    
-    
 }
