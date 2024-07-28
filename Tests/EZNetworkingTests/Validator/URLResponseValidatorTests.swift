@@ -83,7 +83,7 @@ final class URLResponseValidatorTests: XCTestCase {
             _ = try validator.validate(data: Data(), urlResponse: response, error:  URLError(.notConnectedToInternet))
             XCTFail("Unexpected error)")
         } catch let error as NetworkingError {
-            XCTAssertEqual(error, NetworkingError.noConnection)
+            XCTAssertEqual(error, NetworkingError.requestFailed(URLError(.notConnectedToInternet)))
         }
     }
 
@@ -149,7 +149,7 @@ final class URLResponseValidatorTests: XCTestCase {
             _ = try validator.validateDownloadTask(url: url, urlResponse: response, error: URLError(.notConnectedToInternet))
             XCTFail("Unexpected error")
         } catch let error as NetworkingError {
-            XCTAssertEqual(error, NetworkingError.noConnection)
+            XCTAssertEqual(error, NetworkingError.requestFailed(URLError(.notConnectedToInternet)))
         }
     }
     

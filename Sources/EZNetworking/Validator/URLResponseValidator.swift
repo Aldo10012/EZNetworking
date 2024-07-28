@@ -16,12 +16,7 @@ public struct URLResponseValidatorImpl: URLResponseValidator {
             throw NetworkingError.noResponse
         }
         if let error = error {
-            switch error {
-            case URLError.notConnectedToInternet:
-                throw NetworkingError.noConnection
-            default:
-                throw NetworkingError.requestFailed(error)
-            }
+            throw NetworkingError.requestFailed(error)
         }
         guard let httpURLResponse = urlResponse as? HTTPURLResponse else {
             throw NetworkingError.noHTTPURLResponse
@@ -42,12 +37,7 @@ public struct URLResponseValidatorImpl: URLResponseValidator {
             throw NetworkingError.noResponse
         }
         if let error = error {
-            switch error {
-            case URLError.notConnectedToInternet:
-                throw NetworkingError.noConnection
-            default:
-                throw NetworkingError.requestFailed(error)
-            }
+            throw NetworkingError.requestFailed(error)
         }
         guard let httpURLResponse = urlResponse as? HTTPURLResponse else {
             throw NetworkingError.noHTTPURLResponse
