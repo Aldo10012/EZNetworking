@@ -27,12 +27,11 @@ public struct URLResponseValidatorImpl: URLResponseValidator {
             throw NetworkingError.noHTTPURLResponse
         }
         
-        let errorResponse = httpURLResponse.networkingError
-        if case .ok = errorResponse {
-            return data
-        } else {
+        if let errorResponse = httpURLResponse.networkingError {
             throw errorResponse
         }
+
+        return data
     }
     
     public func validateDownloadTask(url: URL?, urlResponse: URLResponse?, error: Error?) throws -> URL {
@@ -54,11 +53,10 @@ public struct URLResponseValidatorImpl: URLResponseValidator {
             throw NetworkingError.noHTTPURLResponse
         }
         
-        let errorResponse = httpURLResponse.networkingError
-        if case .ok = errorResponse {
-            return url
-        } else {
+        if let errorResponse = httpURLResponse.networkingError {
             throw errorResponse
         }
+
+        return url        
     }
 }

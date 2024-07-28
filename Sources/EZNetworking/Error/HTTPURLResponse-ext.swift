@@ -1,11 +1,11 @@
 import Foundation
 
 extension HTTPURLResponse {
-    var networkingError: NetworkingError {
+    var networkingError: NetworkingError? {
         switch statusCode {
         
         // Successful Responses (200-299)
-        case 200...299: return .ok
+        case 200...299: return nil
         
         // Redirection Messages (300-399)
         case 300: return .multipleChoices
