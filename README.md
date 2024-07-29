@@ -29,7 +29,7 @@ swift
 Copy code
 ```
 dependencies: [
-    .package(url: "https://github.com/Aldo10012/EZNetworking.git", from: "1.0.0")
+    .package(url: "https://github.com/Aldo10012/EZNetworking.git", from: "2.1.0")
 ]
 ```
 Alternatively, you can add the package directly through Xcode:
