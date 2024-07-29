@@ -214,12 +214,11 @@ func asyncMethodName() async throws {
 }
 ```
 
-
 #### How to get an api response using completion handlers?
 ```swift
 let request = RequestBuilder().build(httpMethod: .GET, urlString: "http://www.example.com", parameters: [])
 let performer = RequestPerformer()
-performer.perform(request: request, decodeTo: Person.self) { result in
+let task = performer.performTask(request: request, decodeTo: Person.self) { result in
     switch result {
     case .success(let person):
         print(person.name, person.age)
@@ -227,13 +226,14 @@ performer.perform(request: request, decodeTo: Person.self) { result in
         print(error)
     }
 }
+task.resume()
 ```
 
 #### How to make api call using completion handlers without decoding a response?
 ```swift
 let request = RequestBuilder().build(httpMethod: .GET, urlString: "http://www.example.com", parameters: [])
 let performer = RequestPerformer()
-performer.perform(request: request) { result in
+let task = performer.performTask(request: request) { result in
     switch result {
     case .success:
         print("did succeed")
@@ -241,4 +241,5 @@ performer.perform(request: request) { result in
         print(error)
     }
 }
+task.reaume()
 ```
