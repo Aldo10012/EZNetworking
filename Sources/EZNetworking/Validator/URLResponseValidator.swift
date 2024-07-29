@@ -29,7 +29,7 @@ public struct URLResponseValidatorImpl: URLResponseValidator {
         }
         return data
     }
-    
+
     public func validateDownloadTask(url: URL?, urlResponse: URLResponse?, error: Error?) throws -> URL {
         if let error = error {
             if let urlError = error as? URLError {
@@ -49,6 +49,6 @@ public struct URLResponseValidatorImpl: URLResponseValidator {
         if let httpError = HTTPNetworkingError.fromStatusCode(httpURLResponse.statusCode) {
             throw NetworkingError.httpError(httpError)
         }
-        return url        
+        return url
     }
 }

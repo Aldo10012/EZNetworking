@@ -3,10 +3,10 @@ import Foundation
 extension HTTPNetworkingError {
     static func fromStatusCode(_ statusCode: Int) -> HTTPNetworkingError? {
         switch statusCode {
-        
+
         // Successful Responses (200-299)
         case 200...299: return nil
-        
+
         // Redirection Messages (300-399)
         case 300: return .multipleChoices
         case 301: return .movedPermanently
@@ -16,7 +16,7 @@ extension HTTPNetworkingError {
         case 305: return .useProxy
         case 307: return .temporaryRedirect
         case 308: return .permanentRedirect
-        
+
         // Client Errors (400-499)
         case 400: return .badRequest
         case 401: return .unauthorized
@@ -47,7 +47,7 @@ extension HTTPNetworkingError {
         case 429: return .tooManyRequests
         case 431: return .requestHeaderFieldsTooLarge
         case 451: return .unavailableForLegalReasons
-        
+
         // Server Errors (500-599)
         case 500: return .internalServerError
         case 501: return .notImplemented
@@ -60,7 +60,7 @@ extension HTTPNetworkingError {
         case 508: return .loopDetected
         case 510: return .notExtended
         case 511: return .networkAuthenticationRequired
-        
+
         // Unknown or Unhandled Status Code
         default: return .unknown
         }

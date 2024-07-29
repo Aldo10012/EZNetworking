@@ -3,7 +3,7 @@ import Foundation
 public enum HTTPNetworkingError: Error {
     // Successful Responses (200-299)
     case ok
-    
+
     // Redirection Messages (300-399)
     case multipleChoices
     case movedPermanently
@@ -13,7 +13,7 @@ public enum HTTPNetworkingError: Error {
     case useProxy
     case temporaryRedirect
     case permanentRedirect
-    
+
     // Client Errors (400-499)
     case badRequest
     case unauthorized
@@ -44,7 +44,7 @@ public enum HTTPNetworkingError: Error {
     case tooManyRequests
     case requestHeaderFieldsTooLarge
     case unavailableForLegalReasons
-    
+
     // Server Errors (500-599)
     case internalServerError
     case notImplemented
@@ -57,7 +57,7 @@ public enum HTTPNetworkingError: Error {
     case loopDetected
     case notExtended
     case networkAuthenticationRequired
-    
+
     case unknown
 }
 

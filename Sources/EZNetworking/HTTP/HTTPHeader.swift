@@ -17,7 +17,7 @@ public enum HTTPHeader {
     case referer(String)
     case userAgent(String)
     case custom(key: String, value: String)
-    
+
     var key: String {
         switch self {
         case .accept: return "Accept"
@@ -38,7 +38,7 @@ public enum HTTPHeader {
         case .custom(let key, _): return key
         }
     }
-    
+
     var value: String {
         switch self {
         case .accept(let accept): return accept.value
@@ -66,7 +66,7 @@ public enum MediaType {
     case xml
     case formUrlEncoded
     case custon(String)
-    
+
     var value: String {
         switch self {
         case .json: return "application/json"
@@ -80,7 +80,7 @@ public enum MediaType {
 public enum AuthorizationType {
     case bearer(String)
     case custom(String)
-    
+
     var value: String {
         switch self {
         case .bearer(let value): return "Bearer \(value)"

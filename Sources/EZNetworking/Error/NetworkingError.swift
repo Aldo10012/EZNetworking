@@ -11,10 +11,10 @@ public enum NetworkingError: Error {
     case noRequest
     case noHTTPURLResponse
     case invalidImageData
-    
+
     // MARK: - HTTP Status Code errors
     case httpError(HTTPNetworkingError)
-    
+
     // MARK: - URL Errors
     case urlError(URLError)
 }

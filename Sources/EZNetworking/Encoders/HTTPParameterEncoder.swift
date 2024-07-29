@@ -10,7 +10,7 @@ public struct HTTPParameterEncoderImpl: HTTPParameterEncoder {
         guard let url = urlRequest.url else {
             throw NetworkingError.noURL
         }
-        
+
         if var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false), !parameters.isEmpty {
             urlComponents.queryItems = [URLQueryItem]()
             for param in parameters {

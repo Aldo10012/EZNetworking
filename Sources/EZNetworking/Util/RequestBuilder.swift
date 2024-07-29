@@ -34,7 +34,7 @@ public class RequestBuilder: RequestBuildable {
         request.httpMethod = httpMethod.rawValue
         request.httpBody = body
         request.timeoutInterval = timeoutInterval
-        
+
         if let parameters = parameters {
             try? paramEncoder.encodeParameters(for: &request, with: parameters)
         }
