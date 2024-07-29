@@ -198,13 +198,4 @@ final class HTTPNetworkingErrorTests: XCTestCase {
     func testStatusCode511IsNetworkAuthenticationRequired() {
         XCTAssertEqual(HTTPNetworkingError.fromStatusCode(511), HTTPNetworkingError.networkAuthenticationRequired)
     }
-    
-    
-    private func buildResponse(statusCode: Int) -> HTTPURLResponse {
-        HTTPURLResponse(url: URL(string: "https://example.com")!,
-                        statusCode: statusCode,
-                        httpVersion: nil,
-                        headerFields: nil)!
-    }
-    
 }
