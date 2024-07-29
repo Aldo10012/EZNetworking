@@ -15,8 +15,8 @@ EZNetworking is a Swift package that provides a set of awesome utilities to make
     - [How to make api call with Async/Await without decoding a response?](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#how-to-make-api-call-using-asyncawait-without-decoding-a-response)
     - [How to get an api response using Completion Handler?](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#how-to-get-an-api-response-using-completion-handlers)
     - [How to make api call with Completion Handler without decoding a response?](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#how-to-make-api-call-using-completion-handlers-without-decoding-a-response)
-- [Download file](https://github.com/Aldo10012/EZNetworking/edit/main/README.md#download-files)
-- [Downlaod Image](https://github.com/Aldo10012/EZNetworking/edit/main/README.md#download-images)
+- [Download file](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#download-files)
+- [Downlaod Image](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#download-images)
  
 
 ## Installation
