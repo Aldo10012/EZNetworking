@@ -25,8 +25,8 @@ public struct URLResponseValidatorImpl: URLResponseValidator {
             throw NetworkingError.noHTTPURLResponse
         }
         
-        if let errorResponse = httpURLResponse.networkingError {
-            throw NetworkingError.httpError(errorResponse)
+        if let httpError = HTTPNetworkingError.fromStatusCode(httpURLResponse.statusCode) {
+            throw NetworkingError.httpError(httpError)
         }
 
         return data
@@ -49,8 +49,8 @@ public struct URLResponseValidatorImpl: URLResponseValidator {
             throw NetworkingError.noHTTPURLResponse
         }
         
-        if let errorResponse = httpURLResponse.networkingError {
-            throw NetworkingError.httpError(errorResponse)
+        if let httpError = HTTPNetworkingError.fromStatusCode(httpURLResponse.statusCode) {
+            throw NetworkingError.httpError(httpError)
         }
 
         return url        

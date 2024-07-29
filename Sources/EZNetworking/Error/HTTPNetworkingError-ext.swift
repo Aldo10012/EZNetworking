@@ -1,7 +1,7 @@
 import Foundation
 
-extension HTTPURLResponse {
-    var networkingError: HTTPNetworkingError? {
+extension HTTPNetworkingError {
+    static func fromStatusCode(_ statusCode: Int) -> HTTPNetworkingError? {
         switch statusCode {
         
         // Successful Responses (200-299)
