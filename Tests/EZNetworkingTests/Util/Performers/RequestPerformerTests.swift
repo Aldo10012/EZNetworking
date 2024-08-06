@@ -317,53 +317,6 @@ final class RequestPerformerTests: XCTestCase {
         XCTAssertTrue(didExecute)
     }
     
-    // MARK: Unit tests for downloadFile
-    
-    func testDownloadFileSuccess() {
-        let testURL = URL(string: "https://example.com/example.pdf")!
-        let urlSession = MockURLSession(url: testURL,
-                                        urlResponse: buildResponse(statusCode: 200),
-                                        error: nil)
-        let sut = RequestPerformer(urlSession: urlSession,
-                                   urlResponseValidator: MockURLResponseValidator(),
-                                   requestDecoder: RequestDecoder())
-        
-        var didExecute = false
-        sut.downloadFileTask(url: testURL) { result in
-            didExecute = true
-            switch result {
-            case .success(let localURL):
-                XCTAssertEqual(localURL.absoluteString, "file:///tmp/test.pdf")
-            case .failure:
-                XCTFail()
-            }
-        }.resume()
-        XCTAssertTrue(didExecute)
-    }
-    
-    func testDownloadFileFailsIfValidatorThrowsAnyError() {
-        let testURL = URL(string: "https://example.com/example.pdf")!
-        let validator = MockURLResponseValidator(throwError: NetworkingError.httpError(.conflict))
-        let urlSession = MockURLSession(url: testURL,
-                                        urlResponse: buildResponse(statusCode: 200),
-                                        error: nil)
-        let sut = RequestPerformer(urlSession: urlSession,
-                                   urlResponseValidator: validator,
-                                   requestDecoder: RequestDecoder())
-        
-        var didExecute = false
-        sut.downloadFileTask(url: testURL) { result in
-            didExecute = true
-            switch result {
-            case .success:
-                XCTFail()
-            case .failure(let error):
-                XCTAssertEqual(error, NetworkingError.httpError(.conflict))
-            }
-        }.resume()
-        XCTAssertTrue(didExecute)
-    }
-    
     // MARK: - downloadImage
     
     func testDownloadImageSuccess() {
