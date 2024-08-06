@@ -248,13 +248,13 @@ task.reaume()
 
 ### Download Files
 
-You can easily download files with `async/await` using `AsyncRequestPerformer()` or with completion handlers using `RequestPerformer()`
+You can easily download files with `async/await` using or with completion handlers using `FileDownloader()`
 
 #### Async/Await
 ```swift
 let testURL = URL(string: "https://example.com/example.pdf")!
 do {
-    let localURL = try await AsyncRequestPerformer().downloadFile(with: testURL)
+    let localURL = try await FileDownloader().downloadFile(with: testURL)
     // handle the returned local URL path. Perhaps write and save it in FileManager
 } catch let error as NetworkingError{
     // handle error
@@ -264,7 +264,7 @@ do {
 #### Completion hander
 ```swift
 let testURL = URL(string: "https://example.com/example.pdf")!
-let task = RequestPerformer().downloadFile(url: testURL) { result in
+let task = FileDownloader().downloadFile(url: testURL) { result in
     switch result {
     case .success:
         // handle the returned local URL path. Perhaps write and save it in FileManager
@@ -277,13 +277,13 @@ task.resume()
 
 ### Download Images
 
-You can easily download images with `async/await` using `AsyncRequestPerformer()` or with completion handlers using `RequestPerformer()`
+You can easily download images with `async/await` or with completion handlers using `ImageDownloader()`
 
 #### Async/Await
 ```swift
 let imageURL = URL(string: "https://some_image_url.png")
 do {
-    let image = try await AsyncRequestPerformer().downloadImage(from: imageURL)
+    let image = try await ImageDownloader().downloadImage(from: imageURL)
     // handle success
 } catch let error as NetworkingError {
     // handle error
@@ -293,7 +293,7 @@ do {
 #### Completion hander
 ```swift
 let imageURL = URL(string: "https://some_image_url.png")
-let task = RequestPerformer().downloadImageTask(url: imageURL) { result in
+let task = ImageDownloader().downloadImageTask(url: imageURL) { result in
     switch result {
     case .success:
         // handle success
