@@ -4,8 +4,6 @@ import UIKit
 public protocol AsyncRequestPerformable {
     func perform<T: Decodable>(request: URLRequest, decodeTo decodableObject: T.Type) async throws -> T
     func perform(request: URLRequest) async throws
-    func downloadFile(with url: URL) async throws -> URL
-    func downloadImage(from url: URL) async throws -> UIImage
 }
 
 public struct AsyncRequestPerformer: AsyncRequestPerformable {
@@ -41,35 +39,6 @@ public struct AsyncRequestPerformer: AsyncRequestPerformable {
         do {
             let (data, response) = try await urlSession.data(for: request, delegate: nil)
             _ = try urlResponseValidator.validate(data: data, urlResponse: response, error: nil)
-        } catch let error as NetworkingError {
-            throw error
-        } catch {
-            throw NetworkingError.unknown
-        }
-    }
-    
-    public func downloadFile(with url: URL) async throws -> URL {
-        do {
-            let (url, urlResponse) = try await urlSession.download(from: url, delegate: nil)
-            let localURL = try urlResponseValidator.validateDownloadTask(url: url, urlResponse: urlResponse, error: nil)
-            return localURL
-        } catch let error as NetworkingError {
-            throw error
-        } catch {
-            throw NetworkingError.unknown
-        }
-    }
-    
-    public func downloadImage(from url: URL) async throws -> UIImage {
-        do {
-            let (data, response) = try await urlSession.data(from: url, delegate: nil)
-            let validData = try urlResponseValidator.validate(data: data, urlResponse: response, error: nil)
-            
-            guard let image = UIImage(data: validData) else {
-                throw NetworkingError.invalidImageData
-            }
-            
-            return image
         } catch let error as NetworkingError {
             throw error
         } catch {
