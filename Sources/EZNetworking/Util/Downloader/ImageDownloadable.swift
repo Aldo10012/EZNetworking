@@ -23,11 +23,7 @@ public struct ImageDownloader: ImageDownloadable {
         do {
             let (data, response) = try await urlSession.data(from: url, delegate: nil)
             let validData = try urlResponseValidator.validate(data: data, urlResponse: response, error: nil)
-            
-            guard let image = UIImage(data: validData) else {
-                throw NetworkingError.invalidImageData
-            }
-            
+            let image = try getImage(from: validData)
             return image
         } catch let error as NetworkingError {
             throw error
@@ -40,9 +36,7 @@ public struct ImageDownloader: ImageDownloadable {
         return urlSession.dataTask(with: url) { data, response, error in
             do {
                 let validData = try self.urlResponseValidator.validate(data: data, urlResponse: response, error: error)
-                guard let image = UIImage(data: validData) else {
-                    throw NetworkingError.invalidImageData
-                }
+                let image = try getImage(from: validData)
                 completion(.success(image))
             } catch let networkError as NetworkingError {
                 completion(.failure(networkError))
@@ -50,5 +44,12 @@ public struct ImageDownloader: ImageDownloadable {
                 completion(.failure(.unknown))
             }
         }
+    }
+    
+    private func getImage(from data: Data) throws -> UIImage {
+        guard let image = UIImage(data: data) else {
+            throw NetworkingError.invalidImageData
+        }
+        return image
     }
 }
