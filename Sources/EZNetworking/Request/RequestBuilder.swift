@@ -2,7 +2,7 @@ import Foundation
 
 public protocol RequestBuildable {
     func build(httpMethod: HTTPMethod,
-               urlString: String,
+               baseUrlString: String,
                parameters: [HTTPParameter]?,
                headers: [HTTPHeader]?,
                body: Data?,
@@ -20,13 +20,13 @@ public class RequestBuilder: RequestBuildable {
     }
 
     public func build(httpMethod: HTTPMethod,
-               urlString: String,
+               baseUrlString: String,
                parameters: [HTTPParameter]?,
                headers: [HTTPHeader]? = nil,
                body: Data? = nil,
                timeoutInterval: TimeInterval = 60
     ) -> URLRequest? {
-        guard let url = URL(string: urlString) else {
+        guard let url = URL(string: baseUrlString) else {
             return nil
         }
 

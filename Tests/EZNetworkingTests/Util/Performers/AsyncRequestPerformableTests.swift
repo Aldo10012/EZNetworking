@@ -15,7 +15,7 @@ final class AsyncRequestPerformableTests: XCTestCase {
         let decoder = RequestDecoder()
         let sut = AsyncRequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
-        guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
+        guard let request = RequestBuilder().build(httpMethod: .GET, baseUrlString: "https://www.example.com", parameters: nil) else {
             XCTFail("Failed to create URLRequest")
             return
         }
@@ -39,7 +39,7 @@ final class AsyncRequestPerformableTests: XCTestCase {
         let decoder = RequestDecoder()
         let sut = AsyncRequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
-        guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
+        guard let request = RequestBuilder().build(httpMethod: .GET, baseUrlString: "https://www.example.com", parameters: nil) else {
             XCTFail("Failed to create URLRequest")
             return
         }
@@ -62,7 +62,7 @@ final class AsyncRequestPerformableTests: XCTestCase {
         let decoder = RequestDecoder()
         let sut = AsyncRequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
-        guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
+        guard let request = RequestBuilder().build(httpMethod: .GET, baseUrlString: "https://www.example.com", parameters: nil) else {
             XCTFail("Failed to create URLRequest")
             return
         }
@@ -85,7 +85,7 @@ final class AsyncRequestPerformableTests: XCTestCase {
         let decoder = RequestDecoder()
         let sut = AsyncRequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
-        guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
+        guard let request = RequestBuilder().build(httpMethod: .GET, baseUrlString: "https://www.example.com", parameters: nil) else {
             XCTFail("Failed to create URLRequest")
             return
         }
@@ -110,7 +110,7 @@ final class AsyncRequestPerformableTests: XCTestCase {
         let decoder = RequestDecoder()
         let sut = AsyncRequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
-        guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
+        guard let request = RequestBuilder().build(httpMethod: .GET, baseUrlString: "https://www.example.com", parameters: nil) else {
             XCTFail("Failed to create URLRequest")
             return
         }
@@ -133,7 +133,7 @@ final class AsyncRequestPerformableTests: XCTestCase {
         let decoder = RequestDecoder()
         let sut = AsyncRequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
-        guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
+        guard let request = RequestBuilder().build(httpMethod: .GET, baseUrlString: "https://www.example.com", parameters: nil) else {
             XCTFail("Failed to create URLRequest")
             return
         }
@@ -156,7 +156,7 @@ final class AsyncRequestPerformableTests: XCTestCase {
         let decoder = RequestDecoder()
         let sut = AsyncRequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
-        guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
+        guard let request = RequestBuilder().build(httpMethod: .GET, baseUrlString: "https://www.example.com", parameters: nil) else {
             XCTFail("Failed to create URLRequest")
             return
         }
@@ -179,7 +179,7 @@ final class AsyncRequestPerformableTests: XCTestCase {
         let decoder = RequestDecoder()
         let sut = AsyncRequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
-        guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
+        guard let request = RequestBuilder().build(httpMethod: .GET, baseUrlString: "https://www.example.com", parameters: nil) else {
             XCTFail("Failed to create URLRequest")
             return
         }

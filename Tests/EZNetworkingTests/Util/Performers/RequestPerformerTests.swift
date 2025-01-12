@@ -16,7 +16,7 @@ final class RequestPerformerTests: XCTestCase {
         let decoder = RequestDecoder()
         let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
-        guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
+        guard let request = RequestBuilder().build(httpMethod: .GET, baseUrlString: "https://www.example.com", parameters: nil) else {
             XCTFail()
             return
         }
@@ -45,7 +45,7 @@ final class RequestPerformerTests: XCTestCase {
         let decoder = RequestDecoder()
         let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
-        guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
+        guard let request = RequestBuilder().build(httpMethod: .GET, baseUrlString: "https://www.example.com", parameters: nil) else {
             XCTFail()
             return
         }
@@ -73,7 +73,7 @@ final class RequestPerformerTests: XCTestCase {
         let decoder = RequestDecoder()
         let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
-        guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
+        guard let request = RequestBuilder().build(httpMethod: .GET, baseUrlString: "https://www.example.com", parameters: nil) else {
             XCTFail()
             return
         }
@@ -101,7 +101,7 @@ final class RequestPerformerTests: XCTestCase {
         let decoder = RequestDecoder()
         let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
-        guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
+        guard let request = RequestBuilder().build(httpMethod: .GET, baseUrlString: "https://www.example.com", parameters: nil) else {
             XCTFail()
             return
         }
@@ -129,7 +129,7 @@ final class RequestPerformerTests: XCTestCase {
         let decoder = RequestDecoder()
         let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
-        guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
+        guard let request = RequestBuilder().build(httpMethod: .GET, baseUrlString: "https://www.example.com", parameters: nil) else {
             XCTFail()
             return
         }
@@ -157,7 +157,7 @@ final class RequestPerformerTests: XCTestCase {
         let decoder = RequestDecoder()
         let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
-        guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
+        guard let request = RequestBuilder().build(httpMethod: .GET, baseUrlString: "https://www.example.com", parameters: nil) else {
             XCTFail()
             return
         }
@@ -187,7 +187,7 @@ final class RequestPerformerTests: XCTestCase {
         let decoder = RequestDecoder()
         let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
-        guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
+        guard let request = RequestBuilder().build(httpMethod: .GET, baseUrlString: "https://www.example.com", parameters: nil) else {
             XCTFail()
             return
         }
@@ -215,7 +215,7 @@ final class RequestPerformerTests: XCTestCase {
         let decoder = RequestDecoder()
         let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
-        guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
+        guard let request = RequestBuilder().build(httpMethod: .GET, baseUrlString: "https://www.example.com", parameters: nil) else {
             XCTFail()
             return
         }
@@ -243,7 +243,7 @@ final class RequestPerformerTests: XCTestCase {
         let decoder = RequestDecoder()
         let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
-        guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
+        guard let request = RequestBuilder().build(httpMethod: .GET, baseUrlString: "https://www.example.com", parameters: nil) else {
             XCTFail()
             return
         }
@@ -271,7 +271,7 @@ final class RequestPerformerTests: XCTestCase {
         let decoder = RequestDecoder()
         let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
-        guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
+        guard let request = RequestBuilder().build(httpMethod: .GET, baseUrlString: "https://www.example.com", parameters: nil) else {
             XCTFail()
             return
         }
@@ -299,7 +299,7 @@ final class RequestPerformerTests: XCTestCase {
         let decoder = RequestDecoder()
         let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
-        guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
+        guard let request = RequestBuilder().build(httpMethod: .GET, baseUrlString: "https://www.example.com", parameters: nil) else {
             XCTFail()
             return
         }

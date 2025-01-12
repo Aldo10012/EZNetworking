@@ -26,7 +26,7 @@ class EZNetworkUtil {
                  headers: [HTTPHeader]? = nil,
                  body: Data? = nil,
                  timeoutInterval: TimeInterval = 60) -> EZNetworkUtil {
-        self.request = builder.build(httpMethod: httpMethod, urlString: urlString, parameters: parameters, headers: headers, body: body, timeoutInterval: timeoutInterval)
+        self.request = builder.build(httpMethod: httpMethod, baseUrlString: urlString, parameters: parameters, headers: headers, body: body, timeoutInterval: timeoutInterval)
         return self
     }
 
