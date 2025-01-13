@@ -14,16 +14,14 @@ public extension Request {
 }
 
 internal extension Request {
-    func build() throws -> URLRequest {
-        let request = RequestBuilder().build(httpMethod: httpMethod,
-                                             baseUrlString: baseUrlString,
-                                             parameters: parameters,
-                                             headers: header,
-                                             body: body,
-                                             timeoutInterval: timeoutInterval)
-        guard let unwrappedUrlRequest = request else {
-            throw NetworkingError.noRequest
-        }
-        return unwrappedUrlRequest
+    func build() -> URLRequest {
+        return RequestBuilder()
+            .build(httpMethod: httpMethod,
+                   baseUrlString: baseUrlString,
+                   parameters: parameters,
+                   headers: header,
+                   body: body,
+                   timeoutInterval: timeoutInterval
+            )!
     }
 }
