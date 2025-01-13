@@ -19,7 +19,7 @@ final class RequestBuilderTests: XCTestCase {
         let timeoutInterval: TimeInterval = 30
         
         let request = builder.build(httpMethod: httpMethod,
-                                    urlString: urlString,
+                                    baseUrlString: urlString,
                                     parameters: parameters,
                                     headers: headers,
                                     body: body,
@@ -41,7 +41,7 @@ final class RequestBuilderTests: XCTestCase {
         let httpMethod = HTTPMethod.PUT
         
         let request = builder.build(httpMethod: httpMethod,
-                                    urlString: urlString,
+                                    baseUrlString: urlString,
                                     parameters: nil,
                                     headers: nil,
                                     body: nil,

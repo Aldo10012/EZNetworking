@@ -6,24 +6,17 @@ final class RequestPerformerTests: XCTestCase {
 
     // MARK: Unit tests for perform using Completion Handler
 
-    func testPerformWithCompletionHandlerDoesDecodePerson() {
-        let urlSession = MockURLSession(
-            data: mockPersonJsonData,
-            urlResponse: buildResponse(statusCode: 200),
-            error: nil
-        )
+    func testPerformWithCompletionHandlerDoesDecodePerson() throws {
+        let urlSession = createMockURLSession()
         let validator = MockURLResponseValidator(throwError: nil)
         let decoder = RequestDecoder()
         let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
-        guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
-            XCTFail()
-            return
-        }
+        let request = try XCTUnwrap(sampleUrlRequest, "Failed to create URLRequest")
         
-        var didExecute = false
+        let exp = XCTestExpectation()
         sut.performTask(request: request, decodeTo: Person.self) { result in
-            didExecute = true
+            defer { exp.fulfill() }
             switch result {
             case .success(let person):
                 XCTAssertEqual(person.name, "John")
@@ -32,27 +25,20 @@ final class RequestPerformerTests: XCTestCase {
                 XCTFail()
             }
         }.resume()
-        XCTAssertTrue(didExecute)
+        wait(for: [exp], timeout: 0.1)
     }
     
-    func testPerformWithCompletionHandlerWithErrorFails() {
-        let urlSession = MockURLSession(
-            data: mockPersonJsonData,
-            urlResponse: buildResponse(statusCode: 200),
-            error: HTTPNetworkingError.forbidden
-        )
+    func testPerformWithCompletionHandlerWithErrorFails() throws {
+        let urlSession = createMockURLSession(error: HTTPNetworkingError.forbidden)
         let validator = MockURLResponseValidator(throwError: NetworkingError.httpError(.forbidden))
         let decoder = RequestDecoder()
         let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
-        guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
-            XCTFail()
-            return
-        }
+        let request = try XCTUnwrap(sampleUrlRequest, "Failed to create URLRequest")
         
-        var didExecute = false
+        let exp = XCTestExpectation()
         sut.performTask(request: request, decodeTo: Person.self) { result in
-            didExecute = true
+            defer { exp.fulfill() }
             switch result {
             case .success:
                 XCTFail()
@@ -60,27 +46,20 @@ final class RequestPerformerTests: XCTestCase {
                 XCTAssertEqual(error, NetworkingError.httpError(.forbidden))
             }
         }.resume()
-        XCTAssertTrue(didExecute)
+        wait(for: [exp], timeout: 0.1)
     }
     
-    func testPerformWithCompletionHandlerWithBadStatusCodeFails() {
-        let urlSession = MockURLSession(
-            data: mockPersonJsonData,
-            urlResponse: buildResponse(statusCode: 400),
-            error: nil
-        )
+    func testPerformWithCompletionHandlerWithBadStatusCodeFails() throws {
+        let urlSession = createMockURLSession(statusCode: 400)
         let validator = MockURLResponseValidator(throwError: NetworkingError.httpError(.badRequest))
         let decoder = RequestDecoder()
         let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
-        guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
-            XCTFail()
-            return
-        }
+        let request = try XCTUnwrap(sampleUrlRequest, "Failed to create URLRequest")
         
-        var didExecute = false
+        let exp = XCTestExpectation()
         sut.performTask(request: request, decodeTo: Person.self) { result in
-            didExecute = true
+            defer { exp.fulfill() }
             switch result {
             case .success:
                 XCTFail()
@@ -88,27 +67,20 @@ final class RequestPerformerTests: XCTestCase {
                 XCTAssertEqual(error, NetworkingError.httpError(.badRequest))
             }
         }.resume()
-        XCTAssertTrue(didExecute)
+        wait(for: [exp], timeout: 0.1)
     }
     
-    func testPerformWithCompletionHandlerWithInvalidData() {
-        let urlSession = MockURLSession(
-            data: invalidMockPersonJsonData,
-            urlResponse: buildResponse(statusCode: 200),
-            error: nil
-        )
+    func testPerformWithCompletionHandlerWithInvalidData() throws {
+        let urlSession = createMockURLSession(data: invalidMockPersonJsonData)
         let validator = MockURLResponseValidator(throwError: nil)
         let decoder = RequestDecoder()
         let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
-        guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
-            XCTFail()
-            return
-        }
+        let request = try XCTUnwrap(sampleUrlRequest, "Failed to create URLRequest")
         
-        var didExecute = false
+        let exp = XCTestExpectation()
         sut.performTask(request: request, decodeTo: Person.self) { result in
-            didExecute = true
+            defer { exp.fulfill() }
             switch result {
             case .success:
                 XCTFail()
@@ -116,27 +88,20 @@ final class RequestPerformerTests: XCTestCase {
                 XCTAssertEqual(error, NetworkingError.couldNotParse)
             }
         }.resume()
-        XCTAssertTrue(didExecute)
+        wait(for: [exp], timeout: 0.1)
     }
     
-    func testPerformWithCompletionHandlerWithNilData() {
-        let urlSession = MockURLSession(
-            data: nil,
-            urlResponse: buildResponse(statusCode: 200),
-            error: nil
-        )
+    func testPerformWithCompletionHandlerWithNilData() throws {
+        let urlSession = createMockURLSession(data: nil)
         let validator = MockURLResponseValidator(throwError: nil)
         let decoder = RequestDecoder()
         let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
-        guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
-            XCTFail()
-            return
-        }
+        let request = try XCTUnwrap(sampleUrlRequest, "Failed to create URLRequest")
         
-        var didExecute = false
+        let exp = XCTestExpectation()
         sut.performTask(request: request, decodeTo: Person.self) { result in
-            didExecute = true
+            defer { exp.fulfill() }
             switch result {
             case .success:
                 XCTFail()
@@ -144,27 +109,20 @@ final class RequestPerformerTests: XCTestCase {
                 XCTAssertEqual(error, NetworkingError.noData)
             }
         }.resume()
-        XCTAssertTrue(didExecute)
+        wait(for: [exp], timeout: 0.1)
     }
     
-    func testPerformWithCompletionHandlerWithNilResponse() {
-        let urlSession = MockURLSession(
-            data: invalidMockPersonJsonData,
-            urlResponse: nil,
-            error: nil
-        )
+    func testPerformWithCompletionHandlerWithNilResponse() throws {
+        let urlSession = createMockURLSession(data: invalidMockPersonJsonData)
         let validator = MockURLResponseValidator(throwError: nil)
         let decoder = RequestDecoder()
         let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
-        guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
-            XCTFail()
-            return
-        }
+        let request = try XCTUnwrap(sampleUrlRequest, "Failed to create URLRequest")
         
-        var didExecute = false
+        let exp = XCTestExpectation()
         sut.performTask(request: request, decodeTo: Person.self) { result in
-            didExecute = true
+            defer { exp.fulfill() }
             switch result {
             case .success:
                 XCTFail()
@@ -172,29 +130,139 @@ final class RequestPerformerTests: XCTestCase {
                 XCTAssertEqual(error, NetworkingError.couldNotParse)
             }
         }.resume()
-        XCTAssertTrue(didExecute)
+        wait(for: [exp], timeout: 0.1)
     }
     
-    // MARK: Unit tests for perform using Completion Handler without Decodable response
-    
-    func testPerformWithCompletionHandlerWithoutDecodableDoesDecodePerson() {
-        let urlSession = MockURLSession(
-            data: mockPersonJsonData,
-            urlResponse: buildResponse(statusCode: 200),
-            error: nil
-        )
+    // MARK: Unit tests for perform using Completion Handler with Request Protocol
+
+    func testPerformWithCompletionHandlerWithRequestProtocolDoesDecodePerson() {
+        let urlSession = createMockURLSession()
         let validator = MockURLResponseValidator(throwError: nil)
         let decoder = RequestDecoder()
         let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
-        guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
-            XCTFail()
-            return
-        }
+        let exp = XCTestExpectation()
+        sut.performTask(request: MockRequest(), decodeTo: Person.self) { result in
+            defer { exp.fulfill() }
+            switch result {
+            case .success(let person):
+                XCTAssertEqual(person.name, "John")
+                XCTAssertEqual(person.age, 30)
+            case .failure:
+                XCTFail()
+            }
+        }.resume()
+        wait(for: [exp], timeout: 0.1)
+    }
+    
+    func testPerformWithCompletionHandlerWithRequestProtocolWithErrorFails() {
+        let urlSession = createMockURLSession(error: HTTPNetworkingError.forbidden)
+        let validator = MockURLResponseValidator(throwError: NetworkingError.httpError(.forbidden))
+        let decoder = RequestDecoder()
+        let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
-        var didExecute = false
+        let exp = XCTestExpectation()
+        sut.performTask(request: MockRequest(), decodeTo: Person.self) { result in
+            defer { exp.fulfill() }
+            switch result {
+            case .success:
+                XCTFail()
+            case .failure(let error):
+                XCTAssertEqual(error, NetworkingError.httpError(.forbidden))
+            }
+        }.resume()
+        wait(for: [exp], timeout: 0.1)
+    }
+    
+    func testPerformWithCompletionHandlerWithRequestProtocolWithBadStatusCodeFails() {
+        let urlSession = createMockURLSession(statusCode: 400)
+        let validator = MockURLResponseValidator(throwError: NetworkingError.httpError(.badRequest))
+        let decoder = RequestDecoder()
+        let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
+        
+        let exp = XCTestExpectation()
+        sut.performTask(request: MockRequest(), decodeTo: Person.self) { result in
+            defer { exp.fulfill() }
+            switch result {
+            case .success:
+                XCTFail()
+            case .failure(let error):
+                XCTAssertEqual(error, NetworkingError.httpError(.badRequest))
+            }
+        }.resume()
+        wait(for: [exp], timeout: 0.1)
+    }
+    
+    func testPerformWithCompletionHandlerWithRequestProtocolWithInvalidData() {
+        let urlSession = createMockURLSession(data: invalidMockPersonJsonData)
+        let validator = MockURLResponseValidator(throwError: nil)
+        let decoder = RequestDecoder()
+        let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
+        
+        let exp = XCTestExpectation()
+        sut.performTask(request: MockRequest(), decodeTo: Person.self) { result in
+            defer { exp.fulfill() }
+            switch result {
+            case .success:
+                XCTFail()
+            case .failure(let error):
+                XCTAssertEqual(error, NetworkingError.couldNotParse)
+            }
+        }.resume()
+        wait(for: [exp], timeout: 0.1)
+    }
+    
+    func testPerformWithCompletionHandlerWithRequestProtocolWithNilData() {
+        let urlSession = createMockURLSession(data: nil)
+        let validator = MockURLResponseValidator(throwError: nil)
+        let decoder = RequestDecoder()
+        let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
+        
+        let exp = XCTestExpectation()
+        sut.performTask(request: MockRequest(), decodeTo: Person.self) { result in
+            defer { exp.fulfill() }
+            switch result {
+            case .success:
+                XCTFail()
+            case .failure(let error):
+                XCTAssertEqual(error, NetworkingError.noData)
+            }
+        }.resume()
+        wait(for: [exp], timeout: 0.1)
+    }
+    
+    func testPerformWithCompletionHandlerWithRequestProtocolWithNilResponse() {
+        let urlSession = createMockURLSession(data: invalidMockPersonJsonData)
+        let validator = MockURLResponseValidator(throwError: nil)
+        let decoder = RequestDecoder()
+        let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
+        
+        let exp = XCTestExpectation()
+        sut.performTask(request: MockRequest(), decodeTo: Person.self) { result in
+            defer { exp.fulfill() }
+            switch result {
+            case .success:
+                XCTFail()
+            case .failure(let error):
+                XCTAssertEqual(error, NetworkingError.couldNotParse)
+            }
+        }.resume()
+        wait(for: [exp], timeout: 0.1)
+    }
+    
+    // MARK: Unit tests for perform using Completion Handler without Decodable response
+    
+    func testPerformWithCompletionHandlerWithoutDecodableDoesDecodePerson() throws {
+        let urlSession = createMockURLSession()
+        let validator = MockURLResponseValidator(throwError: nil)
+        let decoder = RequestDecoder()
+        let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
+        
+        let request = try XCTUnwrap(sampleUrlRequest, "Failed to create URLRequest")
+        
+        let exp = XCTestExpectation()
         sut.performTask(request: request) { result in
-            didExecute = true
+            defer { exp.fulfill() }
             switch result {
             case .success:
                 XCTAssertTrue(true)
@@ -202,27 +270,20 @@ final class RequestPerformerTests: XCTestCase {
                 XCTFail()
             }
         }.resume()
-        XCTAssertTrue(didExecute)
+        wait(for: [exp], timeout: 0.1)
     }
     
-    func testPerformWithCompletionHandlerWithoutDecodableWithErrorFails() {
-        let urlSession = MockURLSession(
-            data: mockPersonJsonData,
-            urlResponse: buildResponse(statusCode: 200),
-            error: NetworkingError.httpError(.forbidden)
-        )
+    func testPerformWithCompletionHandlerWithoutDecodableWithErrorFails() throws {
+        let urlSession = createMockURLSession(error: NetworkingError.httpError(.forbidden))
         let validator = MockURLResponseValidator(throwError: NetworkingError.httpError(.forbidden))
         let decoder = RequestDecoder()
         let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
-        guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
-            XCTFail()
-            return
-        }
+        let request = try XCTUnwrap(sampleUrlRequest, "Failed to create URLRequest")
         
-        var didExecute = false
+        let exp = XCTestExpectation()
         sut.performTask(request: request) { result in
-            didExecute = true
+            defer { exp.fulfill() }
             switch result {
             case .success:
                 XCTFail()
@@ -230,27 +291,20 @@ final class RequestPerformerTests: XCTestCase {
                 XCTAssertEqual(error, NetworkingError.httpError(.forbidden))
             }
         }.resume()
-        XCTAssertTrue(didExecute)
+        wait(for: [exp], timeout: 0.1)
     }
     
-    func testPerformWithCompletionHandlerWithoutDecodableWithBadStatusCodeFails() {
-        let urlSession = MockURLSession(
-            data: mockPersonJsonData,
-            urlResponse: buildResponse(statusCode: 400),
-            error: nil
-        )
+    func testPerformWithCompletionHandlerWithoutDecodableWithBadStatusCodeFails() throws {
+        let urlSession = createMockURLSession(statusCode: 400)
         let validator = URLResponseValidatorImpl()
         let decoder = RequestDecoder()
         let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
-        guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
-            XCTFail()
-            return
-        }
+        let request = try XCTUnwrap(sampleUrlRequest, "Failed to create URLRequest")
         
-        var didExecute = false
+        let exp = XCTestExpectation()
         sut.performTask(request: request) { result in
-            didExecute = true
+            defer { exp.fulfill() }
             switch result {
             case .success:
                 XCTFail()
@@ -258,27 +312,20 @@ final class RequestPerformerTests: XCTestCase {
                 XCTAssertEqual(error, NetworkingError.httpError(.badRequest))
             }
         }.resume()
-        XCTAssertTrue(didExecute)
+        wait(for: [exp], timeout: 0.1)
     }
     
-    func testPerformWithCompletionHandlerWithoutDecodableWithNilData() {
-        let urlSession = MockURLSession(
-            data: nil,
-            urlResponse: buildResponse(statusCode: 200),
-            error: nil
-        )
+    func testPerformWithCompletionHandlerWithoutDecodableWithNilData() throws {
+        let urlSession = createMockURLSession(data: nil)
         let validator = URLResponseValidatorImpl()
         let decoder = RequestDecoder()
         let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
-        guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
-            XCTFail()
-            return
-        }
+        let request = try XCTUnwrap(sampleUrlRequest, "Failed to create URLRequest")
         
-        var didExecute = false
+        let exp = XCTestExpectation()
         sut.performTask(request: request) { result in
-            didExecute = true
+            defer { exp.fulfill() }
             switch result {
             case .success:
                 XCTFail()
@@ -286,27 +333,20 @@ final class RequestPerformerTests: XCTestCase {
                 XCTAssertEqual(error, NetworkingError.noData)
             }
         }.resume()
-        XCTAssertTrue(didExecute)
+        wait(for: [exp], timeout: 0.1)
     }
     
-    func testPerformWithCompletionHandlerWithoutDecodableWithNilResponse() {
-        let urlSession = MockURLSession(
-            data: invalidMockPersonJsonData,
-            urlResponse: nil,
-            error: nil
-        )
+    func testPerformWithCompletionHandlerWithoutDecodableWithNilResponse() throws {
+        let urlSession = createMockURLSession(statusCode: nil)
         let validator = URLResponseValidatorImpl()
         let decoder = RequestDecoder()
         let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
-        guard let request = RequestBuilder().build(httpMethod: .GET, urlString: "https://www.example.com", parameters: nil) else {
-            XCTFail()
-            return
-        }
+        let request = try XCTUnwrap(sampleUrlRequest, "Failed to create URLRequest")
         
-        var didExecute = false
+        let exp = XCTestExpectation()
         sut.performTask(request: request) { result in
-            didExecute = true
+            defer { exp.fulfill() }
             switch result {
             case .success:
                 XCTFail()
@@ -314,9 +354,119 @@ final class RequestPerformerTests: XCTestCase {
                 XCTAssertEqual(error, NetworkingError.noResponse)
             }
         }.resume()
-        XCTAssertTrue(didExecute)
+        wait(for: [exp], timeout: 0.1)
     }
     
+    // MARK: Unit tests for perform using Completion Handler and Requesst Protocol without Decodable response
+    
+    func testPerformWithCompletionHandlerWithoutDecodableWithRequestProtocolDoesDecodePerson() {
+        let urlSession = createMockURLSession()
+        let validator = MockURLResponseValidator(throwError: nil)
+        let decoder = RequestDecoder()
+        let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
+        
+        let exp = XCTestExpectation()
+        sut.performTask(request: MockRequest()) { result in
+            defer { exp.fulfill() }
+            switch result {
+            case .success:
+                XCTAssertTrue(true)
+            case .failure:
+                XCTFail()
+            }
+        }.resume()
+        wait(for: [exp], timeout: 0.1)
+    }
+    
+    func testPerformWithCompletionHandlerWithoutDecodableWithRequestProtocolWithErrorFails() {
+        let urlSession = createMockURLSession(error: NetworkingError.httpError(.forbidden))
+        let validator = MockURLResponseValidator(throwError: NetworkingError.httpError(.forbidden))
+        let decoder = RequestDecoder()
+        let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
+        
+        let exp = XCTestExpectation()
+        sut.performTask(request: MockRequest()) { result in
+            defer { exp.fulfill() }
+            switch result {
+            case .success:
+                XCTFail()
+            case .failure(let error):
+                XCTAssertEqual(error, NetworkingError.httpError(.forbidden))
+            }
+        }.resume()
+        wait(for: [exp], timeout: 0.1)
+    }
+    
+    func testPerformWithCompletionHandlerWithoutDecodableWithRequestProtocolWithBadStatusCodeFails() {
+        let urlSession = createMockURLSession(statusCode: 400)
+        let validator = URLResponseValidatorImpl()
+        let decoder = RequestDecoder()
+        let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
+        
+        let exp = XCTestExpectation()
+        sut.performTask(request: MockRequest()) { result in
+            defer { exp.fulfill() }
+            switch result {
+            case .success:
+                XCTFail()
+            case .failure(let error):
+                XCTAssertEqual(error, NetworkingError.httpError(.badRequest))
+            }
+        }.resume()
+        wait(for: [exp], timeout: 0.1)
+    }
+    
+    func testPerformWithCompletionHandlerWithoutDecodableWithRequestProtocolWithNilData() {
+        let urlSession = createMockURLSession(data: nil)
+        let validator = URLResponseValidatorImpl()
+        let decoder = RequestDecoder()
+        let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
+        
+        let exp = XCTestExpectation()
+        sut.performTask(request: MockRequest()) { result in
+            defer { exp.fulfill() }
+            switch result {
+            case .success:
+                XCTFail()
+            case .failure(let error):
+                XCTAssertEqual(error, NetworkingError.noData)
+            }
+        }.resume()
+        wait(for: [exp], timeout: 0.1)
+    }
+    
+    func testPerformWithCompletionHandlerWithoutDecodableWithRequestProtocolWithNilResponse() {
+        let urlSession = createMockURLSession(statusCode: nil)
+        let validator = URLResponseValidatorImpl()
+        let decoder = RequestDecoder()
+        let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
+        
+        let exp = XCTestExpectation()
+        sut.performTask(request: MockRequest()) { result in
+            defer { exp.fulfill() }
+            switch result {
+            case .success:
+                XCTFail()
+            case .failure(let error):
+                XCTAssertEqual(error, NetworkingError.noResponse)
+            }
+        }.resume()
+        wait(for: [exp], timeout: 0.1)
+    }
+    
+    private func createMockURLSession(data: Data? = mockPersonJsonData,
+                                      statusCode: Int? = 200,
+                                      error: Error? = nil) -> MockURLSession {
+        let urlResponse: HTTPURLResponse? = (statusCode != nil) ? buildResponse(statusCode: statusCode!) : nil
+        return MockURLSession(
+            data: data,
+            urlResponse: urlResponse,
+            error: error
+        )
+    }
+    
+    private var sampleUrlRequest = RequestBuilder().build(httpMethod: .GET, baseUrlString: "https://www.example.com", parameters: nil)
+
     private func buildResponse(statusCode: Int) -> HTTPURLResponse {
         HTTPURLResponse(url: URL(string: "https://example.com")!,
                         statusCode: statusCode,
@@ -324,4 +474,12 @@ final class RequestPerformerTests: XCTestCase {
                         headerFields: nil)!
     }
 
+}
+
+private struct MockRequest: Request {
+    var httpMethod: HTTPMethod { .GET }
+    var baseUrlString: String { "https://www.example.com" }
+    var parameters: [HTTPParameter]? { nil }
+    var header: [HTTPHeader]? { nil }
+    var body: Data? { nil }
 }
