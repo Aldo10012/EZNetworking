@@ -6,7 +6,7 @@ final class RequestPerformerTests: XCTestCase {
 
     // MARK: Unit tests for perform using Completion Handler
 
-    func testPerformWithCompletionHandlerDoesDecodePerson() {
+    func testPerformWithCompletionHandlerDoesDecodePerson() throws {
         let urlSession = MockURLSession(
             data: mockPersonJsonData,
             urlResponse: buildResponse(statusCode: 200),
@@ -16,10 +16,7 @@ final class RequestPerformerTests: XCTestCase {
         let decoder = RequestDecoder()
         let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
-        guard let request = RequestBuilder().build(httpMethod: .GET, baseUrlString: "https://www.example.com", parameters: nil) else {
-            XCTFail()
-            return
-        }
+        let request = try XCTUnwrap(sampleUrlRequest, "Failed to create URLRequest")
         
         var didExecute = false
         sut.performTask(request: request, decodeTo: Person.self) { result in
@@ -35,7 +32,7 @@ final class RequestPerformerTests: XCTestCase {
         XCTAssertTrue(didExecute)
     }
     
-    func testPerformWithCompletionHandlerWithErrorFails() {
+    func testPerformWithCompletionHandlerWithErrorFails() throws {
         let urlSession = MockURLSession(
             data: mockPersonJsonData,
             urlResponse: buildResponse(statusCode: 200),
@@ -45,10 +42,7 @@ final class RequestPerformerTests: XCTestCase {
         let decoder = RequestDecoder()
         let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
-        guard let request = RequestBuilder().build(httpMethod: .GET, baseUrlString: "https://www.example.com", parameters: nil) else {
-            XCTFail()
-            return
-        }
+        let request = try XCTUnwrap(sampleUrlRequest, "Failed to create URLRequest")
         
         var didExecute = false
         sut.performTask(request: request, decodeTo: Person.self) { result in
@@ -63,7 +57,7 @@ final class RequestPerformerTests: XCTestCase {
         XCTAssertTrue(didExecute)
     }
     
-    func testPerformWithCompletionHandlerWithBadStatusCodeFails() {
+    func testPerformWithCompletionHandlerWithBadStatusCodeFails() throws {
         let urlSession = MockURLSession(
             data: mockPersonJsonData,
             urlResponse: buildResponse(statusCode: 400),
@@ -73,10 +67,7 @@ final class RequestPerformerTests: XCTestCase {
         let decoder = RequestDecoder()
         let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
-        guard let request = RequestBuilder().build(httpMethod: .GET, baseUrlString: "https://www.example.com", parameters: nil) else {
-            XCTFail()
-            return
-        }
+        let request = try XCTUnwrap(sampleUrlRequest, "Failed to create URLRequest")
         
         var didExecute = false
         sut.performTask(request: request, decodeTo: Person.self) { result in
@@ -91,7 +82,7 @@ final class RequestPerformerTests: XCTestCase {
         XCTAssertTrue(didExecute)
     }
     
-    func testPerformWithCompletionHandlerWithInvalidData() {
+    func testPerformWithCompletionHandlerWithInvalidData() throws {
         let urlSession = MockURLSession(
             data: invalidMockPersonJsonData,
             urlResponse: buildResponse(statusCode: 200),
@@ -101,10 +92,7 @@ final class RequestPerformerTests: XCTestCase {
         let decoder = RequestDecoder()
         let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
-        guard let request = RequestBuilder().build(httpMethod: .GET, baseUrlString: "https://www.example.com", parameters: nil) else {
-            XCTFail()
-            return
-        }
+        let request = try XCTUnwrap(sampleUrlRequest, "Failed to create URLRequest")
         
         var didExecute = false
         sut.performTask(request: request, decodeTo: Person.self) { result in
@@ -119,7 +107,7 @@ final class RequestPerformerTests: XCTestCase {
         XCTAssertTrue(didExecute)
     }
     
-    func testPerformWithCompletionHandlerWithNilData() {
+    func testPerformWithCompletionHandlerWithNilData() throws {
         let urlSession = MockURLSession(
             data: nil,
             urlResponse: buildResponse(statusCode: 200),
@@ -129,10 +117,7 @@ final class RequestPerformerTests: XCTestCase {
         let decoder = RequestDecoder()
         let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
-        guard let request = RequestBuilder().build(httpMethod: .GET, baseUrlString: "https://www.example.com", parameters: nil) else {
-            XCTFail()
-            return
-        }
+        let request = try XCTUnwrap(sampleUrlRequest, "Failed to create URLRequest")
         
         var didExecute = false
         sut.performTask(request: request, decodeTo: Person.self) { result in
@@ -147,7 +132,7 @@ final class RequestPerformerTests: XCTestCase {
         XCTAssertTrue(didExecute)
     }
     
-    func testPerformWithCompletionHandlerWithNilResponse() {
+    func testPerformWithCompletionHandlerWithNilResponse() throws {
         let urlSession = MockURLSession(
             data: invalidMockPersonJsonData,
             urlResponse: nil,
@@ -157,10 +142,7 @@ final class RequestPerformerTests: XCTestCase {
         let decoder = RequestDecoder()
         let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
-        guard let request = RequestBuilder().build(httpMethod: .GET, baseUrlString: "https://www.example.com", parameters: nil) else {
-            XCTFail()
-            return
-        }
+        let request = try XCTUnwrap(sampleUrlRequest, "Failed to create URLRequest")
         
         var didExecute = false
         sut.performTask(request: request, decodeTo: Person.self) { result in
@@ -318,7 +300,7 @@ final class RequestPerformerTests: XCTestCase {
     
     // MARK: Unit tests for perform using Completion Handler without Decodable response
     
-    func testPerformWithCompletionHandlerWithoutDecodableDoesDecodePerson() {
+    func testPerformWithCompletionHandlerWithoutDecodableDoesDecodePerson() throws {
         let urlSession = MockURLSession(
             data: mockPersonJsonData,
             urlResponse: buildResponse(statusCode: 200),
@@ -328,10 +310,7 @@ final class RequestPerformerTests: XCTestCase {
         let decoder = RequestDecoder()
         let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
-        guard let request = RequestBuilder().build(httpMethod: .GET, baseUrlString: "https://www.example.com", parameters: nil) else {
-            XCTFail()
-            return
-        }
+        let request = try XCTUnwrap(sampleUrlRequest, "Failed to create URLRequest")
         
         var didExecute = false
         sut.performTask(request: request) { result in
@@ -346,7 +325,7 @@ final class RequestPerformerTests: XCTestCase {
         XCTAssertTrue(didExecute)
     }
     
-    func testPerformWithCompletionHandlerWithoutDecodableWithErrorFails() {
+    func testPerformWithCompletionHandlerWithoutDecodableWithErrorFails() throws {
         let urlSession = MockURLSession(
             data: mockPersonJsonData,
             urlResponse: buildResponse(statusCode: 200),
@@ -356,10 +335,7 @@ final class RequestPerformerTests: XCTestCase {
         let decoder = RequestDecoder()
         let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
-        guard let request = RequestBuilder().build(httpMethod: .GET, baseUrlString: "https://www.example.com", parameters: nil) else {
-            XCTFail()
-            return
-        }
+        let request = try XCTUnwrap(sampleUrlRequest, "Failed to create URLRequest")
         
         var didExecute = false
         sut.performTask(request: request) { result in
@@ -374,7 +350,7 @@ final class RequestPerformerTests: XCTestCase {
         XCTAssertTrue(didExecute)
     }
     
-    func testPerformWithCompletionHandlerWithoutDecodableWithBadStatusCodeFails() {
+    func testPerformWithCompletionHandlerWithoutDecodableWithBadStatusCodeFails() throws {
         let urlSession = MockURLSession(
             data: mockPersonJsonData,
             urlResponse: buildResponse(statusCode: 400),
@@ -384,10 +360,7 @@ final class RequestPerformerTests: XCTestCase {
         let decoder = RequestDecoder()
         let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
-        guard let request = RequestBuilder().build(httpMethod: .GET, baseUrlString: "https://www.example.com", parameters: nil) else {
-            XCTFail()
-            return
-        }
+        let request = try XCTUnwrap(sampleUrlRequest, "Failed to create URLRequest")
         
         var didExecute = false
         sut.performTask(request: request) { result in
@@ -402,7 +375,7 @@ final class RequestPerformerTests: XCTestCase {
         XCTAssertTrue(didExecute)
     }
     
-    func testPerformWithCompletionHandlerWithoutDecodableWithNilData() {
+    func testPerformWithCompletionHandlerWithoutDecodableWithNilData() throws {
         let urlSession = MockURLSession(
             data: nil,
             urlResponse: buildResponse(statusCode: 200),
@@ -412,10 +385,7 @@ final class RequestPerformerTests: XCTestCase {
         let decoder = RequestDecoder()
         let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
-        guard let request = RequestBuilder().build(httpMethod: .GET, baseUrlString: "https://www.example.com", parameters: nil) else {
-            XCTFail()
-            return
-        }
+        let request = try XCTUnwrap(sampleUrlRequest, "Failed to create URLRequest")
         
         var didExecute = false
         sut.performTask(request: request) { result in
@@ -430,7 +400,7 @@ final class RequestPerformerTests: XCTestCase {
         XCTAssertTrue(didExecute)
     }
     
-    func testPerformWithCompletionHandlerWithoutDecodableWithNilResponse() {
+    func testPerformWithCompletionHandlerWithoutDecodableWithNilResponse() throws {
         let urlSession = MockURLSession(
             data: invalidMockPersonJsonData,
             urlResponse: nil,
@@ -440,10 +410,7 @@ final class RequestPerformerTests: XCTestCase {
         let decoder = RequestDecoder()
         let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
-        guard let request = RequestBuilder().build(httpMethod: .GET, baseUrlString: "https://www.example.com", parameters: nil) else {
-            XCTFail()
-            return
-        }
+        let request = try XCTUnwrap(sampleUrlRequest, "Failed to create URLRequest")
         
         var didExecute = false
         sut.performTask(request: request) { result in
@@ -575,6 +542,8 @@ final class RequestPerformerTests: XCTestCase {
         XCTAssertTrue(didExecute)
     }
     
+    private var sampleUrlRequest = RequestBuilder().build(httpMethod: .GET, baseUrlString: "https://www.example.com", parameters: nil)
+
     private func buildResponse(statusCode: Int) -> HTTPURLResponse {
         HTTPURLResponse(url: URL(string: "https://example.com")!,
                         statusCode: statusCode,
