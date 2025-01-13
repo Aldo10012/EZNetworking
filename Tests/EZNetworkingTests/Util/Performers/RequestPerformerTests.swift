@@ -7,9 +7,9 @@ final class RequestPerformerTests: XCTestCase {
     // MARK: Unit tests for perform using Completion Handler
 
     func testPerformWithCompletionHandlerDoesDecodePerson() throws {
-        let urlSession = MockURLSession(
+        let urlSession = createMockURLSession(
             data: mockPersonJsonData,
-            urlResponse: buildResponse(statusCode: 200),
+            statusCode: 200,
             error: nil
         )
         let validator = MockURLResponseValidator(throwError: nil)
@@ -33,9 +33,9 @@ final class RequestPerformerTests: XCTestCase {
     }
     
     func testPerformWithCompletionHandlerWithErrorFails() throws {
-        let urlSession = MockURLSession(
+        let urlSession = createMockURLSession(
             data: mockPersonJsonData,
-            urlResponse: buildResponse(statusCode: 200),
+            statusCode: 200,
             error: HTTPNetworkingError.forbidden
         )
         let validator = MockURLResponseValidator(throwError: NetworkingError.httpError(.forbidden))
@@ -58,9 +58,9 @@ final class RequestPerformerTests: XCTestCase {
     }
     
     func testPerformWithCompletionHandlerWithBadStatusCodeFails() throws {
-        let urlSession = MockURLSession(
+        let urlSession = createMockURLSession(
             data: mockPersonJsonData,
-            urlResponse: buildResponse(statusCode: 400),
+            statusCode: 400,
             error: nil
         )
         let validator = MockURLResponseValidator(throwError: NetworkingError.httpError(.badRequest))
@@ -83,9 +83,9 @@ final class RequestPerformerTests: XCTestCase {
     }
     
     func testPerformWithCompletionHandlerWithInvalidData() throws {
-        let urlSession = MockURLSession(
+        let urlSession = createMockURLSession(
             data: invalidMockPersonJsonData,
-            urlResponse: buildResponse(statusCode: 200),
+            statusCode: 200,
             error: nil
         )
         let validator = MockURLResponseValidator(throwError: nil)
@@ -108,9 +108,9 @@ final class RequestPerformerTests: XCTestCase {
     }
     
     func testPerformWithCompletionHandlerWithNilData() throws {
-        let urlSession = MockURLSession(
+        let urlSession = createMockURLSession(
             data: nil,
-            urlResponse: buildResponse(statusCode: 200),
+            statusCode: 200,
             error: nil
         )
         let validator = MockURLResponseValidator(throwError: nil)
@@ -133,9 +133,9 @@ final class RequestPerformerTests: XCTestCase {
     }
     
     func testPerformWithCompletionHandlerWithNilResponse() throws {
-        let urlSession = MockURLSession(
+        let urlSession = createMockURLSession(
             data: invalidMockPersonJsonData,
-            urlResponse: nil,
+            statusCode: nil,
             error: nil
         )
         let validator = MockURLResponseValidator(throwError: nil)
@@ -160,9 +160,9 @@ final class RequestPerformerTests: XCTestCase {
     // MARK: Unit tests for perform using Completion Handler with Request Protocol
 
     func testPerformWithCompletionHandlerWithRequestProtocolDoesDecodePerson() {
-        let urlSession = MockURLSession(
+        let urlSession = createMockURLSession(
             data: mockPersonJsonData,
-            urlResponse: buildResponse(statusCode: 200),
+            statusCode: 200,
             error: nil
         )
         let validator = MockURLResponseValidator(throwError: nil)
@@ -184,9 +184,9 @@ final class RequestPerformerTests: XCTestCase {
     }
     
     func testPerformWithCompletionHandlerWithRequestProtocolWithErrorFails() {
-        let urlSession = MockURLSession(
+        let urlSession = createMockURLSession(
             data: mockPersonJsonData,
-            urlResponse: buildResponse(statusCode: 200),
+            statusCode: 200,
             error: HTTPNetworkingError.forbidden
         )
         let validator = MockURLResponseValidator(throwError: NetworkingError.httpError(.forbidden))
@@ -207,9 +207,9 @@ final class RequestPerformerTests: XCTestCase {
     }
     
     func testPerformWithCompletionHandlerWithRequestProtocolWithBadStatusCodeFails() {
-        let urlSession = MockURLSession(
+        let urlSession = createMockURLSession(
             data: mockPersonJsonData,
-            urlResponse: buildResponse(statusCode: 400),
+            statusCode: 400,
             error: nil
         )
         let validator = MockURLResponseValidator(throwError: NetworkingError.httpError(.badRequest))
@@ -230,9 +230,9 @@ final class RequestPerformerTests: XCTestCase {
     }
     
     func testPerformWithCompletionHandlerWithRequestProtocolWithInvalidData() {
-        let urlSession = MockURLSession(
+        let urlSession = createMockURLSession(
             data: invalidMockPersonJsonData,
-            urlResponse: buildResponse(statusCode: 200),
+            statusCode: 200,
             error: nil
         )
         let validator = MockURLResponseValidator(throwError: nil)
@@ -253,9 +253,9 @@ final class RequestPerformerTests: XCTestCase {
     }
     
     func testPerformWithCompletionHandlerWithRequestProtocolWithNilData() {
-        let urlSession = MockURLSession(
+        let urlSession = createMockURLSession(
             data: nil,
-            urlResponse: buildResponse(statusCode: 200),
+            statusCode: 200,
             error: nil
         )
         let validator = MockURLResponseValidator(throwError: nil)
@@ -276,9 +276,9 @@ final class RequestPerformerTests: XCTestCase {
     }
     
     func testPerformWithCompletionHandlerWithRequestProtocolWithNilResponse() {
-        let urlSession = MockURLSession(
+        let urlSession = createMockURLSession(
             data: invalidMockPersonJsonData,
-            urlResponse: nil,
+            statusCode: nil,
             error: nil
         )
         let validator = MockURLResponseValidator(throwError: nil)
@@ -301,9 +301,9 @@ final class RequestPerformerTests: XCTestCase {
     // MARK: Unit tests for perform using Completion Handler without Decodable response
     
     func testPerformWithCompletionHandlerWithoutDecodableDoesDecodePerson() throws {
-        let urlSession = MockURLSession(
+        let urlSession = createMockURLSession(
             data: mockPersonJsonData,
-            urlResponse: buildResponse(statusCode: 200),
+            statusCode: 200,
             error: nil
         )
         let validator = MockURLResponseValidator(throwError: nil)
@@ -326,9 +326,9 @@ final class RequestPerformerTests: XCTestCase {
     }
     
     func testPerformWithCompletionHandlerWithoutDecodableWithErrorFails() throws {
-        let urlSession = MockURLSession(
+        let urlSession = createMockURLSession(
             data: mockPersonJsonData,
-            urlResponse: buildResponse(statusCode: 200),
+            statusCode: 200,
             error: NetworkingError.httpError(.forbidden)
         )
         let validator = MockURLResponseValidator(throwError: NetworkingError.httpError(.forbidden))
@@ -351,9 +351,9 @@ final class RequestPerformerTests: XCTestCase {
     }
     
     func testPerformWithCompletionHandlerWithoutDecodableWithBadStatusCodeFails() throws {
-        let urlSession = MockURLSession(
+        let urlSession = createMockURLSession(
             data: mockPersonJsonData,
-            urlResponse: buildResponse(statusCode: 400),
+            statusCode: 400,
             error: nil
         )
         let validator = URLResponseValidatorImpl()
@@ -376,9 +376,9 @@ final class RequestPerformerTests: XCTestCase {
     }
     
     func testPerformWithCompletionHandlerWithoutDecodableWithNilData() throws {
-        let urlSession = MockURLSession(
+        let urlSession = createMockURLSession(
             data: nil,
-            urlResponse: buildResponse(statusCode: 200),
+            statusCode: 200,
             error: nil
         )
         let validator = URLResponseValidatorImpl()
@@ -401,9 +401,9 @@ final class RequestPerformerTests: XCTestCase {
     }
     
     func testPerformWithCompletionHandlerWithoutDecodableWithNilResponse() throws {
-        let urlSession = MockURLSession(
+        let urlSession = createMockURLSession(
             data: invalidMockPersonJsonData,
-            urlResponse: nil,
+            statusCode: nil,
             error: nil
         )
         let validator = URLResponseValidatorImpl()
@@ -428,9 +428,9 @@ final class RequestPerformerTests: XCTestCase {
     // MARK: Unit tests for perform using Completion Handler and Requesst Protocol without Decodable response
     
     func testPerformWithCompletionHandlerWithoutDecodableWithRequestProtocolDoesDecodePerson() {
-        let urlSession = MockURLSession(
+        let urlSession = createMockURLSession(
             data: mockPersonJsonData,
-            urlResponse: buildResponse(statusCode: 200),
+            statusCode: 200,
             error: nil
         )
         let validator = MockURLResponseValidator(throwError: nil)
@@ -451,9 +451,9 @@ final class RequestPerformerTests: XCTestCase {
     }
     
     func testPerformWithCompletionHandlerWithoutDecodableWithRequestProtocolWithErrorFails() {
-        let urlSession = MockURLSession(
+        let urlSession = createMockURLSession(
             data: mockPersonJsonData,
-            urlResponse: buildResponse(statusCode: 200),
+            statusCode: 200,
             error: NetworkingError.httpError(.forbidden)
         )
         let validator = MockURLResponseValidator(throwError: NetworkingError.httpError(.forbidden))
@@ -474,9 +474,9 @@ final class RequestPerformerTests: XCTestCase {
     }
     
     func testPerformWithCompletionHandlerWithoutDecodableWithRequestProtocolWithBadStatusCodeFails() {
-        let urlSession = MockURLSession(
+        let urlSession = createMockURLSession(
             data: mockPersonJsonData,
-            urlResponse: buildResponse(statusCode: 400),
+            statusCode: 400,
             error: nil
         )
         let validator = URLResponseValidatorImpl()
@@ -497,9 +497,9 @@ final class RequestPerformerTests: XCTestCase {
     }
     
     func testPerformWithCompletionHandlerWithoutDecodableWithRequestProtocolWithNilData() {
-        let urlSession = MockURLSession(
+        let urlSession = createMockURLSession(
             data: nil,
-            urlResponse: buildResponse(statusCode: 200),
+            statusCode: 200,
             error: nil
         )
         let validator = URLResponseValidatorImpl()
@@ -520,9 +520,9 @@ final class RequestPerformerTests: XCTestCase {
     }
     
     func testPerformWithCompletionHandlerWithoutDecodableWithRequestProtocolWithNilResponse() {
-        let urlSession = MockURLSession(
+        let urlSession = createMockURLSession(
             data: invalidMockPersonJsonData,
-            urlResponse: nil,
+            statusCode: nil,
             error: nil
         )
         let validator = URLResponseValidatorImpl()
@@ -540,6 +540,17 @@ final class RequestPerformerTests: XCTestCase {
             }
         }.resume()
         XCTAssertTrue(didExecute)
+    }
+    
+    private func createMockURLSession(data: Data?,
+                                      statusCode: Int?,
+                                      error: Error?) -> MockURLSession {
+        let urlResponse: HTTPURLResponse? = (statusCode != nil) ? buildResponse(statusCode: statusCode!) : nil
+        return MockURLSession(
+            data: data,
+            urlResponse: urlResponse,
+            error: error
+        )
     }
     
     private var sampleUrlRequest = RequestBuilder().build(httpMethod: .GET, baseUrlString: "https://www.example.com", parameters: nil)
