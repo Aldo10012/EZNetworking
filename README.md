@@ -222,18 +222,24 @@ try await AsyncRequestPerformer().perform(request: MyRequest())
 
 You can easily execute Requests using `AsyncRequestPerformer()` or `RequestPerformer()` It can manage error handling and is capable of performing requests and returning responses using Async/Await and Completion Handlers.
 
-- If you opt to performing your network requests using `Async/Await`, try using `AsyncRequestPerformer()`
-- If you opt to performing your network requests using callbacks, try using `RequestPerformer()`
+- If you opt to perform your network requests using `Async/Await`, try using `AsyncRequestPerformer()`
+- If you opt to perform your network requests using callbacks, try using `RequestPerformer()`
+- each of the below methods contains a `request` argument, which accepts either a `URLRequest` (_which you can use the `RequestBuilder` to construct)_ or a `Request` object
 
 #### How to get an api response using `Async/Await`?
+
+Create a request using either RequestBuilder or Request and inject it into 
 ```swift
 func asyncMethodName() async throws {
-    let request = RequestBuilder().build(httpMethod: .GET, urlString: "http://www.example.com", parameters: [])!
-    let performer = AsyncRequestPerformer()
-    
     do {
-        let person = try await performer.perform(request: request, decodeTo: Person.self)
-        print(person.age, person.name)
+        // Option A: using RequestBuilder()
+        let request = RequestBuilder().build(httpMethod: .GET, urlString: "http://www.example.com", parameters: [])!  
+        let personA = try await AsyncRequestPerformer().perform(request: request, decodeTo: Person.self)
+        print(personA.age, personA.name)
+
+        // Option B: using Request protocol
+        let personB = try await AsyncRequestPerformer().perform(request: GetPersonRequest(), decodeTo: Person.self) // GetPersonRequest conforms to Request
+        print(personB.age, personB.name)
     } catch let error as NetworkingError {
         print(error)
     }
@@ -243,11 +249,14 @@ func asyncMethodName() async throws {
 #### How to make api call using `Async/Await` without decoding a response?
 ```swift
 func asyncMethodName() async throws {
-    let request = RequestBuilder().build(httpMethod: .GET, urlString: "http://www.example.com", parameters: [])!
-    let performer = AsyncRequestPerformer()
-    
     do {
-        try await performer.perform(request: request)
+        // Option A: using RequestBuilder
+        let request = RequestBuilder().build(httpMethod: .GET, urlString: "http://www.example.com", parameters: [])!    
+        try await AsyncRequestPerformer().perform(request: request)
+        print("Did succeed")
+
+        // Option B: using Request protocol
+        try await AsyncRequestPerformer().perform(request: GetPersonRequest()) // GetPersonRequest conforms to Request
         print("Did succeed")
     } catch let error as NetworkingError {
         print(error)
@@ -257,9 +266,20 @@ func asyncMethodName() async throws {
 
 #### How to get an api response using completion handlers?
 ```swift
+// Option A: Using RequestBuilder
 let request = RequestBuilder().build(httpMethod: .GET, urlString: "http://www.example.com", parameters: [])
-let performer = RequestPerformer()
-let task = performer.performTask(request: request, decodeTo: Person.self) { result in
+let task = RequestPerformer().performTask(request: request, decodeTo: Person.self) { result in
+    switch result {
+    case .success(let person):
+        print(person.name, person.age)
+    case .failure(let error):
+        print(error)
+    }
+}
+task.resume()
+
+// Option B: Using Request protocol
+let task = RequestPerformer().performTask(request: GetPersonRequest(), decodeTo: Person.self) { result in // GetPersonRequest conforms to Request
     switch result {
     case .success(let person):
         print(person.name, person.age)
@@ -272,9 +292,20 @@ task.resume()
 
 #### How to make api call using completion handlers without decoding a response?
 ```swift
+// Option A: Using RequestBuilder
 let request = RequestBuilder().build(httpMethod: .GET, urlString: "http://www.example.com", parameters: [])
-let performer = RequestPerformer()
-let task = performer.performTask(request: request) { result in
+let task = RequestPerformer().performTask(request: request) { result in
+    switch result {
+    case .success:
+        print("did succeed")
+    case .failure(let error):
+        print(error)
+    }
+}
+task.reaume()
+
+// Option B: Using Request protocol
+let task = RequestPerformer().performTask(request: GetPersonRequest()) { result in // GetPersonRequest conforms to Request
     switch result {
     case .success:
         print("did succeed")
