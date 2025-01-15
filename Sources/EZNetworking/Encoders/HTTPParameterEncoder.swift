@@ -12,11 +12,7 @@ public struct HTTPParameterEncoderImpl: HTTPParameterEncoder {
         }
 
         if var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false), !parameters.isEmpty {
-            urlComponents.queryItems = [URLQueryItem]()
-            for param in parameters {
-                let queryItem = URLQueryItem(name: param.key, value: "\(param.value)")
-                urlComponents.queryItems?.append(queryItem)
-            }
+            urlComponents.queryItems = parameters.map { URLQueryItem(name: $0.key, value: $0.value) }
             urlRequest.url = urlComponents.url
         }
     }
