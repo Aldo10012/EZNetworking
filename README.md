@@ -45,6 +45,8 @@ Choose the version and add the package to your project.
 
 ### Building a Request
 
+#### Using RequestBuilder()
+
 To quickly and easily create a URLRequest utilize the RequestBuilder()
 
 ```swift
@@ -54,7 +56,7 @@ let request = RequestBuilder().build(httpMethod: .GET, urlString: "http://www.ex
 - `urlString`: inject your api url as a string
 - `parameters`: inject a list of query parameters
 
-#### How to add query parameters?
+##### How to add query parameters?
 Just pass in an array of `HTTPParameter` into the `parameters` argument. Here's an example.
 ```swift
 let request = RequestBuilder().build(
@@ -68,7 +70,7 @@ let request = RequestBuilder().build(
     )
 ```
 
-#### How to add headers?
+##### How to add headers?
 
 The next argument in you can pass in an array of `HTTPHeader`. `HTTPHeader` is an enum where each case is associated with a different http header. Some common ones are `.accept(MediaType)` and `.contentType(MediaType)`.
 
@@ -89,7 +91,7 @@ let request = RequestBuilder().build(
     )
 ```
 
-#### What about authorization?
+##### What about authorization?
 
 Many API calls require the "Authorization" field. This is handled by `HTTPHeader.authorization(Authorization)`. 
 The most common method of authorization is Bearer. ex: `"Authorization": "Bearer YOUR_API_KEY"` You can easily do this with the `Authorization.bearer(String)`
@@ -113,7 +115,7 @@ let request = RequestBuilder().build(
 ```
 
 
-##### How do I set custom headers if not handled by `HTTPHeader`?
+###### How do I set custom headers if not handled by `HTTPHeader`?
 
 If you are not using "Bearer" for authorizaiton, you can use `Authorization.custom(String)`. Here's an example:
 ```swift
@@ -133,7 +135,7 @@ let request = RequestBuilder().build(
     )
 ```
 
-#### How to add a body?
+##### How to add a body?
 
 Inject a `Data` object into the `body` parameter. 
 
@@ -156,7 +158,7 @@ let request = RequestBuilder().build(
     )
 ```
 
-#### How do I add a time interval?
+##### How do I add a time interval?
 
 Assign a value to `timeoutInterval`
 ```swift
@@ -177,6 +179,41 @@ let request = RequestBuilder().build(
         body: myData,
         timeoutInterval: 30
     )
+```
+
+#### Using the Request protocol
+
+Alternatively, to easily extract and encapsulate your request info, you can easily create a request using the `Request` protocol. By creating a class or struct that conforms you `Request`, you can manage your necessary api requests from one component and you can pass around.
+
+Example usage:
+```swift
+struct MyRequest: Request {
+    var httpMethod: HTTPMethod { .GET }
+
+    var baseUrlString: String { "https://www.example.com" }
+
+    var parameters: [HTTPParameter]? {[
+        .init(key: "query_param_key_1", value: "query_param_value_1"),
+        .init(key: "query_param_key_2", value: "query_param_value_2"),
+        .init(key: "query_param_key_3", value: "query_param_value_3")
+    ]}
+
+    var header: [HTTPHeader]? {[
+        .accept(.json),
+        .contentType(.json),
+        .authorization(.bearer("Your_API_KEY"))
+    ]}
+
+    var body: Data? { myData }
+
+    var timeoutInterval: TimeInterval { 60 }
+}
+```
+
+You can then pass around `MyRequest` and inject it into one of the request performers as such:
+
+```swift
+try await AsyncRequestPerformer().perform(request: MyRequest())
 ```
 
 ### Performing a Request
