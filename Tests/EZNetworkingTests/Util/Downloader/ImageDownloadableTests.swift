@@ -57,8 +57,22 @@ final class ImageDownloadableTests: XCTestCase {
                     XCTFail()
                 }
             }
-        }.resume()
+        }
         XCTAssertTrue(didExecute)
+    }
+    
+    func testDownloadImageCanCancel() throws {
+        let testURL = URL(string: "https://i.natgeofe.com/n/4f5aaece-3300-41a4-b2a8-ed2708a0a27c/domestic-dog_thumb_square.jpg")!
+        let urlSession = MockURLSession(data: mockPersonJsonData,
+                                        urlResponse: buildResponse(statusCode: 200),
+                                        error: nil)
+        let validator = MockURLResponseValidator(throwError: nil)
+        let sut = ImageDownloader(urlSession: urlSession, urlResponseValidator: validator)
+
+        let task = sut.downloadImageTask(url: testURL) { _ in }
+        task.cancel()
+        let dataTask = try XCTUnwrap(task as? MockURLSessionDataTask)
+        XCTAssertTrue(dataTask.didCancel)
     }
 
     func testDownloadImageFailsWhenValidatorThrowsAnyError() {
