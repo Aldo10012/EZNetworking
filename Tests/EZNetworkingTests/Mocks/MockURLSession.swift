@@ -86,6 +86,7 @@ class MockURLSession: URLSessionTaskProtocol {
 
 class MockURLSessionDataTask: URLSessionDataTask {
     private let closure: () -> Void
+    var didCancel: Bool = false
     
     init(closure: @escaping () -> Void) {
         self.closure = closure
@@ -93,6 +94,10 @@ class MockURLSessionDataTask: URLSessionDataTask {
     
     override func resume() {
         closure()
+    }
+    
+    override func cancel() {
+        didCancel = true
     }
 }
 
