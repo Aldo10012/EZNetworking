@@ -24,7 +24,7 @@ final class RequestPerformerTests: XCTestCase {
             case .failure:
                 XCTFail()
             }
-        }.resume()
+        }
         wait(for: [exp], timeout: 0.1)
     }
     
@@ -45,7 +45,7 @@ final class RequestPerformerTests: XCTestCase {
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.httpError(.forbidden))
             }
-        }.resume()
+        }
         wait(for: [exp], timeout: 0.1)
     }
     
@@ -66,7 +66,7 @@ final class RequestPerformerTests: XCTestCase {
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.httpError(.badRequest))
             }
-        }.resume()
+        }
         wait(for: [exp], timeout: 0.1)
     }
     
@@ -87,7 +87,7 @@ final class RequestPerformerTests: XCTestCase {
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.couldNotParse)
             }
-        }.resume()
+        }
         wait(for: [exp], timeout: 0.1)
     }
     
@@ -108,7 +108,7 @@ final class RequestPerformerTests: XCTestCase {
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.noData)
             }
-        }.resume()
+        }
         wait(for: [exp], timeout: 0.1)
     }
     
@@ -129,7 +129,7 @@ final class RequestPerformerTests: XCTestCase {
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.couldNotParse)
             }
-        }.resume()
+        }
         wait(for: [exp], timeout: 0.1)
     }
     
@@ -151,7 +151,7 @@ final class RequestPerformerTests: XCTestCase {
             case .failure:
                 XCTFail()
             }
-        }.resume()
+        }
         wait(for: [exp], timeout: 0.1)
     }
     
@@ -170,7 +170,7 @@ final class RequestPerformerTests: XCTestCase {
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.httpError(.forbidden))
             }
-        }.resume()
+        }
         wait(for: [exp], timeout: 0.1)
     }
     
@@ -189,7 +189,7 @@ final class RequestPerformerTests: XCTestCase {
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.httpError(.badRequest))
             }
-        }.resume()
+        }
         wait(for: [exp], timeout: 0.1)
     }
     
@@ -208,7 +208,7 @@ final class RequestPerformerTests: XCTestCase {
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.couldNotParse)
             }
-        }.resume()
+        }
         wait(for: [exp], timeout: 0.1)
     }
     
@@ -227,7 +227,7 @@ final class RequestPerformerTests: XCTestCase {
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.noData)
             }
-        }.resume()
+        }
         wait(for: [exp], timeout: 0.1)
     }
     
@@ -246,7 +246,7 @@ final class RequestPerformerTests: XCTestCase {
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.couldNotParse)
             }
-        }.resume()
+        }
         wait(for: [exp], timeout: 0.1)
     }
     
@@ -269,7 +269,7 @@ final class RequestPerformerTests: XCTestCase {
             case .failure:
                 XCTFail()
             }
-        }.resume()
+        }
         wait(for: [exp], timeout: 0.1)
     }
     
@@ -290,7 +290,7 @@ final class RequestPerformerTests: XCTestCase {
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.httpError(.forbidden))
             }
-        }.resume()
+        }
         wait(for: [exp], timeout: 0.1)
     }
     
@@ -311,7 +311,7 @@ final class RequestPerformerTests: XCTestCase {
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.httpError(.badRequest))
             }
-        }.resume()
+        }
         wait(for: [exp], timeout: 0.1)
     }
     
@@ -332,7 +332,7 @@ final class RequestPerformerTests: XCTestCase {
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.noData)
             }
-        }.resume()
+        }
         wait(for: [exp], timeout: 0.1)
     }
     
@@ -353,7 +353,7 @@ final class RequestPerformerTests: XCTestCase {
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.noResponse)
             }
-        }.resume()
+        }
         wait(for: [exp], timeout: 0.1)
     }
     
@@ -374,7 +374,7 @@ final class RequestPerformerTests: XCTestCase {
             case .failure:
                 XCTFail()
             }
-        }.resume()
+        }
         wait(for: [exp], timeout: 0.1)
     }
     
@@ -393,7 +393,7 @@ final class RequestPerformerTests: XCTestCase {
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.httpError(.forbidden))
             }
-        }.resume()
+        }
         wait(for: [exp], timeout: 0.1)
     }
     
@@ -412,7 +412,7 @@ final class RequestPerformerTests: XCTestCase {
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.httpError(.badRequest))
             }
-        }.resume()
+        }
         wait(for: [exp], timeout: 0.1)
     }
     
@@ -431,7 +431,7 @@ final class RequestPerformerTests: XCTestCase {
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.noData)
             }
-        }.resume()
+        }
         wait(for: [exp], timeout: 0.1)
     }
     
@@ -450,7 +450,7 @@ final class RequestPerformerTests: XCTestCase {
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.noResponse)
             }
-        }.resume()
+        }
         wait(for: [exp], timeout: 0.1)
     }
     
