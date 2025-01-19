@@ -101,8 +101,23 @@ final class FileDownloadableTests: XCTestCase {
             case .failure:
                 XCTFail()
             }
-        }.resume()
+        }
         XCTAssertTrue(didExecute)
+    }
+    
+    func testDownloadFileCanCancel() throws {
+        let testURL = URL(string: "https://example.com/example.pdf")!
+        let urlSession = MockURLSession(url: testURL,
+                                        urlResponse: buildResponse(statusCode: 200),
+                                        error: nil)
+        let sut = FileDownloader(urlSession: urlSession,
+                                 urlResponseValidator: MockURLResponseValidator(),
+                                 requestDecoder: RequestDecoder())
+        
+        let task = sut.downloadFileTask(url: testURL) { _ in }
+        task.cancel()
+        let downloadTask = try XCTUnwrap(task as? MockURLSessionDownloadTask)
+        XCTAssertTrue(downloadTask.didCancel)
     }
     
     func testDownloadFileFailsIfValidatorThrowsAnyError() {
@@ -124,7 +139,7 @@ final class FileDownloadableTests: XCTestCase {
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.httpError(.conflict))
             }
-        }.resume()
+        }
         XCTAssertTrue(didExecute)
     }
 
