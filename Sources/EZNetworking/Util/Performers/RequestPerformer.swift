@@ -2,9 +2,13 @@ import Foundation
 import UIKit
 
 public protocol RequestPerformable {
+    @discardableResult
     func performTask<T: Decodable>(request: URLRequest, decodeTo decodableObject: T.Type, completion: @escaping((Result<T, NetworkingError>)) -> Void) -> URLSessionDataTask
+    @discardableResult
     func performTask<T: Decodable>(request: Request, decodeTo decodableObject: T.Type, completion: @escaping((Result<T, NetworkingError>)) -> Void) -> URLSessionDataTask
+    @discardableResult
     func performTask(request: URLRequest, completion: @escaping((VoidResult<NetworkingError>) -> Void)) -> URLSessionDataTask
+    @discardableResult
     func performTask(request: Request, completion: @escaping((VoidResult<NetworkingError>) -> Void)) -> URLSessionDataTask
 }
 
@@ -23,8 +27,9 @@ public struct RequestPerformer: RequestPerformable {
     }
     
     // MARK: perform using Completion Handler
+    @discardableResult
     public func performTask<T: Decodable>(request: URLRequest, decodeTo decodableObject: T.Type, completion: @escaping ((Result<T, NetworkingError>)) -> Void) -> URLSessionDataTask {
-        return urlSession.dataTask(with: request) { data, urlResponse, error in
+        let task = urlSession.dataTask(with: request) { data, urlResponse, error in
             do {
                 let validData = try urlResponseValidator.validate(data: data, urlResponse: urlResponse, error: error)
                 let decodedObject = try requestDecoder.decode(decodableObject.self, from: validData)
@@ -37,12 +42,14 @@ public struct RequestPerformer: RequestPerformable {
                 return
             }
         }
+        task.resume()
+        return task
     }
     
     // MARK: perform using Completion Handler and Request protocol
+    @discardableResult
     public func performTask<T: Decodable>(request: Request, decodeTo decodableObject: T.Type, completion: @escaping ((Result<T, NetworkingError>)) -> Void) -> URLSessionDataTask {
-        
-        return urlSession.dataTask(with: request.build()) { data, urlResponse, error in
+        let task = urlSession.dataTask(with: request.build()) { data, urlResponse, error in
             do {
                 let validData = try urlResponseValidator.validate(data: data, urlResponse: urlResponse, error: error)
                 let decodedObject = try requestDecoder.decode(decodableObject.self, from: validData)
@@ -55,12 +62,14 @@ public struct RequestPerformer: RequestPerformable {
                 return
             }
         }
-                                       
+        task.resume()
+        return task
     }
     
     // MARK: perform using Completion Handler without returning Decodable
+    @discardableResult
     public func performTask(request: URLRequest, completion: @escaping ((VoidResult<NetworkingError>) -> Void)) -> URLSessionDataTask {
-        return urlSession.dataTask(with: request) { data, urlResponse, error in
+        let task = urlSession.dataTask(with: request) { data, urlResponse, error in
             do {
                 _ = try urlResponseValidator.validate(data: data, urlResponse: urlResponse, error: error)
                 completion(.success)
@@ -72,11 +81,14 @@ public struct RequestPerformer: RequestPerformable {
                 return
             }
         }
+        task.resume()
+        return task
     }
     
     // MARK: perform using Completion Handler and Request Protocol without returning Decodable
+    @discardableResult
     public func performTask(request: Request, completion: @escaping ((VoidResult<NetworkingError>) -> Void)) -> URLSessionDataTask {
-        return urlSession.dataTask(with: request.build()) { data, urlResponse, error in
+        let task = urlSession.dataTask(with: request.build()) { data, urlResponse, error in
             do {
                 _ = try urlResponseValidator.validate(data: data, urlResponse: urlResponse, error: error)
                 completion(.success)
@@ -88,5 +100,7 @@ public struct RequestPerformer: RequestPerformable {
                 return
             }
         }
+        task.resume()
+        return task
     }
 }

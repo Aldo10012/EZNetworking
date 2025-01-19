@@ -3,6 +3,7 @@ import UIKit
 
 public protocol ImageDownloadable {
     func downloadImage(from url: URL) async throws -> UIImage
+    @discardableResult
     func downloadImageTask(url: URL, completion: @escaping((Result<UIImage, NetworkingError>) -> Void)) -> URLSessionDataTask
 }
 
@@ -32,8 +33,9 @@ public struct ImageDownloader: ImageDownloadable {
         }
     }
 
+    @discardableResult
     public func downloadImageTask(url: URL, completion: @escaping((Result<UIImage, NetworkingError>) -> Void)) -> URLSessionDataTask {
-        return urlSession.dataTask(with: url) { data, response, error in
+        let task = urlSession.dataTask(with: url) { data, response, error in
             do {
                 let validData = try self.urlResponseValidator.validate(data: data, urlResponse: response, error: error)
                 let image = try getImage(from: validData)
@@ -44,6 +46,8 @@ public struct ImageDownloader: ImageDownloadable {
                 completion(.failure(.unknown))
             }
         }
+        task.resume()
+        return task
     }
     
     private func getImage(from data: Data) throws -> UIImage {

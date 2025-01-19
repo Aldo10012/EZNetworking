@@ -92,17 +92,32 @@ final class FileDownloadableTests: XCTestCase {
                                  urlResponseValidator: MockURLResponseValidator(),
                                  requestDecoder: RequestDecoder())
         
-        var didExecute = false
+        let exp = XCTestExpectation()
         sut.downloadFileTask(url: testURL) { result in
-            didExecute = true
+            defer { exp.fulfill() }
             switch result {
             case .success(let localURL):
                 XCTAssertEqual(localURL.absoluteString, "file:///tmp/test.pdf")
             case .failure:
                 XCTFail()
             }
-        }.resume()
-        XCTAssertTrue(didExecute)
+        }
+        wait(for: [exp], timeout: 0.1)
+    }
+    
+    func testDownloadFileCanCancel() throws {
+        let testURL = URL(string: "https://example.com/example.pdf")!
+        let urlSession = MockURLSession(url: testURL,
+                                        urlResponse: buildResponse(statusCode: 200),
+                                        error: nil)
+        let sut = FileDownloader(urlSession: urlSession,
+                                 urlResponseValidator: MockURLResponseValidator(),
+                                 requestDecoder: RequestDecoder())
+        
+        let task = sut.downloadFileTask(url: testURL) { _ in }
+        task.cancel()
+        let downloadTask = try XCTUnwrap(task as? MockURLSessionDownloadTask)
+        XCTAssertTrue(downloadTask.didCancel)
     }
     
     func testDownloadFileFailsIfValidatorThrowsAnyError() {
@@ -115,17 +130,17 @@ final class FileDownloadableTests: XCTestCase {
                                  urlResponseValidator: validator,
                                  requestDecoder: RequestDecoder())
         
-        var didExecute = false
+        let exp = XCTestExpectation()
         sut.downloadFileTask(url: testURL) { result in
-            didExecute = true
+            defer { exp.fulfill() }
             switch result {
             case .success:
                 XCTFail()
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.httpError(.conflict))
             }
-        }.resume()
-        XCTAssertTrue(didExecute)
+        }
+        wait(for: [exp], timeout: 0.1)
     }
 
     private func buildResponse(statusCode: Int) -> HTTPURLResponse {

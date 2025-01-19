@@ -24,8 +24,22 @@ final class RequestPerformerTests: XCTestCase {
             case .failure:
                 XCTFail()
             }
-        }.resume()
+        }
         wait(for: [exp], timeout: 0.1)
+    }
+    
+    func testPerformWithCompletionHandlerCanCancel() throws {
+        let urlSession = createMockURLSession()
+        let validator = MockURLResponseValidator(throwError: nil)
+        let decoder = RequestDecoder()
+        let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
+        
+        let request = try XCTUnwrap(sampleUrlRequest, "Failed to create URLRequest")
+        let task = sut.performTask(request: request, decodeTo: Person.self) { _ in }
+        
+        task.cancel()
+        let dataTask = try XCTUnwrap(task as? MockURLSessionDataTask)
+        XCTAssertTrue(dataTask.didCancel)
     }
     
     func testPerformWithCompletionHandlerWithErrorFails() throws {
@@ -45,7 +59,7 @@ final class RequestPerformerTests: XCTestCase {
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.httpError(.forbidden))
             }
-        }.resume()
+        }
         wait(for: [exp], timeout: 0.1)
     }
     
@@ -66,7 +80,7 @@ final class RequestPerformerTests: XCTestCase {
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.httpError(.badRequest))
             }
-        }.resume()
+        }
         wait(for: [exp], timeout: 0.1)
     }
     
@@ -87,7 +101,7 @@ final class RequestPerformerTests: XCTestCase {
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.couldNotParse)
             }
-        }.resume()
+        }
         wait(for: [exp], timeout: 0.1)
     }
     
@@ -108,7 +122,7 @@ final class RequestPerformerTests: XCTestCase {
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.noData)
             }
-        }.resume()
+        }
         wait(for: [exp], timeout: 0.1)
     }
     
@@ -129,7 +143,7 @@ final class RequestPerformerTests: XCTestCase {
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.couldNotParse)
             }
-        }.resume()
+        }
         wait(for: [exp], timeout: 0.1)
     }
     
@@ -151,8 +165,20 @@ final class RequestPerformerTests: XCTestCase {
             case .failure:
                 XCTFail()
             }
-        }.resume()
+        }
         wait(for: [exp], timeout: 0.1)
+    }
+    
+    func testPerformWithCompletionHandlerWithRequestProtocolCanCancel() throws {
+        let urlSession = createMockURLSession()
+        let validator = MockURLResponseValidator(throwError: nil)
+        let decoder = RequestDecoder()
+        let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
+        
+        let task = sut.performTask(request: MockRequest(), decodeTo: Person.self) { _ in }
+        task.cancel()
+        let dataTask = try XCTUnwrap(task as? MockURLSessionDataTask)
+        XCTAssertTrue(dataTask.didCancel)
     }
     
     func testPerformWithCompletionHandlerWithRequestProtocolWithErrorFails() {
@@ -170,7 +196,7 @@ final class RequestPerformerTests: XCTestCase {
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.httpError(.forbidden))
             }
-        }.resume()
+        }
         wait(for: [exp], timeout: 0.1)
     }
     
@@ -189,7 +215,7 @@ final class RequestPerformerTests: XCTestCase {
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.httpError(.badRequest))
             }
-        }.resume()
+        }
         wait(for: [exp], timeout: 0.1)
     }
     
@@ -208,7 +234,7 @@ final class RequestPerformerTests: XCTestCase {
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.couldNotParse)
             }
-        }.resume()
+        }
         wait(for: [exp], timeout: 0.1)
     }
     
@@ -227,7 +253,7 @@ final class RequestPerformerTests: XCTestCase {
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.noData)
             }
-        }.resume()
+        }
         wait(for: [exp], timeout: 0.1)
     }
     
@@ -246,7 +272,7 @@ final class RequestPerformerTests: XCTestCase {
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.couldNotParse)
             }
-        }.resume()
+        }
         wait(for: [exp], timeout: 0.1)
     }
     
@@ -269,8 +295,22 @@ final class RequestPerformerTests: XCTestCase {
             case .failure:
                 XCTFail()
             }
-        }.resume()
+        }
         wait(for: [exp], timeout: 0.1)
+    }
+    
+    func testPerformWithCompletionHandlerWithoutDecodableCanCancel() throws {
+        let urlSession = createMockURLSession()
+        let validator = MockURLResponseValidator(throwError: nil)
+        let decoder = RequestDecoder()
+        let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
+        
+        let request = try XCTUnwrap(sampleUrlRequest, "Failed to create URLRequest")
+        
+        let task = sut.performTask(request: request) { _ in }
+        task.cancel()
+        let dataTask = try XCTUnwrap(task as? MockURLSessionDataTask)
+        XCTAssertTrue(dataTask.didCancel)
     }
     
     func testPerformWithCompletionHandlerWithoutDecodableWithErrorFails() throws {
@@ -290,7 +330,7 @@ final class RequestPerformerTests: XCTestCase {
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.httpError(.forbidden))
             }
-        }.resume()
+        }
         wait(for: [exp], timeout: 0.1)
     }
     
@@ -311,7 +351,7 @@ final class RequestPerformerTests: XCTestCase {
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.httpError(.badRequest))
             }
-        }.resume()
+        }
         wait(for: [exp], timeout: 0.1)
     }
     
@@ -332,7 +372,7 @@ final class RequestPerformerTests: XCTestCase {
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.noData)
             }
-        }.resume()
+        }
         wait(for: [exp], timeout: 0.1)
     }
     
@@ -353,7 +393,7 @@ final class RequestPerformerTests: XCTestCase {
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.noResponse)
             }
-        }.resume()
+        }
         wait(for: [exp], timeout: 0.1)
     }
     
@@ -374,8 +414,20 @@ final class RequestPerformerTests: XCTestCase {
             case .failure:
                 XCTFail()
             }
-        }.resume()
+        }
         wait(for: [exp], timeout: 0.1)
+    }
+    
+    func testPerformWithCompletionHandlerWithoutDecodableWithRequestProtocolCanCancel() throws {
+        let urlSession = createMockURLSession()
+        let validator = MockURLResponseValidator(throwError: nil)
+        let decoder = RequestDecoder()
+        let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
+        
+        let task = sut.performTask(request: MockRequest()) { _ in }
+        task.cancel()
+        let dataTask = try XCTUnwrap(task as? MockURLSessionDataTask)
+        XCTAssertTrue(dataTask.didCancel)
     }
     
     func testPerformWithCompletionHandlerWithoutDecodableWithRequestProtocolWithErrorFails() {
@@ -393,7 +445,7 @@ final class RequestPerformerTests: XCTestCase {
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.httpError(.forbidden))
             }
-        }.resume()
+        }
         wait(for: [exp], timeout: 0.1)
     }
     
@@ -412,7 +464,7 @@ final class RequestPerformerTests: XCTestCase {
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.httpError(.badRequest))
             }
-        }.resume()
+        }
         wait(for: [exp], timeout: 0.1)
     }
     
@@ -431,7 +483,7 @@ final class RequestPerformerTests: XCTestCase {
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.noData)
             }
-        }.resume()
+        }
         wait(for: [exp], timeout: 0.1)
     }
     
@@ -450,7 +502,7 @@ final class RequestPerformerTests: XCTestCase {
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.noResponse)
             }
-        }.resume()
+        }
         wait(for: [exp], timeout: 0.1)
     }
     
