@@ -44,9 +44,9 @@ final class ImageDownloadableTests: XCTestCase {
         let validator = MockURLResponseValidator(throwError: nil)
         let sut = ImageDownloader(urlSession: urlSession, urlResponseValidator: validator)
 
-        var didExecute = false
+        let exp = XCTestExpectation()
         sut.downloadImageTask(url: testURL) { result in
-            didExecute = true
+            defer { exp.fulfill() }
             switch result {
             case .success:
                 XCTAssertTrue(true)
@@ -58,7 +58,7 @@ final class ImageDownloadableTests: XCTestCase {
                 }
             }
         }
-        XCTAssertTrue(didExecute)
+        wait(for: [exp], timeout: 0.1)
     }
     
     func testDownloadImageCanCancel() throws {
@@ -85,17 +85,17 @@ final class ImageDownloadableTests: XCTestCase {
                                   urlResponseValidator: validator,
                                   requestDecoder: RequestDecoder())
 
-        var didExecute = false
+        let exp = XCTestExpectation()
         sut.downloadImageTask(url: testURL) { result in
-            didExecute = true
+            defer { exp.fulfill() }
             switch result {
             case .success:
                 XCTFail()
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.httpError(.conflict))
             }
-        }.resume()
-        XCTAssertTrue(didExecute)
+        }
+        wait(for: [exp], timeout: 0.1)
     }
 
     private func buildResponse(statusCode: Int) -> HTTPURLResponse {

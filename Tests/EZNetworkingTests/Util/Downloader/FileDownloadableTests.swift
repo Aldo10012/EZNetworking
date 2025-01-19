@@ -92,9 +92,9 @@ final class FileDownloadableTests: XCTestCase {
                                  urlResponseValidator: MockURLResponseValidator(),
                                  requestDecoder: RequestDecoder())
         
-        var didExecute = false
+        let exp = XCTestExpectation()
         sut.downloadFileTask(url: testURL) { result in
-            didExecute = true
+            defer { exp.fulfill() }
             switch result {
             case .success(let localURL):
                 XCTAssertEqual(localURL.absoluteString, "file:///tmp/test.pdf")
@@ -102,7 +102,7 @@ final class FileDownloadableTests: XCTestCase {
                 XCTFail()
             }
         }
-        XCTAssertTrue(didExecute)
+        wait(for: [exp], timeout: 0.1)
     }
     
     func testDownloadFileCanCancel() throws {
@@ -130,9 +130,9 @@ final class FileDownloadableTests: XCTestCase {
                                  urlResponseValidator: validator,
                                  requestDecoder: RequestDecoder())
         
-        var didExecute = false
+        let exp = XCTestExpectation()
         sut.downloadFileTask(url: testURL) { result in
-            didExecute = true
+            defer { exp.fulfill() }
             switch result {
             case .success:
                 XCTFail()
@@ -140,7 +140,7 @@ final class FileDownloadableTests: XCTestCase {
                 XCTAssertEqual(error, NetworkingError.httpError(.conflict))
             }
         }
-        XCTAssertTrue(didExecute)
+        wait(for: [exp], timeout: 0.1)
     }
 
     private func buildResponse(statusCode: Int) -> HTTPURLResponse {
