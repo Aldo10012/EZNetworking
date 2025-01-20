@@ -1,10 +1,10 @@
 import XCTest
 @testable import EZNetworking
 
-final class RequestFactoryTests: XCTestCase {
+final class RequestBuilderTests: XCTestCase {
     
     func testBuildURLRequestWithValidParameters() {
-        let builder = RequestFactoryImpl()
+        let builder = RequestBuilderImpl()
         let urlString = "https://example.com/api"
         let httpMethod = HTTPMethod.POST
         let parameters: [HTTPParameter] = [
@@ -15,15 +15,17 @@ final class RequestFactoryTests: XCTestCase {
             HTTPHeader.contentType(.json),
             HTTPHeader.authorization(.bearer("token"))
         ]
-        let body = "{\"name\": \"John\"}".data(using: .utf8)
+        let body = "{\"name\": \"John\"}".data(using: .utf8)!
         let timeoutInterval: TimeInterval = 30
         
-        let request = builder.build(httpMethod: httpMethod,
-                                    baseUrlString: urlString,
-                                    parameters: parameters,
-                                    headers: headers,
-                                    body: body,
-                                    timeoutInterval: timeoutInterval)
+        let request = builder
+            .setHttpMethod(httpMethod)
+            .setBaseUrl(urlString)
+            .setParameters(parameters)
+            .setHeaders(headers)
+            .setBody(body)
+            .setTimeoutInterval(timeoutInterval)
+            .build()
         
         XCTAssertNotNil(request)
         XCTAssertEqual(request?.url?.absoluteString, "https://example.com/api?key1=value1&key2=value2")
@@ -36,16 +38,15 @@ final class RequestFactoryTests: XCTestCase {
     }
     
     func testBuildURLRequestWithNoParametersAndHeaders() {
-        let builder = RequestFactoryImpl()
+        let builder = RequestBuilderImpl()
         let urlString = "https://example.com/api"
         let httpMethod = HTTPMethod.PUT
         
-        let request = builder.build(httpMethod: httpMethod,
-                                    baseUrlString: urlString,
-                                    parameters: nil,
-                                    headers: nil,
-                                    body: nil,
-                                    timeoutInterval: 60)
+        let request = builder
+            .setHttpMethod(httpMethod)
+            .setBaseUrl(urlString)
+            .setTimeoutInterval(60)
+            .build()
         
         XCTAssertNotNil(request)
         XCTAssertEqual(request?.url?.absoluteString, urlString)
@@ -53,5 +54,5 @@ final class RequestFactoryTests: XCTestCase {
         XCTAssertNil(request?.httpBody)
         XCTAssertEqual(request?.timeoutInterval, 60)
     }
-    
+
 }
