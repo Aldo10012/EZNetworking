@@ -41,7 +41,7 @@ final class ImageDownloadableTests: XCTestCase {
         let urlSession = MockURLSession(data: mockPersonJsonData,
                                         urlResponse: buildResponse(statusCode: 200),
                                         error: nil)
-        let validator = MockURLResponseValidator(throwError: nil)
+        let validator = MockURLResponseValidator()
         let sut = ImageDownloader(urlSession: urlSession, urlResponseValidator: validator)
 
         let exp = XCTestExpectation()
@@ -66,7 +66,7 @@ final class ImageDownloadableTests: XCTestCase {
         let urlSession = MockURLSession(data: mockPersonJsonData,
                                         urlResponse: buildResponse(statusCode: 200),
                                         error: nil)
-        let validator = MockURLResponseValidator(throwError: nil)
+        let validator = MockURLResponseValidator()
         let sut = ImageDownloader(urlSession: urlSession, urlResponseValidator: validator)
 
         let task = sut.downloadImageTask(url: testURL) { _ in }

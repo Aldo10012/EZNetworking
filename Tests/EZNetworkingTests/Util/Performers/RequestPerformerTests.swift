@@ -8,7 +8,7 @@ final class RequestPerformerTests: XCTestCase {
 
     func testPerformWithCompletionHandlerDoesDecodePerson() throws {
         let urlSession = createMockURLSession()
-        let validator = MockURLResponseValidator(throwError: nil)
+        let validator = MockURLResponseValidator()
         let decoder = RequestDecoder()
         let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
@@ -30,7 +30,7 @@ final class RequestPerformerTests: XCTestCase {
     
     func testPerformWithCompletionHandlerCanCancel() throws {
         let urlSession = createMockURLSession()
-        let validator = MockURLResponseValidator(throwError: nil)
+        let validator = MockURLResponseValidator()
         let decoder = RequestDecoder()
         let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
@@ -86,7 +86,7 @@ final class RequestPerformerTests: XCTestCase {
     
     func testPerformWithCompletionHandlerWithInvalidData() throws {
         let urlSession = createMockURLSession(data: invalidMockPersonJsonData)
-        let validator = MockURLResponseValidator(throwError: nil)
+        let validator = MockURLResponseValidator()
         let decoder = RequestDecoder()
         let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
@@ -107,7 +107,7 @@ final class RequestPerformerTests: XCTestCase {
     
     func testPerformWithCompletionHandlerWithNilData() throws {
         let urlSession = createMockURLSession(data: nil)
-        let validator = MockURLResponseValidator(throwError: nil)
+        let validator = MockURLResponseValidator()
         let decoder = RequestDecoder()
         let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
@@ -128,7 +128,7 @@ final class RequestPerformerTests: XCTestCase {
     
     func testPerformWithCompletionHandlerWithNilResponse() throws {
         let urlSession = createMockURLSession(data: invalidMockPersonJsonData)
-        let validator = MockURLResponseValidator(throwError: nil)
+        let validator = MockURLResponseValidator()
         let decoder = RequestDecoder()
         let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
@@ -151,7 +151,7 @@ final class RequestPerformerTests: XCTestCase {
 
     func testPerformWithCompletionHandlerWithRequestProtocolDoesDecodePerson() {
         let urlSession = createMockURLSession()
-        let validator = MockURLResponseValidator(throwError: nil)
+        let validator = MockURLResponseValidator()
         let decoder = RequestDecoder()
         let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
@@ -171,7 +171,7 @@ final class RequestPerformerTests: XCTestCase {
     
     func testPerformWithCompletionHandlerWithRequestProtocolCanCancel() throws {
         let urlSession = createMockURLSession()
-        let validator = MockURLResponseValidator(throwError: nil)
+        let validator = MockURLResponseValidator()
         let decoder = RequestDecoder()
         let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
@@ -221,7 +221,7 @@ final class RequestPerformerTests: XCTestCase {
     
     func testPerformWithCompletionHandlerWithRequestProtocolWithInvalidData() {
         let urlSession = createMockURLSession(data: invalidMockPersonJsonData)
-        let validator = MockURLResponseValidator(throwError: nil)
+        let validator = MockURLResponseValidator()
         let decoder = RequestDecoder()
         let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
@@ -240,7 +240,7 @@ final class RequestPerformerTests: XCTestCase {
     
     func testPerformWithCompletionHandlerWithRequestProtocolWithNilData() {
         let urlSession = createMockURLSession(data: nil)
-        let validator = MockURLResponseValidator(throwError: nil)
+        let validator = MockURLResponseValidator()
         let decoder = RequestDecoder()
         let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
@@ -259,7 +259,7 @@ final class RequestPerformerTests: XCTestCase {
     
     func testPerformWithCompletionHandlerWithRequestProtocolWithNilResponse() {
         let urlSession = createMockURLSession(data: invalidMockPersonJsonData)
-        let validator = MockURLResponseValidator(throwError: nil)
+        let validator = MockURLResponseValidator()
         let decoder = RequestDecoder()
         let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
@@ -280,7 +280,7 @@ final class RequestPerformerTests: XCTestCase {
     
     func testPerformWithCompletionHandlerWithoutDecodableDoesDecodePerson() throws {
         let urlSession = createMockURLSession()
-        let validator = MockURLResponseValidator(throwError: nil)
+        let validator = MockURLResponseValidator()
         let decoder = RequestDecoder()
         let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
@@ -301,7 +301,7 @@ final class RequestPerformerTests: XCTestCase {
     
     func testPerformWithCompletionHandlerWithoutDecodableCanCancel() throws {
         let urlSession = createMockURLSession()
-        let validator = MockURLResponseValidator(throwError: nil)
+        let validator = MockURLResponseValidator()
         let decoder = RequestDecoder()
         let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
@@ -401,7 +401,7 @@ final class RequestPerformerTests: XCTestCase {
     
     func testPerformWithCompletionHandlerWithoutDecodableWithRequestProtocolDoesDecodePerson() {
         let urlSession = createMockURLSession()
-        let validator = MockURLResponseValidator(throwError: nil)
+        let validator = MockURLResponseValidator()
         let decoder = RequestDecoder()
         let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
@@ -420,7 +420,7 @@ final class RequestPerformerTests: XCTestCase {
     
     func testPerformWithCompletionHandlerWithoutDecodableWithRequestProtocolCanCancel() throws {
         let urlSession = createMockURLSession()
-        let validator = MockURLResponseValidator(throwError: nil)
+        let validator = MockURLResponseValidator()
         let decoder = RequestDecoder()
         let sut = RequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         

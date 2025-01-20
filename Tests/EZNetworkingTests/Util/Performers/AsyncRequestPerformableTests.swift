@@ -7,7 +7,7 @@ final class AsyncRequestPerformableTests: XCTestCase {
 
     func testPerformAsyncSuccess() async throws {
         let urlSession = createMockURLSession(statusCode: 200, error: nil)
-        let validator = MockURLResponseValidator(throwError: nil)
+        let validator = MockURLResponseValidator()
         let decoder = RequestDecoder()
         let sut = AsyncRequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
@@ -25,7 +25,7 @@ final class AsyncRequestPerformableTests: XCTestCase {
     func testPerformAsyncFailsWhenThereIsError() async throws {
         let urlSession = createMockURLSession(statusCode: 200,
                                               error: NetworkingError.httpError(.badRequest))
-        let validator = MockURLResponseValidator(throwError: nil)
+        let validator = MockURLResponseValidator()
         let decoder = RequestDecoder()
         let sut = AsyncRequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
@@ -75,7 +75,7 @@ final class AsyncRequestPerformableTests: XCTestCase {
 
     func testPerformAsyncWithRequestProtocolSuccess() async throws {
         let urlSession = createMockURLSession(statusCode: 200, error: nil)
-        let validator = MockURLResponseValidator(throwError: nil)
+        let validator = MockURLResponseValidator()
         let decoder = RequestDecoder()
         let sut = AsyncRequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
 
@@ -91,7 +91,7 @@ final class AsyncRequestPerformableTests: XCTestCase {
     func testPerformAsyncWithRequestProtocolFailsWhenThereIsError() async throws {
         let urlSession = createMockURLSession(statusCode: 200,
                                               error: NetworkingError.httpError(.badRequest))
-        let validator = MockURLResponseValidator(throwError: nil)
+        let validator = MockURLResponseValidator()
         let decoder = RequestDecoder()
         let sut = AsyncRequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         do {
@@ -134,7 +134,7 @@ final class AsyncRequestPerformableTests: XCTestCase {
 
     func testPerformAsyncWithoutResponseSuccess() async throws {
         let urlSession = createMockURLSession(statusCode: 200, error: nil)
-        let validator = MockURLResponseValidator(throwError: nil)
+        let validator = MockURLResponseValidator()
         let decoder = RequestDecoder()
         let sut = AsyncRequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
@@ -151,7 +151,7 @@ final class AsyncRequestPerformableTests: XCTestCase {
     func testPerformAsyncWIthoutResponseFailsWhenThereIsError() async throws {
         let urlSession = createMockURLSession(statusCode: 200,
                                               error: NetworkingError.httpError(.badRequest))
-        let validator = MockURLResponseValidator(throwError: nil)
+        let validator = MockURLResponseValidator()
         let decoder = RequestDecoder()
         let sut = AsyncRequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
@@ -201,7 +201,7 @@ final class AsyncRequestPerformableTests: XCTestCase {
 
     func testPerformAsyncWithRequestProtocolWithoutResponseSuccess() async throws {
         let urlSession = createMockURLSession(statusCode: 200, error: nil)
-        let validator = MockURLResponseValidator(throwError: nil)
+        let validator = MockURLResponseValidator()
         let decoder = RequestDecoder()
         let sut = AsyncRequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
@@ -216,7 +216,7 @@ final class AsyncRequestPerformableTests: XCTestCase {
     func testPerformAsyncWithRequestProtocolWIthoutResponseFailsWhenThereIsError() async throws {
         let urlSession = createMockURLSession(statusCode: 200,
                                               error: NetworkingError.httpError(.badRequest))
-        let validator = MockURLResponseValidator(throwError: nil)
+        let validator = MockURLResponseValidator()
         let decoder = RequestDecoder()
         let sut = AsyncRequestPerformer(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
