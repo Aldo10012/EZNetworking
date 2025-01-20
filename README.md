@@ -268,7 +268,7 @@ func asyncMethodName() async throws {
 ```swift
 // Option A: Using RequestBuilder
 let request = RequestBuilder().build(httpMethod: .GET, urlString: "http://www.example.com", parameters: [])
-let task = RequestPerformer().performTask(request: request, decodeTo: Person.self) { result in
+RequestPerformer().performTask(request: request, decodeTo: Person.self) { result in
     switch result {
     case .success(let person):
         print(person.name, person.age)
@@ -276,10 +276,9 @@ let task = RequestPerformer().performTask(request: request, decodeTo: Person.sel
         print(error)
     }
 }
-task.resume()
 
 // Option B: Using Request protocol
-let task = RequestPerformer().performTask(request: GetPersonRequest(), decodeTo: Person.self) { result in // GetPersonRequest conforms to Request
+RequestPerformer().performTask(request: GetPersonRequest(), decodeTo: Person.self) { result in // GetPersonRequest conforms to Request
     switch result {
     case .success(let person):
         print(person.name, person.age)
@@ -287,14 +286,13 @@ let task = RequestPerformer().performTask(request: GetPersonRequest(), decodeTo:
         print(error)
     }
 }
-task.resume()
 ```
 
 #### How to make api call using completion handlers without decoding a response?
 ```swift
 // Option A: Using RequestBuilder
 let request = RequestBuilder().build(httpMethod: .GET, urlString: "http://www.example.com", parameters: [])
-let task = RequestPerformer().performTask(request: request) { result in
+RequestPerformer().performTask(request: request) { result in
     switch result {
     case .success:
         print("did succeed")
@@ -302,10 +300,9 @@ let task = RequestPerformer().performTask(request: request) { result in
         print(error)
     }
 }
-task.reaume()
 
 // Option B: Using Request protocol
-let task = RequestPerformer().performTask(request: GetPersonRequest()) { result in // GetPersonRequest conforms to Request
+RequestPerformer().performTask(request: GetPersonRequest()) { result in // GetPersonRequest conforms to Request
     switch result {
     case .success:
         print("did succeed")
@@ -313,7 +310,20 @@ let task = RequestPerformer().performTask(request: GetPersonRequest()) { result 
         print(error)
     }
 }
-task.reaume()
+```
+
+#### How to manage more granular control of a DataTask?
+
+`RequestPerformer().performTask()` returns an instance of `URLSessionDataTask`. It is marked as `@discardableResult` so XCode will not throw any errors if you do not store returned value. Inernally, before returning the data task instance, the `.resume()` method is called you if you only want to call a simple request and don't care about granular control, you don't need to, but if you would like the extra control, you can store the resulting task in a variable and you can call it's methods.
+
+Example
+```swift
+let task = RequestPerformer().performTask(request: GetPersonRequest()) { _ in
+   ...
+}
+
+// something happens and you want to cancel the task
+task.cancel()
 ```
 
 ### Download Files
@@ -334,7 +344,7 @@ do {
 #### Completion hander
 ```swift
 let testURL = URL(string: "https://example.com/example.pdf")!
-let task = FileDownloader().downloadFile(url: testURL) { result in
+FileDownloader().downloadFile(url: testURL) { result in
     switch result {
     case .success:
         // handle the returned local URL path. Perhaps write and save it in FileManager
@@ -342,7 +352,16 @@ let task = FileDownloader().downloadFile(url: testURL) { result in
         // handle error
     }
 }
-task.resume()
+```
+
+Similar to `RequestPerformer.performTask()`, `FileDownloader.downloadFile()` returns a `@discardableResult` instance of `URLSessionDownloadTask` that calls `.resume()` just before returning so you as a client don't need to, but if you would like the extra control, you can store the result in a variable and have access to it's several methods such as cancel()
+
+```swift
+let task = FileDownloader().downloadFile(url: testURL) { _ in
+    ...
+}
+// something happens and you want to cancel the download task
+task.cancel()
 ```
 
 ### Download Images
@@ -363,7 +382,7 @@ do {
 #### Completion hander
 ```swift
 let imageURL = URL(string: "https://some_image_url.png")
-let task = ImageDownloader().downloadImageTask(url: imageURL) { result in
+ImageDownloader().downloadImageTask(url: imageURL) { result in
     switch result {
     case .success:
         // handle success
@@ -371,5 +390,14 @@ let task = ImageDownloader().downloadImageTask(url: imageURL) { result in
         // handle error
     }
 }
-task.resume()
+```
+
+Similar to `RequestPerformer.performTask()`, `ImageDownloader.downloadImageTask()` returns a `@discardableResult` instance of `URLSessionDataTask` that calls `.resume()` just before returning so you as a client don't need to, but if you would like the extra control, you can store the result in a variable and have access to it's several methods such as cancel()
+
+```swift
+let task = ImageDownloader().downloadImageTask(url: testURL) { _ in
+    ...
+}
+// something happens and you want to cancel the download task
+task.cancel()
 ```
