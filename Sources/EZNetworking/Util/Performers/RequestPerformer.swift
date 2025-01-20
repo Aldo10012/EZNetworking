@@ -3,9 +3,9 @@ import UIKit
 
 public protocol RequestPerformable {
     @discardableResult
-    func performTask<T: Decodable>(request: URLRequest, decodeTo decodableObject: T.Type, completion: @escaping((Result<T, NetworkingError>)) -> Void) -> URLSessionDataTask
+    func performTask<T: Decodable>(request: URLRequest, decodeTo decodableObject: T.Type, completion: @escaping((Result<T, NetworkingError>) -> Void)) -> URLSessionDataTask
     @discardableResult
-    func performTask<T: Decodable>(request: Request, decodeTo decodableObject: T.Type, completion: @escaping((Result<T, NetworkingError>)) -> Void) -> URLSessionDataTask
+    func performTask<T: Decodable>(request: Request, decodeTo decodableObject: T.Type, completion: @escaping((Result<T, NetworkingError>) -> Void)) -> URLSessionDataTask
     @discardableResult
     func performTask(request: URLRequest, completion: @escaping((VoidResult<NetworkingError>) -> Void)) -> URLSessionDataTask
     @discardableResult
@@ -28,7 +28,7 @@ public struct RequestPerformer: RequestPerformable {
     
     // MARK: perform using Completion Handler
     @discardableResult
-    public func performTask<T: Decodable>(request: URLRequest, decodeTo decodableObject: T.Type, completion: @escaping ((Result<T, NetworkingError>)) -> Void) -> URLSessionDataTask {
+    public func performTask<T: Decodable>(request: URLRequest, decodeTo decodableObject: T.Type, completion: @escaping ((Result<T, NetworkingError>) -> Void)) -> URLSessionDataTask {
         let task = urlSession.dataTask(with: request) { data, urlResponse, error in
             do {
                 let validData = try urlResponseValidator.validate(data: data, urlResponse: urlResponse, error: error)
@@ -48,7 +48,7 @@ public struct RequestPerformer: RequestPerformable {
     
     // MARK: perform using Completion Handler and Request protocol
     @discardableResult
-    public func performTask<T: Decodable>(request: Request, decodeTo decodableObject: T.Type, completion: @escaping ((Result<T, NetworkingError>)) -> Void) -> URLSessionDataTask {
+    public func performTask<T: Decodable>(request: Request, decodeTo decodableObject: T.Type, completion: @escaping ((Result<T, NetworkingError>) -> Void)) -> URLSessionDataTask {
         let task = urlSession.dataTask(with: request.build()) { data, urlResponse, error in
             do {
                 let validData = try urlResponseValidator.validate(data: data, urlResponse: urlResponse, error: error)
@@ -68,7 +68,7 @@ public struct RequestPerformer: RequestPerformable {
     
     // MARK: perform using Completion Handler without returning Decodable
     @discardableResult
-    public func performTask(request: URLRequest, completion: @escaping ((VoidResult<NetworkingError>) -> Void)) -> URLSessionDataTask {
+    public func performTask(request: URLRequest,completion: @escaping ((VoidResult<NetworkingError>) -> Void)) -> URLSessionDataTask {
         let task = urlSession.dataTask(with: request) { data, urlResponse, error in
             do {
                 _ = try urlResponseValidator.validate(data: data, urlResponse: urlResponse, error: error)
