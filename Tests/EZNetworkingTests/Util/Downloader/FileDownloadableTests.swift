@@ -12,7 +12,7 @@ final class FileDownloadableTests: XCTestCase {
             urlResponse: buildResponse(statusCode: 200),
             error: nil
         )
-        let validator = MockURLResponseValidator(throwError: nil)
+        let validator = MockURLResponseValidator()
         let decoder = RequestDecoder()
         let sut = FileDownloader(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
