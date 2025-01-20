@@ -4,7 +4,7 @@ import XCTest
 final class RequestBuilderTests: XCTestCase {
     
     func testBuildURLRequestWithValidParameters() {
-        let builder = RequestBuilder()
+        let builder = RequestFactoryImpl()
         let urlString = "https://example.com/api"
         let httpMethod = HTTPMethod.POST
         let parameters: [HTTPParameter] = [
@@ -36,7 +36,7 @@ final class RequestBuilderTests: XCTestCase {
     }
     
     func testBuildURLRequestWithNoParametersAndHeaders() {
-        let builder = RequestBuilder()
+        let builder = RequestFactoryImpl()
         let urlString = "https://example.com/api"
         let httpMethod = HTTPMethod.PUT
         
