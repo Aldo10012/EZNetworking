@@ -17,6 +17,7 @@ EZNetworking is a Swift package that provides a set of awesome utilities to make
     - [How to make api call with Async/Await without decoding a response?](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#how-to-make-api-call-using-asyncawait-without-decoding-a-response)
     - [How to get an api response using Completion Handler?](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#how-to-get-an-api-response-using-completion-handlers)
     - [How to make api call with Completion Handler without decoding a response?](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#how-to-make-api-call-using-completion-handlers-without-decoding-a-response)
+    - [How to granularly control your data task](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#how-to-granularly-control-your-data-task)
 - [Download file](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#download-files)
 - [Downlaod Image](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#download-images)
  
@@ -312,7 +313,7 @@ RequestPerformer().performTask(request: GetPersonRequest()) { result in // GetPe
 }
 ```
 
-#### How to manage more granular control of a DataTask?
+#### How to granularly control your data task?
 
 `RequestPerformer().performTask()` returns an instance of `URLSessionDataTask`. It is marked as `@discardableResult` so XCode will not throw any errors if you do not store returned value. Inernally, before returning the data task instance, the `.resume()` method is called you if you only want to call a simple request and don't care about granular control, you don't need to, but if you would like the extra control, you can store the resulting task in a variable and you can call it's methods.
 
