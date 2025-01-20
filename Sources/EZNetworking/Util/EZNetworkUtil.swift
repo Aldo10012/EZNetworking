@@ -1,18 +1,18 @@
 import Foundation
 
 class EZNetworkUtil {
-    private let builder: RequestBuildable
+    private let builder: RequestFactory
     private let performer: RequestPerformable
     private let asyncPerformer: AsyncRequestPerformable
     private var request: URLRequest?
 
     public convenience init() {
-        self.init(builder: RequestBuilder(),
+        self.init(builder: RequestFactoryImpl(),
                   performer: RequestPerformer(),
                   asyncPerformer: AsyncRequestPerformer())
     }
 
-    init(builder: RequestBuildable,
+    init(builder: RequestFactory,
          performer: RequestPerformable,
          asyncPerformer: AsyncRequestPerformable) {
         self.builder = builder

@@ -425,7 +425,7 @@ private func createMockURLSession(
     )
 }
 
-private var sampleUrlRequest = RequestBuilder().build(httpMethod: .GET, baseUrlString: "https://www.example.com", parameters: nil)
+private var sampleUrlRequest = RequestFactoryImpl().build(httpMethod: .GET, baseUrlString: "https://www.example.com", parameters: nil)
 
 private func buildResponse(statusCode: Int) -> HTTPURLResponse {
     HTTPURLResponse(url: URL(string: "https://example.com")!,

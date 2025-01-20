@@ -15,7 +15,7 @@ public extension Request {
 
 internal extension Request {
     func build() -> URLRequest {
-        return RequestBuilder()
+        return RequestFactoryImpl()
             .build(httpMethod: httpMethod,
                    baseUrlString: baseUrlString,
                    parameters: parameters,
