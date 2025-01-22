@@ -5,7 +5,7 @@ EZNetworking is a Swift package that provides a set of awesome utilities to make
 ## Table of Content
 - [Installation](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#installation)
 - [Building a Request](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#building-a-request)
-    - [Using RequestBuilder](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#using-requestbuilder) 
+    - [Using RequestFactory](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#using-requestbuilder) 
         - [How to add query params?](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#how-to-add-query-parameters)
         - [How to add headers?](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#how-to-add-headers)
         - [What about Authorization?](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#what-about-authorization)
@@ -48,12 +48,12 @@ Choose the version and add the package to your project.
 
 ### Building a Request
 
-#### Using RequestBuilder()
+#### Using RequestFactory
 
 To quickly and easily create a URLRequest utilize the RequestBuilder()
 
 ```swift
-let request = RequestBuilder().build(httpMethod: .GET, urlString: "http://www.example.com", parameters: [])
+let request = RequestFactoryImpl().build(httpMethod: .GET, urlString: "http://www.example.com", parameters: [])
 ```
 - `httpMethod`: inject the http method you want to use: `GET`, `POST`, `PUT`, `DELETE`
 - `urlString`: inject your api url as a string
@@ -62,7 +62,7 @@ let request = RequestBuilder().build(httpMethod: .GET, urlString: "http://www.ex
 ##### How to add query parameters?
 Just pass in an array of `HTTPParameter` into the `parameters` argument. Here's an example.
 ```swift
-let request = RequestBuilder().build(
+let request = RequestFactoryImpl().build(
         httpMethod: .GET,
         urlString: "http://www.example.com",
         parameters: [
@@ -79,7 +79,7 @@ The next argument in you can pass in an array of `HTTPHeader`. `HTTPHeader` is a
 
 Here's an example.
 ```swift
-let request = RequestBuilder().build(
+let request = RequestFactoryImpl().build(
         httpMethod: .GET,
         urlString: "http://www.example.com",
         parameters: [
@@ -101,7 +101,7 @@ The most common method of authorization is Bearer. ex: `"Authorization": "Bearer
 Here's an example
 
 ```swift
-let request = RequestBuilder().build(
+let request = RequestFactoryImpl().build(
         httpMethod: .GET,
         urlString: "http://www.example.com",
         parameters: [
@@ -122,7 +122,7 @@ let request = RequestBuilder().build(
 
 If you are not using "Bearer" for authorizaiton, you can use `Authorization.custom(String)`. Here's an example:
 ```swift
-let request = RequestBuilder().build(
+let request = RequestFactoryImpl().build(
         httpMethod: .GET,
         urlString: "http://www.example.com",
         parameters: [
@@ -144,7 +144,7 @@ Inject a `Data` object into the `body` parameter.
 
 ```swift
 let myData: Data()
-let request = RequestBuilder().build(
+let request = RequestFactoryImpl().build(
         httpMethod: .GET,
         urlString: "http://www.example.com",
         parameters: [
@@ -166,7 +166,7 @@ let request = RequestBuilder().build(
 Assign a value to `timeoutInterval`
 ```swift
 let myData: Data()
-let request = RequestBuilder().build(
+let request = RequestFactoryImpl().build(
         httpMethod: .GET,
         urlString: "http://www.example.com",
         parameters: [
@@ -233,8 +233,8 @@ Create a request using either RequestBuilder or Request and inject it into
 ```swift
 func asyncMethodName() async throws {
     do {
-        // Option A: using RequestBuilder()
-        let request = RequestBuilder().build(httpMethod: .GET, urlString: "http://www.example.com", parameters: [])!  
+        // Option A: using RequestFactory
+        let request = RequestFactoryImpl().build(httpMethod: .GET, urlString: "http://www.example.com", parameters: [])!  
         let personA = try await AsyncRequestPerformer().perform(request: request, decodeTo: Person.self)
         print(personA.age, personA.name)
 
@@ -251,8 +251,8 @@ func asyncMethodName() async throws {
 ```swift
 func asyncMethodName() async throws {
     do {
-        // Option A: using RequestBuilder
-        let request = RequestBuilder().build(httpMethod: .GET, urlString: "http://www.example.com", parameters: [])!    
+        // Option A: using RequestFactory
+        let request = RequestFactoryImpl().build(httpMethod: .GET, urlString: "http://www.example.com", parameters: [])!    
         try await AsyncRequestPerformer().perform(request: request)
         print("Did succeed")
 
@@ -267,8 +267,8 @@ func asyncMethodName() async throws {
 
 #### How to get an api response using completion handlers?
 ```swift
-// Option A: Using RequestBuilder
-let request = RequestBuilder().build(httpMethod: .GET, urlString: "http://www.example.com", parameters: [])
+// Option A: Using RequestFactory
+let request = RequestFactoryImpl().build(httpMethod: .GET, urlString: "http://www.example.com", parameters: [])
 RequestPerformer().performTask(request: request, decodeTo: Person.self) { result in
     switch result {
     case .success(let person):
@@ -291,8 +291,8 @@ RequestPerformer().performTask(request: GetPersonRequest(), decodeTo: Person.sel
 
 #### How to make api call using completion handlers without decoding a response?
 ```swift
-// Option A: Using RequestBuilder
-let request = RequestBuilder().build(httpMethod: .GET, urlString: "http://www.example.com", parameters: [])
+// Option A: Using RequestFactory
+let request = RequestFactoryImpl().build(httpMethod: .GET, urlString: "http://www.example.com", parameters: [])
 RequestPerformer().performTask(request: request) { result in
     switch result {
     case .success:
