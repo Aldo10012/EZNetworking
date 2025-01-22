@@ -5,13 +5,16 @@ EZNetworking is a Swift package that provides a set of awesome utilities to make
 ## Table of Content
 - [Installation](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#installation)
 - [Building a Request](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#building-a-request)
-    - [Using RequestFactory](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#using-requestbuilder) 
-        - [How to add query params?](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#how-to-add-query-parameters)
-        - [How to add headers?](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#how-to-add-headers)
-        - [What about Authorization?](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#what-about-authorization)
-        - [How to add a body?](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#how-to-add-a-body)
-        - [How to add a time interval?](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#how-do-i-add-a-time-interval)
-    - [Using Request protocol](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#using-the-request-protocol)
+    - [Building a Request](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#building-a-request)
+        - [Using RequestFactory](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#1-using-requestfactory)
+        - [Using RequestBuilderImpl](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#2-using-requestbuilderimpl)
+    - [Adding Request Details](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#adding-request-details)
+        - [Query Parameters](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#query-parameters)
+        - [HTTP Headers](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#http-headers)
+        - [Authorization](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#authorization)
+        - [Request Body](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#request-body)
+        - [Timeout Interval](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#timeout-interval)
+    - [Advanced Usage: Conforming to the Request Protocol](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#advanced-usage-conforming-to-the-request-protocol)
 - [Performing a Request](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#performing-a-request)
     - [How to get an api response using Async/Await?](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#how-to-get-an-api-response-using-asyncawait)
     - [How to make api call with Async/Await without decoding a response?](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#how-to-make-api-call-using-asyncawait-without-decoding-a-response)
@@ -149,9 +152,9 @@ let request = RequestBuilderImpl()
 
 Include headers with predefined cases in the HTTPHeader enum. Common headers include:
 
-`.accept(MediaType)`
-`.contentType(MediaType)`
-`.authorization(Authorization)`
+`.accept(.json)`
+`.contentType(.json)`
+`.authorization(.bearer(""))`
 
 Example:
 
@@ -245,7 +248,7 @@ let request = RequestBuilderImpl()
     .build()
 ```
 
-#### Advanced Usage: Conforming to the Request Protocol
+### Advanced Usage: Conforming to the Request Protocol
 Encapsulate request data in a reusable struct or class conforming to the Request protocol. This approach allows you to manage API requests in one place and inject them where needed.
 
 Example:
