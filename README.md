@@ -29,7 +29,6 @@ EZNetworking is a Swift package that provides a set of awesome utilities to make
 To integrate EZnetworking into your Xcode project using Swift Package Manager, add the following dependency to your Package.swift file:
 
 swift
-Copy code
 ```
 dependencies: [
     .package(url: "https://github.com/Aldo10012/EZNetworking.git", from: "2.1.0")
@@ -43,180 +42,230 @@ Enter the package repository URL: https://github.com/Aldo10012/EZNetworking.git.
 Choose the version and add the package to your project.
 
 
-
 ## Usage
 
 ### Building a Request
+The library provides two convenient ways to create URLRequest objects: RequestFactory for quick one-step request creation and RequestBuilderImpl for a more flexible, step-by-step approach.
 
-#### Using RequestFactory
+#### 1. Using RequestFactory
+RequestFactory is perfect for quickly creating a URLRequest in a single function call.
 
-To quickly and easily create a URLRequest utilize the RequestBuilder()
-
-```swift
-let request = RequestFactoryImpl().build(httpMethod: .GET, urlString: "http://www.example.com", parameters: [])
-```
-- `httpMethod`: inject the http method you want to use: `GET`, `POST`, `PUT`, `DELETE`
-- `urlString`: inject your api url as a string
-- `parameters`: inject a list of query parameters
-
-##### How to add query parameters?
-Just pass in an array of `HTTPParameter` into the `parameters` argument. Here's an example.
-```swift
-let request = RequestFactoryImpl().build(
-        httpMethod: .GET,
-        urlString: "http://www.example.com",
-        parameters: [
-            .init(key: "query_param_key_1", value: "query_param_value_1"),
-            .init(key: "query_param_key_2", value: "query_param_value_2"),
-            .init(key: "query_param_key_3", value: "query_param_value_3")
-        ]
-    )
-```
-
-##### How to add headers?
-
-The next argument in you can pass in an array of `HTTPHeader`. `HTTPHeader` is an enum where each case is associated with a different http header. Some common ones are `.accept(MediaType)` and `.contentType(MediaType)`.
-
-Here's an example.
-```swift
-let request = RequestFactoryImpl().build(
-        httpMethod: .GET,
-        urlString: "http://www.example.com",
-        parameters: [
-            .init(key: "query_param_key_1", value: "query_param_value_1"),
-            .init(key: "query_param_key_2", value: "query_param_value_2"),
-            .init(key: "query_param_key_3", value: "query_param_value_3")
-        ],
-        headers: [
-            .accept(.json),
-            .contentType(.json)
-        ]
-    )
-```
-
-##### What about authorization?
-
-Many API calls require the "Authorization" field. This is handled by `HTTPHeader.authorization(Authorization)`. 
-The most common method of authorization is Bearer. ex: `"Authorization": "Bearer YOUR_API_KEY"` You can easily do this with the `Authorization.bearer(String)`
-Here's an example
+Example:
 
 ```swift
 let request = RequestFactoryImpl().build(
-        httpMethod: .GET,
-        urlString: "http://www.example.com",
-        parameters: [
-            .init(key: "query_param_key_1", value: "query_param_value_1"),
-            .init(key: "query_param_key_2", value: "query_param_value_2"),
-            .init(key: "query_param_key_3", value: "query_param_value_3")
-        ],
-        headers: [
-            .accept(.json),
-            .contentType(.json),
-            .authorization(.bearer("Your_API_KEY"))
-        ]
-    )
+    httpMethod: .GET,
+    urlString: "http://www.example.com",
+    parameters: [
+        .init(key: "key_1", value: "value_1"),
+        .init(key: "key_2", value: "value_2")
+    ],
+    header: [
+        .accept(.json),
+        .contentType(.json),
+        .authorization(.bearer("YOUR_API_KEY"))
+    ],
+    body: Data(),
+    timeInterval: 30
+)
 ```
 
+Parameters:
 
-###### How do I set custom headers if not handled by `HTTPHeader`?
+- `httpMethod`: Specify the `HTTPMethod` (GET, POST, PUT, DELETE).
+- `urlString`: Provide the base URL as a string.
+- `parameters`: Pass query parameters as an array of `HTTPParameter` (optional).
+- `headers`: Include HTTP headers as an array of `HTTPHeader` (optional).
+- `body`: Add a `Data` object for the request body (optional).
+- `timeoutInterval`: Set the timeout interval for the request (optional).
 
-If you are not using "Bearer" for authorizaiton, you can use `Authorization.custom(String)`. Here's an example:
-```swift
-let request = RequestFactoryImpl().build(
-        httpMethod: .GET,
-        urlString: "http://www.example.com",
-        parameters: [
-            .init(key: "query_param_key_1", value: "query_param_value_1"),
-            .init(key: "query_param_key_2", value: "query_param_value_2"),
-            .init(key: "query_param_key_3", value: "query_param_value_3")
-        ],
-        headers: [
-            .accept(.json),
-            .contentType(.json),
-            .authorization(.custom("custom_non_bearer_value"))
-        ]
-    )
-```
+#### 2. Using RequestBuilderImpl
+For more flexibility, use RequestBuilderImpl to construct a URLRequest step-by-step. This approach allows you to dynamically set request properties as needed.
 
-##### How to add a body?
-
-Inject a `Data` object into the `body` parameter. 
+Example:
 
 ```swift
-let myData: Data()
-let request = RequestFactoryImpl().build(
-        httpMethod: .GET,
-        urlString: "http://www.example.com",
-        parameters: [
-            .init(key: "query_param_key_1", value: "query_param_value_1"),
-            .init(key: "query_param_key_2", value: "query_param_value_2"),
-            .init(key: "query_param_key_3", value: "query_param_value_3")
-        ],
-        headers: [
-            .accept(.json),
-            .contentType(.json),
-            .authorization(.bearer("Your_API_KEY"))
-        ],
-        body: myData
-    )
+let request = RequestBuilderImpl()
+    .setHttpMethod(.POST)
+    .setBaseUrl("http://www.example.com")
+    .setParameters([
+        .init(key: "key_1", value: "value_1"),
+        .init(key: "key_2", value: "value_2")
+    ])
+    .setHeaders([
+        .accept(.json),
+        .contentType(.json),
+        .authorization(.bearer("YOUR_API_KEY"))
+    ])
+    .setBody(Data())
+    .setTimeoutInterval(30)
+    .build()
 ```
+Builder Methods:
 
-##### How do I add a time interval?
+- `setHttpMethod(_:)`: Set the `HTTPMethod` method (GET, POST, etc.).
+- `setBaseUrl(_:)`: Define the base URL as a string.
+- `setParameters(_:)`: Add query parameters as an array of `HTTPParameter`.
+- `setHeaders(_:)`: Specify HTTP headers as an array of `HTTPHeader`.
+- `setBody(_:)`: Include the request body as a `Data` object.
+- `setTimeoutInterval(_:)`: Set the timeout interval for the request.
 
-Assign a value to `timeoutInterval`
+### Adding Request Details
+
+#### Query Parameters
+
+Add query parameters as an array of HTTPParameter.
+
+Example:
+
 ```swift
-let myData: Data()
-let request = RequestFactoryImpl().build(
-        httpMethod: .GET,
-        urlString: "http://www.example.com",
-        parameters: [
-            .init(key: "query_param_key_1", value: "query_param_value_1"),
-            .init(key: "query_param_key_2", value: "query_param_value_2"),
-            .init(key: "query_param_key_3", value: "query_param_value_3")
-        ],
-        headers: [
-            .accept(.json),
-            .contentType(.json),
-            .authorization(.bearer("Your_API_KEY"))
-        ],
-        body: myData,
-        timeoutInterval: 30
-    )
+let parameters: [HTTPParameter] = [
+    HTTPParameter(key: "key_1", value: "value_1"),
+    HTTPParameter(key: "key_2", value: "value_2")
+]
 ```
 
-#### Using the Request protocol
+With `RequestFactory`:
 
-Alternatively, to easily extract and encapsulate your request info, you can easily create a request using the `Request` protocol. By creating a class or struct that conforms you `Request`, you can manage your necessary api requests from one component and you can pass around.
+```swift
+let request = RequestFactoryImpl().build(
+    httpMethod: .GET,
+    urlString: "http://www.example.com",
+    parameters: parameters
+)
+```
 
-Example usage:
+With `RequestBuilderImpl`:
+
+```swift
+let request = RequestBuilderImpl()
+    .setHttpMethod(.GET)
+    .setBaseUrl("http://www.example.com")
+    .setParameters(parameters)
+    .build()
+```
+
+#### HTTP Headers
+
+Include headers with predefined cases in the HTTPHeader enum. Common headers include:
+
+`.accept(MediaType)`
+`.contentType(MediaType)`
+`.authorization(Authorization)`
+
+Example:
+
+```swift
+let headers: [HTTPHeader] = [
+    .accept(.json),
+    .contentType(.json),
+    .authorization(.bearer("YOUR_API_KEY"))
+]
+```
+
+With `RequestFactory`:
+
+```swift
+let request = RequestFactoryImpl().build(
+    httpMethod: .GET,
+    urlString: "http://www.example.com",
+    headers: headers
+)
+```
+
+With `RequestBuilderImpl`:
+
+```swift
+let request = RequestBuilderImpl()
+    .setHttpMethod(.GET)
+    .setBaseUrl("http://www.example.com")
+    .setHeaders(headers)
+    .build()
+```
+
+#### Authorization
+
+The `HTTPHeader.authorization` enum handles common authorization needs:
+
+Bearer Token: `.authorization(.bearer("YOUR_TOKEN"))`
+
+Custom Authorization: `.authorization(.custom("CUSTOM_AUTH_VALUE"))`
+
+#### Request Body
+
+Include a request body by passing a Data object to the body parameter.
+
+Example:
+
+```swift
+let bodyData = "{\"name\":\"John\"}".data(using: .utf8)
+```
+
+With `RequestFactory`:
+
+```swift
+let request = RequestFactoryImpl().build(
+    httpMethod: .POST,
+    urlString: "http://www.example.com",
+    body: bodyData
+)
+```
+
+With `RequestBuilderImpl`:
+
+```swift
+let request = RequestBuilderImpl()
+    .setHttpMethod(.POST)
+    .setBaseUrl("http://www.example.com")
+    .setBody(bodyData)
+    .build()
+```
+
+#### Timeout Interval
+
+Set a timeout interval in seconds using the timeoutInterval parameter.
+
+With `RequestFactory`:
+
+```swift
+let request = RequestFactoryImpl().build(
+    httpMethod: .GET,
+    urlString: "http://www.example.com",
+    timeoutInterval: 30
+)
+```
+
+With `RequestBuilderImpl`:
+
+```swift
+let request = RequestBuilderImpl()
+    .setHttpMethod(.GET)
+    .setBaseUrl("http://www.example.com")
+    .setTimeoutInterval(30)
+    .build()
+```
+
+#### Advanced Usage: Conforming to the Request Protocol
+Encapsulate request data in a reusable struct or class conforming to the Request protocol. This approach allows you to manage API requests in one place and inject them where needed.
+
+Example:
+
 ```swift
 struct MyRequest: Request {
     var httpMethod: HTTPMethod { .GET }
-
-    var baseUrlString: String { "https://www.example.com" }
-
+    var baseUrlString: String { "http://www.example.com" }
     var parameters: [HTTPParameter]? {[
-        .init(key: "query_param_key_1", value: "query_param_value_1"),
-        .init(key: "query_param_key_2", value: "query_param_value_2"),
-        .init(key: "query_param_key_3", value: "query_param_value_3")
+        .init(key: "key_1", value: "value_1"),
+        .init(key: "key_2", value: "value_2")
     ]}
-
-    var header: [HTTPHeader]? {[
+    var headers: [HTTPHeader]? {[
         .accept(.json),
         .contentType(.json),
-        .authorization(.bearer("Your_API_KEY"))
+        .authorization(.bearer("YOUR_API_KEY"))
     ]}
-
-    var body: Data? { myData }
-
-    var timeoutInterval: TimeInterval { 60 }
+    var body: Data? { "{\"name\":\"John\"}".data(using: .utf8) }
+    var timeoutInterval: TimeInterval { 30 }
 }
-```
-
-You can then pass around `MyRequest` and inject it into one of the request performers as such:
-
-```swift
-try await AsyncRequestPerformer().perform(request: MyRequest())
 ```
 
 ### Performing a Request
