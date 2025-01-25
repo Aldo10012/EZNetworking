@@ -117,4 +117,8 @@ final class HTTPNetworkingClientErrorTests: XCTestCase {
     func testStatusCode451IsUnavailableForLegalReasons() {
         XCTAssertEqual(HTTPNetworkingClientError(statusCode: 451), .unavailableForLegalReasons)
     }
+    
+    func testStatusCode451IsUnknowns() {
+        XCTAssertEqual(HTTPNetworkingClientError(statusCode: 452), .unknown)
+    }
 }

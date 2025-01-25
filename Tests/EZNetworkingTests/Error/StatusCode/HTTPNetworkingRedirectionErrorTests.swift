@@ -35,4 +35,8 @@ final class HTTPNetworkingRedirectionErrorTests: XCTestCase {
         XCTAssertEqual(HTTPNetworkingRedirectionError(statusCode: 308), .permanentRedirect)
     }
     
+    func testStatusCode309IsUnknown() {
+        XCTAssertEqual(HTTPNetworkingRedirectionError(statusCode: 309), .unknown)
+    }
+    
 }

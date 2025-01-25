@@ -46,4 +46,8 @@ final class HTTPNetworkingServerErrorTests: XCTestCase {
     func testStatusCode511IsNetworkAuthenticationRequired() {
         XCTAssertEqual(HTTPNetworkingServerError(statusCode: 511), .networkAuthenticationRequired)
     }
+    
+    func testStatusCode511IsUnknown() {
+        XCTAssertEqual(HTTPNetworkingServerError(statusCode: 512), .unknown)
+    }
 }
