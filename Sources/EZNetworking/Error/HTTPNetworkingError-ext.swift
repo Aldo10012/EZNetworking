@@ -18,35 +18,8 @@ extension HTTPNetworkingError {
         case 308: return .permanentRedirect
 
         // Client Errors (400-499)
-        case 400: return .badRequest
-        case 401: return .unauthorized
-        case 402: return .paymentRequired
-        case 403: return .forbidden
-        case 404: return .notFound
-        case 405: return .methodNotAllowed
-        case 406: return .notAcceptable
-        case 407: return .proxyAuthenticationRequired
-        case 408: return .requestTimeout
-        case 409: return .conflict
-        case 410: return .gone
-        case 411: return .lengthRequired
-        case 412: return .preconditionFailed
-        case 413: return .payloadTooLarge
-        case 414: return .uriTooLong
-        case 415: return .unsupportedMediaType
-        case 416: return .rangeNotSatisfiable
-        case 417: return .expectationFailed
-        case 418: return .imATeapot
-        case 421: return .misdirectedRequest
-        case 422: return .unprocessableEntity
-        case 423: return .locked
-        case 424: return .failedDependency
-        case 425: return .tooEarly
-        case 426: return .upgradeRequired
-        case 428: return .preconditionRequired
-        case 429: return .tooManyRequests
-        case 431: return .requestHeaderFieldsTooLarge
-        case 451: return .unavailableForLegalReasons
+        case 400...499:
+            return HTTPNetworkingError.clientSideError(HTTPNetworkingClientError.fromStatusCode(statusCode))
 
         // Server Errors (500-599)
         case 500...599:

@@ -25,7 +25,7 @@ final class URLResponseValidatorTests: XCTestCase {
             _ = try validator.validate(data: Data(), urlResponse: response, error: nil)
             XCTFail("Unexpected error)")
         } catch let error as NetworkingError {
-            XCTAssertEqual(error, NetworkingError.httpError(.notFound))
+            XCTAssertEqual(error, NetworkingError.httpError(.clientSideError(.notFound)))
         }
     }
     
@@ -176,7 +176,7 @@ final class URLResponseValidatorTests: XCTestCase {
             XCTFail("Unexpected error")
         } catch let error as NetworkingError {
             print(error)
-            XCTAssertEqual(error, NetworkingError.httpError(.badRequest))
+            XCTAssertEqual(error, NetworkingError.httpError(.clientSideError(.badRequest)))
         }
     }
 }
