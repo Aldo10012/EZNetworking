@@ -13,16 +13,16 @@ public struct URLResponseValidatorImpl: URLResponseValidator {
             if let urlError = error as? URLError {
                 throw NetworkingError.urlError(urlError)
             }
-            throw NetworkingError.requestFailed(error)
+            throw NetworkingError.internalError(.requestFailed(error))
         }
         guard let data else {
-            throw NetworkingError.noData
+            throw NetworkingError.internalError(.noData)
         }
         guard let urlResponse else {
-            throw NetworkingError.noResponse
+            throw NetworkingError.internalError(.noResponse)
         }
         guard let httpURLResponse = urlResponse as? HTTPURLResponse else {
-            throw NetworkingError.noHTTPURLResponse
+            throw NetworkingError.internalError(.noHTTPURLResponse)
         }
         try validateStatusCode(httpURLResponse.statusCode)
         return data
@@ -33,16 +33,16 @@ public struct URLResponseValidatorImpl: URLResponseValidator {
             if let urlError = error as? URLError {
                 throw NetworkingError.urlError(urlError)
             }
-            throw NetworkingError.requestFailed(error)
+            throw NetworkingError.internalError(.requestFailed(error))
         }
         guard let url else {
-            throw NetworkingError.noURL
+            throw NetworkingError.internalError(.noURL)
         }
         guard let urlResponse else {
-            throw NetworkingError.noResponse
+            throw NetworkingError.internalError(.noResponse)
         }
         guard let httpURLResponse = urlResponse as? HTTPURLResponse else {
-            throw NetworkingError.noHTTPURLResponse
+            throw NetworkingError.internalError(.noHTTPURLResponse)
         }
         try validateStatusCode(httpURLResponse.statusCode)
         return url
@@ -59,7 +59,7 @@ public struct URLResponseValidatorImpl: URLResponseValidator {
         case .serverSideError(let error):
             throw NetworkingError.httpServerError(error)
         case .unknown:
-            throw NetworkingError.unknown
+            throw NetworkingError.internalError(.unknown)
         }
     }
 }

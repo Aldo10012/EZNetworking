@@ -32,21 +32,21 @@ class EZNetworkUtil {
 
     func perform<T: Codable>(decodeTo decodableObject: T.Type) async throws -> T {
         guard let request = request else {
-            throw NetworkingError.noRequest
+            throw NetworkingError.internalError(.noRequest)
         }
         return try await asyncPerformer.perform(request: request, decodeTo: decodableObject)
     }
 
     func perform() async throws {
         guard let request = request else {
-            throw NetworkingError.noRequest
+            throw NetworkingError.internalError(.noRequest)
         }
         try await asyncPerformer.perform(request: request)
     }
 
     func perform<T: Decodable>(decodeTo type: T.Type, completion: @escaping (Result<T, NetworkingError>) -> Void) {
         guard let request = request else {
-            completion(.failure(NetworkingError.noRequest))
+            completion(.failure(NetworkingError.internalError(.noRequest)))
             return
         }
 
@@ -55,7 +55,7 @@ class EZNetworkUtil {
 
     func perform(completion: @escaping ((VoidResult<NetworkingError>) -> Void)) {
         guard let request = request else {
-            completion(.failure(NetworkingError.noRequest))
+            completion(.failure(NetworkingError.internalError(.noRequest)))
             return
         }
         performer.performTask(request: request, completion: completion).resume()

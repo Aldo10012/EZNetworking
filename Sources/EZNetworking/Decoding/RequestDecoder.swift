@@ -10,7 +10,7 @@ public struct RequestDecoder: RequestDecodable {
         do {
             return try JSONDecoder().decode(T.self, from: data)
         } catch {
-            throw NetworkingError.couldNotParse
+            throw NetworkingError.internalError(.couldNotParse)
         }
     }
 }

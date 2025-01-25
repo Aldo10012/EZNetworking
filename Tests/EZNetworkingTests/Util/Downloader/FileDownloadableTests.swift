@@ -67,7 +67,7 @@ final class FileDownloadableTests: XCTestCase {
         let urlSession = MockURLSession(
             url: testURL,
             urlResponse: buildResponse(statusCode: 200),
-            error: NetworkingError.unknown
+            error: NetworkingError.internalError(.unknown)
         )
         let validator = URLResponseValidatorImpl()
         let decoder = RequestDecoder()
@@ -77,7 +77,7 @@ final class FileDownloadableTests: XCTestCase {
             _ = try await sut.downloadFile(with: testURL)
             XCTFail("unexpected error")
         } catch let error as NetworkingError{
-            XCTAssertEqual(error, NetworkingError.unknown)
+            XCTAssertEqual(error, NetworkingError.internalError(.unknown))
         }
     }
     

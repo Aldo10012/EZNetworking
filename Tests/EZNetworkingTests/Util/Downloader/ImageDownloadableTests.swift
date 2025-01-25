@@ -51,7 +51,7 @@ final class ImageDownloadableTests: XCTestCase {
             case .success:
                 XCTAssertTrue(true)
             case .failure(let error):
-                if error == NetworkingError.invalidImageData {
+                if error == NetworkingError.internalError(.invalidImageData) {
                     XCTAssertTrue(true, "mock data was just not suited to generate a UIImage")
                 } else {
                     XCTFail()

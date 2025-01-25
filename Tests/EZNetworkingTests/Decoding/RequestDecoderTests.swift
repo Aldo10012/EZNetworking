@@ -20,7 +20,7 @@ final class RequestDecoderTests: XCTestCase {
             _ = try sut.decode(Person.self, from: invalidMockPersonJsonData)
             XCTFail("Unexpected error)")
         } catch let error as NetworkingError {
-            XCTAssertEqual(error, NetworkingError.couldNotParse)
+            XCTAssertEqual(error, NetworkingError.internalError(.couldNotParse))
         }
     }
 

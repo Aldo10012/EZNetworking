@@ -47,7 +47,7 @@ final class RequestPerformerTests: XCTestCase {
             case .success:
                 XCTFail()
             case .failure(let error):
-                XCTAssertEqual(error, NetworkingError.couldNotParse)
+                XCTAssertEqual(error, NetworkingError.internalError(.couldNotParse))
             }
         }
         wait(for: [exp], timeout: 0.1)
@@ -66,7 +66,7 @@ final class RequestPerformerTests: XCTestCase {
             case .success:
                 XCTFail()
             case .failure(let error):
-                XCTAssertEqual(error, NetworkingError.noData)
+                XCTAssertEqual(error, NetworkingError.internalError(.noData))
             }
         }
         wait(for: [exp], timeout: 0.1)
@@ -93,7 +93,7 @@ final class RequestPerformerTests: XCTestCase {
     
     func test_PerformWithCompletionHandler_WhenURLSessionHasError_Fails() throws {
         let sut = createRequestPerformer(
-            urlSession: createMockURLSession(error: NetworkingError.unknown)
+            urlSession: createMockURLSession(error: NetworkingError.internalError(.unknown))
         )
         let request = try XCTUnwrap(sampleUrlRequest, "Failed to create URLRequest")
         
@@ -104,7 +104,7 @@ final class RequestPerformerTests: XCTestCase {
             case .success:
                 XCTFail()
             case .failure(let error):
-                XCTAssertEqual(error, NetworkingError.requestFailed(NetworkingError.unknown))
+                XCTAssertEqual(error, NetworkingError.internalError(.requestFailed(NetworkingError.internalError(.unknown))))
             }
         }
         wait(for: [exp], timeout: 0.1)
@@ -112,7 +112,7 @@ final class RequestPerformerTests: XCTestCase {
     
     func test_PerformWithCompletionHandler_WhenResponseValidatorThrowsError_Fails() throws {
         let sut = createRequestPerformer(
-            urlResponseValidator: MockURLResponseValidator(throwError: NetworkingError.unknown)
+            urlResponseValidator: MockURLResponseValidator(throwError: NetworkingError.internalError(.unknown))
         )
         let request = try XCTUnwrap(sampleUrlRequest, "Failed to create URLRequest")
         
@@ -123,7 +123,7 @@ final class RequestPerformerTests: XCTestCase {
             case .success:
                 XCTFail()
             case .failure(let error):
-                XCTAssertEqual(error, NetworkingError.unknown)
+                XCTAssertEqual(error, NetworkingError.internalError(.unknown))
             }
         }
         wait(for: [exp], timeout: 0.1)
@@ -168,7 +168,7 @@ final class RequestPerformerTests: XCTestCase {
             case .success:
                 XCTFail()
             case .failure(let error):
-                XCTAssertEqual(error, NetworkingError.couldNotParse)
+                XCTAssertEqual(error, NetworkingError.internalError(.couldNotParse))
             }
         }
         wait(for: [exp], timeout: 0.1)
@@ -185,7 +185,7 @@ final class RequestPerformerTests: XCTestCase {
             case .success:
                 XCTFail()
             case .failure(let error):
-                XCTAssertEqual(error, NetworkingError.noData)
+                XCTAssertEqual(error, NetworkingError.internalError(.noData))
             }
         }
         wait(for: [exp], timeout: 0.1)
@@ -210,7 +210,7 @@ final class RequestPerformerTests: XCTestCase {
     
     func test_PerformWithCompletionHandler_WithRequestProtocol_WhenURLSessionHasError_Data() {
         let sut = createRequestPerformer(
-            urlSession: createMockURLSession(error: NetworkingError.unknown)
+            urlSession: createMockURLSession(error: NetworkingError.internalError(.unknown))
         )
         let exp = XCTestExpectation()
         sut.performTask(request: MockRequest(), decodeTo: Person.self) { result in
@@ -219,7 +219,7 @@ final class RequestPerformerTests: XCTestCase {
             case .success:
                 XCTFail()
             case .failure(let error):
-                XCTAssertEqual(error, NetworkingError.requestFailed(NetworkingError.unknown))
+                XCTAssertEqual(error, NetworkingError.internalError(.requestFailed(NetworkingError.internalError(.unknown))))
             }
         }
         wait(for: [exp], timeout: 0.1)
@@ -227,7 +227,7 @@ final class RequestPerformerTests: XCTestCase {
     
     func test_PerformWithCompletionHandler_WithRequestProtocol_WhenResponseValidatorThrowsError_fails() {
         let sut = RequestPerformer(
-            urlResponseValidator: MockURLResponseValidator(throwError: NetworkingError.unknown)
+            urlResponseValidator: MockURLResponseValidator(throwError: NetworkingError.internalError(.unknown))
         )
         let exp = XCTestExpectation()
         sut.performTask(request: MockRequest(), decodeTo: Person.self) { result in
@@ -236,7 +236,7 @@ final class RequestPerformerTests: XCTestCase {
             case .success:
                 XCTFail()
             case .failure(let error):
-                XCTAssertEqual(error, NetworkingError.unknown)
+                XCTAssertEqual(error, NetworkingError.internalError(.unknown))
             }
         }
         wait(for: [exp], timeout: 0.1)
@@ -284,7 +284,7 @@ final class RequestPerformerTests: XCTestCase {
             case .success:
                 XCTFail()
             case .failure(let error):
-                XCTAssertEqual(error, NetworkingError.noData)
+                XCTAssertEqual(error, NetworkingError.internalError(.noData))
             }
         }
         wait(for: [exp], timeout: 0.1)
@@ -311,7 +311,7 @@ final class RequestPerformerTests: XCTestCase {
     
     func test_PerformWithCompletionHandler_WithoutDecodable_WhenResponseValidatorThrowsError_Fails() throws {
         let sut = createRequestPerformer(
-            urlResponseValidator: MockURLResponseValidator(throwError: NetworkingError.unknown)
+            urlResponseValidator: MockURLResponseValidator(throwError: NetworkingError.internalError(.unknown))
         )
         let request = try XCTUnwrap(sampleUrlRequest, "Failed to create URLRequest")
         
@@ -322,7 +322,7 @@ final class RequestPerformerTests: XCTestCase {
             case .success:
                 XCTFail()
             case .failure(let error):
-                XCTAssertEqual(error, NetworkingError.unknown)
+                XCTAssertEqual(error, NetworkingError.internalError(.unknown))
             }
         }
         wait(for: [exp], timeout: 0.1)
@@ -364,7 +364,7 @@ final class RequestPerformerTests: XCTestCase {
             case .success:
                 XCTFail()
             case .failure(let error):
-                XCTAssertEqual(error, NetworkingError.noData)
+                XCTAssertEqual(error, NetworkingError.internalError(.noData))
             }
         }
         wait(for: [exp], timeout: 0.1)
@@ -389,7 +389,7 @@ final class RequestPerformerTests: XCTestCase {
     
     func test_PerformWithCompletionHandler_WithoutDecodable_WithRequestProtocol_WhenResponseValidatorThrowsError_Fails() {
         let sut = RequestPerformer(
-            urlResponseValidator: MockURLResponseValidator(throwError: NetworkingError.unknown)
+            urlResponseValidator: MockURLResponseValidator(throwError: NetworkingError.internalError(.unknown))
         )
         let exp = XCTestExpectation()
         sut.performTask(request: MockRequest()) { result in
@@ -398,7 +398,7 @@ final class RequestPerformerTests: XCTestCase {
             case .success:
                 XCTFail()
             case .failure(let error):
-                XCTAssertEqual(error, NetworkingError.unknown)
+                XCTAssertEqual(error, NetworkingError.internalError(.unknown))
             }
         }
         wait(for: [exp], timeout: 0.1)

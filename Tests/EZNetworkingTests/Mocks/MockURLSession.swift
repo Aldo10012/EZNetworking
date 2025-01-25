@@ -49,7 +49,7 @@ class MockURLSession: URLSessionTaskProtocol {
         }
         
         guard let data, let urlResponse else {
-            throw NetworkingError.unknown
+            throw NetworkingError.internalError(.unknown)
         }
         return (data, urlResponse)
     }
@@ -61,7 +61,7 @@ class MockURLSession: URLSessionTaskProtocol {
         self.url = url
         
         guard let data, let url = self.url else {
-            throw NetworkingError.unknown
+            throw NetworkingError.internalError(.unknown)
         }
         return (data, URLResponse(url: url, mimeType: nil, expectedContentLength: 0, textEncodingName: nil))
     }
@@ -78,7 +78,7 @@ class MockURLSession: URLSessionTaskProtocol {
             throw error
         }
         guard let urlResponse else {
-            throw NetworkingError.unknown
+            throw NetworkingError.internalError(.unknown)
         }
         return (URL(fileURLWithPath: "/tmp/test.pdf"), urlResponse)
     }
