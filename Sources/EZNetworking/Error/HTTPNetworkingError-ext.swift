@@ -49,17 +49,8 @@ extension HTTPNetworkingError {
         case 451: return .unavailableForLegalReasons
 
         // Server Errors (500-599)
-        case 500: return .internalServerError
-        case 501: return .notImplemented
-        case 502: return .badGateway
-        case 503: return .serviceUnavailable
-        case 504: return .gatewayTimeout
-        case 505: return .httpVersionNotSupported
-        case 506: return .variantAlsoNegotiates
-        case 507: return .insufficientStorage
-        case 508: return .loopDetected
-        case 510: return .notExtended
-        case 511: return .networkAuthenticationRequired
+        case 500...599:
+            return HTTPNetworkingError.serverSideError(HTTPNetworkingServerError.fromStatusCode(statusCode))
 
         // Unknown or Unhandled Status Code
         default: return .unknown

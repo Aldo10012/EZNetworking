@@ -68,10 +68,10 @@ final class URLResponseValidatorTests: XCTestCase {
         let response = HTTPURLResponse(url: URL(string: "https://example.com")!, statusCode: 200, httpVersion: nil, headerFields: nil)!
         
         do {
-            _ = try validator.validate(data: Data(), urlResponse: response, error: HTTPNetworkingError.badGateway)
+            _ = try validator.validate(data: Data(), urlResponse: response, error: HTTPNetworkingError.serverSideError(.badGateway))
             XCTFail("Unexpected error)")
         } catch let error as NetworkingError {
-            XCTAssertEqual(error, NetworkingError.requestFailed(HTTPNetworkingError.badGateway))
+            XCTAssertEqual(error, NetworkingError.requestFailed(HTTPNetworkingError.serverSideError(.badGateway)))
         }
     }
     
