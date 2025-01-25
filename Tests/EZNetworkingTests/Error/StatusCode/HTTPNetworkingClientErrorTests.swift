@@ -121,4 +121,8 @@ final class HTTPNetworkingClientErrorTests: XCTestCase {
     func testStatusCode451IsUnknowns() {
         XCTAssertEqual(HTTPNetworkingClientError(statusCode: 452), .unknown)
     }
+    
+    func testDifferentHTTPNetworkingClientErrorsAreNotEquatable() {
+        XCTAssertNotEqual(HTTPNetworkingClientError.badRequest, HTTPNetworkingClientError.conflict)
+    }
 }

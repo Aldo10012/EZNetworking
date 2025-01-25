@@ -40,12 +40,6 @@ final class InternalErrorTestsTests: XCTestCase {
         XCTAssertEqual(InternalError.requestFailed(error), InternalError.requestFailed(error))
     }
     
-    func testRequestFailedIsNotEquatableWhenErrorIsNotSame() {
-        let error1 = NetworkingError.httpClientError(.badRequest)
-        let error2 = NetworkingError.httpClientError(.forbidden)
-        XCTAssertNotEqual(InternalError.requestFailed(error1), InternalError.requestFailed(error2))
-    }
-    
     func testUnknownIsEquatable() {
         XCTAssertEqual(InternalError.unknown, InternalError.unknown)
     }

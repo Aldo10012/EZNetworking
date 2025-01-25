@@ -50,4 +50,8 @@ final class HTTPNetworkingServerErrorTests: XCTestCase {
     func testStatusCode511IsUnknown() {
         XCTAssertEqual(HTTPNetworkingServerError(statusCode: 512), .unknown)
     }
+    
+    func testDifferentHTTPNetworkingServerErrorsAreNotEquatable() {
+        XCTAssertNotEqual(HTTPNetworkingServerError.badGateway, HTTPNetworkingServerError.gatewayTimeout)
+    }
 }
