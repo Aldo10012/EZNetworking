@@ -1,201 +1,201 @@
 import XCTest
 @testable import EZNetworking
 
-final class HTTPNetworkingErrorTests: XCTestCase {
+final class HTTPNetworkingStatusCodeErrorTypeTests: XCTestCase {
     
     func testStatusCode200IsOk() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(200), nil)
+        XCTAssertEqual(HTTPNetworkingStatusCodeErrorType.evaluate(from: 200), .ok)
     }
     
     func testStatusCode300IsMultipleChoices() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(300), HTTPNetworkingError.redirectionMessageError(.multipleChoices))
+        XCTAssertEqual(HTTPNetworkingStatusCodeErrorType.evaluate(from: 300), .redirectionMessageError(.multipleChoices))
     }
     
     func testStatusCode301IsMovedPermanently() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(301), HTTPNetworkingError.redirectionMessageError(.movedPermanently))
+        XCTAssertEqual(HTTPNetworkingStatusCodeErrorType.evaluate(from: 301), .redirectionMessageError(.movedPermanently))
     }
     
     func testStatusCode302IsFound() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(302), HTTPNetworkingError.redirectionMessageError(.found))
+        XCTAssertEqual(HTTPNetworkingStatusCodeErrorType.evaluate(from: 302), .redirectionMessageError(.found))
     }
     
     func testStatusCode303IsSeeOther() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(303), HTTPNetworkingError.redirectionMessageError(.seeOther))
+        XCTAssertEqual(HTTPNetworkingStatusCodeErrorType.evaluate(from: 303), .redirectionMessageError(.seeOther))
     }
     
     func testStatusCode304IsNotModified() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(304), HTTPNetworkingError.redirectionMessageError(.notModified))
+        XCTAssertEqual(HTTPNetworkingStatusCodeErrorType.evaluate(from: 304), .redirectionMessageError(.notModified))
     }
     
     func testStatusCode305IsUseProxy() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(305), HTTPNetworkingError.redirectionMessageError(.useProxy))
+        XCTAssertEqual(HTTPNetworkingStatusCodeErrorType.evaluate(from: 305), .redirectionMessageError(.useProxy))
     }
     
     func testStatusCode307IsTemporaryRedirect() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(307), HTTPNetworkingError.redirectionMessageError(.temporaryRedirect))
+        XCTAssertEqual(HTTPNetworkingStatusCodeErrorType.evaluate(from: 307), .redirectionMessageError(.temporaryRedirect))
     }
     
     func testStatusCode308IsPermanentRedirect() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(308), HTTPNetworkingError.redirectionMessageError(.permanentRedirect))
+        XCTAssertEqual(HTTPNetworkingStatusCodeErrorType.evaluate(from: 308), .redirectionMessageError(.permanentRedirect))
     }
     
     func testStatusCode400IsBadRequest() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(400), HTTPNetworkingError.clientSideError(.badRequest))
+        XCTAssertEqual(HTTPNetworkingStatusCodeErrorType.evaluate(from: 400), .clientSideError(.badRequest))
     }
     
     func testStatusCode401IsUnauthorized() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(401), HTTPNetworkingError.clientSideError(.unauthorized))
+        XCTAssertEqual(HTTPNetworkingStatusCodeErrorType.evaluate(from: 401), .clientSideError(.unauthorized))
     }
     
     func testStatusCode402IsPaymentRequired() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(402), HTTPNetworkingError.clientSideError(.paymentRequired))
+        XCTAssertEqual(HTTPNetworkingStatusCodeErrorType.evaluate(from: 402), .clientSideError(.paymentRequired))
     }
     
     func testStatusCode403IsForbidden() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(403), HTTPNetworkingError.clientSideError(.forbidden))
+        XCTAssertEqual(HTTPNetworkingStatusCodeErrorType.evaluate(from: 403), .clientSideError(.forbidden))
     }
     
     func testStatusCode404IsNotFound() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(404), HTTPNetworkingError.clientSideError(.notFound))
+        XCTAssertEqual(HTTPNetworkingStatusCodeErrorType.evaluate(from: 404), .clientSideError(.notFound))
     }
     
     func testStatusCode405IsMethodNotAllowed() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(405), HTTPNetworkingError.clientSideError(.methodNotAllowed))
+        XCTAssertEqual(HTTPNetworkingStatusCodeErrorType.evaluate(from: 405), .clientSideError(.methodNotAllowed))
     }
     
     func testStatusCode406IsNotAcceptable() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(406), HTTPNetworkingError.clientSideError(.notAcceptable))
+        XCTAssertEqual(HTTPNetworkingStatusCodeErrorType.evaluate(from: 406), .clientSideError(.notAcceptable))
     }
     
     func testStatusCode407IsProxyAuthenticationRequired() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(407), HTTPNetworkingError.clientSideError(.proxyAuthenticationRequired))
+        XCTAssertEqual(HTTPNetworkingStatusCodeErrorType.evaluate(from: 407), .clientSideError(.proxyAuthenticationRequired))
     }
     
     func testStatusCode408IsRequestTimeout() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(408), HTTPNetworkingError.clientSideError(.requestTimeout))
+        XCTAssertEqual(HTTPNetworkingStatusCodeErrorType.evaluate(from: 408), .clientSideError(.requestTimeout))
     }
     
     func testStatusCode409IsConflict() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(409), HTTPNetworkingError.clientSideError(.conflict))
+        XCTAssertEqual(HTTPNetworkingStatusCodeErrorType.evaluate(from: 409), .clientSideError(.conflict))
     }
     
     func testStatusCode410IsGone() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(410), HTTPNetworkingError.clientSideError(.gone))
+        XCTAssertEqual(HTTPNetworkingStatusCodeErrorType.evaluate(from: 410), .clientSideError(.gone))
     }
     
     func testStatusCode411IsLengthRequired() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(411), HTTPNetworkingError.clientSideError(.lengthRequired))
+        XCTAssertEqual(HTTPNetworkingStatusCodeErrorType.evaluate(from: 411), .clientSideError(.lengthRequired))
     }
     
     func testStatusCode412IsPreconditionFailed() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(412), HTTPNetworkingError.clientSideError(.preconditionFailed))
+        XCTAssertEqual(HTTPNetworkingStatusCodeErrorType.evaluate(from: 412), .clientSideError(.preconditionFailed))
     }
     
     func testStatusCode413IsPayloadTooLarge() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(413), HTTPNetworkingError.clientSideError(.payloadTooLarge))
+        XCTAssertEqual(HTTPNetworkingStatusCodeErrorType.evaluate(from: 413), .clientSideError(.payloadTooLarge))
     }
     
     func testStatusCode414IsURITooLong() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(414), HTTPNetworkingError.clientSideError(.uriTooLong))
+        XCTAssertEqual(HTTPNetworkingStatusCodeErrorType.evaluate(from: 414), .clientSideError(.uriTooLong))
     }
     
     func testStatusCode415IsUnsupportedMediaType() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(415), HTTPNetworkingError.clientSideError(.unsupportedMediaType))
+        XCTAssertEqual(HTTPNetworkingStatusCodeErrorType.evaluate(from: 415), .clientSideError(.unsupportedMediaType))
     }
     
     func testStatusCode416IsRangeNotSatisfiable() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(416), HTTPNetworkingError.clientSideError(.rangeNotSatisfiable))
+        XCTAssertEqual(HTTPNetworkingStatusCodeErrorType.evaluate(from: 416), .clientSideError(.rangeNotSatisfiable))
     }
     
     func testStatusCode417IsExpectationFailed() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(417), HTTPNetworkingError.clientSideError(.expectationFailed))
+        XCTAssertEqual(HTTPNetworkingStatusCodeErrorType.evaluate(from: 417), .clientSideError(.expectationFailed))
     }
     
     func testStatusCode418IsImATeapot() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(418), HTTPNetworkingError.clientSideError(.imATeapot))
+        XCTAssertEqual(HTTPNetworkingStatusCodeErrorType.evaluate(from: 418), .clientSideError(.imATeapot))
     }
     
     func testStatusCode421IsMisdirectedRequest() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(421), HTTPNetworkingError.clientSideError(.misdirectedRequest))
+        XCTAssertEqual(HTTPNetworkingStatusCodeErrorType.evaluate(from: 421), .clientSideError(.misdirectedRequest))
     }
     
     func testStatusCode422IsUnprocessableEntity() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(422), HTTPNetworkingError.clientSideError(.unprocessableEntity))
+        XCTAssertEqual(HTTPNetworkingStatusCodeErrorType.evaluate(from: 422), .clientSideError(.unprocessableEntity))
     }
     
     func testStatusCode423IsLocked() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(423), HTTPNetworkingError.clientSideError(.locked))
+        XCTAssertEqual(HTTPNetworkingStatusCodeErrorType.evaluate(from: 423), .clientSideError(.locked))
     }
     
     func testStatusCode424IsFailedDependency() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(424), HTTPNetworkingError.clientSideError(.failedDependency))
+        XCTAssertEqual(HTTPNetworkingStatusCodeErrorType.evaluate(from: 424), .clientSideError(.failedDependency))
     }
     
     func testStatusCode425IsTooEarly() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(425), HTTPNetworkingError.clientSideError(.tooEarly))
+        XCTAssertEqual(HTTPNetworkingStatusCodeErrorType.evaluate(from: 425), .clientSideError(.tooEarly))
     }
     
     func testStatusCode426IsUpgradeRequired() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(426), HTTPNetworkingError.clientSideError(.upgradeRequired))
+        XCTAssertEqual(HTTPNetworkingStatusCodeErrorType.evaluate(from: 426), .clientSideError(.upgradeRequired))
     }
     
     func testStatusCode428IsPreconditionRequired() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(428), HTTPNetworkingError.clientSideError(.preconditionRequired))
+        XCTAssertEqual(HTTPNetworkingStatusCodeErrorType.evaluate(from: 428), .clientSideError(.preconditionRequired))
     }
     
     func testStatusCode429IsTooManyRequests() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(429), HTTPNetworkingError.clientSideError(.tooManyRequests))
+        XCTAssertEqual(HTTPNetworkingStatusCodeErrorType.evaluate(from: 429), .clientSideError(.tooManyRequests))
     }
     
     func testStatusCode431IsRequestHeaderFieldsTooLarge() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(431), HTTPNetworkingError.clientSideError(.requestHeaderFieldsTooLarge))
+        XCTAssertEqual(HTTPNetworkingStatusCodeErrorType.evaluate(from: 431), .clientSideError(.requestHeaderFieldsTooLarge))
     }
     
     func testStatusCode451IsUnavailableForLegalReasons() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(451), HTTPNetworkingError.clientSideError(.unavailableForLegalReasons))
+        XCTAssertEqual(HTTPNetworkingStatusCodeErrorType.evaluate(from: 451), .clientSideError(.unavailableForLegalReasons))
     }
     
     func testStatusCode500IsInternalServerError() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(500), HTTPNetworkingError.serverSideError(.internalServerError))
+        XCTAssertEqual(HTTPNetworkingStatusCodeErrorType.evaluate(from: 500), .serverSideError(.internalServerError))
     }
     
     func testStatusCode501IsNotImplemented() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(501), HTTPNetworkingError.serverSideError(.notImplemented))
+        XCTAssertEqual(HTTPNetworkingStatusCodeErrorType.evaluate(from: 501), .serverSideError(.notImplemented))
     }
     
     func testStatusCode502IsBadGateway() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(502), HTTPNetworkingError.serverSideError(.badGateway))
+        XCTAssertEqual(HTTPNetworkingStatusCodeErrorType.evaluate(from: 502), .serverSideError(.badGateway))
     }
     
     func testStatusCode503IsServiceUnavailable() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(503), HTTPNetworkingError.serverSideError(.serviceUnavailable))
+        XCTAssertEqual(HTTPNetworkingStatusCodeErrorType.evaluate(from: 503), .serverSideError(.serviceUnavailable))
     }
     
     func testStatusCode504IsGatewayTimeout() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(504), HTTPNetworkingError.serverSideError(.gatewayTimeout))
+        XCTAssertEqual(HTTPNetworkingStatusCodeErrorType.evaluate(from: 504), .serverSideError(.gatewayTimeout))
     }
     
     func testStatusCode505IsHttpVersionNotSupported() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(505), HTTPNetworkingError.serverSideError(.httpVersionNotSupported))
+        XCTAssertEqual(HTTPNetworkingStatusCodeErrorType.evaluate(from: 505), .serverSideError(.httpVersionNotSupported))
     }
     
     func testStatusCode506IsVariantAlsoNegotiates() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(506), HTTPNetworkingError.serverSideError(.variantAlsoNegotiates))
+        XCTAssertEqual(HTTPNetworkingStatusCodeErrorType.evaluate(from: 506), .serverSideError(.variantAlsoNegotiates))
     }
     
     func testStatusCode507IsInsufficientStorage() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(507), HTTPNetworkingError.serverSideError(.insufficientStorage))
+        XCTAssertEqual(HTTPNetworkingStatusCodeErrorType.evaluate(from: 507), .serverSideError(.insufficientStorage))
     }
     
     func testStatusCode508IsLoopDetected() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(508), HTTPNetworkingError.serverSideError(.loopDetected))
+        XCTAssertEqual(HTTPNetworkingStatusCodeErrorType.evaluate(from: 508), .serverSideError(.loopDetected))
     }
     
     func testStatusCode510IsNotExtended() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(510), HTTPNetworkingError.serverSideError(.notExtended))
+        XCTAssertEqual(HTTPNetworkingStatusCodeErrorType.evaluate(from: 510), .serverSideError(.notExtended))
     }
     
     func testStatusCode511IsNetworkAuthenticationRequired() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(511), HTTPNetworkingError.serverSideError(.networkAuthenticationRequired))
+        XCTAssertEqual(HTTPNetworkingStatusCodeErrorType.evaluate(from: 511), .serverSideError(.networkAuthenticationRequired))
     }
 }

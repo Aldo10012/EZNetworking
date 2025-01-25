@@ -22,7 +22,7 @@ final class ImageDownloadableTests: XCTestCase {
                                         url: testURL,
                                         urlResponse: buildResponse(statusCode: 200),
                                         error: nil)
-        let validator = MockURLResponseValidator(throwError: NetworkingError.httpError(.clientSideError(.badRequest)))
+        let validator = MockURLResponseValidator(throwError: NetworkingError.httpClientError(.badRequest))
         let sut = ImageDownloader(urlSession: urlSession,
                                   urlResponseValidator: validator,
                                   requestDecoder: RequestDecoder())
@@ -30,7 +30,7 @@ final class ImageDownloadableTests: XCTestCase {
             _ = try await sut.downloadImage(from: testURL)
             XCTFail()
         } catch let error as NetworkingError {
-            XCTAssertEqual(error, NetworkingError.httpError(.clientSideError(.badRequest)))
+            XCTAssertEqual(error, NetworkingError.httpClientError(.badRequest))
         }
     }
 
@@ -80,7 +80,7 @@ final class ImageDownloadableTests: XCTestCase {
         let urlSession = MockURLSession(url: testURL,
                                         urlResponse: buildResponse(statusCode: 200),
                                         error: nil)
-        let validator = MockURLResponseValidator(throwError: NetworkingError.httpError(.clientSideError(.conflict)))
+        let validator = MockURLResponseValidator(throwError: NetworkingError.httpClientError(.conflict))
         let sut = ImageDownloader(urlSession: urlSession,
                                   urlResponseValidator: validator,
                                   requestDecoder: RequestDecoder())
@@ -92,7 +92,7 @@ final class ImageDownloadableTests: XCTestCase {
             case .success:
                 XCTFail()
             case .failure(let error):
-                XCTAssertEqual(error, NetworkingError.httpError(.clientSideError(.conflict)))
+                XCTAssertEqual(error, NetworkingError.httpClientError(.conflict))
             }
         }
         wait(for: [exp], timeout: 0.1)

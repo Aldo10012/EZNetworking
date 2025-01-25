@@ -13,7 +13,9 @@ public enum NetworkingError: Error {
     case invalidImageData
 
     // MARK: - HTTP Status Code errors
-    case httpError(HTTPNetworkingError)
+    case httpRedirectError(HTTPNetworkingRedirectionError)
+    case httpClientError(HTTPNetworkingClientError)
+    case httpServerError(HTTPNetworkingServerError)
 
     // MARK: - URL Errors
     case urlError(URLError)
@@ -32,9 +34,15 @@ extension NetworkingError: Equatable {
             (.noHTTPURLResponse, .noHTTPURLResponse),
             (.invalidImageData, .invalidImageData):
             return true
-
-        case let (.httpError(statusCodeError), .httpError(statusCodeError2)):
-            return statusCodeError == statusCodeError2
+            
+        case let (.httpRedirectError(error1), .httpRedirectError(error2)):
+            return error1 == error2
+        
+        case let (.httpClientError(error1), .httpClientError(error2)):
+            return error1 == error2
+        
+        case let (.httpServerError(error1), .httpServerError(error2)):
+            return error1 == error2
 
         case let (.urlError(error), .urlError(error2)):
             return error == error2
