@@ -8,35 +8,35 @@ final class HTTPNetworkingErrorTests: XCTestCase {
     }
     
     func testStatusCode300IsMultipleChoices() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(300), HTTPNetworkingError.multipleChoices)
+        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(300), HTTPNetworkingError.redirectionMessageError(.multipleChoices))
     }
     
     func testStatusCode301IsMovedPermanently() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(301), HTTPNetworkingError.movedPermanently)
+        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(301), HTTPNetworkingError.redirectionMessageError(.movedPermanently))
     }
     
     func testStatusCode302IsFound() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(302), HTTPNetworkingError.found)
+        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(302), HTTPNetworkingError.redirectionMessageError(.found))
     }
     
     func testStatusCode303IsSeeOther() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(303), HTTPNetworkingError.seeOther)
+        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(303), HTTPNetworkingError.redirectionMessageError(.seeOther))
     }
     
     func testStatusCode304IsNotModified() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(304), HTTPNetworkingError.notModified)
+        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(304), HTTPNetworkingError.redirectionMessageError(.notModified))
     }
     
     func testStatusCode305IsUseProxy() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(305), HTTPNetworkingError.useProxy)
+        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(305), HTTPNetworkingError.redirectionMessageError(.useProxy))
     }
     
     func testStatusCode307IsTemporaryRedirect() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(307), HTTPNetworkingError.temporaryRedirect)
+        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(307), HTTPNetworkingError.redirectionMessageError(.temporaryRedirect))
     }
     
     func testStatusCode308IsPermanentRedirect() {
-        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(308), HTTPNetworkingError.permanentRedirect)
+        XCTAssertEqual(HTTPNetworkingError.fromStatusCode(308), HTTPNetworkingError.redirectionMessageError(.permanentRedirect))
     }
     
     func testStatusCode400IsBadRequest() {

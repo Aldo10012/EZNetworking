@@ -8,14 +8,8 @@ extension HTTPNetworkingError {
         case 200...299: return nil
 
         // Redirection Messages (300-399)
-        case 300: return .multipleChoices
-        case 301: return .movedPermanently
-        case 302: return .found
-        case 303: return .seeOther
-        case 304: return .notModified
-        case 305: return .useProxy
-        case 307: return .temporaryRedirect
-        case 308: return .permanentRedirect
+        case 300...399:
+            return HTTPNetworkingError.redirectionMessageError(HTTPNetworkingRedirectionError.fromStatusCode(statusCode))
 
         // Client Errors (400-499)
         case 400...499:
