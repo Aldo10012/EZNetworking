@@ -4,35 +4,35 @@ import XCTest
 final class HTTPNetworkingRedirectionErrorTests: XCTestCase {
     
     func testStatusCode300IsMultipleChoices() {
-        XCTAssertEqual(HTTPNetworkingRedirectionError.fromStatusCode(300), .multipleChoices)
+        XCTAssertEqual(HTTPNetworkingRedirectionError(statusCode: 300), .multipleChoices)
     }
     
     func testStatusCode301IsMovedPermanently() {
-        XCTAssertEqual(HTTPNetworkingRedirectionError.fromStatusCode(301), .movedPermanently)
+        XCTAssertEqual(HTTPNetworkingRedirectionError(statusCode: 301), .movedPermanently)
     }
     
     func testStatusCode302IsFound() {
-        XCTAssertEqual(HTTPNetworkingRedirectionError.fromStatusCode(302), .found)
+        XCTAssertEqual(HTTPNetworkingRedirectionError(statusCode: 302), .found)
     }
     
     func testStatusCode303IsSeeOther() {
-        XCTAssertEqual(HTTPNetworkingRedirectionError.fromStatusCode(303), .seeOther)
+        XCTAssertEqual(HTTPNetworkingRedirectionError(statusCode: 303), .seeOther)
     }
     
     func testStatusCode304IsNotModified() {
-        XCTAssertEqual(HTTPNetworkingRedirectionError.fromStatusCode(304), .notModified)
+        XCTAssertEqual(HTTPNetworkingRedirectionError(statusCode: 304), .notModified)
     }
     
     func testStatusCode305IsUseProxy() {
-        XCTAssertEqual(HTTPNetworkingRedirectionError.fromStatusCode(305), .useProxy)
+        XCTAssertEqual(HTTPNetworkingRedirectionError(statusCode: 305), .useProxy)
     }
     
     func testStatusCode307IsTemporaryRedirect() {
-        XCTAssertEqual(HTTPNetworkingRedirectionError.fromStatusCode(307), .temporaryRedirect)
+        XCTAssertEqual(HTTPNetworkingRedirectionError(statusCode: 307), .temporaryRedirect)
     }
     
     func testStatusCode308IsPermanentRedirect() {
-        XCTAssertEqual(HTTPNetworkingRedirectionError.fromStatusCode(308), .permanentRedirect)
+        XCTAssertEqual(HTTPNetworkingRedirectionError(statusCode: 308), .permanentRedirect)
     }
     
 }

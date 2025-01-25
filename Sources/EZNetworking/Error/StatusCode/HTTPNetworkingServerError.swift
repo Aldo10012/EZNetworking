@@ -13,11 +13,9 @@ public enum HTTPNetworkingServerError: Error {
     case notExtended
     case networkAuthenticationRequired
     case unknown
-}
 
-extension HTTPNetworkingServerError {
-    static func fromStatusCode(_ statusCode: Int) -> HTTPNetworkingServerError {
-        return switch statusCode {
+    public init(statusCode: Int) {
+        self = switch statusCode {
         case 500: .internalServerError
         case 501: .notImplemented
         case 502: .badGateway

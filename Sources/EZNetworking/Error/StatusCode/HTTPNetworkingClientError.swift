@@ -31,11 +31,9 @@ public enum HTTPNetworkingClientError: Error {
     case requestHeaderFieldsTooLarge
     case unavailableForLegalReasons
     case unknown
-}
 
-extension HTTPNetworkingClientError {
-    static func fromStatusCode(_ statusCode: Int) -> HTTPNetworkingClientError {
-        return switch statusCode {
+    public init(statusCode: Int) {
+        self = switch statusCode {
         case 400: .badRequest
         case 401: .unauthorized
         case 402: .paymentRequired

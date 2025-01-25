@@ -10,11 +10,9 @@ public enum HTTPNetworkingRedirectionError: Error {
     case temporaryRedirect
     case permanentRedirect
     case unknown
-}
 
-extension HTTPNetworkingRedirectionError {
-    static func fromStatusCode(_ statusCode: Int) -> HTTPNetworkingRedirectionError {
-        return switch statusCode {
+    public init(statusCode: Int) {
+        self = switch statusCode {
         case 300: .multipleChoices
         case 301: .movedPermanently
         case 302: .found
