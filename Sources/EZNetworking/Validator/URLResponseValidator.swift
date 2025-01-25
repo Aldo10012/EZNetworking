@@ -24,18 +24,7 @@ public struct URLResponseValidatorImpl: URLResponseValidator {
         guard let httpURLResponse = urlResponse as? HTTPURLResponse else {
             throw NetworkingError.noHTTPURLResponse
         }
-        let statusCodeType = HTTPNetworkingStatusCodeErrorType.evaluate(from: httpURLResponse.statusCode)
-        switch statusCodeType {
-        case .ok: break
-        case .redirectionMessageError(let error):
-            throw NetworkingError.httpRedirectError(error)
-        case .clientSideError(let error):
-            throw NetworkingError.httpClientError(error)
-        case .serverSideError(let error):
-            throw NetworkingError.httpServerError(error)
-        case .unknown:
-            throw NetworkingError.unknown
-        }
+        try validateStatusCode(httpURLResponse.statusCode)
         return data
     }
 
@@ -55,9 +44,15 @@ public struct URLResponseValidatorImpl: URLResponseValidator {
         guard let httpURLResponse = urlResponse as? HTTPURLResponse else {
             throw NetworkingError.noHTTPURLResponse
         }
-        let statusCodeType = HTTPNetworkingStatusCodeErrorType.evaluate(from: httpURLResponse.statusCode)
+        try validateStatusCode(httpURLResponse.statusCode)
+        return url
+    }
+    
+    private func validateStatusCode(_ statusCode: Int) throws {
+        let statusCodeType = HTTPNetworkingStatusCodeErrorType.evaluate(from: statusCode)
         switch statusCodeType {
-        case .ok: break
+        case .ok:
+            return
         case .redirectionMessageError(let error):
             throw NetworkingError.httpRedirectError(error)
         case .clientSideError(let error):
@@ -67,6 +62,5 @@ public struct URLResponseValidatorImpl: URLResponseValidator {
         case .unknown:
             throw NetworkingError.unknown
         }
-        return url
     }
 }
