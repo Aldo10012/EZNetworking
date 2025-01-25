@@ -1,6 +1,6 @@
 import Foundation
 
-public enum HTTPNetworkingError: Error {
+public enum HTTPNetworkingError: Error, Equatable {
     // Successful Responses (200-299)
     case ok
 
@@ -50,8 +50,6 @@ public enum HTTPNetworkingError: Error {
 
     case unknown
 }
-
-extension HTTPNetworkingError: Equatable {}
 
 public enum HTTPNetworkingServerError: Error {
     case internalServerError
