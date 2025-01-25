@@ -1,27 +1,21 @@
 import Foundation
 
-public enum HTTPNetworkingRedirectionError: Error {
-    case multipleChoices
-    case movedPermanently
-    case found
-    case seeOther
-    case notModified
-    case useProxy
-    case temporaryRedirect
-    case permanentRedirect
-    case unknown
+public enum HTTPNetworkingRedirectionError: Int, Error {
+    case multipleChoices = 300
+    case movedPermanently = 301
+    case found = 302
+    case seeOther = 303
+    case notModified = 304
+    case useProxy = 305
+    case temporaryRedirect = 307
+    case permanentRedirect = 308
+    case unknown = -1
 
     public init(statusCode: Int) {
-        self = switch statusCode {
-        case 300: .multipleChoices
-        case 301: .movedPermanently
-        case 302: .found
-        case 303: .seeOther
-        case 304: .notModified
-        case 305: .useProxy
-        case 307: .temporaryRedirect
-        case 308: .permanentRedirect
-        default: .unknown
+        if let error = HTTPNetworkingRedirectionError(rawValue: statusCode) {
+            self = error
+        } else {
+            self = .unknown
         }
     }
 }

@@ -1,33 +1,24 @@
 import Foundation
 
-public enum HTTPNetworkingServerError: Error {
-    case internalServerError
-    case notImplemented
-    case badGateway
-    case serviceUnavailable
-    case gatewayTimeout
-    case httpVersionNotSupported
-    case variantAlsoNegotiates
-    case insufficientStorage
-    case loopDetected
-    case notExtended
-    case networkAuthenticationRequired
-    case unknown
+public enum HTTPNetworkingServerError: Int, Error {
+    case internalServerError = 500
+    case notImplemented = 501
+    case badGateway = 502
+    case serviceUnavailable = 503
+    case gatewayTimeout = 504
+    case httpVersionNotSupported = 505
+    case variantAlsoNegotiates = 506
+    case insufficientStorage = 507
+    case loopDetected = 508
+    case notExtended = 510
+    case networkAuthenticationRequired = 511
+    case unknown = -1
 
     public init(statusCode: Int) {
-        self = switch statusCode {
-        case 500: .internalServerError
-        case 501: .notImplemented
-        case 502: .badGateway
-        case 503: .serviceUnavailable
-        case 504: .gatewayTimeout
-        case 505: .httpVersionNotSupported
-        case 506: .variantAlsoNegotiates
-        case 507: .insufficientStorage
-        case 508: .loopDetected
-        case 510: .notExtended
-        case 511: .networkAuthenticationRequired
-        default: .unknown
+        if let error = HTTPNetworkingServerError(rawValue: statusCode) {
+            self = error
+        } else {
+            self = .unknown
         }
     }
 }
