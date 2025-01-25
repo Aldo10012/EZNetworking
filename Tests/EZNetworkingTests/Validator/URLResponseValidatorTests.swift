@@ -2,181 +2,106 @@ import XCTest
 @testable import EZNetworking
 
 final class URLResponseValidatorTests: XCTestCase {
-    
+
+    let sut = URLResponseValidatorImpl()
+
     // MARK: - test validate()
 
     func testValidateOKResponse() throws {
-        let validator = URLResponseValidatorImpl()
-        let response = HTTPURLResponse(url: URL(string: "https://example.com")!, statusCode: 200, httpVersion: nil, headerFields: nil)!
+        XCTAssertNoThrow(try sut.validate(data: Data(), urlResponse: createUrlResponse(statusCode: 200), error: nil), "Unexpectedly threw error")
+    }
 
-        do {
-            _ = try validator.validate(data: Data(), urlResponse: response, error: nil)
-            XCTAssert(true)
-        } catch {
-            XCTFail("Unexpected error)")
-        }
-    }
-    
     func testValidateErrorResponse() throws {
-        let validator = URLResponseValidatorImpl()
-        let response = HTTPURLResponse(url: URL(string: "https://example.com")!, statusCode: 404, httpVersion: nil, headerFields: nil)!
-        
-        do {
-            _ = try validator.validate(data: Data(), urlResponse: response, error: nil)
-            XCTFail("Unexpected error)")
-        } catch let error as NetworkingError {
-            XCTAssertEqual(error, NetworkingError.httpClientError(.notFound))
+        XCTAssertThrowsError(try sut.validate(data: Data(), urlResponse: createUrlResponse(statusCode: 404), error: nil)) { error in
+            XCTAssertEqual(error as? NetworkingError, NetworkingError.httpClientError(.notFound))
         }
     }
-    
+
     func testValidateNonHTTPURLResponse() throws {
-        let validator = URLResponseValidatorImpl()
         let response = URLResponse(url: URL(string: "https://example.com")!, mimeType: nil, expectedContentLength: 0, textEncodingName: nil)
-        
-        do {
-            _ = try validator.validate(data: Data(), urlResponse: response, error: nil)
-            XCTFail("Unexpected error)")
-        } catch let error as NetworkingError {
-            XCTAssertEqual(error, NetworkingError.noHTTPURLResponse)
+
+        XCTAssertThrowsError(try sut.validate(data: Data(), urlResponse: response, error: nil)) { error in
+            XCTAssertEqual(error as? NetworkingError, NetworkingError.noHTTPURLResponse)
         }
     }
-    
+
     func testValidateFailsWhenDataIsNil() throws {
-        let validator = URLResponseValidatorImpl()
-        let response = HTTPURLResponse(url: URL(string: "https://example.com")!, statusCode: 200, httpVersion: nil, headerFields: nil)!
-        
-        do {
-            _ = try validator.validate(data: nil, urlResponse: response, error: nil)
-            XCTFail("Unexpected error)")
-        } catch let error as NetworkingError {
-            XCTAssertEqual(error, NetworkingError.noData)
+        XCTAssertThrowsError(try sut.validate(data: nil, urlResponse: createUrlResponse(statusCode: 200), error: nil)) { error in
+            XCTAssertEqual(error as? NetworkingError, NetworkingError.noData)
         }
     }
-    
+
     func testValidateFailsWhenURLResponseIsNil() throws {
-        let validator = URLResponseValidatorImpl()
-        do {
-            _ = try validator.validate(data: Data(), urlResponse: nil, error: nil)
-            XCTFail("Unexpected error)")
-        } catch let error as NetworkingError {
-            XCTAssertEqual(error, NetworkingError.noResponse)
+        XCTAssertThrowsError(try sut.validate(data: Data(), urlResponse: nil, error: nil)) { error in
+            XCTAssertEqual(error as? NetworkingError, NetworkingError.noResponse)
         }
     }
-    
+
     func testValidateFailsWhenErrorIsNotNil() throws {
-        let validator = URLResponseValidatorImpl()
-        let response = HTTPURLResponse(url: URL(string: "https://example.com")!, statusCode: 200, httpVersion: nil, headerFields: nil)!
-        
-        do {
-            _ = try validator.validate(data: Data(), urlResponse: response, error: NetworkingError.httpServerError(.badGateway))
-            XCTFail("Unexpected error)")
-        } catch let error as NetworkingError {
-            XCTAssertEqual(error, NetworkingError.requestFailed(NetworkingError.httpServerError(.badGateway)))
+        XCTAssertThrowsError(try sut.validate(data: Data(), urlResponse: createUrlResponse(statusCode: 200), error: NetworkingError.httpServerError(.badGateway))) { error in
+            XCTAssertEqual(error as? NetworkingError, NetworkingError.requestFailed(NetworkingError.httpServerError(.badGateway)))
         }
     }
-    
+
     func testValidateFailsWhenNotConnectedToInternet() throws {
-        let validator = URLResponseValidatorImpl()
-        let response = HTTPURLResponse(url: URL(string: "https://example.com")!, statusCode: 200, httpVersion: nil, headerFields: nil)!
-        
-        do {
-            _ = try validator.validate(data: Data(), urlResponse: response, error:  URLError(.notConnectedToInternet))
-            XCTFail("Unexpected error)")
-        } catch let error as NetworkingError {
-            XCTAssertEqual(error, NetworkingError.urlError(URLError(.notConnectedToInternet)))
+        XCTAssertThrowsError(try sut.validate(data: Data(), urlResponse: createUrlResponse(statusCode: 200), error: URLError(.notConnectedToInternet))) { error in
+            XCTAssertEqual(error as? NetworkingError, NetworkingError.urlError(URLError(.notConnectedToInternet)))
         }
     }
 
     // MARK: - test validateDownloadTask()
 
     func testValidateDownloadTaskOKResponse() throws {
-        let validator = URLResponseValidatorImpl()
-        let url = URL(string: "https://example.com")!
-        let response = HTTPURLResponse(url: url, statusCode: 200, httpVersion: nil, headerFields: nil)!
-        
-        do {
-            _ = try validator.validateDownloadTask(url: url, urlResponse: response, error: nil)
-            XCTAssertTrue(true)
-        } catch let error as NetworkingError {
-            XCTFail("Unexpected error: \(error)")
-        }
+        XCTAssertNoThrow(try sut.validateDownloadTask(url: url, urlResponse: createUrlResponse(statusCode: 200), error: nil), "Unexpectedly threw error")
     }
-    
+
     func testValidateDownloadTaskFailsWhenUrlIsNil() throws {
-        let validator = URLResponseValidatorImpl()
-        let url = URL(string: "https://example.com")!
-        let response = HTTPURLResponse(url: url, statusCode: 200, httpVersion: nil, headerFields: nil)!
-        
-        do {
-            _ = try validator.validateDownloadTask(url: nil, urlResponse: response, error: nil)
-            XCTFail("Unexpected error")
-        } catch let error as NetworkingError {
-            XCTAssertEqual(error, NetworkingError.noURL)
+        XCTAssertThrowsError(try sut.validateDownloadTask(url: nil, urlResponse: createUrlResponse(statusCode: 200), error: nil)) { error in
+            XCTAssertEqual(error as? NetworkingError, NetworkingError.noURL)
         }
     }
-    
+
     func testValidateDownloadTaskFailsWhenUrlResponseIsNil() throws {
-        let validator = URLResponseValidatorImpl()
-        let url = URL(string: "https://example.com")!
-        
-        do {
-            _ = try validator.validateDownloadTask(url: url, urlResponse: nil, error: nil)
-            XCTFail("Unexpected error")
-        } catch let error as NetworkingError {
-            XCTAssertEqual(error, NetworkingError.noResponse)
+        XCTAssertThrowsError(try sut.validateDownloadTask(url: url, urlResponse: nil, error: nil)) { error in
+            XCTAssertEqual(error as? NetworkingError, NetworkingError.noResponse)
         }
     }
-    
+
     func testValidateDownloadTaskFailsWhenErrorIsNotNil() throws {
-        let validator = URLResponseValidatorImpl()
-        let url = URL(string: "https://example.com")!
-        let response = HTTPURLResponse(url: url, statusCode: 200, httpVersion: nil, headerFields: nil)!
-        
-        do {
-            _ = try validator.validateDownloadTask(url: url, urlResponse: response, error: NetworkingError.unknown)
-            XCTFail("Unexpected error")
-        } catch let error as NetworkingError {
-            XCTAssertEqual(error, NetworkingError.requestFailed(NetworkingError.unknown))
+        XCTAssertThrowsError(try sut.validateDownloadTask(url: url, urlResponse: createUrlResponse(statusCode: 200), error: NetworkingError.unknown)) { error in
+            XCTAssertEqual(error as? NetworkingError, NetworkingError.requestFailed(NetworkingError.unknown))
         }
     }
-    
+
     func testValidateDownloadTaskFailsWhenNotConnectedToInternet() throws {
-        let validator = URLResponseValidatorImpl()
-        let url = URL(string: "https://example.com")!
-        let response = HTTPURLResponse(url: url, statusCode: 200, httpVersion: nil, headerFields: nil)!
-        
-        do {
-            _ = try validator.validateDownloadTask(url: url, urlResponse: response, error: URLError(.notConnectedToInternet))
-            XCTFail("Unexpected error")
-        } catch let error as NetworkingError {
-            XCTAssertEqual(error, NetworkingError.urlError(URLError(.notConnectedToInternet)))
+        XCTAssertThrowsError(try sut.validateDownloadTask(url: url, urlResponse: createUrlResponse(statusCode: 200), error: URLError(.notConnectedToInternet))) { error in
+            XCTAssertEqual(error as? NetworkingError, NetworkingError.urlError(URLError(.notConnectedToInternet)))
         }
     }
-    
-    func testValidateDownloadTaskFailsWhenResposneIsNotHTTPURLResponse() throws {
-        let validator = URLResponseValidatorImpl()
-        let url = URL(string: "https://example.com")!
+
+    func testValidateDownloadTaskFailsWhenResponseIsNotHTTPURLResponse() throws {
         let response = URLResponse(url: url, mimeType: nil, expectedContentLength: 0, textEncodingName: nil)
 
-        do {
-            _ = try validator.validateDownloadTask(url: url, urlResponse: response, error: nil)
-            XCTFail("Unexpected error")
-        } catch let error as NetworkingError {
-            XCTAssertEqual(error, NetworkingError.noHTTPURLResponse)
+        XCTAssertThrowsError(try sut.validateDownloadTask(url: url, urlResponse: response, error: nil)) { error in
+            XCTAssertEqual(error as? NetworkingError, NetworkingError.noHTTPURLResponse)
         }
     }
-    
+
     func testValidateDownloadTaskFailsWhenResponseStatusCodeIsNot200() throws {
-        let validator = URLResponseValidatorImpl()
-        let url = URL(string: "https://example.com")!
-        let response = HTTPURLResponse(url: url, statusCode: 400, httpVersion: nil, headerFields: nil)!
-        
-        do {
-            _ = try validator.validateDownloadTask(url: url, urlResponse: response, error: nil)
-            XCTFail("Unexpected error")
-        } catch let error as NetworkingError {
-            print(error)
-            XCTAssertEqual(error, NetworkingError.httpClientError(.badRequest))
+        XCTAssertThrowsError(try sut.validateDownloadTask(url: url, urlResponse: createUrlResponse(statusCode: 400), error: nil)) { error in
+            XCTAssertEqual(error as? NetworkingError, NetworkingError.httpClientError(.badRequest))
         }
+    }
+}
+
+// MARK: - Test Helpers
+
+extension URLResponseValidatorTests {
+    func createUrlResponse(statusCode: Int) -> HTTPURLResponse {
+        return HTTPURLResponse(url: url, statusCode: statusCode, httpVersion: nil, headerFields: nil)!
+    }
+
+    var url: URL {
+        return URL(string: "https://example.com")!
     }
 }
