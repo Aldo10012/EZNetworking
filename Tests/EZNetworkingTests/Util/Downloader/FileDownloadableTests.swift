@@ -31,15 +31,15 @@ final class FileDownloadableTests: XCTestCase {
             urlResponse: buildResponse(statusCode: 200),
             error: nil
         )
-        let validator = MockURLResponseValidator(throwError: NetworkingError.httpError(.forbidden))
+        let validator = MockURLResponseValidator(throwError: NetworkingError.httpClientError(.forbidden))
         let decoder = RequestDecoder()
         let sut = FileDownloader(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
         
         do {
             _ = try await sut.downloadFile(with: testURL)
             XCTFail("unexpected error")
-        } catch let error as NetworkingError{
-            XCTAssertEqual(error, NetworkingError.httpError(.forbidden))
+        } catch let error as NetworkingError {
+            XCTAssertEqual(error, NetworkingError.httpClientError(.forbidden))
         }
     }
     
@@ -58,7 +58,7 @@ final class FileDownloadableTests: XCTestCase {
             _ = try await sut.downloadFile(with: testURL)
             XCTFail("unexpected error")
         } catch let error as NetworkingError{
-            XCTAssertEqual(error, NetworkingError.httpError(.badRequest))
+            XCTAssertEqual(error, NetworkingError.httpClientError(.badRequest))
         }
     }
     
@@ -67,7 +67,7 @@ final class FileDownloadableTests: XCTestCase {
         let urlSession = MockURLSession(
             url: testURL,
             urlResponse: buildResponse(statusCode: 200),
-            error: NetworkingError.unknown
+            error: NetworkingError.internalError(.unknown)
         )
         let validator = URLResponseValidatorImpl()
         let decoder = RequestDecoder()
@@ -77,7 +77,7 @@ final class FileDownloadableTests: XCTestCase {
             _ = try await sut.downloadFile(with: testURL)
             XCTFail("unexpected error")
         } catch let error as NetworkingError{
-            XCTAssertEqual(error, NetworkingError.unknown)
+            XCTAssertEqual(error, NetworkingError.internalError(.unknown))
         }
     }
     
@@ -122,7 +122,7 @@ final class FileDownloadableTests: XCTestCase {
     
     func testDownloadFileFailsIfValidatorThrowsAnyError() {
         let testURL = URL(string: "https://example.com/example.pdf")!
-        let validator = MockURLResponseValidator(throwError: NetworkingError.httpError(.conflict))
+        let validator = MockURLResponseValidator(throwError: NetworkingError.httpClientError(.conflict))
         let urlSession = MockURLSession(url: testURL,
                                         urlResponse: buildResponse(statusCode: 200),
                                         error: nil)
@@ -137,7 +137,7 @@ final class FileDownloadableTests: XCTestCase {
             case .success:
                 XCTFail()
             case .failure(let error):
-                XCTAssertEqual(error, NetworkingError.httpError(.conflict))
+                XCTAssertEqual(error, NetworkingError.httpClientError(.conflict))
             }
         }
         wait(for: [exp], timeout: 0.1)

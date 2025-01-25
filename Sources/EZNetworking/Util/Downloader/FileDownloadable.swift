@@ -28,7 +28,7 @@ public struct FileDownloader: FileDownloadable {
         } catch let error as NetworkingError {
             throw error
         } catch {
-            throw NetworkingError.unknown
+            throw NetworkingError.internalError(.unknown)
         }
     }
 
@@ -41,7 +41,7 @@ public struct FileDownloader: FileDownloadable {
             } catch let networkError as NetworkingError {
                 completion(.failure(networkError))
             } catch {
-                completion(.failure(.unknown))
+                completion(.failure(.internalError(.unknown)))
             }
         }
         task.resume()

@@ -1,46 +1,35 @@
 import Foundation
 
 public enum NetworkingError: Error {
-    case unknown
-    case noURL
-    case couldNotParse
-    case invalidError
-    case noData
-    case noResponse
-    case requestFailed(Error)
-    case noRequest
-    case noHTTPURLResponse
-    case invalidImageData
+    // Internal errors
+    case internalError(InternalError)                        /// any internal error
 
-    // MARK: - HTTP Status Code errors
-    case httpError(HTTPNetworkingError)
+    // HTTP Status Code errors
+    case httpRedirectError(HTTPNetworkingRedirectionError)   /// 3xx status code errors
+    case httpClientError(HTTPNetworkingClientError)          /// 4xx status code errors
+    case httpServerError(HTTPNetworkingServerError)          /// 5xx status code errors
 
-    // MARK: - URL Errors
-    case urlError(URLError)
+    // URL Errors
+    case urlError(URLError)                                  /// any URL error
 }
 
 extension NetworkingError: Equatable {
     public static func ==(lhs: NetworkingError, rhs: NetworkingError) -> Bool {
         switch (lhs, rhs) {
-        case (.unknown, .unknown),
-            (.noURL, .noURL),
-            (.couldNotParse, .couldNotParse),
-            (.invalidError, .invalidError),
-            (.noData, .noData),
-            (.noResponse, .noResponse),
-            (.noRequest, .noRequest),
-            (.noHTTPURLResponse, .noHTTPURLResponse),
-            (.invalidImageData, .invalidImageData):
-            return true
-
-        case let (.httpError(statusCodeError), .httpError(statusCodeError2)):
-            return statusCodeError == statusCodeError2
+        case let (.internalError(error1), .internalError(error2)):
+            return error1 == error2
+            
+        case let (.httpRedirectError(error1), .httpRedirectError(error2)):
+            return error1 == error2
+        
+        case let (.httpClientError(error1), .httpClientError(error2)):
+            return error1 == error2
+        
+        case let (.httpServerError(error1), .httpServerError(error2)):
+            return error1 == error2
 
         case let (.urlError(error), .urlError(error2)):
             return error == error2
-
-        case let (.requestFailed(lhsError), .requestFailed(rhsError)):
-            return (lhsError as NSError) == (rhsError as NSError)
 
         default:
             return false

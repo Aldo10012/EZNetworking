@@ -13,20 +13,18 @@ public struct URLResponseValidatorImpl: URLResponseValidator {
             if let urlError = error as? URLError {
                 throw NetworkingError.urlError(urlError)
             }
-            throw NetworkingError.requestFailed(error)
+            throw NetworkingError.internalError(.requestFailed(error))
         }
         guard let data else {
-            throw NetworkingError.noData
+            throw NetworkingError.internalError(.noData)
         }
         guard let urlResponse else {
-            throw NetworkingError.noResponse
+            throw NetworkingError.internalError(.noResponse)
         }
         guard let httpURLResponse = urlResponse as? HTTPURLResponse else {
-            throw NetworkingError.noHTTPURLResponse
+            throw NetworkingError.internalError(.noHTTPURLResponse)
         }
-        if let httpError = HTTPNetworkingError.fromStatusCode(httpURLResponse.statusCode) {
-            throw NetworkingError.httpError(httpError)
-        }
+        try validateStatusCode(httpURLResponse.statusCode)
         return data
     }
 
@@ -35,20 +33,33 @@ public struct URLResponseValidatorImpl: URLResponseValidator {
             if let urlError = error as? URLError {
                 throw NetworkingError.urlError(urlError)
             }
-            throw NetworkingError.requestFailed(error)
+            throw NetworkingError.internalError(.requestFailed(error))
         }
         guard let url else {
-            throw NetworkingError.noURL
+            throw NetworkingError.internalError(.noURL)
         }
         guard let urlResponse else {
-            throw NetworkingError.noResponse
+            throw NetworkingError.internalError(.noResponse)
         }
         guard let httpURLResponse = urlResponse as? HTTPURLResponse else {
-            throw NetworkingError.noHTTPURLResponse
+            throw NetworkingError.internalError(.noHTTPURLResponse)
         }
-        if let httpError = HTTPNetworkingError.fromStatusCode(httpURLResponse.statusCode) {
-            throw NetworkingError.httpError(httpError)
-        }
+        try validateStatusCode(httpURLResponse.statusCode)
         return url
+    }
+    
+    private func validateStatusCode(_ statusCode: Int) throws {
+        switch HTTPNetworkingStatusCodeErrorType.evaluate(from: statusCode) {
+        case .ok:
+            return
+        case .redirectionMessageError(let error):
+            throw NetworkingError.httpRedirectError(error)
+        case .clientSideError(let error):
+            throw NetworkingError.httpClientError(error)
+        case .serverSideError(let error):
+            throw NetworkingError.httpServerError(error)
+        case .unknown:
+            throw NetworkingError.internalError(.unknown)
+        }
     }
 }

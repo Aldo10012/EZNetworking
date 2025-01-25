@@ -32,7 +32,7 @@ public struct AsyncRequestPerformer: AsyncRequestPerformable {
         } catch let error as NetworkingError {
             throw error
         } catch {
-            throw NetworkingError.unknown
+            throw NetworkingError.internalError(.unknown)
         }
     }
     
@@ -46,7 +46,7 @@ public struct AsyncRequestPerformer: AsyncRequestPerformable {
         } catch let error as NetworkingError {
             throw error
         } catch {
-            throw NetworkingError.unknown
+            throw NetworkingError.internalError(.unknown)
         }
     }
     
@@ -58,7 +58,7 @@ public struct AsyncRequestPerformer: AsyncRequestPerformable {
         } catch let error as NetworkingError {
             throw error
         } catch {
-            throw NetworkingError.unknown
+            throw NetworkingError.internalError(.unknown)
         }
     }
     
@@ -70,7 +70,7 @@ public struct AsyncRequestPerformer: AsyncRequestPerformable {
         } catch let error as NetworkingError {
             throw error
         } catch {
-            throw NetworkingError.unknown
+            throw NetworkingError.internalError(.unknown)
         }
     }
 }

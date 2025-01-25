@@ -29,7 +29,7 @@ public struct ImageDownloader: ImageDownloadable {
         } catch let error as NetworkingError {
             throw error
         } catch {
-            throw NetworkingError.unknown
+            throw NetworkingError.internalError(.unknown)
         }
     }
 
@@ -43,7 +43,7 @@ public struct ImageDownloader: ImageDownloadable {
             } catch let networkError as NetworkingError {
                 completion(.failure(networkError))
             } catch {
-                completion(.failure(.unknown))
+                completion(.failure(.internalError(.unknown)))
             }
         }
         task.resume()
@@ -52,7 +52,7 @@ public struct ImageDownloader: ImageDownloadable {
     
     private func getImage(from data: Data) throws -> UIImage {
         guard let image = UIImage(data: data) else {
-            throw NetworkingError.invalidImageData
+            throw NetworkingError.internalError(.invalidImageData)
         }
         return image
     }

@@ -22,7 +22,7 @@ final class ImageDownloadableTests: XCTestCase {
                                         url: testURL,
                                         urlResponse: buildResponse(statusCode: 200),
                                         error: nil)
-        let validator = MockURLResponseValidator(throwError: NetworkingError.httpError(.badRequest))
+        let validator = MockURLResponseValidator(throwError: NetworkingError.httpClientError(.badRequest))
         let sut = ImageDownloader(urlSession: urlSession,
                                   urlResponseValidator: validator,
                                   requestDecoder: RequestDecoder())
@@ -30,7 +30,7 @@ final class ImageDownloadableTests: XCTestCase {
             _ = try await sut.downloadImage(from: testURL)
             XCTFail()
         } catch let error as NetworkingError {
-            XCTAssertEqual(error, NetworkingError.httpError(.badRequest))
+            XCTAssertEqual(error, NetworkingError.httpClientError(.badRequest))
         }
     }
 
@@ -51,7 +51,7 @@ final class ImageDownloadableTests: XCTestCase {
             case .success:
                 XCTAssertTrue(true)
             case .failure(let error):
-                if error == NetworkingError.invalidImageData {
+                if error == NetworkingError.internalError(.invalidImageData) {
                     XCTAssertTrue(true, "mock data was just not suited to generate a UIImage")
                 } else {
                     XCTFail()
@@ -80,7 +80,7 @@ final class ImageDownloadableTests: XCTestCase {
         let urlSession = MockURLSession(url: testURL,
                                         urlResponse: buildResponse(statusCode: 200),
                                         error: nil)
-        let validator = MockURLResponseValidator(throwError: NetworkingError.httpError(.conflict))
+        let validator = MockURLResponseValidator(throwError: NetworkingError.httpClientError(.conflict))
         let sut = ImageDownloader(urlSession: urlSession,
                                   urlResponseValidator: validator,
                                   requestDecoder: RequestDecoder())
@@ -92,7 +92,7 @@ final class ImageDownloadableTests: XCTestCase {
             case .success:
                 XCTFail()
             case .failure(let error):
-                XCTAssertEqual(error, NetworkingError.httpError(.conflict))
+                XCTAssertEqual(error, NetworkingError.httpClientError(.conflict))
             }
         }
         wait(for: [exp], timeout: 0.1)

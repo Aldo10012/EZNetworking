@@ -38,7 +38,7 @@ public struct RequestPerformer: RequestPerformable {
                 completion(.failure(httpError))
                 return
             } catch {
-                completion(.failure(NetworkingError.unknown))
+                completion(.failure(NetworkingError.internalError(.unknown)))
                 return
             }
         }
@@ -58,7 +58,7 @@ public struct RequestPerformer: RequestPerformable {
                 completion(.failure(httpError))
                 return
             } catch {
-                completion(.failure(NetworkingError.unknown))
+                completion(.failure(NetworkingError.internalError(.unknown)))
                 return
             }
         }
@@ -77,7 +77,7 @@ public struct RequestPerformer: RequestPerformable {
                 completion(.failure(httpError))
                 return
             } catch {
-                completion(.failure(NetworkingError.unknown))
+                completion(.failure(NetworkingError.internalError(.unknown)))
                 return
             }
         }
@@ -96,7 +96,7 @@ public struct RequestPerformer: RequestPerformable {
                 completion(.failure(httpError))
                 return
             } catch {
-                completion(.failure(NetworkingError.unknown))
+                completion(.failure(NetworkingError.internalError(.unknown)))
                 return
             }
         }

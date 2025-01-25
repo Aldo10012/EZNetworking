@@ -6,7 +6,7 @@ struct MockURLResponseValidator: URLResponseValidator {
     func validate(data: Data?, urlResponse: URLResponse?, error: Error?) throws -> Data {
         guard let throwError else {
             guard let data else {
-                throw NetworkingError.noData
+                throw NetworkingError.internalError(.noData)
             }
             return data
         }
@@ -16,7 +16,7 @@ struct MockURLResponseValidator: URLResponseValidator {
     func validateDownloadTask(url: URL?, urlResponse: URLResponse?, error: Error?) throws -> URL {
         guard let throwError else {
             guard let url else {
-                throw NetworkingError.noURL
+                throw NetworkingError.internalError(.noURL)
             }
             return url
         }
