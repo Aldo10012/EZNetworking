@@ -1,14 +1,11 @@
 import Foundation
 import UIKit
 
-public typealias VoidResult = Result<EmptyResponse, NetworkingError>
-public typealias DecodedResult<T: Decodable> = Result<T, NetworkingError>
-
 public protocol RequestPerformable {
     @discardableResult
-    func performTask<T: Decodable>(request: Request, decodeTo decodableObject: T.Type, completion: @escaping((DecodedResult<T>) -> Void)) -> URLSessionDataTask?
+    func performTask<T: Decodable>(request: Request, decodeTo decodableObject: T.Type, completion: @escaping((Result<T, NetworkingError>) -> Void)) -> URLSessionDataTask?
     @discardableResult
-    func performTask(request: Request, completion: @escaping((VoidResult) -> Void)) -> URLSessionDataTask?
+    func performTask(request: Request, completion: @escaping((Result<EmptyResponse, NetworkingError>) -> Void)) -> URLSessionDataTask?
 }
 
 public struct RequestPerformer: RequestPerformable {
@@ -27,13 +24,13 @@ public struct RequestPerformer: RequestPerformable {
     
     // MARK: perform using Completion Handler and Request protocol
     @discardableResult
-    public func performTask<T: Decodable>(request: Request, decodeTo decodableObject: T.Type, completion: @escaping ((DecodedResult<T>) -> Void)) -> URLSessionDataTask? {
+    public func performTask<T: Decodable>(request: Request, decodeTo decodableObject: T.Type, completion: @escaping ((Result<T, NetworkingError>) -> Void)) -> URLSessionDataTask? {
         return getAndPerformTask(request: request, decodeTo: decodableObject, completion: completion)
     }
     
     // MARK: perform using Completion Handler and Request Protocol without returning Decodable
     @discardableResult
-    public func performTask(request: Request, completion: @escaping ((VoidResult) -> Void)) -> URLSessionDataTask? {
+    public func performTask(request: Request, completion: @escaping ((Result<EmptyResponse, NetworkingError>) -> Void)) -> URLSessionDataTask? {
         return getAndPerformTask(request: request, decodeTo: EmptyResponse.self, completion: completion)
     }
     
