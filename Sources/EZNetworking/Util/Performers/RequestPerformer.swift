@@ -25,7 +25,7 @@ public struct RequestPerformer: RequestPerformable {
     // MARK: perform using Completion Handler and Request protocol
     @discardableResult
     public func performTask<T: Decodable>(request: Request, decodeTo decodableObject: T.Type, completion: @escaping ((Result<T, NetworkingError>) -> Void)) -> URLSessionDataTask? {
-        guard let urlRequest = request.build() else {
+        guard let urlRequest = request.urlRequest() else {
             completion(.failure(.internalError(.noRequest)))
             return nil
         }
@@ -49,7 +49,7 @@ public struct RequestPerformer: RequestPerformable {
     // MARK: perform using Completion Handler and Request Protocol without returning Decodable
     @discardableResult
     public func performTask(request: Request, completion: @escaping ((VoidResult<NetworkingError>) -> Void)) -> URLSessionDataTask? {
-        guard let urlRequest = request.build() else {
+        guard let urlRequest = request.urlRequest() else {
             completion(.failure(.internalError(.noRequest)))
             return nil
         }

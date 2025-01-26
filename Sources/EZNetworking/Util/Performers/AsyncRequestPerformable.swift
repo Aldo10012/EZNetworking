@@ -49,7 +49,7 @@ public struct AsyncRequestPerformer: AsyncRequestPerformable {
     }
     
     private func getURLRequest(from request: Request) throws -> URLRequest {
-        guard let urlRequest = request.build() else {
+        guard let urlRequest = request.urlRequest() else {
             throw NetworkingError.internalError(.noRequest)
         }
         return urlRequest

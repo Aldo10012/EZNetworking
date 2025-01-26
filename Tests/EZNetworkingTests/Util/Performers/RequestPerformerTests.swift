@@ -265,5 +265,5 @@ private struct MockRequestWithNilBuild: Request {
     var parameters: [HTTPParameter]? { nil }
     var headers: [HTTPHeader]? { nil }
     var body: Data? { nil }
-    func build() -> URLRequest? { nil }
+    func urlRequest() -> URLRequest? { nil }
 }
