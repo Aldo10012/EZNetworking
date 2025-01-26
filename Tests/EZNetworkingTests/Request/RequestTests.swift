@@ -31,7 +31,7 @@ final class RequestTests: XCTestCase {
     
     func testRequestHeaders() throws {
         let sut = MockRequest()
-        let headers = try XCTUnwrap(sut.header)
+        let headers = try XCTUnwrap(sut.headers)
         XCTAssertEqual(headers.count, 3)
 
         let firstHeader = try XCTUnwrap(headers[0])
@@ -53,7 +53,7 @@ final class RequestTests: XCTestCase {
     
     func testRequestBuildMethod() throws {
         let request = MockRequest()
-        let sut = try XCTUnwrap(request.build())
+        let sut = try XCTUnwrap(request.urlRequest())
         
         XCTAssertEqual(sut.url?.absoluteString, "https://www.example.com?key_1=value_1&key_2=value_2&key_3=value_3")
         XCTAssertEqual(sut.httpMethod, "GET")
@@ -78,7 +78,7 @@ private struct MockRequest: Request {
         ]
     }
     
-    var header: [HTTPHeader]? {
+    var headers: [HTTPHeader]? {
         [
             .accept(.json),
             .contentType(.json),

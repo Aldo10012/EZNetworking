@@ -26,13 +26,12 @@ final class RequestFactoryTests: XCTestCase {
                                     timeoutInterval: timeoutInterval)
         
         XCTAssertNotNil(request)
-        XCTAssertEqual(request?.url?.absoluteString, "https://example.com/api?key1=value1&key2=value2")
-        XCTAssertEqual(request?.httpMethod, httpMethod.rawValue)
-        XCTAssertEqual(request?.httpBody, body)
-        XCTAssertEqual(request?.timeoutInterval, timeoutInterval)
-        
-        XCTAssertEqual(request?.value(forHTTPHeaderField: "Content-Type"), "application/json")
-        XCTAssertEqual(request?.value(forHTTPHeaderField: "Authorization"), "Bearer token")
+        XCTAssertEqual(request.baseUrlString, "https://example.com/api")
+        XCTAssertEqual(request.httpMethod, httpMethod)
+        XCTAssertEqual(request.parameters, parameters)
+        XCTAssertEqual(request.body, body)
+        XCTAssertEqual(request.timeoutInterval, timeoutInterval)
+        XCTAssertEqual(request.headers, headers)
     }
     
     func testBuildURLRequestWithNoParametersAndHeaders() {
@@ -48,10 +47,12 @@ final class RequestFactoryTests: XCTestCase {
                                     timeoutInterval: 60)
         
         XCTAssertNotNil(request)
-        XCTAssertEqual(request?.url?.absoluteString, urlString)
-        XCTAssertEqual(request?.httpMethod, httpMethod.rawValue)
-        XCTAssertNil(request?.httpBody)
-        XCTAssertEqual(request?.timeoutInterval, 60)
+        XCTAssertEqual(request.baseUrlString, "https://example.com/api")
+        XCTAssertEqual(request.httpMethod, httpMethod)
+        XCTAssertNil(request.parameters)
+        XCTAssertNil(request.body)
+        XCTAssertEqual(request.timeoutInterval, 60)
+        XCTAssertNil(request.headers)
     }
     
 }

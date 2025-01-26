@@ -3,13 +3,9 @@ import UIKit
 
 public protocol RequestPerformable {
     @discardableResult
-    func performTask<T: Decodable>(request: URLRequest, decodeTo decodableObject: T.Type, completion: @escaping((Result<T, NetworkingError>) -> Void)) -> URLSessionDataTask
+    func performTask<T: Decodable>(request: Request, decodeTo decodableObject: T.Type, completion: @escaping((Result<T, NetworkingError>) -> Void)) -> URLSessionDataTask?
     @discardableResult
-    func performTask<T: Decodable>(request: Request, decodeTo decodableObject: T.Type, completion: @escaping((Result<T, NetworkingError>) -> Void)) -> URLSessionDataTask
-    @discardableResult
-    func performTask(request: URLRequest, completion: @escaping((VoidResult<NetworkingError>) -> Void)) -> URLSessionDataTask
-    @discardableResult
-    func performTask(request: Request, completion: @escaping((VoidResult<NetworkingError>) -> Void)) -> URLSessionDataTask
+    func performTask(request: Request, completion: @escaping((VoidResult<NetworkingError>) -> Void)) -> URLSessionDataTask?
 }
 
 public struct RequestPerformer: RequestPerformable {
@@ -26,53 +22,18 @@ public struct RequestPerformer: RequestPerformable {
         self.requestDecoder = requestDecoder
     }
     
-    // MARK: perform using Completion Handler
-    @discardableResult
-    public func performTask<T: Decodable>(request: URLRequest, decodeTo decodableObject: T.Type, completion: @escaping ((Result<T, NetworkingError>) -> Void)) -> URLSessionDataTask {
-        let task = urlSession.dataTask(with: request) { data, urlResponse, error in
-            do {
-                let validData = try urlResponseValidator.validate(data: data, urlResponse: urlResponse, error: error)
-                let decodedObject = try requestDecoder.decode(decodableObject.self, from: validData)
-                completion(.success(decodedObject))
-            } catch let httpError as NetworkingError {
-                completion(.failure(httpError))
-                return
-            } catch {
-                completion(.failure(NetworkingError.internalError(.unknown)))
-                return
-            }
-        }
-        task.resume()
-        return task
-    }
-    
     // MARK: perform using Completion Handler and Request protocol
     @discardableResult
-    public func performTask<T: Decodable>(request: Request, decodeTo decodableObject: T.Type, completion: @escaping ((Result<T, NetworkingError>) -> Void)) -> URLSessionDataTask {
-        let task = urlSession.dataTask(with: request.build()) { data, urlResponse, error in
+    public func performTask<T: Decodable>(request: Request, decodeTo decodableObject: T.Type, completion: @escaping ((Result<T, NetworkingError>) -> Void)) -> URLSessionDataTask? {
+        guard let urlRequest = request.urlRequest() else {
+            completion(.failure(.internalError(.noRequest)))
+            return nil
+        }
+        let task = urlSession.dataTask(with: urlRequest) { data, urlResponse, error in
             do {
                 let validData = try urlResponseValidator.validate(data: data, urlResponse: urlResponse, error: error)
                 let decodedObject = try requestDecoder.decode(decodableObject.self, from: validData)
                 completion(.success(decodedObject))
-            } catch let httpError as NetworkingError {
-                completion(.failure(httpError))
-                return
-            } catch {
-                completion(.failure(NetworkingError.internalError(.unknown)))
-                return
-            }
-        }
-        task.resume()
-        return task
-    }
-    
-    // MARK: perform using Completion Handler without returning Decodable
-    @discardableResult
-    public func performTask(request: URLRequest,completion: @escaping ((VoidResult<NetworkingError>) -> Void)) -> URLSessionDataTask {
-        let task = urlSession.dataTask(with: request) { data, urlResponse, error in
-            do {
-                _ = try urlResponseValidator.validate(data: data, urlResponse: urlResponse, error: error)
-                completion(.success)
             } catch let httpError as NetworkingError {
                 completion(.failure(httpError))
                 return
@@ -87,8 +48,12 @@ public struct RequestPerformer: RequestPerformable {
     
     // MARK: perform using Completion Handler and Request Protocol without returning Decodable
     @discardableResult
-    public func performTask(request: Request, completion: @escaping ((VoidResult<NetworkingError>) -> Void)) -> URLSessionDataTask {
-        let task = urlSession.dataTask(with: request.build()) { data, urlResponse, error in
+    public func performTask(request: Request, completion: @escaping ((VoidResult<NetworkingError>) -> Void)) -> URLSessionDataTask? {
+        guard let urlRequest = request.urlRequest() else {
+            completion(.failure(.internalError(.noRequest)))
+            return nil
+        }
+        let task = urlSession.dataTask(with: urlRequest) { data, urlResponse, error in
             do {
                 _ = try urlResponseValidator.validate(data: data, urlResponse: urlResponse, error: error)
                 completion(.success)
