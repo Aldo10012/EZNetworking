@@ -140,7 +140,7 @@ final class RequestPerformerTests: XCTestCase {
         sut.performTask(request: MockRequest()) { result in
             defer { exp.fulfill() }
             switch result {
-            case .success(let result):
+            case .success:
                 XCTAssertTrue(true)
             case .failure:
                 XCTFail()
