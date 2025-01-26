@@ -53,7 +53,7 @@ final class RequestTests: XCTestCase {
     
     func testRequestBuildMethod() throws {
         let request = MockRequest()
-        let sut = try XCTUnwrap(request.urlRequest())
+        let sut = try XCTUnwrap(request.urlRequest)
         
         XCTAssertEqual(sut.url?.absoluteString, "https://www.example.com?key_1=value_1&key_2=value_2&key_3=value_3")
         XCTAssertEqual(sut.httpMethod, "GET")

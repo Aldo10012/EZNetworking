@@ -7,13 +7,13 @@ public protocol Request {
     var headers: [HTTPHeader]? { get }
     var body: Data? { get }
     var timeoutInterval: TimeInterval { get }
-    func urlRequest() -> URLRequest?
+    var urlRequest: URLRequest? { get }
 }
 
 public extension Request {
     var timeoutInterval: TimeInterval { 60 }
 
-    func urlRequest() -> URLRequest? {
+    var urlRequest: URLRequest? {
         guard let url = URL(string: baseUrlString) else {
             return nil
         }
