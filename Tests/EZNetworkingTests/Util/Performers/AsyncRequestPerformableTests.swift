@@ -48,6 +48,13 @@ final class AsyncRequestPerformableTests: XCTestCase {
         }
     }
     
+    func test_PerformAsync_WithRequestProtocol_WhenRequestCannotBuildURLRequest_Fails() async throws {
+        let sut = createAsyncRequestPerformer()
+        await XCTAssertThrowsErrorAsync(try await sut.perform(request: MockRequestWithNilBuild(), decodeTo: Person.self)) { error in
+            XCTAssertEqual(error as! NetworkingError, NetworkingError.internalError(.noRequest))
+        }
+    }
+    
     // MARK: Unit test for perform request with Async Await and Request Protocol and return Decodable
 
     func test_PerformAsync_WithRequestProtocol_WithoutResponse_Success() async throws {
@@ -90,6 +97,13 @@ final class AsyncRequestPerformableTests: XCTestCase {
             XCTAssertEqual(error as! NetworkingError, NetworkingError.urlError(URLError(.cannotConnectToHost)))
         }
     }
+    
+    func test_PerformAsync_WithRequestProtocol_WithoutResponse_WhenRequestCannotBuildURLRequest_Fails() async throws {
+        let sut = createAsyncRequestPerformer()
+        await XCTAssertThrowsErrorAsync(try await sut.perform(request: MockRequestWithNilBuild())) { error in
+            XCTAssertEqual(error as! NetworkingError, NetworkingError.internalError(.noRequest))
+        }
+    }
 }
 
 private func createAsyncRequestPerformer(
@@ -124,4 +138,13 @@ private struct MockRequest: Request {
     var parameters: [HTTPParameter]? { nil }
     var headers: [HTTPHeader]? { nil }
     var body: Data? { nil }
+}
+
+private struct MockRequestWithNilBuild: Request {
+    var httpMethod: HTTPMethod { .GET }
+    var baseUrlString: String { "https://www.example.com" }
+    var parameters: [HTTPParameter]? { nil }
+    var headers: [HTTPHeader]? { nil }
+    var body: Data? { nil }
+    func build() -> URLRequest? { nil }
 }

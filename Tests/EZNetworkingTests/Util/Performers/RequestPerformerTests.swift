@@ -117,6 +117,21 @@ final class RequestPerformerTests: XCTestCase {
         wait(for: [exp], timeout: 0.1)
     }
     
+    func test_PerformWithCompletionHandler_WithRequestProtocol_WhenRequestCannotBuildURLRequest_Fails() {
+        let sut = RequestPerformer()
+        let exp = XCTestExpectation()
+        sut.performTask(request: MockRequestWithNilBuild(), decodeTo: Person.self) { result in
+            defer { exp.fulfill() }
+            switch result {
+            case .success:
+                XCTFail()
+            case .failure(let error):
+                XCTAssertEqual(error, NetworkingError.internalError(.noRequest))
+            }
+        }
+        wait(for: [exp], timeout: 0.1)
+    }
+    
     // MARK: Unit tests for perform using Completion Handler and Requesst Protocol without Decodable response
     
     func test_PerformWithCompletionHandler_WithoutDecodable_WithRequestProtocol_DoesPass() {
@@ -192,6 +207,21 @@ final class RequestPerformerTests: XCTestCase {
         }
         wait(for: [exp], timeout: 0.1)
     }
+    
+    func test_PerformWithCompletionHandler_WithoutDecodable_WithRequestProtocol_WhenRequestCannotBuildURLRequest_Fails() {
+        let sut = RequestPerformer()
+        let exp = XCTestExpectation()
+        sut.performTask(request: MockRequestWithNilBuild()) { result in
+            defer { exp.fulfill() }
+            switch result {
+            case .success:
+                XCTFail()
+            case .failure(let error):
+                XCTAssertEqual(error, NetworkingError.internalError(.noRequest))
+            }
+        }
+        wait(for: [exp], timeout: 0.1)
+    }
 }
 
 private func createRequestPerformer(
@@ -227,4 +257,13 @@ private struct MockRequest: Request {
     var parameters: [HTTPParameter]? { nil }
     var headers: [HTTPHeader]? { nil }
     var body: Data? { nil }
+}
+
+private struct MockRequestWithNilBuild: Request {
+    var httpMethod: HTTPMethod { .GET }
+    var baseUrlString: String { "https://www.example.com" }
+    var parameters: [HTTPParameter]? { nil }
+    var headers: [HTTPHeader]? { nil }
+    var body: Data? { nil }
+    func build() -> URLRequest? { nil }
 }
