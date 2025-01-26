@@ -3,56 +3,6 @@ import XCTest
 
 final class AsyncRequestPerformableTests: XCTestCase {
     
-    // MARK: Unit test for perform request with Async Await and return Decodable
-
-    func test_PerformAsync_Success() async throws {
-        let sut = createAsyncRequestPerformer()
-        let request = try XCTUnwrap(sampleUrlRequest, "Failed to create URLRequest")
-        let person = try await sut.perform(request: request, decodeTo: Person.self)
-        XCTAssertEqual(person.name, "John")
-        XCTAssertEqual(person.age, 30)
-    }
-    
-    func test_PerformAsync_WhenStatusCodeIsNot200_Fails() async throws {
-        let sut = createAsyncRequestPerformer(
-            urlSession: createMockURLSession(statusCode: 400)
-        )
-        let request = try XCTUnwrap(sampleUrlRequest, "Failed to create URLRequest")
-        await XCTAssertThrowsErrorAsync(try await sut.perform(request: request, decodeTo: Person.self)) { error in
-            XCTAssertEqual(error as! NetworkingError, NetworkingError.httpClientError(.badRequest))
-        }
-    }
-    
-    func test_PerformAsync_WhenThereIsError_Fails() async throws {
-        let sut = createAsyncRequestPerformer(
-            urlSession: createMockURLSession(error: NetworkingError.httpClientError(.badRequest))
-        )
-        let request = try XCTUnwrap(sampleUrlRequest, "Failed to create URLRequest")
-        await XCTAssertThrowsErrorAsync(try await sut.perform(request: request, decodeTo: Person.self)) { error in
-            XCTAssertEqual(error as! NetworkingError, NetworkingError.httpClientError(.badRequest))
-        }
-    }
-    
-    func test_PerformAsync_WhenThereIsValidatorThrowsHttpError_Fails() async throws {
-        let sut = createAsyncRequestPerformer(
-            urlResponseValidator: MockURLResponseValidator(throwError: NetworkingError.httpClientError(.forbidden))
-        )
-        let request = try XCTUnwrap(sampleUrlRequest, "Failed to create URLRequest")
-        await XCTAssertThrowsErrorAsync(try await sut.perform(request: request, decodeTo: Person.self)) { error in
-            XCTAssertEqual(error as! NetworkingError, NetworkingError.httpClientError(.forbidden))
-        }
-    }
-    
-    func test_PerformAsync_WhenThereIsValidatorThrowsURLError_Fails() async throws {
-        let sut = createAsyncRequestPerformer(
-            urlResponseValidator: MockURLResponseValidator(throwError: NetworkingError.urlError(URLError(.networkConnectionLost)))
-        )
-        let request = try XCTUnwrap(sampleUrlRequest, "Failed to create URLRequest")
-        await XCTAssertThrowsErrorAsync(try await sut.perform(request: request, decodeTo: Person.self)) { error in
-            XCTAssertEqual(error as! NetworkingError, NetworkingError.urlError(URLError(.networkConnectionLost)))
-        }
-    }
-    
     // MARK: Unit test for perform request with Async Await and Request protocol and return Decodable
 
     func test_PerformAsync_WithRequestProtocol_Success() async throws {
@@ -95,54 +45,6 @@ final class AsyncRequestPerformableTests: XCTestCase {
         )
         await XCTAssertThrowsErrorAsync(try await sut.perform(request: MockRequest(), decodeTo: Person.self)) { error in
             XCTAssertEqual(error as! NetworkingError, NetworkingError.urlError(URLError(.networkConnectionLost)))
-        }
-    }
-    
-    // MARK: Unit test for perform request with Async Await and return Decodable
-
-    func test_PerformAsync_WithoutResponse_Success() async throws {
-        let sut = createAsyncRequestPerformer()
-        let request = try XCTUnwrap(sampleUrlRequest, "Failed to create URLRequest")
-        await XCTAssertNoThrowAsync(try await sut.perform(request: request))
-    }
-    
-    func test_PerformAsync_WithoutResponse_WhenStatusCodeIsNot200_Fails() async throws {
-        let sut = createAsyncRequestPerformer(
-            urlSession: createMockURLSession(statusCode: 400)
-        )
-        let request = try XCTUnwrap(sampleUrlRequest, "Failed to create URLRequest")
-        await XCTAssertThrowsErrorAsync(try await sut.perform(request: request)) { error in
-            XCTAssertEqual(error as! NetworkingError, NetworkingError.httpClientError(.badRequest))
-        }
-    }
-    
-    func test_PerformAsync_WithoutResponse_WhenThereIsError_Fails() async throws {
-        let sut = createAsyncRequestPerformer(
-            urlSession: createMockURLSession(error: NetworkingError.httpClientError(.badRequest))
-        )
-        let request = try XCTUnwrap(sampleUrlRequest, "Failed to create URLRequest")
-        await XCTAssertThrowsErrorAsync(try await sut.perform(request: request)) { error in
-            XCTAssertEqual(error as! NetworkingError, NetworkingError.httpClientError(.badRequest))
-        }
-    }
-    
-    func test_PerformAsync_WithoutResponse_WhenThereIsValidatorThrowsHTTPError_Fails() async throws {
-        let sut = createAsyncRequestPerformer(
-            urlResponseValidator: MockURLResponseValidator(throwError: NetworkingError.httpClientError(.forbidden))
-        )
-        let request = try XCTUnwrap(sampleUrlRequest, "Failed to create URLRequest")
-        await XCTAssertThrowsErrorAsync(try await sut.perform(request: request)) { error in
-            XCTAssertEqual(error as! NetworkingError, NetworkingError.httpClientError(.forbidden))
-        }
-    }
-    
-    func test_PerformAsync_WithoutResponse_WhenThereIsValidatorThrowsURLError_Fails() async throws {
-        let sut = createAsyncRequestPerformer(
-            urlResponseValidator: MockURLResponseValidator(throwError: NetworkingError.urlError(URLError(.cannotConnectToHost)))
-        )
-        let request = try XCTUnwrap(sampleUrlRequest, "Failed to create URLRequest")
-        await XCTAssertThrowsErrorAsync(try await sut.perform(request: request)) { error in
-            XCTAssertEqual(error as! NetworkingError, NetworkingError.urlError(URLError(.cannotConnectToHost)))
         }
     }
     
