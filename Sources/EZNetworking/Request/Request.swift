@@ -4,7 +4,7 @@ public protocol Request {
     var httpMethod: HTTPMethod { get }
     var baseUrlString: String { get }
     var parameters: [HTTPParameter]? { get }
-    var header: [HTTPHeader]? { get }
+    var headers: [HTTPHeader]? { get }
     var body: Data? { get }
     var timeoutInterval: TimeInterval { get }
 }
@@ -19,7 +19,7 @@ internal extension Request {
             .build(httpMethod: httpMethod,
                    baseUrlString: baseUrlString,
                    parameters: parameters,
-                   headers: header,
+                   headers: headers,
                    body: body,
                    timeoutInterval: timeoutInterval
             )!

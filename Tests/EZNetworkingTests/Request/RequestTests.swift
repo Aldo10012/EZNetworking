@@ -31,7 +31,7 @@ final class RequestTests: XCTestCase {
     
     func testRequestHeaders() throws {
         let sut = MockRequest()
-        let headers = try XCTUnwrap(sut.header)
+        let headers = try XCTUnwrap(sut.headers)
         XCTAssertEqual(headers.count, 3)
 
         let firstHeader = try XCTUnwrap(headers[0])
@@ -78,7 +78,7 @@ private struct MockRequest: Request {
         ]
     }
     
-    var header: [HTTPHeader]? {
+    var headers: [HTTPHeader]? {
         [
             .accept(.json),
             .contentType(.json),
