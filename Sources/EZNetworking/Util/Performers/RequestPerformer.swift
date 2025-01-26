@@ -35,7 +35,11 @@ public struct RequestPerformer: RequestPerformable {
     }
     
     @discardableResult
-    private func getAndPerformTask<T: Decodable>(request: Request, decodeTo decodableObject: T.Type, completion: @escaping ((Result<T, NetworkingError>) -> Void)) -> URLSessionDataTask? {
+    private func getAndPerformTask<T: Decodable>(
+        request: Request,
+        decodeTo decodableObject: T.Type,
+        completion: @escaping ((Result<T, NetworkingError>) -> Void)
+    ) -> URLSessionDataTask? {
         guard let urlRequest = request.urlRequest else {
             completion(.failure(.internalError(.noRequest)))
             return nil
