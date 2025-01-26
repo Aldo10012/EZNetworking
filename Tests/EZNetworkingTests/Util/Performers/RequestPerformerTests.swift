@@ -26,7 +26,7 @@ final class RequestPerformerTests: XCTestCase {
         let sut = createRequestPerformer()
         
         let task = sut.performTask(request: MockRequest(), decodeTo: Person.self) { _ in }
-        task.cancel()
+        task?.cancel()
         let dataTask = try XCTUnwrap(task as? MockURLSessionDataTask)
         XCTAssertTrue(dataTask.didCancel)
     }
@@ -137,7 +137,7 @@ final class RequestPerformerTests: XCTestCase {
     func test_PerformWithCompletionHandler_WithoutDecodable_WithRequestProtocol_CanCancel() throws {
         let sut = createRequestPerformer()
         let task = sut.performTask(request: MockRequest()) { _ in }
-        task.cancel()
+        task?.cancel()
         let dataTask = try XCTUnwrap(task as? MockURLSessionDataTask)
         XCTAssertTrue(dataTask.didCancel)
     }

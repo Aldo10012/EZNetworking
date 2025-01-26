@@ -1,6 +1,6 @@
 import Foundation
 
-public struct HTTPParameter {
+public struct HTTPParameter: Equatable {
     let key: String
     let value: String
 

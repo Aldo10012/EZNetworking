@@ -1,6 +1,6 @@
 import Foundation
 
-public enum HTTPHeader {
+public enum HTTPHeader: Equatable {
     case accept(MediaType)
     case acceptCharset(String)
     case acceptEncoding(String)
@@ -61,7 +61,7 @@ public enum HTTPHeader {
     }
 }
 
-public enum MediaType {
+public enum MediaType: Equatable {
     case json
     case xml
     case formUrlEncoded
@@ -77,7 +77,7 @@ public enum MediaType {
     }
 }
 
-public enum AuthorizationType {
+public enum AuthorizationType: Equatable {
     case bearer(String)
     case custom(String)
 

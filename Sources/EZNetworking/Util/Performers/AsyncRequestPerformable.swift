@@ -23,7 +23,8 @@ public struct AsyncRequestPerformer: AsyncRequestPerformable {
     // MARK: perform request with Async Await and return Decodable using Request Protocol
     public func perform<T: Decodable>(request: Request, decodeTo decodableObject: T.Type) async throws -> T {
         do {
-            let (data, response) = try await urlSession.data(for: request.build(), delegate: nil)
+            let urlRequest = try getURLRequest(from: request)
+            let (data, response) = try await urlSession.data(for: urlRequest, delegate: nil)
             let validData = try urlResponseValidator.validate(data: data, urlResponse: response, error: nil)
             let result = try requestDecoder.decode(decodableObject.self, from: validData)
             return result
@@ -37,12 +38,20 @@ public struct AsyncRequestPerformer: AsyncRequestPerformable {
     // MARK: perform request with Async Await using Request protocol
     public func perform(request: Request) async throws {
         do {
-            let (data, response) = try await urlSession.data(for: request.build(), delegate: nil)
+            let urlRequest = try getURLRequest(from: request)
+            let (data, response) = try await urlSession.data(for: urlRequest, delegate: nil)
             _ = try urlResponseValidator.validate(data: data, urlResponse: response, error: nil)
         } catch let error as NetworkingError {
             throw error
         } catch {
             throw NetworkingError.internalError(.unknown)
         }
+    }
+    
+    private func getURLRequest(from request: Request) throws -> URLRequest {
+        guard let urlRequest = request.build() else {
+            throw NetworkingError.internalError(.noRequest)
+        }
+        return urlRequest
     }
 }

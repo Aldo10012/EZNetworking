@@ -6,7 +6,7 @@ public protocol RequestFactory {
                parameters: [HTTPParameter]?,
                headers: [HTTPHeader]?,
                body: Data?,
-               timeoutInterval: TimeInterval) -> URLRequest?
+               timeoutInterval: TimeInterval) -> Request
 }
 
 public class RequestFactoryImpl: RequestFactory {
@@ -25,24 +25,7 @@ public class RequestFactoryImpl: RequestFactory {
                headers: [HTTPHeader]? = nil,
                body: Data? = nil,
                timeoutInterval: TimeInterval = 60
-    ) -> URLRequest? {
-        guard let url = URL(string: baseUrlString) else {
-            return nil
-        }
-
-        var request = URLRequest(url: url)
-        request.httpMethod = httpMethod.rawValue
-        request.httpBody = body
-        request.timeoutInterval = timeoutInterval
-
-        if let parameters = parameters {
-            try? paramEncoder.encodeParameters(for: &request, with: parameters)
-        }
-
-        if let headers = headers {
-            headerEncoder.encodeHeaders(for: &request, with: headers)
-        }
-
-        return request
+    ) -> Request {
+        return EZRequest(httpMethod: httpMethod, baseUrlString: baseUrlString, parameters: parameters, headers: headers, body: body, timeoutInterval: timeoutInterval)
     }
 }

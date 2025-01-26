@@ -7,7 +7,7 @@ public protocol RequestBuilder {
     func setHeaders(_ headers: [HTTPHeader]) -> RequestBuilder
     func setBody(_ body: Data) -> RequestBuilder
     func setTimeoutInterval(_ timeoutInterval: TimeInterval) -> RequestBuilder
-    func build() -> URLRequest?
+    func build() -> Request?
 }
 
 public class RequestBuilderImpl: RequestBuilder {
@@ -57,28 +57,8 @@ public class RequestBuilderImpl: RequestBuilder {
         return self
     }
 
-    public func build() -> URLRequest? {
-        guard let baseUrlString = baseUrlString,
-              let httpMethod = httpMethod,
-              let url = URL(string: baseUrlString) else {
-            return nil
-        }
-
-        var request = URLRequest(url: url)
-        request.httpMethod = httpMethod.rawValue
-        request.httpBody = body
-        if let timeoutInterval = timeoutInterval {
-            request.timeoutInterval = timeoutInterval
-        }
-
-        if let parameters = parameters {
-            try? paramEncoder.encodeParameters(for: &request, with: parameters)
-        }
-
-        if let headers = headers {
-            headerEncoder.encodeHeaders(for: &request, with: headers)
-        }
-
-        return request
+    public func build() -> Request? {
+        guard let httpMethod, let baseUrlString else { return nil }
+        return EZRequest(httpMethod: httpMethod, baseUrlString: baseUrlString, parameters: parameters, headers: headers, body: body, timeoutInterval: timeoutInterval ?? 60)
     }
 }
