@@ -6,7 +6,7 @@ final class RequestPerformerTests: XCTestCase {
 
     // MARK: Unit tests for perform using Completion Handler with Request Protocol
 
-    func test_PerformWithCompletionHandler_WithRequestProtocol_DoesDecodePerson() {
+    func test_PerformWithCompletionHandler_DoesDecodePerson() {
         let sut = createRequestPerformer()
         let exp = XCTestExpectation()
         sut.performTask(request: MockRequest(), decodeTo: Person.self) { result in
@@ -22,7 +22,7 @@ final class RequestPerformerTests: XCTestCase {
         wait(for: [exp], timeout: 0.1)
     }
     
-    func test_PerformWithCompletionHandler_WithRequestProtocol_WhenStatusCode300_DoesDecodePerson() {
+    func test_PerformWithCompletionHandler_WhenStatusCode300_DoesDecodePerson() {
         let sut = createRequestPerformer(
             urlSession: createMockURLSession(statusCode: 300)
         )
@@ -40,7 +40,7 @@ final class RequestPerformerTests: XCTestCase {
         wait(for: [exp], timeout: 0.1)
     }
     
-    func test_PerformWithCompletionHandler_WithRequestProtocol_CanCancel() throws {
+    func test_PerformWithCompletionHandler_CanCancel() throws {
         let sut = createRequestPerformer()
         
         let task = sut.performTask(request: MockRequest(), decodeTo: Person.self) { _ in }
@@ -49,7 +49,7 @@ final class RequestPerformerTests: XCTestCase {
         XCTAssertTrue(dataTask.didCancel)
     }
     
-    func test_PerformWithCompletionHandler_WithRequestProtocol_WhenDataIsInvalid_Fails() {
+    func test_PerformWithCompletionHandler_WhenDataIsInvalid_Fails() {
         let sut = createRequestPerformer(
             urlSession: createMockURLSession(data: invalidMockPersonJsonData)
         )
@@ -67,7 +67,7 @@ final class RequestPerformerTests: XCTestCase {
         wait(for: [exp], timeout: 0.1)
     }
     
-    func test_PerformWithCompletionHandler_WithRequestProtocol_WhenDataIsNil_Fails() {
+    func test_PerformWithCompletionHandler_WhenDataIsNil_Fails() {
         let sut = createRequestPerformer(
             urlSession: createMockURLSession(data: nil)
         )
@@ -84,7 +84,7 @@ final class RequestPerformerTests: XCTestCase {
         wait(for: [exp], timeout: 0.1)
     }
     
-    func test_PerformWithCompletionHandler_WithRequestProtocol_WhenStatusCodeIsNot200_Data() {
+    func test_PerformWithCompletionHandler_WhenStatusCodeIsNot200_Data() {
         let sut = createRequestPerformer(
             urlSession: createMockURLSession(statusCode: 400)
         )
@@ -101,7 +101,7 @@ final class RequestPerformerTests: XCTestCase {
         wait(for: [exp], timeout: 0.1)
     }
     
-    func test_PerformWithCompletionHandler_WithRequestProtocol_WhenURLSessionHasError_Data() {
+    func test_PerformWithCompletionHandler_WhenURLSessionHasError_Data() {
         let sut = createRequestPerformer(
             urlSession: createMockURLSession(error: NetworkingError.internalError(.unknown))
         )
@@ -118,7 +118,7 @@ final class RequestPerformerTests: XCTestCase {
         wait(for: [exp], timeout: 0.1)
     }
     
-    func test_PerformWithCompletionHandler_WithRequestProtocol_WhenResponseValidatorThrowsError_fails() {
+    func test_PerformWithCompletionHandler_WhenResponseValidatorThrowsError_fails() {
         let sut = RequestPerformer(
             urlResponseValidator: MockURLResponseValidator(throwError: NetworkingError.internalError(.unknown))
         )
@@ -135,7 +135,7 @@ final class RequestPerformerTests: XCTestCase {
         wait(for: [exp], timeout: 0.1)
     }
     
-    func test_PerformWithCompletionHandler_WithRequestProtocol_WhenRequestCannotBuildURLRequest_Fails() {
+    func test_PerformWithCompletionHandler_WhenRequestCannotBuildURLRequest_Fails() {
         let sut = RequestPerformer()
         let exp = XCTestExpectation()
         sut.performTask(request: MockRequestWithNilBuild(), decodeTo: Person.self) { result in
@@ -152,7 +152,7 @@ final class RequestPerformerTests: XCTestCase {
     
     // MARK: Unit tests for perform using Completion Handler and Requesst Protocol without Decodable response
     
-    func test_PerformWithCompletionHandler_WithoutDecodable_WithRequestProtocol_DoesPass() {
+    func test_PerformWithCompletionHandler_WithoutDecodable_DoesPass() {
         let sut = createRequestPerformer()
         let exp = XCTestExpectation()
         sut.performTask(request: MockRequest()) { result in
@@ -167,7 +167,7 @@ final class RequestPerformerTests: XCTestCase {
         wait(for: [exp], timeout: 0.1)
     }
     
-    func test_PerformWithCompletionHandler_WithoutDecodable_WithRequestProtocol_WhenStatusCode300_DoesPass() {
+    func test_PerformWithCompletionHandler_WithoutDecodable_WhenStatusCode300_DoesPass() {
         let sut = createRequestPerformer(
             urlSession: createMockURLSession(statusCode: 300)
         )
@@ -184,7 +184,7 @@ final class RequestPerformerTests: XCTestCase {
         wait(for: [exp], timeout: 0.1)
     }
     
-    func test_PerformWithCompletionHandler_WithoutDecodable_WithRequestProtocol_CanCancel() throws {
+    func test_PerformWithCompletionHandler_WithoutDecodable_CanCancel() throws {
         let sut = createRequestPerformer()
         let task = sut.performTask(request: MockRequest()) { _ in }
         task?.cancel()
@@ -192,7 +192,7 @@ final class RequestPerformerTests: XCTestCase {
         XCTAssertTrue(dataTask.didCancel)
     }
     
-    func test_PerformWithCompletionHandler_WithoutDecodable_WithRequestProtocol_WhenDataIsNil_Fails() {
+    func test_PerformWithCompletionHandler_WithoutDecodable_WhenDataIsNil_Fails() {
         let sut = createRequestPerformer(
             urlSession: createMockURLSession(data: nil)
         )
@@ -209,7 +209,7 @@ final class RequestPerformerTests: XCTestCase {
         wait(for: [exp], timeout: 0.1)
     }
     
-    func test_PerformWithCompletionHandler_WithoutDecodable_WithRequestProtocol_WhenStatusCodeIsNot200_Fails() {
+    func test_PerformWithCompletionHandler_WithoutDecodable_WhenStatusCodeIsNot200_Fails() {
         let sut = createRequestPerformer(
             urlSession: createMockURLSession(statusCode: 400)
         )
@@ -226,7 +226,7 @@ final class RequestPerformerTests: XCTestCase {
         wait(for: [exp], timeout: 0.1)
     }
     
-    func test_PerformWithCompletionHandler_WithoutDecodable_WithRequestProtocol_WhenResponseValidatorThrowsError_Fails() {
+    func test_PerformWithCompletionHandler_WithoutDecodable_WhenResponseValidatorThrowsError_Fails() {
         let sut = RequestPerformer(
             urlResponseValidator: MockURLResponseValidator(throwError: NetworkingError.internalError(.unknown))
         )
@@ -243,7 +243,7 @@ final class RequestPerformerTests: XCTestCase {
         wait(for: [exp], timeout: 0.1)
     }
     
-    func test_PerformWithCompletionHandler_WithoutDecodable_WithRequestProtocol_WhenRequestCannotBuildURLRequest_Fails() {
+    func test_PerformWithCompletionHandler_WithoutDecodable_WhenRequestCannotBuildURLRequest_Fails() {
         let sut = RequestPerformer()
         let exp = XCTestExpectation()
         sut.performTask(request: MockRequestWithNilBuild()) { result in
