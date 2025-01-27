@@ -22,7 +22,7 @@ public struct AsyncRequestPerformer: AsyncRequestPerformable {
     
     // MARK: perform request with Async Await and return Decodable using Request Protocol
     public func perform<T: Decodable>(request: Request, decodeTo decodableObject: T.Type) async throws -> T {
-        try await performRequest(request: request, decodeTo: decodableObject)
+        return try await performRequest(request: request, decodeTo: decodableObject)
     }
     
     // MARK: perform request with Async Await using Request protocol
