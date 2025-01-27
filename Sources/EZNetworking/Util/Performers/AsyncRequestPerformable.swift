@@ -35,15 +35,9 @@ public struct AsyncRequestPerformer: AsyncRequestPerformable {
         do {
             let urlRequest = try getURLRequest(from: request)
             let (data, response) = try await urlSession.data(for: urlRequest, delegate: nil)
-            let (validData, validStatus) = try urlResponseValidator.validate(data: data, urlResponse: response, error: nil)
-            
-            switch validStatus {
-            case .success(_):
-                return try decode(data: validData, decodeTo: decodableObject)
-            case .redirectionMessage(_):
-                // TODO: properly handle 3xx status codes
-                return try decode(data: validData, decodeTo: decodableObject)
-            }
+            let (validData, _) = try urlResponseValidator.validate(data: data, urlResponse: response, error: nil)
+            let result = try requestDecoder.decode(decodableObject, from: validData)
+            return result
         } catch let error as NetworkingError {
             throw error
         } catch {
@@ -56,10 +50,5 @@ public struct AsyncRequestPerformer: AsyncRequestPerformable {
             throw NetworkingError.internalError(.noRequest)
         }
         return urlRequest
-    }
-    
-    private func decode<T: Decodable>(data: Data, decodeTo decodableObject: T.Type) throws -> T {
-        let result = try requestDecoder.decode(decodableObject, from: data)
-        return result
     }
 }

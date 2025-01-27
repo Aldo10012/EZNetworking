@@ -46,15 +46,9 @@ public struct RequestPerformer: RequestPerformable {
         }
         let task = urlSession.dataTask(with: urlRequest) { data, urlResponse, error in
             do {
-                let (validData, validStatus) = try urlResponseValidator.validate(data: data, urlResponse: urlResponse, error: error)
-                
-                switch validStatus {
-                case .success(_):
-                    try decode(data: validData, deocdeInto: decodableObject, completion: completion)
-                case .redirectionMessage(_):
-                    // TODO: properly handle 3xx status codes
-                    try decode(data: validData, deocdeInto: decodableObject, completion: completion)
-                }
+                let (validData, _) = try urlResponseValidator.validate(data: data, urlResponse: urlResponse, error: error)
+                let result = try requestDecoder.decode(decodableObject, from: validData)
+                completion(.success(result))
             } catch let httpError as NetworkingError {
                 completion(.failure(httpError))
                 return
@@ -65,12 +59,5 @@ public struct RequestPerformer: RequestPerformable {
         }
         task.resume()
         return task
-    }
-    
-    private func decode<T: Decodable>(data: Data,
-                                      deocdeInto decodableObject: T.Type,
-                                      completion: @escaping ((Result<T, NetworkingError>) -> Void)) throws {
-        let result = try requestDecoder.decode(decodableObject, from: data)
-        completion(.success(result))
     }
 }
