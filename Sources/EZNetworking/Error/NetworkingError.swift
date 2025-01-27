@@ -2,15 +2,15 @@ import Foundation
 
 public enum NetworkingError: Error {
     // Internal errors
-    case internalError(InternalError)                        /// any internal error
+    case internalError(InternalError)               /// any internal error
 
     // HTTP Status Code errors
     case httpRedirectError(HTTPRedirectionStatus)   /// 3xx status code errors
     case httpClientError(HTTPClientErrorStatus)     /// 4xx status code errors
-    case httpServerError(HTTPServerErrorStatus)          /// 5xx status code errors
+    case httpServerError(HTTPServerErrorStatus)     /// 5xx status code errors
 
     // URL Errors
-    case urlError(URLError)                                  /// any URL error
+    case urlError(URLError)                         /// any URL error
 }
 
 extension NetworkingError: Equatable {

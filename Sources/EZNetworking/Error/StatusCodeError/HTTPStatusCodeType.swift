@@ -4,7 +4,7 @@ public enum HTTPStatusCodeType: Equatable {
     case success(HTTPSuccessStatus)                  // 2xx success
     case redirectionMessage(HTTPRedirectionStatus)   // 3xx redirect message
     case clientSideError(HTTPClientErrorStatus)      // 4xx client errors
-    case serverSideError(HTTPServerErrorStatus)           // 5xx server errors
+    case serverSideError(HTTPServerErrorStatus)      // 5xx server errors
     case unknown
     
     public static func evaluate(from statusCode: Int) -> HTTPStatusCodeType {
