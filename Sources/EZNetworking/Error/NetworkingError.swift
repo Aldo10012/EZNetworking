@@ -2,24 +2,20 @@ import Foundation
 
 public enum NetworkingError: Error {
     // Internal errors
-    case internalError(InternalError)                        /// any internal error
+    case internalError(InternalError)               /// any internal error
 
     // HTTP Status Code errors
-    case httpRedirectError(HTTPNetworkingRedirectionError)   /// 3xx status code errors
-    case httpClientError(HTTPNetworkingClientError)          /// 4xx status code errors
-    case httpServerError(HTTPNetworkingServerError)          /// 5xx status code errors
+    case httpClientError(HTTPClientErrorStatus)     /// 4xx status code errors
+    case httpServerError(HTTPServerErrorStatus)     /// 5xx status code errors
 
     // URL Errors
-    case urlError(URLError)                                  /// any URL error
+    case urlError(URLError)                         /// any URL error
 }
 
 extension NetworkingError: Equatable {
     public static func ==(lhs: NetworkingError, rhs: NetworkingError) -> Bool {
         switch (lhs, rhs) {
         case let (.internalError(error1), .internalError(error2)):
-            return error1 == error2
-            
-        case let (.httpRedirectError(error1), .httpRedirectError(error2)):
             return error1 == error2
         
         case let (.httpClientError(error1), .httpClientError(error2)):

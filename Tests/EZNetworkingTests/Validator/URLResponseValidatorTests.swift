@@ -10,6 +10,10 @@ final class URLResponseValidatorTests: XCTestCase {
     func testValidateOKResponse() throws {
         XCTAssertNoThrow(try sut.validate(data: Data(), urlResponse: createUrlResponse(statusCode: 200), error: nil), "Unexpectedly threw error")
     }
+    
+    func testValidate300Status() throws {
+        XCTAssertNoThrow(try sut.validate(data: Data(), urlResponse: createUrlResponse(statusCode: 300), error: nil), "Unexpectedly threw error")
+    }
 
     func testValidateErrorResponse() throws {
         XCTAssertThrowsError(try sut.validate(data: Data(), urlResponse: createUrlResponse(statusCode: 404), error: nil)) { error in

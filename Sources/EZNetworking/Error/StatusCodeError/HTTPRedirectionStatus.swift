@@ -1,6 +1,6 @@
 import Foundation
 
-public enum HTTPNetworkingRedirectionError: Int, Error {
+public enum HTTPRedirectionStatus: Int, Error {
     case multipleChoices = 300
     case movedPermanently = 301
     case found = 302
@@ -12,7 +12,7 @@ public enum HTTPNetworkingRedirectionError: Int, Error {
     case unknown = -1
 
     public init(statusCode: Int) {
-        if let error = HTTPNetworkingRedirectionError(rawValue: statusCode) {
+        if let error = HTTPRedirectionStatus(rawValue: statusCode) {
             self = error
         } else {
             self = .unknown

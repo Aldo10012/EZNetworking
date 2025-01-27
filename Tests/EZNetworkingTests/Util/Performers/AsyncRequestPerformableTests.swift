@@ -12,6 +12,15 @@ final class AsyncRequestPerformableTests: XCTestCase {
         XCTAssertEqual(person.age, 30)
     }
     
+    func test_PerformAsync_WithRequestProtocol_StatusCode300_Success() async throws {
+        let sut = createAsyncRequestPerformer(
+            urlSession: createMockURLSession(statusCode: 300)
+        )
+        let person = try await sut.perform(request: MockRequest(), decodeTo: Person.self)
+        XCTAssertEqual(person.name, "John")
+        XCTAssertEqual(person.age, 30)
+    }
+    
     func test_PerformAsync_WithRequestProtocol_WhenStatusCodeIsNot200_Fails() async throws {
         let sut = createAsyncRequestPerformer(
             urlSession: createMockURLSession(statusCode: 400)
@@ -59,6 +68,13 @@ final class AsyncRequestPerformableTests: XCTestCase {
 
     func test_PerformAsync_WithRequestProtocol_WithoutResponse_Success() async throws {
         let sut = createAsyncRequestPerformer()
+        await XCTAssertNoThrowAsync(try await sut.perform(request: MockRequest()))
+    }
+    
+    func test_PerformAsync_WithRequestProtocol_WithoutResponse_WhenStatusCode300_Success() async throws {
+        let sut = createAsyncRequestPerformer(
+            urlSession: createMockURLSession(statusCode: 300)
+        )
         await XCTAssertNoThrowAsync(try await sut.perform(request: MockRequest()))
     }
     

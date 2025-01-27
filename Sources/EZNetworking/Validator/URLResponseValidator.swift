@@ -1,14 +1,16 @@
 import Foundation
 
+public typealias DataAndStatus = (data: Data, status: HTTPStatusCodeType.AcceptableStatus)
+
 public protocol URLResponseValidator {
-    func validate(data: Data?, urlResponse: URLResponse?, error: Error?) throws -> Data
+    func validate(data: Data?, urlResponse: URLResponse?, error: Error?) throws -> DataAndStatus
     func validateDownloadTask(url: URL?, urlResponse: URLResponse?, error: Error?) throws -> URL
 }
 
 public struct URLResponseValidatorImpl: URLResponseValidator {
     public init() {}
 
-    public func validate(data: Data?, urlResponse: URLResponse?, error: Error?) throws -> Data {
+    public func validate(data: Data?, urlResponse: URLResponse?, error: Error?) throws -> DataAndStatus {
         if let error = error {
             if let urlError = error as? URLError {
                 throw NetworkingError.urlError(urlError)
@@ -24,8 +26,8 @@ public struct URLResponseValidatorImpl: URLResponseValidator {
         guard let httpURLResponse = urlResponse as? HTTPURLResponse else {
             throw NetworkingError.internalError(.noHTTPURLResponse)
         }
-        try validateStatusCode(httpURLResponse.statusCode)
-        return data
+        let status = try validateStatusCodeAccepability(httpURLResponse.statusCode)
+        return (data: data, status: status)
     }
 
     public func validateDownloadTask(url: URL?, urlResponse: URLResponse?, error: Error?) throws -> URL {
@@ -44,16 +46,18 @@ public struct URLResponseValidatorImpl: URLResponseValidator {
         guard let httpURLResponse = urlResponse as? HTTPURLResponse else {
             throw NetworkingError.internalError(.noHTTPURLResponse)
         }
-        try validateStatusCode(httpURLResponse.statusCode)
+        _ = try validateStatusCodeAccepability(httpURLResponse.statusCode)
         return url
     }
     
-    private func validateStatusCode(_ statusCode: Int) throws {
-        switch HTTPNetworkingStatusCodeErrorType.evaluate(from: statusCode) {
-        case .ok:
-            return
-        case .redirectionMessageError(let error):
-            throw NetworkingError.httpRedirectError(error)
+    private func validateStatusCodeAccepability(_ statusCode: Int) throws -> HTTPStatusCodeType.AcceptableStatus {
+        let statusCodeType = HTTPStatusCodeType.evaluate(from: statusCode)
+        
+        switch statusCodeType {
+        case .success(let status):
+            return HTTPStatusCodeType.AcceptableStatus.success(status)
+        case .redirectionMessage(let status):
+            return HTTPStatusCodeType.AcceptableStatus.redirectionMessage(status)
         case .clientSideError(let error):
             throw NetworkingError.httpClientError(error)
         case .serverSideError(let error):

@@ -22,6 +22,24 @@ final class RequestPerformerTests: XCTestCase {
         wait(for: [exp], timeout: 0.1)
     }
     
+    func test_PerformWithCompletionHandler_WithRequestProtocol_WhenStatusCode300_DoesDecodePerson() {
+        let sut = createRequestPerformer(
+            urlSession: createMockURLSession(statusCode: 300)
+        )
+        let exp = XCTestExpectation()
+        sut.performTask(request: MockRequest(), decodeTo: Person.self) { result in
+            defer { exp.fulfill() }
+            switch result {
+            case .success(let person):
+                XCTAssertEqual(person.name, "John")
+                XCTAssertEqual(person.age, 30)
+            case .failure:
+                XCTFail()
+            }
+        }
+        wait(for: [exp], timeout: 0.1)
+    }
+    
     func test_PerformWithCompletionHandler_WithRequestProtocol_CanCancel() throws {
         let sut = createRequestPerformer()
         
@@ -136,6 +154,23 @@ final class RequestPerformerTests: XCTestCase {
     
     func test_PerformWithCompletionHandler_WithoutDecodable_WithRequestProtocol_DoesPass() {
         let sut = createRequestPerformer()
+        let exp = XCTestExpectation()
+        sut.performTask(request: MockRequest()) { result in
+            defer { exp.fulfill() }
+            switch result {
+            case .success:
+                XCTAssertTrue(true)
+            case .failure:
+                XCTFail()
+            }
+        }
+        wait(for: [exp], timeout: 0.1)
+    }
+    
+    func test_PerformWithCompletionHandler_WithoutDecodable_WithRequestProtocol_WhenStatusCode300_DoesPass() {
+        let sut = createRequestPerformer(
+            urlSession: createMockURLSession(statusCode: 300)
+        )
         let exp = XCTestExpectation()
         sut.performTask(request: MockRequest()) { result in
             defer { exp.fulfill() }
