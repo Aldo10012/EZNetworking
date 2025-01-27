@@ -4,7 +4,43 @@ import XCTest
 final class HTTPStatusCodeTypeTests: XCTestCase {
     
     func testStatusCode200IsOk() {
-        XCTAssertEqual(HTTPStatusCodeType.evaluate(from: 200), .ok)
+        XCTAssertEqual(HTTPStatusCodeType.evaluate(from: 200), .success(.ok))
+    }
+    
+    func testStatusCode201IsCreated() {
+        XCTAssertEqual(HTTPStatusCodeType.evaluate(from: 201), .success(.created))
+    }
+    
+    func testStatusCode202IsAccepted() {
+        XCTAssertEqual(HTTPStatusCodeType.evaluate(from: 202), .success(.accepted))
+    }
+    
+    func testStatusCode203IsNonAuthoritativeInformation() {
+        XCTAssertEqual(HTTPStatusCodeType.evaluate(from: 203), .success(.nonAuthoritativeInformation))
+    }
+    
+    func testStatusCode204IsNoContent() {
+        XCTAssertEqual(HTTPStatusCodeType.evaluate(from: 204), .success(.noContent))
+    }
+    
+    func testStatusCode205IsResetContent() {
+        XCTAssertEqual(HTTPStatusCodeType.evaluate(from: 205), .success(.resetContent))
+    }
+    
+    func testStatusCode206IsPartialContent() {
+        XCTAssertEqual(HTTPStatusCodeType.evaluate(from: 206), .success(.partialContent))
+    }
+    
+    func testStatusCode207IsMultiStatus() {
+        XCTAssertEqual(HTTPStatusCodeType.evaluate(from: 207), .success(.multiStatus))
+    }
+    
+    func testStatusCode208IsAlreadyReported() {
+        XCTAssertEqual(HTTPStatusCodeType.evaluate(from: 208), .success(.alreadyReported))
+    }
+    
+    func testStatusCode226IsiMUsed() {
+        XCTAssertEqual(HTTPStatusCodeType.evaluate(from: 226), .success(.iMUsed))
     }
     
     func testStatusCode300IsMultipleChoices() {

@@ -50,7 +50,7 @@ public struct URLResponseValidatorImpl: URLResponseValidator {
     
     private func validateStatusCode(_ statusCode: Int) throws {
         switch HTTPStatusCodeType.evaluate(from: statusCode) {
-        case .ok:
+        case .success:
             return
         case .redirectionMessage(let error):
             throw NetworkingError.httpRedirectError(error)
