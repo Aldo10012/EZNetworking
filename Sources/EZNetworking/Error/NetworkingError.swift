@@ -6,7 +6,7 @@ public enum NetworkingError: Error {
 
     // HTTP Status Code errors
     case httpRedirectError(HTTPRedirectionStatus)   /// 3xx status code errors
-    case httpClientError(HTTPClientStatus)          /// 4xx status code errors
+    case httpClientError(HTTPClientErrorStatus)     /// 4xx status code errors
     case httpServerError(HTTPServerStatus)          /// 5xx status code errors
 
     // URL Errors
