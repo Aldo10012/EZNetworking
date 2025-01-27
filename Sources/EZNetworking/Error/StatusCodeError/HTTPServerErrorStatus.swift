@@ -1,6 +1,6 @@
 import Foundation
 
-public enum HTTPServerStatus: Int, Error {
+public enum HTTPServerErrorStatus: Int, Error {
     case internalServerError = 500
     case notImplemented = 501
     case badGateway = 502
@@ -15,7 +15,7 @@ public enum HTTPServerStatus: Int, Error {
     case unknown = -1
 
     public init(statusCode: Int) {
-        if let error = HTTPServerStatus(rawValue: statusCode) {
+        if let error = HTTPServerErrorStatus(rawValue: statusCode) {
             self = error
         } else {
             self = .unknown
