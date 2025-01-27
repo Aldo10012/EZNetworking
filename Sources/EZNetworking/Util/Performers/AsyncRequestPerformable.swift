@@ -52,5 +52,3 @@ public struct AsyncRequestPerformer: AsyncRequestPerformable {
         return urlRequest
     }
 }
-
-public struct EmptyResponse: Decodable { }
