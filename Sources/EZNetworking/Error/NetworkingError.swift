@@ -5,7 +5,6 @@ public enum NetworkingError: Error {
     case internalError(InternalError)               /// any internal error
 
     // HTTP Status Code errors
-    case httpRedirectError(HTTPRedirectionStatus)   /// 3xx status code errors
     case httpClientError(HTTPClientErrorStatus)     /// 4xx status code errors
     case httpServerError(HTTPServerErrorStatus)     /// 5xx status code errors
 
@@ -17,9 +16,6 @@ extension NetworkingError: Equatable {
     public static func ==(lhs: NetworkingError, rhs: NetworkingError) -> Bool {
         switch (lhs, rhs) {
         case let (.internalError(error1), .internalError(error2)):
-            return error1 == error2
-            
-        case let (.httpRedirectError(error1), .httpRedirectError(error2)):
             return error1 == error2
         
         case let (.httpClientError(error1), .httpClientError(error2)):
