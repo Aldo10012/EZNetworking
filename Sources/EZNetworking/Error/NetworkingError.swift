@@ -5,9 +5,9 @@ public enum NetworkingError: Error {
     case internalError(InternalError)                        /// any internal error
 
     // HTTP Status Code errors
-    case httpRedirectError(HTTPNetworkingRedirectionError)   /// 3xx status code errors
-    case httpClientError(HTTPNetworkingClientError)          /// 4xx status code errors
-    case httpServerError(HTTPNetworkingServerError)          /// 5xx status code errors
+    case httpRedirectError(HTTPRedirectionStatus)   /// 3xx status code errors
+    case httpClientError(HTTPClientStatus)          /// 4xx status code errors
+    case httpServerError(HTTPServerStatus)          /// 5xx status code errors
 
     // URL Errors
     case urlError(URLError)                                  /// any URL error

@@ -1,6 +1,6 @@
 import Foundation
 
-public enum HTTPNetworkingClientError: Int, Error {
+public enum HTTPClientStatus: Int, Error {
     case badRequest = 400
     case unauthorized = 401
     case paymentRequired = 402
@@ -33,7 +33,7 @@ public enum HTTPNetworkingClientError: Int, Error {
     case unknown = -1
 
     public init(statusCode: Int) {
-        if let error = HTTPNetworkingClientError(rawValue: statusCode) {
+        if let error = HTTPClientStatus(rawValue: statusCode) {
             self = error
         } else {
             self = .unknown

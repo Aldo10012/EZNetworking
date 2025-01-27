@@ -49,10 +49,10 @@ public struct URLResponseValidatorImpl: URLResponseValidator {
     }
     
     private func validateStatusCode(_ statusCode: Int) throws {
-        switch HTTPNetworkingStatusCodeErrorType.evaluate(from: statusCode) {
+        switch HTTPStatusCodeType.evaluate(from: statusCode) {
         case .ok:
             return
-        case .redirectionMessageError(let error):
+        case .redirectionMessage(let error):
             throw NetworkingError.httpRedirectError(error)
         case .clientSideError(let error):
             throw NetworkingError.httpClientError(error)
