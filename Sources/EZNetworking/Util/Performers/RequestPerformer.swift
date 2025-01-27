@@ -50,12 +50,10 @@ public struct RequestPerformer: RequestPerformable {
                 
                 switch validStatus {
                 case .success(_):
-                    let result = try requestDecoder.decode(decodableObject.self, from: validData)
-                    completion(.success(result))
+                    try decode(data: validData, deocdeInto: decodableObject, completion: completion)
                 case .redirectionMessage(_):
                     // TODO: properly handle 3xx status codes
-                    let result = try requestDecoder.decode(decodableObject.self, from: validData)
-                    completion(.success(result))
+                    try decode(data: validData, deocdeInto: decodableObject, completion: completion)
                 }
             } catch let httpError as NetworkingError {
                 completion(.failure(httpError))
@@ -67,5 +65,12 @@ public struct RequestPerformer: RequestPerformable {
         }
         task.resume()
         return task
+    }
+    
+    private func decode<T: Decodable>(data: Data,
+                                      deocdeInto decodableObject: T.Type,
+                                      completion: @escaping ((Result<T, NetworkingError>) -> Void)) throws {
+        let result = try requestDecoder.decode(decodableObject, from: data)
+        completion(.success(result))
     }
 }

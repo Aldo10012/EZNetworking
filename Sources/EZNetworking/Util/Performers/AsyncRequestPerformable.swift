@@ -39,12 +39,10 @@ public struct AsyncRequestPerformer: AsyncRequestPerformable {
             
             switch validStatus {
             case .success(_):
-                let result = try requestDecoder.decode(decodableObject.self, from: validData)
-                return result
+                return try decode(data: validData, decodeTo: decodableObject)
             case .redirectionMessage(_):
                 // TODO: properly handle 3xx status codes
-                let result = try requestDecoder.decode(decodableObject.self, from: validData)
-                return result
+                return try decode(data: validData, decodeTo: decodableObject)
             }
         } catch let error as NetworkingError {
             throw error
@@ -58,5 +56,10 @@ public struct AsyncRequestPerformer: AsyncRequestPerformable {
             throw NetworkingError.internalError(.noRequest)
         }
         return urlRequest
+    }
+    
+    private func decode<T: Decodable>(data: Data, decodeTo decodableObject: T.Type) throws -> T {
+        let result = try requestDecoder.decode(decodableObject, from: data)
+        return result
     }
 }
