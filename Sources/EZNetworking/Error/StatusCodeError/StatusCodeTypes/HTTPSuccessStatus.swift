@@ -20,4 +20,7 @@ public enum HTTPSuccessStatus: Int, Error {
             self = .unknown
         }
     }
+    
+    public var description: String { return "\(self)" }
+    public var statusCode: Int { return self.rawValue }
 }

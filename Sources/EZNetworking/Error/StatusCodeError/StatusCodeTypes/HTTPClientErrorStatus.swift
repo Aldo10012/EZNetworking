@@ -39,4 +39,7 @@ public enum HTTPClientErrorStatus: Int, Error {
             self = .unknown
         }
     }
+    
+    public var description: String { return "\(self)" }
+    public var statusCode: Int { return self.rawValue }
 }
