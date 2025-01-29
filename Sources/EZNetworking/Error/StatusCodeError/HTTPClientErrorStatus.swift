@@ -1,6 +1,6 @@
 import Foundation
 
-public enum HTTPClientErrorStatus: Int, Error {
+public enum HTTPClientErrorStatus: Int, Error, HTTPStatus {
     case badRequest = 400
     case unauthorized = 401
     case paymentRequired = 402
@@ -39,4 +39,7 @@ public enum HTTPClientErrorStatus: Int, Error {
             self = .unknown
         }
     }
+    
+    public var description: String { return "\(self)" }
+    public var statusCode: Int { return self.rawValue }
 }
