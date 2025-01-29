@@ -30,11 +30,10 @@ final class RequestPerformerTests: XCTestCase {
         sut.performTask(request: MockRequest(), decodeTo: Person.self) { result in
             defer { exp.fulfill() }
             switch result {
-            case .success(let person):
-                XCTAssertEqual(person.name, "John")
-                XCTAssertEqual(person.age, 30)
-            case .failure:
+            case .success:
                 XCTFail()
+            case .failure(let error):
+                XCTAssertEqual(error, NetworkingError.redirect(.multipleChoices))
             }
         }
         wait(for: [exp], timeout: 0.1)
@@ -176,9 +175,9 @@ final class RequestPerformerTests: XCTestCase {
             defer { exp.fulfill() }
             switch result {
             case .success:
-                XCTAssertTrue(true)
-            case .failure:
                 XCTFail()
+            case .failure(let error):
+                XCTAssertEqual(error, NetworkingError.redirect(.multipleChoices))
             }
         }
         wait(for: [exp], timeout: 0.1)

@@ -54,16 +54,19 @@ public struct URLResponseValidatorImpl: URLResponseValidator {
         let statusCodeType = HTTPStatusCodeType.evaluate(from: statusCode)
         
         switch statusCodeType {
+        case .information(let status):
+            throw NetworkingError.information(status)
         case .success(let status):
             return HTTPStatusCodeType.AcceptableStatus.success(status)
         case .redirectionMessage(let status):
-            return HTTPStatusCodeType.AcceptableStatus.redirectionMessage(status)
+            throw NetworkingError.redirect(status)
         case .clientSideError(let error):
             throw NetworkingError.httpClientError(error)
         case .serverSideError(let error):
             throw NetworkingError.httpServerError(error)
         case .unknown:
             throw NetworkingError.internalError(.unknown)
+        
         }
     }
 }

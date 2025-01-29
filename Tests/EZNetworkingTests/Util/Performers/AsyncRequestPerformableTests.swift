@@ -16,9 +16,9 @@ final class AsyncRequestPerformableTests: XCTestCase {
         let sut = createAsyncRequestPerformer(
             urlSession: createMockURLSession(statusCode: 300)
         )
-        let person = try await sut.perform(request: MockRequest(), decodeTo: Person.self)
-        XCTAssertEqual(person.name, "John")
-        XCTAssertEqual(person.age, 30)
+        await XCTAssertThrowsErrorAsync(try await sut.perform(request: MockRequest(), decodeTo: Person.self)) { error in
+            XCTAssertEqual(error as! NetworkingError, NetworkingError.redirect(.multipleChoices))
+        }
     }
     
     func test_PerformAsync_WhenStatusCodeIsNot200_Fails() async throws {
@@ -75,8 +75,9 @@ final class AsyncRequestPerformableTests: XCTestCase {
         let sut = createAsyncRequestPerformer(
             urlSession: createMockURLSession(statusCode: 300)
         )
-        await XCTAssertNoThrowAsync(try await sut.perform(request: MockRequest()))
-    }
+        await XCTAssertThrowsErrorAsync(try await sut.perform(request: MockRequest())) { error in
+            XCTAssertEqual(error as! NetworkingError, NetworkingError.redirect(.multipleChoices))
+        }    }
     
     func test_PerformAsync_WithoutResponse_WhenStatusCodeIsNot200_Fails() async throws {
         let sut = createAsyncRequestPerformer(

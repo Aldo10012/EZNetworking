@@ -3,6 +3,18 @@ import XCTest
 
 final class HTTPStatusCodeTypeTests: XCTestCase {
     
+    func testStatusCode100Is() {
+        XCTAssertEqual(HTTPStatusCodeType.evaluate(from: 100), .information(.continueStatus))
+    }
+    
+    func testStatusCode101Is() {
+        XCTAssertEqual(HTTPStatusCodeType.evaluate(from: 101), .information(.switchingProtocols))
+    }
+    
+    func testStatusCode102Is() {
+        XCTAssertEqual(HTTPStatusCodeType.evaluate(from: 102), .information(.processing))
+    }
+    
     func testStatusCode200IsOk() {
         XCTAssertEqual(HTTPStatusCodeType.evaluate(from: 200), .success(.ok))
     }
