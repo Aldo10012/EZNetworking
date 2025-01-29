@@ -1,16 +1,14 @@
 import Foundation
 
-public typealias DataAndStatus = (data: Data, status: HTTPStatusCodeType.AcceptableStatus)
-
 public protocol URLResponseValidator {
-    func validate(data: Data?, urlResponse: URLResponse?, error: Error?) throws -> DataAndStatus
+    func validate(data: Data?, urlResponse: URLResponse?, error: Error?) throws -> Data
     func validateDownloadTask(url: URL?, urlResponse: URLResponse?, error: Error?) throws -> URL
 }
 
 public struct URLResponseValidatorImpl: URLResponseValidator {
     public init() {}
 
-    public func validate(data: Data?, urlResponse: URLResponse?, error: Error?) throws -> DataAndStatus {
+    public func validate(data: Data?, urlResponse: URLResponse?, error: Error?) throws -> Data {
         if let error = error {
             if let urlError = error as? URLError {
                 throw NetworkingError.urlError(urlError)
@@ -26,8 +24,8 @@ public struct URLResponseValidatorImpl: URLResponseValidator {
         guard let httpURLResponse = urlResponse as? HTTPURLResponse else {
             throw NetworkingError.internalError(.noHTTPURLResponse)
         }
-        let status = try validateStatusCodeAccepability(httpURLResponse.statusCode)
-        return (data: data, status: status)
+        try validateStatusCodeAccepability(httpURLResponse.statusCode)
+        return data
     }
 
     public func validateDownloadTask(url: URL?, urlResponse: URLResponse?, error: Error?) throws -> URL {
@@ -46,24 +44,27 @@ public struct URLResponseValidatorImpl: URLResponseValidator {
         guard let httpURLResponse = urlResponse as? HTTPURLResponse else {
             throw NetworkingError.internalError(.noHTTPURLResponse)
         }
-        _ = try validateStatusCodeAccepability(httpURLResponse.statusCode)
+        try validateStatusCodeAccepability(httpURLResponse.statusCode)
         return url
     }
     
-    private func validateStatusCodeAccepability(_ statusCode: Int) throws -> HTTPStatusCodeType.AcceptableStatus {
+    private func validateStatusCodeAccepability(_ statusCode: Int) throws {
         let statusCodeType = HTTPStatusCodeType.evaluate(from: statusCode)
         
         switch statusCodeType {
+        case .information(let status):
+            throw NetworkingError.information(status)
         case .success(let status):
-            return HTTPStatusCodeType.AcceptableStatus.success(status)
+            return
         case .redirectionMessage(let status):
-            return HTTPStatusCodeType.AcceptableStatus.redirectionMessage(status)
+            throw NetworkingError.redirect(status)
         case .clientSideError(let error):
             throw NetworkingError.httpClientError(error)
         case .serverSideError(let error):
             throw NetworkingError.httpServerError(error)
         case .unknown:
             throw NetworkingError.internalError(.unknown)
+        
         }
     }
 }

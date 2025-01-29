@@ -12,7 +12,9 @@ final class URLResponseValidatorTests: XCTestCase {
     }
     
     func testValidate300Status() throws {
-        XCTAssertNoThrow(try sut.validate(data: Data(), urlResponse: createUrlResponse(statusCode: 300), error: nil), "Unexpectedly threw error")
+        XCTAssertThrowsError(try sut.validate(data: Data(), urlResponse: createUrlResponse(statusCode: 300), error: nil)) { error in
+            XCTAssertEqual(error as? NetworkingError, NetworkingError.redirect(.multipleChoices))
+        }
     }
 
     func testValidateErrorResponse() throws {
