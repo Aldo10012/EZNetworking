@@ -7,7 +7,6 @@ public protocol Request {
     var headers: [HTTPHeader]? { get }
     var body: Data? { get }
     var timeoutInterval: TimeInterval { get }
-    var urlRequest: URLRequest? { get }
 }
 
 public extension Request {
