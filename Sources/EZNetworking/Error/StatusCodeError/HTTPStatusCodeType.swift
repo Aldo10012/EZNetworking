@@ -19,10 +19,3 @@ public enum HTTPStatusCodeType: Equatable {
         }
     }
 }
-
-public extension HTTPStatusCodeType {
-    enum AcceptableStatus {
-        case success(HTTPSuccessStatus)
-        case redirectionMessage(HTTPRedirectionStatus)
-    }
-}

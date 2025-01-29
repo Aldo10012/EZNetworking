@@ -3,12 +3,12 @@ import EZNetworking
 
 struct MockURLResponseValidator: URLResponseValidator {
     var throwError: NetworkingError? = nil
-    func validate(data: Data?, urlResponse: URLResponse?, error: Error?) throws -> DataAndStatus {
+    func validate(data: Data?, urlResponse: URLResponse?, error: Error?) throws -> Data {
         guard let throwError else {
             guard let data else {
                 throw NetworkingError.internalError(.noData)
             }
-            return (data, .success(.ok))
+            return data
         }
         throw throwError
     }

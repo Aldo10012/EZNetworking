@@ -35,7 +35,7 @@ public struct AsyncRequestPerformer: AsyncRequestPerformable {
         do {
             let urlRequest = try getURLRequest(from: request)
             let (data, response) = try await urlSession.data(for: urlRequest, delegate: nil)
-            let (validData, _) = try urlResponseValidator.validate(data: data, urlResponse: response, error: nil)
+            let validData = try urlResponseValidator.validate(data: data, urlResponse: response, error: nil)
             let result = try requestDecoder.decode(decodableObject, from: validData)
             return result
         } catch let error as NetworkingError {
