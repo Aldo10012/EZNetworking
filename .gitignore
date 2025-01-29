@@ -1,0 +1,5 @@
+# Ignore a specific file
+
+.swiftpm/xcode/package.xcworkspace/xcuserdata/albertodominguez.xcuserdatad/UserInterfaceState.xcuserstate
+
+.swiftpm/xcode/xcuserdata/albertodominguez.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist
