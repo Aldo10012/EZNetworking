@@ -1,6 +1,6 @@
 import Foundation
 
-enum HTTPInformationalStatus: Int, Error {
+public enum HTTPInformationalStatus: Int, Error {
     case continueStatus = 100
     case switchingProtocols = 101
     case processing = 102
