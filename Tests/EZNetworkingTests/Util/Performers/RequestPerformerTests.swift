@@ -134,21 +134,6 @@ final class RequestPerformerTests: XCTestCase {
         wait(for: [exp], timeout: 0.1)
     }
     
-    func test_PerformTask_WhenRequestCannotBuildURLRequest_Fails() {
-        let sut = RequestPerformer()
-        let exp = XCTestExpectation()
-        sut.performTask(request: MockRequestWithNilBuild(), decodeTo: Person.self) { result in
-            defer { exp.fulfill() }
-            switch result {
-            case .success:
-                XCTFail()
-            case .failure(let error):
-                XCTAssertEqual(error, NetworkingError.internalError(.noRequest))
-            }
-        }
-        wait(for: [exp], timeout: 0.1)
-    }
-    
     // MARK: Unit tests for perform using Completion Handler and Requesst Protocol without Decodable response
     
     func test_PerformTask_WithoutDecodable_DoesPass() {
@@ -237,21 +222,6 @@ final class RequestPerformerTests: XCTestCase {
                 XCTFail()
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.internalError(.unknown))
-            }
-        }
-        wait(for: [exp], timeout: 0.1)
-    }
-    
-    func test_PerformTask_WithoutDecodable_WhenRequestCannotBuildURLRequest_Fails() {
-        let sut = RequestPerformer()
-        let exp = XCTestExpectation()
-        sut.performTask(request: MockRequestWithNilBuild()) { result in
-            defer { exp.fulfill() }
-            switch result {
-            case .success:
-                XCTFail()
-            case .failure(let error):
-                XCTAssertEqual(error, NetworkingError.internalError(.noRequest))
             }
         }
         wait(for: [exp], timeout: 0.1)

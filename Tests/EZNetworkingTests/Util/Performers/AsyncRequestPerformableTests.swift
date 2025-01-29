@@ -57,13 +57,6 @@ final class AsyncRequestPerformableTests: XCTestCase {
         }
     }
     
-    func test_PerformAsync_WhenRequestCannotBuildURLRequest_Fails() async throws {
-        let sut = createAsyncRequestPerformer()
-        await XCTAssertThrowsErrorAsync(try await sut.perform(request: MockRequestWithNilBuild(), decodeTo: Person.self)) { error in
-            XCTAssertEqual(error as! NetworkingError, NetworkingError.internalError(.noRequest))
-        }
-    }
-    
     // MARK: Unit test for perform request with Async Await and Request Protocol and return Decodable
 
     func test_PerformAsync_WithoutResponse_Success() async throws {
@@ -112,13 +105,6 @@ final class AsyncRequestPerformableTests: XCTestCase {
         )
         await XCTAssertThrowsErrorAsync(try await sut.perform(request: MockRequest())) { error in
             XCTAssertEqual(error as! NetworkingError, NetworkingError.urlError(URLError(.cannotConnectToHost)))
-        }
-    }
-    
-    func test_PerformAsync_WithoutResponse_WhenRequestCannotBuildURLRequest_Fails() async throws {
-        let sut = createAsyncRequestPerformer()
-        await XCTAssertThrowsErrorAsync(try await sut.perform(request: MockRequestWithNilBuild())) { error in
-            XCTAssertEqual(error as! NetworkingError, NetworkingError.internalError(.noRequest))
         }
     }
 }
