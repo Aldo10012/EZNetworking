@@ -1,6 +1,6 @@
 import Foundation
 
-public enum HTTPClientErrorStatus: Int, Error, HTTPStatus {
+public enum HTTPClientErrorStatus: Int, Error {
     case badRequest = 400
     case unauthorized = 401
     case paymentRequired = 402
