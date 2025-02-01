@@ -31,7 +31,7 @@ final class FileDownloadableTests: XCTestCase {
             urlResponse: buildResponse(statusCode: 200),
             error: nil
         )
-        let validator = MockURLResponseValidator(throwError: NetworkingError.httpClientError(.forbidden))
+        let validator = MockURLResponseValidator(throwError: NetworkingError.httpClientError(.forbidden, [:]))
         let decoder = RequestDecoder()
         let sut = FileDownloader(urlSession: urlSession, validator: validator, requestDecoder: decoder)
         
@@ -39,7 +39,7 @@ final class FileDownloadableTests: XCTestCase {
             _ = try await sut.downloadFile(with: testURL)
             XCTFail("unexpected error")
         } catch let error as NetworkingError {
-            XCTAssertEqual(error, NetworkingError.httpClientError(.forbidden))
+            XCTAssertEqual(error, NetworkingError.httpClientError(.forbidden, [:]))
         }
     }
     
@@ -58,7 +58,7 @@ final class FileDownloadableTests: XCTestCase {
             _ = try await sut.downloadFile(with: testURL)
             XCTFail("unexpected error")
         } catch let error as NetworkingError{
-            XCTAssertEqual(error, NetworkingError.httpClientError(.badRequest))
+            XCTAssertEqual(error, NetworkingError.httpClientError(.badRequest, [:]))
         }
     }
     
@@ -122,7 +122,7 @@ final class FileDownloadableTests: XCTestCase {
     
     func testDownloadFileFailsIfValidatorThrowsAnyError() {
         let testURL = URL(string: "https://example.com/example.pdf")!
-        let validator = MockURLResponseValidator(throwError: NetworkingError.httpClientError(.conflict))
+        let validator = MockURLResponseValidator(throwError: NetworkingError.httpClientError(.conflict, [:]))
         let urlSession = MockURLSession(url: testURL,
                                         urlResponse: buildResponse(statusCode: 200),
                                         error: nil)
@@ -137,7 +137,7 @@ final class FileDownloadableTests: XCTestCase {
             case .success:
                 XCTFail()
             case .failure(let error):
-                XCTAssertEqual(error, NetworkingError.httpClientError(.conflict))
+                XCTAssertEqual(error, NetworkingError.httpClientError(.conflict, [:]))
             }
         }
         wait(for: [exp], timeout: 0.1)

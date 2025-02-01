@@ -65,7 +65,7 @@ final class URLResponseValidatorTests: XCTestCase {
     
     func test_validateStatus_givenHTTPURLResponseStatusCode100_Throws() throws {
         XCTAssertThrowsError(try sut.validateStatus(from: createHttpUrlResponse(statusCode: 100))) { error in
-            XCTAssertEqual(error as? NetworkingError, NetworkingError.information(.continueStatus))
+            XCTAssertEqual(error as? NetworkingError, NetworkingError.information(.continueStatus, [:]))
         }
     }
     
@@ -75,19 +75,19 @@ final class URLResponseValidatorTests: XCTestCase {
     
     func test_validateStatus_givenHTTPURLResponseStatusCode300_Throws() throws {
         XCTAssertThrowsError(try sut.validateStatus(from: createHttpUrlResponse(statusCode: 300))) { error in
-            XCTAssertEqual(error as? NetworkingError, NetworkingError.redirect(.multipleChoices))
+            XCTAssertEqual(error as? NetworkingError, NetworkingError.redirect(.multipleChoices, [:]))
         }
     }
     
     func test_validateStatus_givenHTTPURLResponseStatusCode400_Throws() throws {
         XCTAssertThrowsError(try sut.validateStatus(from: createHttpUrlResponse(statusCode: 400))) { error in
-            XCTAssertEqual(error as? NetworkingError, NetworkingError.httpClientError(.badRequest))
+            XCTAssertEqual(error as? NetworkingError, NetworkingError.httpClientError(.badRequest, [:]))
         }
     }
     
     func test_validateStatus_givenHTTPURLResponseStatusCode500_Throws() throws {
         XCTAssertThrowsError(try sut.validateStatus(from: createHttpUrlResponse(statusCode: 500))) { error in
-            XCTAssertEqual(error as? NetworkingError, NetworkingError.httpServerError(.internalServerError))
+            XCTAssertEqual(error as? NetworkingError, NetworkingError.httpServerError(.internalServerError, [:]))
         }
     }
 }
