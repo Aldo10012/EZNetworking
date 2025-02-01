@@ -22,11 +22,11 @@ public struct FileDownloader: FileDownloadable {
     
     public func downloadFile(with url: URL) async throws -> URL {
         do {
-            let (url, urlResponse) = try await urlSession.download(from: url, delegate: nil)
+            let (localURL, urlResponse) = try await urlSession.download(from: url, delegate: nil)
             
             try urlResponseValidator.validateStatus(from: urlResponse)
-            let localURL = try urlResponseValidator.validateUrl(url)
-            return localURL
+            let unwrappedLocalURL = try urlResponseValidator.validateUrl(localURL)
+            return unwrappedLocalURL
         } catch let error as NetworkingError {
             throw error
         } catch let error as URLError {
