@@ -9,14 +9,14 @@ public protocol FileDownloadable {
 public struct FileDownloader: FileDownloadable {
     
     private let urlSession: URLSessionTaskProtocol
-    private let urlResponseValidator: URLResponseValidator
+    private let validator: URLResponseValidator
     private let requestDecoder: RequestDecodable
     
     public init(urlSession: URLSessionTaskProtocol = URLSession.shared,
-                urlResponseValidator: URLResponseValidator = URLResponseValidatorImpl(),
+                validator: URLResponseValidator = URLResponseValidatorImpl(),
                 requestDecoder: RequestDecodable = RequestDecoder()) {
         self.urlSession = urlSession
-        self.urlResponseValidator = urlResponseValidator
+        self.validator = validator
         self.requestDecoder = requestDecoder
     }
     
@@ -24,8 +24,8 @@ public struct FileDownloader: FileDownloadable {
         do {
             let (localURL, urlResponse) = try await urlSession.download(from: url, delegate: nil)
             
-            try urlResponseValidator.validateStatus(from: urlResponse)
-            let unwrappedLocalURL = try urlResponseValidator.validateUrl(localURL)
+            try validator.validateStatus(from: urlResponse)
+            let unwrappedLocalURL = try validator.validateUrl(localURL)
             return unwrappedLocalURL
         } catch let error as NetworkingError {
             throw error
@@ -40,9 +40,9 @@ public struct FileDownloader: FileDownloadable {
     public func downloadFileTask(url: URL, completion: @escaping((Result<URL, NetworkingError>) -> Void)) -> URLSessionDownloadTask {
         let task = urlSession.downloadTask(with: url) { localURL, response, error in
             do {
-                try urlResponseValidator.validateNoError(error)
-                try urlResponseValidator.validateStatus(from: response)
-                let localURL = try urlResponseValidator.validateUrl(localURL)
+                try validator.validateNoError(error)
+                try validator.validateStatus(from: response)
+                let localURL = try validator.validateUrl(localURL)
                 
                 completion(.success(localURL))
             } catch let networkError as NetworkingError {
