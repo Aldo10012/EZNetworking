@@ -50,7 +50,6 @@ public struct RequestPerformer: RequestPerformable {
                 try urlResponseValidator.validateStatus(from: urlResponse)
                 let validData = try urlResponseValidator.validateData(data)
                 
-//                let validData = try urlResponseValidator.validate(data: data, urlResponse: urlResponse, error: error)
                 let result = try requestDecoder.decode(decodableObject, from: validData)
                 completion(.success(result))
             } catch let httpError as NetworkingError {
