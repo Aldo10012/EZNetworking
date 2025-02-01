@@ -7,6 +7,7 @@ public protocol URLResponseValidator {
     func validateNoError(_ error: Error?) throws
     func validateStatus(from urlResponse: URLResponse?) throws
     func validateData(_ data: Data?) throws -> Data
+    func validateUrl(_ url: URL?) throws -> URL
 }
 
 public struct URLResponseValidatorImpl: URLResponseValidator {
@@ -38,7 +39,12 @@ public struct URLResponseValidatorImpl: URLResponseValidator {
         return data
     }
 
-
+    public func validateUrl(_ url: URL?) throws -> URL {
+        guard let url else {
+            throw NetworkingError.internalError(.noURL)
+        }
+        return url
+    }
 
     public func validate(data: Data?, urlResponse: URLResponse?, error: Error?) throws -> Data {
         if let error = error {

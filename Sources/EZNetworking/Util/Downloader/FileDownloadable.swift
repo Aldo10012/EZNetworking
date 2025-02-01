@@ -23,10 +23,16 @@ public struct FileDownloader: FileDownloadable {
     public func downloadFile(with url: URL) async throws -> URL {
         do {
             let (url, urlResponse) = try await urlSession.download(from: url, delegate: nil)
-            let localURL = try urlResponseValidator.validateDownloadTask(url: url, urlResponse: urlResponse, error: nil)
+            
+            try urlResponseValidator.validateStatus(from: urlResponse)
+            let localURL = try urlResponseValidator.validateUrl(url)
+            
+//            let localURL = try urlResponseValidator.validateDownloadTask(url: url, urlResponse: urlResponse, error: nil)
             return localURL
         } catch let error as NetworkingError {
             throw error
+        } catch let error as URLError {
+            throw NetworkingError.urlError(error)
         } catch {
             throw NetworkingError.internalError(.unknown)
         }
@@ -36,7 +42,11 @@ public struct FileDownloader: FileDownloadable {
     public func downloadFileTask(url: URL, completion: @escaping((Result<URL, NetworkingError>) -> Void)) -> URLSessionDownloadTask {
         let task = urlSession.downloadTask(with: url) { localURL, response, error in
             do {
-                let localURL = try urlResponseValidator.validateDownloadTask(url: localURL, urlResponse: response, error: error)
+                try urlResponseValidator.validateNoError(error)
+                try urlResponseValidator.validateStatus(from: response)
+                let localURL = try urlResponseValidator.validateUrl(localURL)
+                
+//                let localURL = try urlResponseValidator.validateDownloadTask(url: localURL, urlResponse: response, error: error)
                 completion(.success(localURL))
             } catch let networkError as NetworkingError {
                 completion(.failure(networkError))
