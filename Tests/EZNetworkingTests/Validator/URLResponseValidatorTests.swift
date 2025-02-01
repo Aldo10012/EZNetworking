@@ -69,7 +69,7 @@ final class URLResponseValidatorTests: XCTestCase {
         }
     }
     
-    func test_validateStatus_givenHTTPURLResponseStatusCode200_Throws() throws {
+    func test_validateStatus_givenHTTPURLResponseStatusCode200_NoThrow() throws {
         XCTAssertNoThrow(try sut.validateStatus(from: createHttpUrlResponse(statusCode: 200)))
     }
     
