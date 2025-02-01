@@ -117,9 +117,9 @@ final class RequestPerformerTests: XCTestCase {
         wait(for: [exp], timeout: 0.1)
     }
     
-    func test_PerformTask_WhenResponseValidatorThrowsError_fails() {
-        let sut = RequestPerformer(
-            urlResponseValidator: MockURLResponseValidator(throwError: NetworkingError.internalError(.unknown))
+    func test_PerformTask_WhenURLSessionHasURLError_Data() {
+        let sut = createRequestPerformer(
+            urlSession: createMockURLSession(error: URLError(.networkConnectionLost))
         )
         let exp = XCTestExpectation()
         sut.performTask(request: MockRequest(), decodeTo: Person.self) { result in
@@ -128,7 +128,7 @@ final class RequestPerformerTests: XCTestCase {
             case .success:
                 XCTFail()
             case .failure(let error):
-                XCTAssertEqual(error, NetworkingError.internalError(.unknown))
+                XCTAssertEqual(error, NetworkingError.urlError(URLError(.networkConnectionLost)))
             }
         }
         wait(for: [exp], timeout: 0.1)
@@ -210,9 +210,9 @@ final class RequestPerformerTests: XCTestCase {
         wait(for: [exp], timeout: 0.1)
     }
     
-    func test_PerformTask_WithoutDecodable_WhenResponseValidatorThrowsError_Fails() {
-        let sut = RequestPerformer(
-            urlResponseValidator: MockURLResponseValidator(throwError: NetworkingError.internalError(.unknown))
+    func test_PerformTask_WithoutDecodable_WhenURLSessionHasURLError_Data() {
+        let sut = createRequestPerformer(
+            urlSession: createMockURLSession(error: URLError(.networkConnectionLost))
         )
         let exp = XCTestExpectation()
         sut.performTask(request: MockRequest()) { result in
@@ -221,7 +221,7 @@ final class RequestPerformerTests: XCTestCase {
             case .success:
                 XCTFail()
             case .failure(let error):
-                XCTAssertEqual(error, NetworkingError.internalError(.unknown))
+                XCTAssertEqual(error, NetworkingError.urlError(URLError(.networkConnectionLost)))
             }
         }
         wait(for: [exp], timeout: 0.1)

@@ -3,10 +3,42 @@ import Foundation
 public protocol URLResponseValidator {
     func validate(data: Data?, urlResponse: URLResponse?, error: Error?) throws -> Data
     func validateDownloadTask(url: URL?, urlResponse: URLResponse?, error: Error?) throws -> URL
+    
+    func validateNoError(_ error: Error?) throws
+    func validateStatus(from urlResponse: URLResponse?) throws
+    func validateData(_ data: Data?) throws -> Data
 }
 
 public struct URLResponseValidatorImpl: URLResponseValidator {
     public init() {}
+    
+    public func validateNoError(_ error: Error?) throws {
+        if let error = error {
+            if let urlError = error as? URLError {
+                throw NetworkingError.urlError(urlError)
+            }
+            throw NetworkingError.internalError(.requestFailed(error))
+        }
+    }
+    
+    public func validateStatus(from urlResponse: URLResponse?) throws {
+        guard let urlResponse else {
+            throw NetworkingError.internalError(.noResponse)
+        }
+        guard let httpURLResponse = urlResponse as? HTTPURLResponse else {
+            throw NetworkingError.internalError(.noHTTPURLResponse)
+        }
+        try validateStatusCodeAccepability(httpURLResponse.statusCode)
+    }
+    
+    public func validateData(_ data: Data?) throws -> Data {
+        guard let data else {
+            throw NetworkingError.internalError(.noData)
+        }
+        return data
+    }
+
+
 
     public func validate(data: Data?, urlResponse: URLResponse?, error: Error?) throws -> Data {
         if let error = error {

@@ -2,6 +2,21 @@ import Foundation
 import EZNetworking
 
 struct MockURLResponseValidator: URLResponseValidator {
+    func validateNoError(_ error: (any Error)?) throws {
+        
+    }
+    
+    func validateStatus(from urlResponse: URLResponse?) throws {
+        
+    }
+    
+    func validateData(_ data: Data?) throws -> Data {
+        guard let data else {
+            throw NetworkingError.internalError(.noData)
+        }
+        return data
+    }
+    
     var throwError: NetworkingError? = nil
     func validate(data: Data?, urlResponse: URLResponse?, error: Error?) throws -> Data {
         guard let throwError else {

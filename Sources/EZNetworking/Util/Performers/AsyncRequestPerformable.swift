@@ -35,11 +35,17 @@ public struct AsyncRequestPerformer: AsyncRequestPerformable {
         do {
             let urlRequest = try getURLRequest(from: request)
             let (data, response) = try await urlSession.data(for: urlRequest, delegate: nil)
-            let validData = try urlResponseValidator.validate(data: data, urlResponse: response, error: nil)
+            
+            try urlResponseValidator.validateStatus(from: response)
+            let validData = try urlResponseValidator.validateData(data)
+            
+//            let validData = try urlResponseValidator.validate(data: data, urlResponse: response, error: nil)
             let result = try requestDecoder.decode(decodableObject, from: validData)
             return result
         } catch let error as NetworkingError {
             throw error
+        } catch let error as URLError {
+            throw NetworkingError.urlError(error)
         } catch {
             throw NetworkingError.internalError(.unknown)
         }

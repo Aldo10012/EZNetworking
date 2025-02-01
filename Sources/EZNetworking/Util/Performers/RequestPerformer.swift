@@ -46,7 +46,11 @@ public struct RequestPerformer: RequestPerformable {
         }
         let task = urlSession.dataTask(with: urlRequest) { data, urlResponse, error in
             do {
-                let validData = try urlResponseValidator.validate(data: data, urlResponse: urlResponse, error: error)
+                try urlResponseValidator.validateNoError(error)
+                try urlResponseValidator.validateStatus(from: urlResponse)
+                let validData = try urlResponseValidator.validateData(data)
+                
+//                let validData = try urlResponseValidator.validate(data: data, urlResponse: urlResponse, error: error)
                 let result = try requestDecoder.decode(decodableObject, from: validData)
                 completion(.success(result))
             } catch let httpError as NetworkingError {

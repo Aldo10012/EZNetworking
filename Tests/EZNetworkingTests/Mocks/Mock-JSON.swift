@@ -1,13 +1,13 @@
 import Foundation
 
-let mockPersonJsonData = """
+let mockPersonJsonData: Data = """
 {
     "name": "John",
     "age": 30
 }
 """.data(using: .utf8)!
 
-let invalidMockPersonJsonData = """
+let invalidMockPersonJsonData: Data = """
 {
     "Name": "John",
     "Age": 30
