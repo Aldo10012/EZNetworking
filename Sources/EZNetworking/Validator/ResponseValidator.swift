@@ -26,7 +26,7 @@ public struct ResponseValidatorImpl: ResponseValidator {
         guard let httpURLResponse = urlResponse as? HTTPURLResponse else {
             throw NetworkingError.internalError(.noHTTPURLResponse)
         }
-        try validateStatusCodeAccepability(httpURLResponse.statusCode)
+        try validateStatusCodeAccepability(from: httpURLResponse)
     }
     
     public func validateData(_ data: Data?) throws -> Data {
@@ -43,8 +43,8 @@ public struct ResponseValidatorImpl: ResponseValidator {
         return url
     }
 
-    private func validateStatusCodeAccepability(_ statusCode: Int) throws {
-        let statusCodeType = HTTPStatusCodeType.evaluate(from: statusCode)
+    private func validateStatusCodeAccepability(from httpURLResponse: HTTPURLResponse) throws {
+        let statusCodeType = HTTPStatusCodeType.evaluate(from: httpURLResponse.statusCode)
         
         switch statusCodeType {
         case .information(let status):
