@@ -6,6 +6,15 @@ final class RequestPerformerTests: XCTestCase {
 
     // MARK: Unit tests for perform using Completion Handler with Request Protocol
 
+    func test_PerformTask_CanCancel() throws {
+        let sut = createRequestPerformer()
+        
+        let task = sut.performTask(request: MockRequest(), decodeTo: Person.self) { _ in }
+        task?.cancel()
+        let dataTask = try XCTUnwrap(task as? MockURLSessionDataTask)
+        XCTAssertTrue(dataTask.didCancel)
+    }
+    
     func test_PerformTask_DoesDecodePerson() {
         let sut = createRequestPerformer()
         let exp = XCTestExpectation()
@@ -22,7 +31,7 @@ final class RequestPerformerTests: XCTestCase {
         wait(for: [exp], timeout: 0.1)
     }
     
-    func test_PerformTask_WhenStatusCode300_DoesDecodePerson() {
+    func test_PerformTask_WhenStatusCode300_Faile() {
         let sut = createRequestPerformer(
             urlSession: createMockURLSession(statusCode: 300)
         )
@@ -39,13 +48,21 @@ final class RequestPerformerTests: XCTestCase {
         wait(for: [exp], timeout: 0.1)
     }
     
-    func test_PerformTask_CanCancel() throws {
-        let sut = createRequestPerformer()
-        
-        let task = sut.performTask(request: MockRequest(), decodeTo: Person.self) { _ in }
-        task?.cancel()
-        let dataTask = try XCTUnwrap(task as? MockURLSessionDataTask)
-        XCTAssertTrue(dataTask.didCancel)
+    func test_PerformTask_WhenStatusCodeIs400_Data() {
+        let sut = createRequestPerformer(
+            urlSession: createMockURLSession(statusCode: 400)
+        )
+        let exp = XCTestExpectation()
+        sut.performTask(request: MockRequest(), decodeTo: Person.self) { result in
+            defer { exp.fulfill() }
+            switch result {
+            case .success:
+                XCTFail()
+            case .failure(let error):
+                XCTAssertEqual(error, NetworkingError.httpClientError(.badRequest))
+            }
+        }
+        wait(for: [exp], timeout: 0.1)
     }
     
     func test_PerformTask_WhenDataIsInvalid_Fails() {
@@ -78,23 +95,6 @@ final class RequestPerformerTests: XCTestCase {
                 XCTFail()
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.internalError(.noData))
-            }
-        }
-        wait(for: [exp], timeout: 0.1)
-    }
-    
-    func test_PerformTask_WhenStatusCodeIsNot200_Data() {
-        let sut = createRequestPerformer(
-            urlSession: createMockURLSession(statusCode: 400)
-        )
-        let exp = XCTestExpectation()
-        sut.performTask(request: MockRequest(), decodeTo: Person.self) { result in
-            defer { exp.fulfill() }
-            switch result {
-            case .success:
-                XCTFail()
-            case .failure(let error):
-                XCTAssertEqual(error, NetworkingError.httpClientError(.badRequest))
             }
         }
         wait(for: [exp], timeout: 0.1)
@@ -136,6 +136,14 @@ final class RequestPerformerTests: XCTestCase {
     
     // MARK: Unit tests for perform using Completion Handler and Requesst Protocol without Decodable response
     
+    func test_PerformTask_WithoutDecodable_CanCancel() throws {
+        let sut = createRequestPerformer()
+        let task = sut.performTask(request: MockRequest()) { _ in }
+        task?.cancel()
+        let dataTask = try XCTUnwrap(task as? MockURLSessionDataTask)
+        XCTAssertTrue(dataTask.didCancel)
+    }
+    
     func test_PerformTask_WithoutDecodable_DoesPass() {
         let sut = createRequestPerformer()
         let exp = XCTestExpectation()
@@ -151,7 +159,7 @@ final class RequestPerformerTests: XCTestCase {
         wait(for: [exp], timeout: 0.1)
     }
     
-    func test_PerformTask_WithoutDecodable_WhenStatusCode300_DoesPass() {
+    func test_PerformTask_WithoutDecodable_WhenStatusCode300_Fails() {
         let sut = createRequestPerformer(
             urlSession: createMockURLSession(statusCode: 300)
         )
@@ -168,12 +176,38 @@ final class RequestPerformerTests: XCTestCase {
         wait(for: [exp], timeout: 0.1)
     }
     
-    func test_PerformTask_WithoutDecodable_CanCancel() throws {
-        let sut = createRequestPerformer()
-        let task = sut.performTask(request: MockRequest()) { _ in }
-        task?.cancel()
-        let dataTask = try XCTUnwrap(task as? MockURLSessionDataTask)
-        XCTAssertTrue(dataTask.didCancel)
+    func test_PerformTask_WithoutDecodable_WhenStatusCodeIs400_Fails() {
+        let sut = createRequestPerformer(
+            urlSession: createMockURLSession(statusCode: 400)
+        )
+        let exp = XCTestExpectation()
+        sut.performTask(request: MockRequest()) { result in
+            defer { exp.fulfill() }
+            switch result {
+            case .success:
+                XCTFail()
+            case .failure(let error):
+                XCTAssertEqual(error, NetworkingError.httpClientError(.badRequest))
+            }
+        }
+        wait(for: [exp], timeout: 0.1)
+    }
+    
+    func test_PerformTask_WithoutDecodable_WhenDataIsInvalid_Fails() {
+        let sut = createRequestPerformer(
+            urlSession: createMockURLSession(data: invalidMockPersonJsonData)
+        )
+        let exp = XCTestExpectation()
+        sut.performTask(request: MockRequest()) { result in
+            defer { exp.fulfill() }
+            switch result {
+            case .success:
+                XCTAssert(true)
+            case .failure(let error):
+                XCTFail()
+            }
+        }
+        wait(for: [exp], timeout: 0.1)
     }
     
     func test_PerformTask_WithoutDecodable_WhenDataIsNil_Fails() {
@@ -188,23 +222,6 @@ final class RequestPerformerTests: XCTestCase {
                 XCTFail()
             case .failure(let error):
                 XCTAssertEqual(error, NetworkingError.internalError(.noData))
-            }
-        }
-        wait(for: [exp], timeout: 0.1)
-    }
-    
-    func test_PerformTask_WithoutDecodable_WhenStatusCodeIsNot200_Fails() {
-        let sut = createRequestPerformer(
-            urlSession: createMockURLSession(statusCode: 400)
-        )
-        let exp = XCTestExpectation()
-        sut.performTask(request: MockRequest()) { result in
-            defer { exp.fulfill() }
-            switch result {
-            case .success:
-                XCTFail()
-            case .failure(let error):
-                XCTAssertEqual(error, NetworkingError.httpClientError(.badRequest))
             }
         }
         wait(for: [exp], timeout: 0.1)
