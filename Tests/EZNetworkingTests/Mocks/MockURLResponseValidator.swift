@@ -1,7 +1,7 @@
 import Foundation
 import EZNetworking
 
-struct MockURLResponseValidator: RequestValidator {
+struct MockURLResponseValidator: ResponseValidator {
     var throwError: NetworkingError? = nil
 
     func validateNoError(_ error: (any Error)?) throws {

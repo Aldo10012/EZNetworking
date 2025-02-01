@@ -9,11 +9,11 @@ public protocol AsyncRequestPerformable {
 public struct AsyncRequestPerformer: AsyncRequestPerformable {
     
     private let urlSession: URLSessionTaskProtocol
-    private let validator: RequestValidator
+    private let validator: ResponseValidator
     private let requestDecoder: RequestDecodable
     
     public init(urlSession: URLSessionTaskProtocol = URLSession.shared,
-                validator: RequestValidator = RequestValidatorImpl(),
+                validator: ResponseValidator = ResponseValidatorImpl(),
                 requestDecoder: RequestDecodable = RequestDecoder()) {
         self.urlSession = urlSession
         self.validator = validator
