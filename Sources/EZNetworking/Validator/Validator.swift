@@ -1,13 +1,13 @@
 import Foundation
 
-public protocol URLResponseValidator {
+public protocol Validator {
     func validateNoError(_ error: Error?) throws
     func validateStatus(from urlResponse: URLResponse?) throws
     func validateData(_ data: Data?) throws -> Data
     func validateUrl(_ url: URL?) throws -> URL
 }
 
-public struct URLResponseValidatorImpl: URLResponseValidator {
+public struct ValidatorImpl: Validator {
     public init() {}
     
     public func validateNoError(_ error: Error?) throws {

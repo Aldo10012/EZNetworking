@@ -9,11 +9,11 @@ public protocol ImageDownloadable {
 
 public struct ImageDownloader: ImageDownloadable {
     private let urlSession: URLSessionTaskProtocol
-    private let validator: URLResponseValidator
+    private let validator: Validator
     private let requestDecoder: RequestDecodable
     
     public init(urlSession: URLSessionTaskProtocol = URLSession.shared,
-                validator: URLResponseValidator = URLResponseValidatorImpl(),
+                validator: Validator = ValidatorImpl(),
                 requestDecoder: RequestDecodable = RequestDecoder()) {
         self.urlSession = urlSession
         self.validator = validator

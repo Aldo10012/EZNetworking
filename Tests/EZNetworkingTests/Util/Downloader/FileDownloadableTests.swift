@@ -50,7 +50,7 @@ final class FileDownloadableTests: XCTestCase {
             urlResponse: buildResponse(statusCode: 400),
             error: nil
         )
-        let validator = URLResponseValidatorImpl()
+        let validator = ValidatorImpl()
         let decoder = RequestDecoder()
         let sut = FileDownloader(urlSession: urlSession, validator: validator, requestDecoder: decoder)
         
@@ -69,7 +69,7 @@ final class FileDownloadableTests: XCTestCase {
             urlResponse: buildResponse(statusCode: 200),
             error: NetworkingError.internalError(.unknown)
         )
-        let validator = URLResponseValidatorImpl()
+        let validator = ValidatorImpl()
         let decoder = RequestDecoder()
         let sut = FileDownloader(urlSession: urlSession, validator: validator, requestDecoder: decoder)
         

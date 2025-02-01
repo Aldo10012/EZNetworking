@@ -3,7 +3,7 @@ import XCTest
 
 final class URLResponseValidatorTests: XCTestCase {
 
-    let sut = URLResponseValidatorImpl()
+    let sut = ValidatorImpl()
     
     private struct SomeUnknownError: Error {}
 

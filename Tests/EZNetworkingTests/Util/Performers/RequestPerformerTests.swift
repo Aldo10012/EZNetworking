@@ -247,7 +247,7 @@ final class RequestPerformerTests: XCTestCase {
 
 private func createRequestPerformer(
     urlSession: URLSessionTaskProtocol = createMockURLSession(),
-    validator: URLResponseValidator = URLResponseValidatorImpl(),
+    validator: Validator = ValidatorImpl(),
     requestDecoder: RequestDecodable = RequestDecoder()
 ) -> RequestPerformer {
     return RequestPerformer(urlSession: urlSession, validator: validator, requestDecoder: requestDecoder)
