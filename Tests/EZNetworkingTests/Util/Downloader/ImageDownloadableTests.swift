@@ -24,7 +24,7 @@ final class ImageDownloadableTests: XCTestCase {
                                         error: nil)
         let validator = MockURLResponseValidator(throwError: NetworkingError.httpClientError(.badRequest))
         let sut = ImageDownloader(urlSession: urlSession,
-                                  urlResponseValidator: validator,
+                                  validator: validator,
                                   requestDecoder: RequestDecoder())
         do {
             _ = try await sut.downloadImage(from: testURL)
@@ -42,7 +42,7 @@ final class ImageDownloadableTests: XCTestCase {
                                         urlResponse: buildResponse(statusCode: 200),
                                         error: nil)
         let validator = MockURLResponseValidator()
-        let sut = ImageDownloader(urlSession: urlSession, urlResponseValidator: validator)
+        let sut = ImageDownloader(urlSession: urlSession, validator: validator)
 
         let exp = XCTestExpectation()
         sut.downloadImageTask(url: testURL) { result in
@@ -67,7 +67,7 @@ final class ImageDownloadableTests: XCTestCase {
                                         urlResponse: buildResponse(statusCode: 200),
                                         error: nil)
         let validator = MockURLResponseValidator()
-        let sut = ImageDownloader(urlSession: urlSession, urlResponseValidator: validator)
+        let sut = ImageDownloader(urlSession: urlSession, validator: validator)
 
         let task = sut.downloadImageTask(url: testURL) { _ in }
         task.cancel()
@@ -82,7 +82,7 @@ final class ImageDownloadableTests: XCTestCase {
                                         error: nil)
         let validator = MockURLResponseValidator(throwError: NetworkingError.httpClientError(.conflict))
         let sut = ImageDownloader(urlSession: urlSession,
-                                  urlResponseValidator: validator,
+                                  validator: validator,
                                   requestDecoder: RequestDecoder())
 
         let exp = XCTestExpectation()

@@ -9,14 +9,14 @@ public protocol ImageDownloadable {
 
 public struct ImageDownloader: ImageDownloadable {
     private let urlSession: URLSessionTaskProtocol
-    private let urlResponseValidator: URLResponseValidator
+    private let validator: URLResponseValidator
     private let requestDecoder: RequestDecodable
     
     public init(urlSession: URLSessionTaskProtocol = URLSession.shared,
-                urlResponseValidator: URLResponseValidator = URLResponseValidatorImpl(),
+                validator: URLResponseValidator = URLResponseValidatorImpl(),
                 requestDecoder: RequestDecodable = RequestDecoder()) {
         self.urlSession = urlSession
-        self.urlResponseValidator = urlResponseValidator
+        self.validator = validator
         self.requestDecoder = requestDecoder
     }
     
@@ -24,8 +24,8 @@ public struct ImageDownloader: ImageDownloadable {
         do {
             let (data, response) = try await urlSession.data(from: url, delegate: nil)
             
-            try urlResponseValidator.validateStatus(from: response)
-            let validData = try urlResponseValidator.validateData(data)
+            try validator.validateStatus(from: response)
+            let validData = try validator.validateData(data)
             
             let image = try getImage(from: validData)
             return image
@@ -42,9 +42,9 @@ public struct ImageDownloader: ImageDownloadable {
     public func downloadImageTask(url: URL, completion: @escaping((Result<UIImage, NetworkingError>) -> Void)) -> URLSessionDataTask {
         let task = urlSession.dataTask(with: url) { data, response, error in
             do {
-                try urlResponseValidator.validateNoError(error)
-                try urlResponseValidator.validateStatus(from: response)
-                let validData = try urlResponseValidator.validateData(data)
+                try validator.validateNoError(error)
+                try validator.validateStatus(from: response)
+                let validData = try validator.validateData(data)
                 
                 let image = try getImage(from: validData)
                 completion(.success(image))
