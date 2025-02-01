@@ -26,8 +26,6 @@ public struct FileDownloader: FileDownloadable {
             
             try urlResponseValidator.validateStatus(from: urlResponse)
             let localURL = try urlResponseValidator.validateUrl(url)
-            
-//            let localURL = try urlResponseValidator.validateDownloadTask(url: url, urlResponse: urlResponse, error: nil)
             return localURL
         } catch let error as NetworkingError {
             throw error
@@ -46,7 +44,6 @@ public struct FileDownloader: FileDownloadable {
                 try urlResponseValidator.validateStatus(from: response)
                 let localURL = try urlResponseValidator.validateUrl(localURL)
                 
-//                let localURL = try urlResponseValidator.validateDownloadTask(url: localURL, urlResponse: response, error: error)
                 completion(.success(localURL))
             } catch let networkError as NetworkingError {
                 completion(.failure(networkError))

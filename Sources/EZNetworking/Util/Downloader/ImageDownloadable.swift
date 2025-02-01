@@ -27,7 +27,6 @@ public struct ImageDownloader: ImageDownloadable {
             try urlResponseValidator.validateStatus(from: response)
             let validData = try urlResponseValidator.validateData(data)
             
-//            let validData = try urlResponseValidator.validate(data: data, urlResponse: response, error: nil)
             let image = try getImage(from: validData)
             return image
         } catch let error as NetworkingError {
@@ -47,7 +46,6 @@ public struct ImageDownloader: ImageDownloadable {
                 try urlResponseValidator.validateStatus(from: response)
                 let validData = try urlResponseValidator.validateData(data)
                 
-//                let validData = try self.urlResponseValidator.validate(data: data, urlResponse: response, error: error)
                 let image = try getImage(from: validData)
                 completion(.success(image))
             } catch let networkError as NetworkingError {
