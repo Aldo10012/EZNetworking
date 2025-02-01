@@ -9,14 +9,14 @@ public protocol AsyncRequestPerformable {
 public struct AsyncRequestPerformer: AsyncRequestPerformable {
     
     private let urlSession: URLSessionTaskProtocol
-    private let urlResponseValidator: URLResponseValidator
+    private let validator: ResponseValidator
     private let requestDecoder: RequestDecodable
     
     public init(urlSession: URLSessionTaskProtocol = URLSession.shared,
-                urlResponseValidator: URLResponseValidator = URLResponseValidatorImpl(),
+                validator: ResponseValidator = ResponseValidatorImpl(),
                 requestDecoder: RequestDecodable = RequestDecoder()) {
         self.urlSession = urlSession
-        self.urlResponseValidator = urlResponseValidator
+        self.validator = validator
         self.requestDecoder = requestDecoder
     }
     
@@ -35,11 +35,16 @@ public struct AsyncRequestPerformer: AsyncRequestPerformable {
         do {
             let urlRequest = try getURLRequest(from: request)
             let (data, response) = try await urlSession.data(for: urlRequest, delegate: nil)
-            let validData = try urlResponseValidator.validate(data: data, urlResponse: response, error: nil)
+            
+            try validator.validateStatus(from: response)
+            let validData = try validator.validateData(data)
+            
             let result = try requestDecoder.decode(decodableObject, from: validData)
             return result
         } catch let error as NetworkingError {
             throw error
+        } catch let error as URLError {
+            throw NetworkingError.urlError(error)
         } catch {
             throw NetworkingError.internalError(.unknown)
         }

@@ -11,14 +11,14 @@ public protocol RequestPerformable {
 public struct RequestPerformer: RequestPerformable {
     
     private let urlSession: URLSessionTaskProtocol
-    private let urlResponseValidator: URLResponseValidator
+    private let validator: ResponseValidator
     private let requestDecoder: RequestDecodable
     
     public init(urlSession: URLSessionTaskProtocol = URLSession.shared,
-                urlResponseValidator: URLResponseValidator = URLResponseValidatorImpl(),
+                validator: ResponseValidator = ResponseValidatorImpl(),
                 requestDecoder: RequestDecodable = RequestDecoder()) {
         self.urlSession = urlSession
-        self.urlResponseValidator = urlResponseValidator
+        self.validator = validator
         self.requestDecoder = requestDecoder
     }
     
@@ -46,7 +46,10 @@ public struct RequestPerformer: RequestPerformable {
         }
         let task = urlSession.dataTask(with: urlRequest) { data, urlResponse, error in
             do {
-                let validData = try urlResponseValidator.validate(data: data, urlResponse: urlResponse, error: error)
+                try validator.validateNoError(error)
+                try validator.validateStatus(from: urlResponse)
+                let validData = try validator.validateData(data)
+                
                 let result = try requestDecoder.decode(decodableObject, from: validData)
                 completion(.success(result))
             } catch let httpError as NetworkingError {

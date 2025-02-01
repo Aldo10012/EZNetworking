@@ -14,7 +14,7 @@ final class FileDownloadableTests: XCTestCase {
         )
         let validator = MockURLResponseValidator()
         let decoder = RequestDecoder()
-        let sut = FileDownloader(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
+        let sut = FileDownloader(urlSession: urlSession, validator: validator, requestDecoder: decoder)
         
         do {
             let localURL = try await sut.downloadFile(with: testURL)
@@ -33,7 +33,7 @@ final class FileDownloadableTests: XCTestCase {
         )
         let validator = MockURLResponseValidator(throwError: NetworkingError.httpClientError(.forbidden))
         let decoder = RequestDecoder()
-        let sut = FileDownloader(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
+        let sut = FileDownloader(urlSession: urlSession, validator: validator, requestDecoder: decoder)
         
         do {
             _ = try await sut.downloadFile(with: testURL)
@@ -50,9 +50,9 @@ final class FileDownloadableTests: XCTestCase {
             urlResponse: buildResponse(statusCode: 400),
             error: nil
         )
-        let validator = URLResponseValidatorImpl()
+        let validator = ResponseValidatorImpl()
         let decoder = RequestDecoder()
-        let sut = FileDownloader(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
+        let sut = FileDownloader(urlSession: urlSession, validator: validator, requestDecoder: decoder)
         
         do {
             _ = try await sut.downloadFile(with: testURL)
@@ -69,9 +69,9 @@ final class FileDownloadableTests: XCTestCase {
             urlResponse: buildResponse(statusCode: 200),
             error: NetworkingError.internalError(.unknown)
         )
-        let validator = URLResponseValidatorImpl()
+        let validator = ResponseValidatorImpl()
         let decoder = RequestDecoder()
-        let sut = FileDownloader(urlSession: urlSession, urlResponseValidator: validator, requestDecoder: decoder)
+        let sut = FileDownloader(urlSession: urlSession, validator: validator, requestDecoder: decoder)
         
         do {
             _ = try await sut.downloadFile(with: testURL)
@@ -89,7 +89,7 @@ final class FileDownloadableTests: XCTestCase {
                                         urlResponse: buildResponse(statusCode: 200),
                                         error: nil)
         let sut = FileDownloader(urlSession: urlSession,
-                                 urlResponseValidator: MockURLResponseValidator(),
+                                 validator: MockURLResponseValidator(),
                                  requestDecoder: RequestDecoder())
         
         let exp = XCTestExpectation()
@@ -111,7 +111,7 @@ final class FileDownloadableTests: XCTestCase {
                                         urlResponse: buildResponse(statusCode: 200),
                                         error: nil)
         let sut = FileDownloader(urlSession: urlSession,
-                                 urlResponseValidator: MockURLResponseValidator(),
+                                 validator: MockURLResponseValidator(),
                                  requestDecoder: RequestDecoder())
         
         let task = sut.downloadFileTask(url: testURL) { _ in }
@@ -127,7 +127,7 @@ final class FileDownloadableTests: XCTestCase {
                                         urlResponse: buildResponse(statusCode: 200),
                                         error: nil)
         let sut = FileDownloader(urlSession: urlSession,
-                                 urlResponseValidator: validator,
+                                 validator: validator,
                                  requestDecoder: RequestDecoder())
         
         let exp = XCTestExpectation()

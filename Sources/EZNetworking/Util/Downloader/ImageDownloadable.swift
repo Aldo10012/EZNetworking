@@ -9,25 +9,30 @@ public protocol ImageDownloadable {
 
 public struct ImageDownloader: ImageDownloadable {
     private let urlSession: URLSessionTaskProtocol
-    private let urlResponseValidator: URLResponseValidator
+    private let validator: ResponseValidator
     private let requestDecoder: RequestDecodable
     
     public init(urlSession: URLSessionTaskProtocol = URLSession.shared,
-                urlResponseValidator: URLResponseValidator = URLResponseValidatorImpl(),
+                validator: ResponseValidator = ResponseValidatorImpl(),
                 requestDecoder: RequestDecodable = RequestDecoder()) {
         self.urlSession = urlSession
-        self.urlResponseValidator = urlResponseValidator
+        self.validator = validator
         self.requestDecoder = requestDecoder
     }
     
     public func downloadImage(from url: URL) async throws -> UIImage {
         do {
             let (data, response) = try await urlSession.data(from: url, delegate: nil)
-            let validData = try urlResponseValidator.validate(data: data, urlResponse: response, error: nil)
+            
+            try validator.validateStatus(from: response)
+            let validData = try validator.validateData(data)
+            
             let image = try getImage(from: validData)
             return image
         } catch let error as NetworkingError {
             throw error
+        } catch let error as URLError {
+            throw NetworkingError.urlError(error)
         } catch {
             throw NetworkingError.internalError(.unknown)
         }
@@ -37,7 +42,10 @@ public struct ImageDownloader: ImageDownloadable {
     public func downloadImageTask(url: URL, completion: @escaping((Result<UIImage, NetworkingError>) -> Void)) -> URLSessionDataTask {
         let task = urlSession.dataTask(with: url) { data, response, error in
             do {
-                let validData = try self.urlResponseValidator.validate(data: data, urlResponse: response, error: error)
+                try validator.validateNoError(error)
+                try validator.validateStatus(from: response)
+                let validData = try validator.validateData(data)
+                
                 let image = try getImage(from: validData)
                 completion(.success(image))
             } catch let networkError as NetworkingError {

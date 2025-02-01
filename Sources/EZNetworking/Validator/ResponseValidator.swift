@@ -1,53 +1,48 @@
 import Foundation
 
-public protocol URLResponseValidator {
-    func validate(data: Data?, urlResponse: URLResponse?, error: Error?) throws -> Data
-    func validateDownloadTask(url: URL?, urlResponse: URLResponse?, error: Error?) throws -> URL
+public protocol ResponseValidator {
+    func validateNoError(_ error: Error?) throws
+    func validateStatus(from urlResponse: URLResponse?) throws
+    func validateData(_ data: Data?) throws -> Data
+    func validateUrl(_ url: URL?) throws -> URL
 }
 
-public struct URLResponseValidatorImpl: URLResponseValidator {
+public struct ResponseValidatorImpl: ResponseValidator {
     public init() {}
-
-    public func validate(data: Data?, urlResponse: URLResponse?, error: Error?) throws -> Data {
+    
+    public func validateNoError(_ error: Error?) throws {
         if let error = error {
             if let urlError = error as? URLError {
                 throw NetworkingError.urlError(urlError)
             }
             throw NetworkingError.internalError(.requestFailed(error))
         }
+    }
+    
+    public func validateStatus(from urlResponse: URLResponse?) throws {
+        guard let urlResponse else {
+            throw NetworkingError.internalError(.noResponse)
+        }
+        guard let httpURLResponse = urlResponse as? HTTPURLResponse else {
+            throw NetworkingError.internalError(.noHTTPURLResponse)
+        }
+        try validateStatusCodeAccepability(httpURLResponse.statusCode)
+    }
+    
+    public func validateData(_ data: Data?) throws -> Data {
         guard let data else {
             throw NetworkingError.internalError(.noData)
         }
-        guard let urlResponse else {
-            throw NetworkingError.internalError(.noResponse)
-        }
-        guard let httpURLResponse = urlResponse as? HTTPURLResponse else {
-            throw NetworkingError.internalError(.noHTTPURLResponse)
-        }
-        try validateStatusCodeAccepability(httpURLResponse.statusCode)
         return data
     }
 
-    public func validateDownloadTask(url: URL?, urlResponse: URLResponse?, error: Error?) throws -> URL {
-        if let error = error {
-            if let urlError = error as? URLError {
-                throw NetworkingError.urlError(urlError)
-            }
-            throw NetworkingError.internalError(.requestFailed(error))
-        }
+    public func validateUrl(_ url: URL?) throws -> URL {
         guard let url else {
             throw NetworkingError.internalError(.noURL)
         }
-        guard let urlResponse else {
-            throw NetworkingError.internalError(.noResponse)
-        }
-        guard let httpURLResponse = urlResponse as? HTTPURLResponse else {
-            throw NetworkingError.internalError(.noHTTPURLResponse)
-        }
-        try validateStatusCodeAccepability(httpURLResponse.statusCode)
         return url
     }
-    
+
     private func validateStatusCodeAccepability(_ statusCode: Int) throws {
         let statusCodeType = HTTPStatusCodeType.evaluate(from: statusCode)
         
