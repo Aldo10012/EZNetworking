@@ -145,7 +145,7 @@ final class AsyncRequestPerformableTests: XCTestCase {
 
 private func createAsyncRequestPerformer(
     urlSession: URLSessionTaskProtocol = createMockURLSession(),
-    validator: Validator = ValidatorImpl(),
+    validator: RequestValidator = RequestValidatorImpl(),
     requestDecoder: RequestDecodable = RequestDecoder()
 ) -> AsyncRequestPerformer {
     return AsyncRequestPerformer(urlSession: urlSession, validator: validator, requestDecoder: requestDecoder)

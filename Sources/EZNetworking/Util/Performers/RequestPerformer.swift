@@ -11,11 +11,11 @@ public protocol RequestPerformable {
 public struct RequestPerformer: RequestPerformable {
     
     private let urlSession: URLSessionTaskProtocol
-    private let validator: Validator
+    private let validator: RequestValidator
     private let requestDecoder: RequestDecodable
     
     public init(urlSession: URLSessionTaskProtocol = URLSession.shared,
-                validator: Validator = ValidatorImpl(),
+                validator: RequestValidator = RequestValidatorImpl(),
                 requestDecoder: RequestDecodable = RequestDecoder()) {
         self.urlSession = urlSession
         self.validator = validator
