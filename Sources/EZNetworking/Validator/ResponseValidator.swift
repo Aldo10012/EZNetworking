@@ -60,7 +60,6 @@ public struct ResponseValidatorImpl: ResponseValidator {
             throw NetworkingError.httpServerError(error, urlResponseHeaders)
         case .unknown:
             throw NetworkingError.internalError(.unknown)
-        
         }
     }
 }
