@@ -17,7 +17,7 @@ final class AsyncRequestPerformableTests: XCTestCase {
             urlSession: createMockURLSession(statusCode: 300)
         )
         await XCTAssertThrowsErrorAsync(try await sut.perform(request: MockRequest(), decodeTo: Person.self)) { error in
-            XCTAssertEqual(error as! NetworkingError, NetworkingError.redirect(.multipleChoices))
+            XCTAssertEqual(error as! NetworkingError, NetworkingError.redirect(.multipleChoices, [:]))
         }
     }
     
@@ -26,25 +26,25 @@ final class AsyncRequestPerformableTests: XCTestCase {
             urlSession: createMockURLSession(statusCode: 400)
         )
         await XCTAssertThrowsErrorAsync(try await sut.perform(request: MockRequest(), decodeTo: Person.self)) { error in
-            XCTAssertEqual(error as! NetworkingError, NetworkingError.httpClientError(.badRequest))
+            XCTAssertEqual(error as! NetworkingError, NetworkingError.httpClientError(.badRequest, [:]))
         }
     }
     
     func test_PerformAsync_WhenThereIsError_Fails() async throws {
         let sut = createAsyncRequestPerformer(
-            urlSession: createMockURLSession(error: NetworkingError.httpClientError(.badRequest))
+            urlSession: createMockURLSession(error: NetworkingError.httpClientError(.badRequest, [:]))
         )
         await XCTAssertThrowsErrorAsync(try await sut.perform(request: MockRequest(), decodeTo: Person.self)) { error in
-            XCTAssertEqual(error as! NetworkingError, NetworkingError.httpClientError(.badRequest))
+            XCTAssertEqual(error as! NetworkingError, NetworkingError.httpClientError(.badRequest, [:]))
         }
     }
     
     func test_PerformAsync_WhenThereIsHTTPError_Fails() async throws {
         let sut = createAsyncRequestPerformer(
-            urlSession: createMockURLSession(error: NetworkingError.httpClientError(.forbidden))
+            urlSession: createMockURLSession(error: NetworkingError.httpClientError(.forbidden, [:]))
         )
         await XCTAssertThrowsErrorAsync(try await sut.perform(request: MockRequest(), decodeTo: Person.self)) { error in
-            XCTAssertEqual(error as! NetworkingError, NetworkingError.httpClientError(.forbidden))
+            XCTAssertEqual(error as! NetworkingError, NetworkingError.httpClientError(.forbidden, [:]))
         }
     }
     
@@ -87,7 +87,7 @@ final class AsyncRequestPerformableTests: XCTestCase {
             urlSession: createMockURLSession(statusCode: 300)
         )
         await XCTAssertThrowsErrorAsync(try await sut.perform(request: MockRequest())) { error in
-            XCTAssertEqual(error as! NetworkingError, NetworkingError.redirect(.multipleChoices))
+            XCTAssertEqual(error as! NetworkingError, NetworkingError.redirect(.multipleChoices, [:]))
         }    }
     
     func test_PerformAsync_WithoutResponse_WhenStatusCodeIsNot200_Fails() async throws {
@@ -95,25 +95,25 @@ final class AsyncRequestPerformableTests: XCTestCase {
             urlSession: createMockURLSession(statusCode: 400)
         )
         await XCTAssertThrowsErrorAsync(try await sut.perform(request: MockRequest())) { error in
-            XCTAssertEqual(error as! NetworkingError, NetworkingError.httpClientError(.badRequest))
+            XCTAssertEqual(error as! NetworkingError, NetworkingError.httpClientError(.badRequest, [:]))
         }
     }
     
     func test_PerformAsync_WithoutResponse_WhenThereIsError_Fails() async throws {
         let sut = createAsyncRequestPerformer(
-            urlSession: createMockURLSession(error: NetworkingError.httpClientError(.badRequest))
+            urlSession: createMockURLSession(error: NetworkingError.httpClientError(.badRequest, [:]))
         )
         await XCTAssertThrowsErrorAsync(try await sut.perform(request: MockRequest())) { error in
-            XCTAssertEqual(error as! NetworkingError, NetworkingError.httpClientError(.badRequest))
+            XCTAssertEqual(error as! NetworkingError, NetworkingError.httpClientError(.badRequest, [:]))
         }
     }
     
     func test_PerformAsync_WithoutResponse_WhenThereIsHTTPError_Fails() async throws {
         let sut = createAsyncRequestPerformer(
-            urlSession: createMockURLSession(error: NetworkingError.httpClientError(.forbidden))
+            urlSession: createMockURLSession(error: NetworkingError.httpClientError(.forbidden, [:]))
         )
         await XCTAssertThrowsErrorAsync(try await sut.perform(request: MockRequest())) { error in
-            XCTAssertEqual(error as! NetworkingError, NetworkingError.httpClientError(.forbidden))
+            XCTAssertEqual(error as! NetworkingError, NetworkingError.httpClientError(.forbidden, [:]))
         }
     }
     

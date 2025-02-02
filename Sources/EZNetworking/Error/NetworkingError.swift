@@ -5,10 +5,10 @@ public enum NetworkingError: Error {
     case internalError(InternalError)               /// any internal error
 
     // HTTP Status Code errors
-    case information(HTTPInformationalStatus)       /// 1xx status code errors
-    case redirect(HTTPRedirectionStatus)            /// 3xx status code errors
-    case httpClientError(HTTPClientErrorStatus)     /// 4xx status code errors
-    case httpServerError(HTTPServerErrorStatus)     /// 5xx status code errors
+    case information(HTTPInformationalStatus, URLResponseHeaders)       /// 1xx status code errors
+    case redirect(HTTPRedirectionStatus, URLResponseHeaders)            /// 3xx status code errors
+    case httpClientError(HTTPClientErrorStatus, URLResponseHeaders)     /// 4xx status code errors
+    case httpServerError(HTTPServerErrorStatus, URLResponseHeaders)     /// 5xx status code errors
 
     // URL Errors
     case urlError(URLError)                         /// any URL error
@@ -20,16 +20,16 @@ extension NetworkingError: Equatable {
         case let (.internalError(error1), .internalError(error2)):
             return error1 == error2
         
-        case let (.information(error1), .information(error2)):
+        case let (.information(error1, _), .information(error2, _)):
             return error1 == error2
             
-        case let (.redirect(error1), .redirect(error2)):
+        case let (.redirect(error1, _), .redirect(error2, _)):
             return error1 == error2
 
-        case let (.httpClientError(error1), .httpClientError(error2)):
+        case let (.httpClientError(error1, _), .httpClientError(error2, _)):
             return error1 == error2
         
-        case let (.httpServerError(error1), .httpServerError(error2)):
+        case let (.httpServerError(error1, _), .httpServerError(error2, _)):
             return error1 == error2
 
         case let (.urlError(error), .urlError(error2)):

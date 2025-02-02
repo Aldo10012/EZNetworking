@@ -45,21 +45,23 @@ public struct ResponseValidatorImpl: ResponseValidator {
 
     private func validateStatusCodeAccepability(from httpURLResponse: HTTPURLResponse) throws {
         let statusCodeType = HTTPStatusCodeType.evaluate(from: httpURLResponse.statusCode)
+        let urlResponseHeaders = httpURLResponse.allHeaderFields
         
         switch statusCodeType {
         case .information(let status):
-            throw NetworkingError.information(status)
-        case .success(let status):
+            throw NetworkingError.information(status, urlResponseHeaders)
+        case .success(_):
             return
         case .redirectionMessage(let status):
-            throw NetworkingError.redirect(status)
+            throw NetworkingError.redirect(status, urlResponseHeaders)
         case .clientSideError(let error):
-            throw NetworkingError.httpClientError(error)
+            throw NetworkingError.httpClientError(error, urlResponseHeaders)
         case .serverSideError(let error):
-            throw NetworkingError.httpServerError(error)
+            throw NetworkingError.httpServerError(error, urlResponseHeaders)
         case .unknown:
             throw NetworkingError.internalError(.unknown)
-        
         }
     }
 }
+
+public typealias URLResponseHeaders = [AnyHashable: Any]

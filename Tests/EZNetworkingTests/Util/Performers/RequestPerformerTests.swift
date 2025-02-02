@@ -42,7 +42,7 @@ final class RequestPerformerTests: XCTestCase {
             case .success:
                 XCTFail()
             case .failure(let error):
-                XCTAssertEqual(error, NetworkingError.redirect(.multipleChoices))
+                XCTAssertEqual(error, NetworkingError.redirect(.multipleChoices, [:]))
             }
         }
         wait(for: [exp], timeout: 0.1)
@@ -59,7 +59,7 @@ final class RequestPerformerTests: XCTestCase {
             case .success:
                 XCTFail()
             case .failure(let error):
-                XCTAssertEqual(error, NetworkingError.httpClientError(.badRequest))
+                XCTAssertEqual(error, NetworkingError.httpClientError(.badRequest, [:]))
             }
         }
         wait(for: [exp], timeout: 0.1)
@@ -170,7 +170,7 @@ final class RequestPerformerTests: XCTestCase {
             case .success:
                 XCTFail()
             case .failure(let error):
-                XCTAssertEqual(error, NetworkingError.redirect(.multipleChoices))
+                XCTAssertEqual(error, NetworkingError.redirect(.multipleChoices, [:]))
             }
         }
         wait(for: [exp], timeout: 0.1)
@@ -187,7 +187,7 @@ final class RequestPerformerTests: XCTestCase {
             case .success:
                 XCTFail()
             case .failure(let error):
-                XCTAssertEqual(error, NetworkingError.httpClientError(.badRequest))
+                XCTAssertEqual(error, NetworkingError.httpClientError(.badRequest, [:]))
             }
         }
         wait(for: [exp], timeout: 0.1)
