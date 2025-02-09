@@ -66,6 +66,10 @@ final class RequestTests: XCTestCase {
     func testRequestCacheStrategy() {
         XCTAssertEqual(MockRequest().cacheStrategy, .networkWithCacheFallback)
     }
+    
+    func testCachStrategySetsCorrectCachePolicy() {
+        XCTAssertEqual(MockRequest().urlRequest?.cachePolicy, CacheStrategy.networkWithCacheFallback.urlRequestCachePolicy)
+    }
 }
 
 private struct MockRequest: Request {
