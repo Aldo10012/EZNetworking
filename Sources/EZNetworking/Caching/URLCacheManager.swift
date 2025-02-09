@@ -1,12 +1,12 @@
 import Foundation
 
-public protocol CacheManager {
+public protocol URLCacheManager {
     func clearAllCache()
     func clearCache(for request: URLRequest)
     func getCachedResponse(for request: URLRequest) -> CachedURLResponse?
 }
 
-public class URLCacheManager: CacheManager {
+public class URLCacheManagerImpl: URLCacheManager {
     private let urlCache: URLCache
     
     public init(urlCache: URLCache = URLCache.shared) {

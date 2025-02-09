@@ -4,21 +4,21 @@ import XCTest
 final class CacheManagerTests: XCTestCase {
     func testSpyURLCache_clearAllCache_doesRemoveAllCachedResponses() {
         let cache = SpyURLCache()
-        let sut = URLCacheManager(urlCache: cache)
+        let sut = URLCacheManagerImpl(urlCache: cache)
         sut.clearAllCache()
         XCTAssertTrue(cache.didRemoveAllCachedResponses)
     }
     
     func testSpyURLCache_clearCache_doesRemoveRemoveCachedResponse() {
         let cache = SpyURLCache()
-        let sut = URLCacheManager(urlCache: cache)
+        let sut = URLCacheManagerImpl(urlCache: cache)
         sut.clearCache(for: URLRequest(url: URL(string: "https://www.example.com")!))
         XCTAssertTrue(cache.didRemoveCachedResponse)
     }
     
     func testSpyURLCache_getCachedResponse_doesRemoveAllCachedResponses() {
         let cache = SpyURLCache()
-        let sut = URLCacheManager(urlCache: cache)
+        let sut = URLCacheManagerImpl(urlCache: cache)
         _ = sut.getCachedResponse(for: URLRequest(url: URL(string: "https://www.example.com")!))
         XCTAssertTrue(cache.didCachedResponse)
     }
