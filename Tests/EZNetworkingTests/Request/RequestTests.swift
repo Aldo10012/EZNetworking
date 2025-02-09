@@ -63,6 +63,9 @@ final class RequestTests: XCTestCase {
         XCTAssertEqual(sut.value(forHTTPHeaderField: "Authorization"), "Bearer api_key")
     }
     
+    func testRequestCacheStrategy() {
+        XCTAssertEqual(MockRequest().cacheStrategy, .networkWithCacheFallback)
+    }
 }
 
 private struct MockRequest: Request {
@@ -89,4 +92,6 @@ private struct MockRequest: Request {
     var body: Data? {
         "{\"name\": \"John\"}".data(using: .utf8)
     }
+    
+    var cacheStrategy: CacheStrategy { .networkWithCacheFallback }
 }

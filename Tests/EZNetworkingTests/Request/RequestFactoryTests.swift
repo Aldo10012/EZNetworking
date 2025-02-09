@@ -17,13 +17,15 @@ final class RequestFactoryTests: XCTestCase {
         ]
         let body = "{\"name\": \"John\"}".data(using: .utf8)
         let timeoutInterval: TimeInterval = 30
+        let cacheStrategy: CacheStrategy = .networkOnly
         
         let request = builder.build(httpMethod: httpMethod,
                                     baseUrlString: urlString,
                                     parameters: parameters,
                                     headers: headers,
                                     body: body,
-                                    timeoutInterval: timeoutInterval)
+                                    timeoutInterval: timeoutInterval,
+                                    cacheStrategy: cacheStrategy)
         
         XCTAssertNotNil(request)
         XCTAssertEqual(request.baseUrlString, "https://example.com/api")
@@ -32,6 +34,7 @@ final class RequestFactoryTests: XCTestCase {
         XCTAssertEqual(request.body, body)
         XCTAssertEqual(request.timeoutInterval, timeoutInterval)
         XCTAssertEqual(request.headers, headers)
+        XCTAssertEqual(request.cacheStrategy, cacheStrategy)
     }
     
     func testBuildURLRequestWithNoParametersAndHeaders() {

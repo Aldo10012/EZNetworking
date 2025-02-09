@@ -7,10 +7,12 @@ public protocol Request {
     var headers: [HTTPHeader]? { get }
     var body: Data? { get }
     var timeoutInterval: TimeInterval { get }
+    var cacheStrategy: CacheStrategy { get }
 }
 
 public extension Request {
     var timeoutInterval: TimeInterval { 60 }
+    var cacheStrategy: CacheStrategy { .networkOnly }
 
     var urlRequest: URLRequest? {
         guard let url = URL(string: baseUrlString) else {
@@ -41,4 +43,5 @@ internal struct EZRequest: Request {
     var headers: [HTTPHeader]?
     var body: Data?
     var timeoutInterval: TimeInterval
+    var cacheStrategy: CacheStrategy
 }

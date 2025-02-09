@@ -17,6 +17,7 @@ final class RequestBuilderTests: XCTestCase {
         ]
         let body = "{\"name\": \"John\"}".data(using: .utf8)!
         let timeoutInterval: TimeInterval = 30
+        let cacheStrategy: CacheStrategy = .networkOnly
         
         let request = builder
             .setHttpMethod(httpMethod)
@@ -25,6 +26,7 @@ final class RequestBuilderTests: XCTestCase {
             .setHeaders(headers)
             .setBody(body)
             .setTimeoutInterval(timeoutInterval)
+            .setCacheStrategy(cacheStrategy)
             .build()
         
         XCTAssertNotNil(request)
@@ -34,6 +36,7 @@ final class RequestBuilderTests: XCTestCase {
         XCTAssertEqual(request?.body, body)
         XCTAssertEqual(request?.timeoutInterval, timeoutInterval)
         XCTAssertEqual(request?.headers, headers)
+        XCTAssertEqual(request?.cacheStrategy, cacheStrategy)
     }
     
     func testBuildURLRequestWithNoParametersAndHeaders() {
