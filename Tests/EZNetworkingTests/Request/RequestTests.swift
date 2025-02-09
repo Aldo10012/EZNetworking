@@ -18,15 +18,15 @@ final class RequestTests: XCTestCase {
 
         let firstParam = try XCTUnwrap(parameters[0])
         XCTAssertEqual(firstParam.key, "key_1")
-        XCTAssertEqual(firstParam.key, "key_1")
+        XCTAssertEqual(firstParam.value, "value_1")
 
         let secondParam = try XCTUnwrap(parameters[1])
         XCTAssertEqual(secondParam.key, "key_2")
-        XCTAssertEqual(secondParam.key, "key_2")
+        XCTAssertEqual(secondParam.value, "value_2")
         
         let thirdParam = try XCTUnwrap(parameters[2])
         XCTAssertEqual(thirdParam.key, "key_3")
-        XCTAssertEqual(thirdParam.key, "key_3")
+        XCTAssertEqual(thirdParam.value, "value_3")
     }
     
     func testRequestHeaders() throws {
@@ -70,24 +70,19 @@ final class RequestTests: XCTestCase {
 
 private struct MockRequest: Request {
     var httpMethod: HTTPMethod { .GET }
-    
     var baseUrlString: String { "https://www.example.com" }
     
-    var parameters: [HTTPParameter]? {
-        [
-            .init(key: "key_1", value: "value_1"),
-            .init(key: "key_2", value: "value_2"),
-            .init(key: "key_3", value: "value_3")
-        ]
-    }
+    var parameters: [HTTPParameter]? {[
+        .init(key: "key_1", value: "value_1"),
+        .init(key: "key_2", value: "value_2"),
+        .init(key: "key_3", value: "value_3")
+    ]}
     
-    var headers: [HTTPHeader]? {
-        [
-            .accept(.json),
-            .contentType(.json),
-            .authorization(.bearer("api_key"))
-        ]
-    }
+    var headers: [HTTPHeader]? {[
+        .accept(.json),
+        .contentType(.json),
+        .authorization(.bearer("api_key"))
+    ]}
     
     var body: Data? {
         "{\"name\": \"John\"}".data(using: .utf8)
