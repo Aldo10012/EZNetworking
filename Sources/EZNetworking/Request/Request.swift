@@ -8,11 +8,13 @@ public protocol Request {
     var body: Data? { get }
     var timeoutInterval: TimeInterval { get }
     var cacheStrategy: CacheStrategy { get }
+    var additionalHeaders: [HTTPHeader]? { get set }
 }
 
 public extension Request {
     var timeoutInterval: TimeInterval { 60 }
     var cacheStrategy: CacheStrategy { .networkOnly }
+    var additionalHeaders: [HTTPHeader]? { nil }
 
     var urlRequest: URLRequest? {
         guard let url = URL(string: baseUrlString) else {
@@ -30,10 +32,19 @@ public extension Request {
         }
 
         if let headers = headers {
-            HTTPHeaderEncoderImpl().encodeHeaders(for: &request, with: headers)
+            if let additionalHeaders = additionalHeaders {
+                HTTPHeaderEncoderImpl().encodeHeaders(for: &request, with: headers + additionalHeaders)
+            } else {
+                HTTPHeaderEncoderImpl().encodeHeaders(for: &request, with: headers)
+            }
         }
 
         return request
+    }
+    
+    var etagKey: String {
+        let url: String = urlRequest?.url?.absoluteString ?? ""
+        return "HTTPMethod=\(httpMethod.rawValue)_URL=\(url)"
     }
 }
 
@@ -45,4 +56,5 @@ internal struct EZRequest: Request {
     var body: Data?
     var timeoutInterval: TimeInterval
     var cacheStrategy: CacheStrategy
+    var additionalHeaders: [HTTPHeader]?
 }

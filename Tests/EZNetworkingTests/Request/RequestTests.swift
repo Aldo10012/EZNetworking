@@ -47,6 +47,16 @@ final class RequestTests: XCTestCase {
         XCTAssertEqual(thirdHeader.value, "Bearer api_key")
     }
     
+    func testAdditionalRequestHeaders() throws {
+        let sut = MockRequest(additionalHeaders: [.cookie("some_value")])
+        let headers = try XCTUnwrap(sut.additionalHeaders)
+        XCTAssertEqual(headers.count, 1)
+
+        let firstHeader = try XCTUnwrap(headers[0])
+        XCTAssertEqual(firstHeader.key, "Cookie")
+        XCTAssertEqual(firstHeader.value, "some_value")
+    }
+    
     func testRequestTimeoutInterval() {
         XCTAssertEqual(MockRequest().timeoutInterval, 60)
     }
@@ -59,8 +69,24 @@ final class RequestTests: XCTestCase {
         XCTAssertEqual(sut.httpMethod, "GET")
         XCTAssertEqual(sut.httpBody, "{\"name\": \"John\"}".data(using: .utf8))
         XCTAssertEqual(sut.timeoutInterval, 60)
+        XCTAssertEqual(sut.value(forHTTPHeaderField: "Accept"), "application/json")
         XCTAssertEqual(sut.value(forHTTPHeaderField: "Content-Type"), "application/json")
         XCTAssertEqual(sut.value(forHTTPHeaderField: "Authorization"), "Bearer api_key")
+        XCTAssertNil(sut.value(forHTTPHeaderField: "Cookie"))
+    }
+    
+    func testRequestBuildMethodWithAdditionalHeaders() throws {
+        let request = MockRequest(additionalHeaders: [.cookie("some_value")])
+        let sut = try XCTUnwrap(request.urlRequest)
+        
+        XCTAssertEqual(sut.url?.absoluteString, "https://www.example.com?key_1=value_1&key_2=value_2&key_3=value_3")
+        XCTAssertEqual(sut.httpMethod, "GET")
+        XCTAssertEqual(sut.httpBody, "{\"name\": \"John\"}".data(using: .utf8))
+        XCTAssertEqual(sut.timeoutInterval, 60)
+        XCTAssertEqual(sut.value(forHTTPHeaderField: "Accept"), "application/json")
+        XCTAssertEqual(sut.value(forHTTPHeaderField: "Content-Type"), "application/json")
+        XCTAssertEqual(sut.value(forHTTPHeaderField: "Authorization"), "Bearer api_key")
+        XCTAssertEqual(sut.value(forHTTPHeaderField: "Cookie"), "some_value")
     }
     
     func testRequestCacheStrategy() {
@@ -69,6 +95,11 @@ final class RequestTests: XCTestCase {
     
     func testCachStrategySetsCorrectCachePolicy() {
         XCTAssertEqual(MockRequest().urlRequest?.cachePolicy, CacheStrategy.networkWithCacheFallback.urlRequestCachePolicy)
+    }
+    
+    func testEtagKey() {
+        let expectedETagKey = "HTTPMethod=GET_URL=https://www.example.com?key_1=value_1&key_2=value_2&key_3=value_3"
+        XCTAssertEqual(MockRequest().etagKey, expectedETagKey)
     }
 }
 
@@ -93,4 +124,5 @@ private struct MockRequest: Request {
     }
     
     var cacheStrategy: CacheStrategy { .networkWithCacheFallback }
+    var additionalHeaders: [EZNetworking.HTTPHeader]?
 }
