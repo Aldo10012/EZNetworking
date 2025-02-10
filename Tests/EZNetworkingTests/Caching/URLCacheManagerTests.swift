@@ -38,6 +38,6 @@ private class SpyURLCache: URLCache, @unchecked Sendable {
     var didCachedResponse = false
     override func cachedResponse(for: URLRequest) -> CachedURLResponse? {
         didCachedResponse = true
-        return nil
+        return CachedURLResponse()
     }
 }
