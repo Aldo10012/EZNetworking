@@ -176,6 +176,7 @@ private struct MockRequest: Request {
     var parameters: [HTTPParameter]? { nil }
     var headers: [HTTPHeader]? { nil }
     var body: Data? { nil }
+    var additionalHeaders: [HTTPHeader]?
 }
 
 private struct MockRequestWithNilBuild: Request {
@@ -185,4 +186,5 @@ private struct MockRequestWithNilBuild: Request {
     var headers: [HTTPHeader]? { nil }
     var body: Data? { nil }
     var urlRequest: URLRequest? { nil }
+    var additionalHeaders: [HTTPHeader]?
 }
