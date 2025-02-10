@@ -246,4 +246,32 @@ final class HTTPStatusCodeTypeTests: XCTestCase {
     func testStatusCode511IsNetworkAuthenticationRequired() {
         XCTAssertEqual(HTTPStatusCodeType.evaluate(from: 511), .serverSideError(.networkAuthenticationRequired))
     }
+    
+    // MARK: test HTTPStatusCodeType.AcceptableStatusCode
+    
+    func testSuccessStatusCodeEquality() {
+        XCTAssertEqual(HTTPStatusCodeType.AcceptableStatusCode.success(.ok),
+                       HTTPStatusCodeType.AcceptableStatusCode.success(.ok))
+    }
+    
+    func testSuccessStatusCodeInequality() {
+        XCTAssertNotEqual(HTTPStatusCodeType.AcceptableStatusCode.success(.ok),
+                          HTTPStatusCodeType.AcceptableStatusCode.success(.accepted))
+    }
+    
+    func testRedirectionStatusCodeEquality() {
+        XCTAssertEqual(HTTPStatusCodeType.AcceptableStatusCode.redirectionMessage(.found),
+                       HTTPStatusCodeType.AcceptableStatusCode.redirectionMessage(.found))
+    }
+    
+    func testRedirectionStatusCodeInequality() {
+        XCTAssertNotEqual(HTTPStatusCodeType.AcceptableStatusCode.redirectionMessage(.found),
+                          HTTPStatusCodeType.AcceptableStatusCode.redirectionMessage(.movedPermanently))
+    }
+    
+    func testSuccessAndRedirectionStatusCodeInequality() {
+        XCTAssertNotEqual(HTTPStatusCodeType.AcceptableStatusCode.success(.ok),
+                          HTTPStatusCodeType.AcceptableStatusCode.redirectionMessage(.found))
+    }
+    
 }

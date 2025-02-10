@@ -18,4 +18,20 @@ public enum HTTPStatusCodeType: Equatable {
         default: .unknown
         }
     }
+    
+    public enum AcceptableStatusCode: Equatable {
+        case success(HTTPSuccessStatus)
+        case redirectionMessage(HTTPRedirectionStatus)
+        
+        public static func == (lhs: HTTPStatusCodeType.AcceptableStatusCode, rhs: HTTPStatusCodeType.AcceptableStatusCode) -> Bool {
+            switch (lhs, rhs) {
+            case let (.success(status1), .success(status2)):
+                return status1 == status2
+            case let (.redirectionMessage(status1), .redirectionMessage(status2)):
+                return status1 == status2
+            default:
+                return false
+            }
+        }
+    }
 }
