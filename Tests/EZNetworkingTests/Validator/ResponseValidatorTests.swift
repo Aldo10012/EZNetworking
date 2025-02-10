@@ -79,6 +79,10 @@ final class URLResponseValidatorTests: XCTestCase {
         }
     }
     
+    func test_validateStatus_givenHTTPURLResponseStatusCode304_NoThrow() throws {
+        XCTAssertNoThrow(try sut.validateStatus(from: createHttpUrlResponse(statusCode: 304)))
+    }
+    
     func test_validateStatus_givenHTTPURLResponseStatusCode400_Throws() throws {
         XCTAssertThrowsError(try sut.validateStatus(from: createHttpUrlResponse(statusCode: 400))) { error in
             XCTAssertEqual(error as? NetworkingError, NetworkingError.httpClientError(.badRequest, [:]))

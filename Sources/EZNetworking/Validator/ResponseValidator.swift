@@ -2,7 +2,7 @@ import Foundation
 
 public protocol ResponseValidator {
     func validateNoError(_ error: Error?) throws
-    func validateStatus(from urlResponse: URLResponse?) throws
+    func validateStatus(from urlResponse: URLResponse?) throws -> (HTTPStatusCodeType.AcceptableStatusCode, URLResponseHeaders)
     func validateData(_ data: Data?) throws -> Data
     func validateUrl(_ url: URL?) throws -> URL
 }
@@ -19,14 +19,14 @@ public struct ResponseValidatorImpl: ResponseValidator {
         }
     }
     
-    public func validateStatus(from urlResponse: URLResponse?) throws {
+    public func validateStatus(from urlResponse: URLResponse?) throws -> (HTTPStatusCodeType.AcceptableStatusCode, URLResponseHeaders) {
         guard let urlResponse else {
             throw NetworkingError.internalError(.noResponse)
         }
         guard let httpURLResponse = urlResponse as? HTTPURLResponse else {
             throw NetworkingError.internalError(.noHTTPURLResponse)
         }
-        try validateStatusCodeAccepability(from: httpURLResponse)
+        return try validateStatusCodeAccepability(from: httpURLResponse)
     }
     
     public func validateData(_ data: Data?) throws -> Data {
@@ -43,16 +43,19 @@ public struct ResponseValidatorImpl: ResponseValidator {
         return url
     }
 
-    private func validateStatusCodeAccepability(from httpURLResponse: HTTPURLResponse) throws {
+    private func validateStatusCodeAccepability(from httpURLResponse: HTTPURLResponse) throws -> (HTTPStatusCodeType.AcceptableStatusCode, URLResponseHeaders) {
         let statusCodeType = HTTPStatusCodeType.evaluate(from: httpURLResponse.statusCode)
         let urlResponseHeaders = httpURLResponse.allHeaderFields
         
         switch statusCodeType {
         case .information(let status):
             throw NetworkingError.information(status, urlResponseHeaders)
-        case .success(_):
-            return
+        case .success(let status):
+            return (.success(status), urlResponseHeaders)
         case .redirectionMessage(let status):
+            if status == .notModified {
+                return (.redirectionMessage(status), urlResponseHeaders)
+            }
             throw NetworkingError.redirect(status, urlResponseHeaders)
         case .clientSideError(let error):
             throw NetworkingError.httpClientError(error, urlResponseHeaders)

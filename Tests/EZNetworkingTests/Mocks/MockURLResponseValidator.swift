@@ -10,10 +10,11 @@ struct MockURLResponseValidator: ResponseValidator {
         }
     }
     
-    func validateStatus(from urlResponse: URLResponse?) throws {
+    func validateStatus(from urlResponse: URLResponse?) throws -> (HTTPStatusCodeType.AcceptableStatusCode, URLResponseHeaders) {
         if let throwError = throwError {
             throw throwError
         }
+        return (.success(.ok), [:])
     }
     
     func validateData(_ data: Data?) throws -> Data {
