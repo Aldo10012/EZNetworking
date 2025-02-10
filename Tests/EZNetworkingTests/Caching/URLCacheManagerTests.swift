@@ -16,10 +16,10 @@ final class CacheManagerTests: XCTestCase {
         XCTAssertTrue(cache.didRemoveCachedResponse)
     }
     
-    func testSpyURLCache_getCachedResponse_doesRemoveAllCachedResponses() {
+    func testSpyURLCache_getCachedResponse_doesRemoveAllCachedResponses() throws {
         let cache = SpyURLCache()
         let sut = URLCacheManagerImpl(urlCache: cache)
-        _ = sut.getCachedResponse(for: URLRequest(url: URL(string: "https://www.example.com")!))
+        _ = try sut.getCachedResponse(for: URLRequest(url: URL(string: "https://www.example.com")!))
         XCTAssertTrue(cache.didCachedResponse)
     }
 }

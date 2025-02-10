@@ -10,6 +10,7 @@ public enum InternalError: Error {
     case noRequest
     case noHTTPURLResponse
     case invalidImageData
+    case couldNotFetchCachedResponse
     case unknown
 }
 
@@ -24,7 +25,8 @@ extension InternalError: Equatable {
             (.noResponse, .noResponse),
             (.noRequest, .noRequest),
             (.noHTTPURLResponse, .noHTTPURLResponse),
-            (.invalidImageData, .invalidImageData):
+            (.invalidImageData, .invalidImageData),
+            (.couldNotFetchCachedResponse, .couldNotFetchCachedResponse):
             return true
             
         case let (.requestFailed(lhsError), .requestFailed(rhsError)):

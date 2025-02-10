@@ -3,7 +3,7 @@ import Foundation
 public protocol URLCacheManager {
     func clearAllCache()
     func clearCache(for request: URLRequest)
-    func getCachedResponse(for request: URLRequest) -> CachedURLResponse?
+    func getCachedResponse(for request: URLRequest) throws -> CachedURLResponse
 }
 
 public class URLCacheManagerImpl: URLCacheManager {
@@ -21,7 +21,10 @@ public class URLCacheManagerImpl: URLCacheManager {
         urlCache.removeCachedResponse(for: request)
     }
     
-    public func getCachedResponse(for request: URLRequest) -> CachedURLResponse? {
-        return urlCache.cachedResponse(for: request)
+    public func getCachedResponse(for request: URLRequest) throws -> CachedURLResponse {
+        guard let cachedResponse = urlCache.cachedResponse(for: request) else {
+            throw NetworkingError.internalError(.couldNotFetchCachedResponse)
+        }
+        return cachedResponse
     }
 }

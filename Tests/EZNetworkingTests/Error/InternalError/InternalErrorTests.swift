@@ -43,4 +43,8 @@ final class InternalErrorTestsTests: XCTestCase {
     func testUnknownIsEquatable() {
         XCTAssertEqual(InternalError.unknown, InternalError.unknown)
     }
+    
+    func testCouldNotFetchCachedResponseIsEquatable() {
+        XCTAssertEqual(InternalError.couldNotFetchCachedResponse, InternalError.couldNotFetchCachedResponse)
+    }
 }
