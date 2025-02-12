@@ -6,7 +6,8 @@ public protocol RequestFactory {
                parameters: [HTTPParameter]?,
                headers: [HTTPHeader]?,
                body: Data?,
-               timeoutInterval: TimeInterval) -> Request
+               timeoutInterval: TimeInterval,
+               cachePolicy: URLRequest.CachePolicy) -> Request
 }
 
 public class RequestFactoryImpl: RequestFactory {
@@ -24,8 +25,9 @@ public class RequestFactoryImpl: RequestFactory {
                parameters: [HTTPParameter]?,
                headers: [HTTPHeader]? = nil,
                body: Data? = nil,
-               timeoutInterval: TimeInterval = 60
+               timeoutInterval: TimeInterval = 60,
+               cachePolicy: URLRequest.CachePolicy = .useProtocolCachePolicy
     ) -> Request {
-        return EZRequest(httpMethod: httpMethod, baseUrlString: baseUrlString, parameters: parameters, headers: headers, body: body, timeoutInterval: timeoutInterval)
+        return EZRequest(httpMethod: httpMethod, baseUrlString: baseUrlString, parameters: parameters, headers: headers, body: body, timeoutInterval: timeoutInterval, cachePolicy: cachePolicy)
     }
 }

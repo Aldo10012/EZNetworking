@@ -34,6 +34,7 @@ final class RequestBuilderTests: XCTestCase {
         XCTAssertEqual(request?.body, body)
         XCTAssertEqual(request?.timeoutInterval, timeoutInterval)
         XCTAssertEqual(request?.headers, headers)
+        XCTAssertEqual(request?.cachePolicy, .useProtocolCachePolicy)
     }
     
     func testBuildURLRequestWithNoParametersAndHeaders() {
@@ -54,6 +55,7 @@ final class RequestBuilderTests: XCTestCase {
         XCTAssertNil(request?.body)
         XCTAssertEqual(request?.timeoutInterval, 60)
         XCTAssertNil(request?.headers)
+        XCTAssertEqual(request?.cachePolicy, .useProtocolCachePolicy)
     }
 
 }

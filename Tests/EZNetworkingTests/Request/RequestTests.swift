@@ -63,6 +63,12 @@ final class RequestTests: XCTestCase {
         XCTAssertEqual(sut.value(forHTTPHeaderField: "Authorization"), "Bearer api_key")
     }
     
+    func testRequestCachePolicy() throws {
+        let request = MockRequest()
+        let sut = try XCTUnwrap(request.urlRequest)
+        XCTAssertEqual(sut.cachePolicy, .useProtocolCachePolicy)
+    }
+    
 }
 
 private struct MockRequest: Request {
