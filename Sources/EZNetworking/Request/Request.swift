@@ -7,10 +7,12 @@ public protocol Request {
     var headers: [HTTPHeader]? { get }
     var body: Data? { get }
     var timeoutInterval: TimeInterval { get }
+    var cachePolicy: URLRequest.CachePolicy { get }
 }
 
 public extension Request {
     var timeoutInterval: TimeInterval { 60 }
+    var cachePolicy: URLRequest.CachePolicy { .useProtocolCachePolicy }
 
     var urlRequest: URLRequest? {
         guard let url = URL(string: baseUrlString) else {
@@ -21,6 +23,7 @@ public extension Request {
         request.httpMethod = httpMethod.rawValue
         request.httpBody = body
         request.timeoutInterval = timeoutInterval
+        request.cachePolicy = cachePolicy
 
         if let parameters = parameters {
             try? HTTPParameterEncoderImpl().encodeParameters(for: &request, with: parameters)
@@ -41,4 +44,5 @@ internal struct EZRequest: Request {
     var headers: [HTTPHeader]?
     var body: Data?
     var timeoutInterval: TimeInterval
+    var cachePolicy: URLRequest.CachePolicy
 }

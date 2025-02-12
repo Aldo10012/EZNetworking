@@ -7,6 +7,7 @@ public protocol RequestBuilder {
     func setHeaders(_ headers: [HTTPHeader]) -> RequestBuilder
     func setBody(_ body: Data) -> RequestBuilder
     func setTimeoutInterval(_ timeoutInterval: TimeInterval) -> RequestBuilder
+    func setCachePolicy(_ cachePolicy: URLRequest.CachePolicy) -> RequestBuilder
     func build() -> Request?
 }
 
@@ -17,6 +18,7 @@ public class RequestBuilderImpl: RequestBuilder {
     private var headers: [HTTPHeader]?
     private var body: Data?
     private var timeoutInterval: TimeInterval?
+    private var cachePolicy: URLRequest.CachePolicy = .useProtocolCachePolicy
 
     private let headerEncoder: HTTPHeaderEncoder
     private let paramEncoder: HTTPParameterEncoder
@@ -56,9 +58,14 @@ public class RequestBuilderImpl: RequestBuilder {
         self.timeoutInterval = timeoutInterval
         return self
     }
+    
+    public func setCachePolicy(_ cachePolicy: URLRequest.CachePolicy) -> RequestBuilder {
+        self.cachePolicy = cachePolicy
+        return self
+    }
 
     public func build() -> Request? {
         guard let httpMethod, let baseUrlString else { return nil }
-        return EZRequest(httpMethod: httpMethod, baseUrlString: baseUrlString, parameters: parameters, headers: headers, body: body, timeoutInterval: timeoutInterval ?? 60)
+        return EZRequest(httpMethod: httpMethod, baseUrlString: baseUrlString, parameters: parameters, headers: headers, body: body, timeoutInterval: timeoutInterval ?? 60, cachePolicy: cachePolicy)
     }
 }

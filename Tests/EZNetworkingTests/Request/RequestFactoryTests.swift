@@ -32,6 +32,7 @@ final class RequestFactoryTests: XCTestCase {
         XCTAssertEqual(request.body, body)
         XCTAssertEqual(request.timeoutInterval, timeoutInterval)
         XCTAssertEqual(request.headers, headers)
+        XCTAssertEqual(request.cachePolicy, .useProtocolCachePolicy)
     }
     
     func testBuildURLRequestWithNoParametersAndHeaders() {
@@ -53,6 +54,7 @@ final class RequestFactoryTests: XCTestCase {
         XCTAssertNil(request.body)
         XCTAssertEqual(request.timeoutInterval, 60)
         XCTAssertNil(request.headers)
+        XCTAssertEqual(request.cachePolicy, .useProtocolCachePolicy)
     }
     
 }
