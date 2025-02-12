@@ -2,6 +2,10 @@ import XCTest
 @testable import EZNetworking
 
 class HTTPBodyTests: XCTestCase {
+    
+    func testNone() {
+        XCTAssertNil(HTTPBody.none.data)
+    }
 
     // MARK: - Test string case
     func testStringSuccess() {

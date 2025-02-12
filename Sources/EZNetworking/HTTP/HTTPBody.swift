@@ -1,6 +1,7 @@
 import Foundation
 
 public enum HTTPBody {
+    case none
     case string(_ str: String)
     case dictionary(_ dic: Dictionary<String, Any>)
     case encodable(_ encodable: Encodable)
@@ -12,6 +13,9 @@ public enum HTTPBody {
     
     var data: Data? {
         switch self {
+        case .none:
+            return nil
+
         case .string(let string):
             return string.data(using: .utf8)
             
