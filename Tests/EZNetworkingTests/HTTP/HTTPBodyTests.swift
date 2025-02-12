@@ -126,4 +126,72 @@ class HTTPBodyTests: XCTestCase {
         let body = HTTPBody.urlComponents(components)
         XCTAssertNil(body.data)
     }
+    
+    func testStringEquality() {
+        let body1 = HTTPBody.string("testString")
+        let body2 = HTTPBody.string("testString")
+        let body3 = HTTPBody.string("differentString")
+        
+        XCTAssertTrue(body1 == body2)
+        XCTAssertFalse(body1 == body3)
+    }
+    
+    func testDictionaryEquality() {
+        let dictionary1: [String: Any] = ["key1": "value1", "key2": 2]
+        let dictionary2: [String: Any] = ["key1": "value1", "key2": 3]
+        
+        let body1 = HTTPBody.dictionary(dictionary1)
+        let body2 = HTTPBody.dictionary(dictionary2)
+        
+        XCTAssertFalse(body1 == body2)
+    }
+    
+    func testEncodableEquality() {
+        struct TestEncodable: Codable, Equatable {
+            let id: Int
+            let name: String
+        }
+        
+        let encodable1 = TestEncodable(id: 1, name: "Test")
+        let encodable2 = TestEncodable(id: 1, name: "Test")
+        let encodable3 = TestEncodable(id: 2, name: "Test")
+        
+        let body1 = HTTPBody.encodable(encodable1)
+        let body2 = HTTPBody.encodable(encodable2)
+        let body3 = HTTPBody.encodable(encodable3)
+        
+        XCTAssertTrue(body1 == body2)
+        XCTAssertFalse(body1 == body3)
+    }
+    
+    // Test for .data case
+    func testDataEquality() {
+        let data1 = Data([0x01, 0x02, 0x03])
+        let data2 = Data([0x01, 0x02, 0x03])
+        let data3 = Data([0x01, 0x02, 0x04])
+        
+        let body1 = HTTPBody.data(data1)
+        let body2 = HTTPBody.data(data2)
+        let body3 = HTTPBody.data(data3)
+        
+        XCTAssertTrue(body1 == body2)
+        XCTAssertFalse(body1 == body3)
+    }
+    
+    func testMixedCaseEquality() {
+        let stringBody = HTTPBody.string("testString")
+        let dictionaryBody: [String: Any] = ["key": "value"]
+        let body1 = HTTPBody.dictionary(dictionaryBody)
+        
+        XCTAssertFalse(stringBody == body1)
+    }
+    
+    func testDataEqualityNil() {
+        let body1 = HTTPBody.data(Data([0x01, 0x02, 0x03]))
+        let body2 = HTTPBody.data(Data([0x01, 0x02, 0x03]))
+        
+        XCTAssertTrue(body1 == body2)
+        let body3 = HTTPBody.data(Data())
+        XCTAssertFalse(body1 == body3)
+    }
 }

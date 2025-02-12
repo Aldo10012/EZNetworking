@@ -2,7 +2,7 @@ import Foundation
 
 public enum HTTPBody {
     case string(_ str: String)
-    case dictionary(_ dic: Dictionary<String, Any>)
+    case dictionary(_ dic: [String: Any])
     case encodable(_ encodable: Encodable)
     case data(_ data: Data)
     case fileURL(_ url: URL)
@@ -68,10 +68,10 @@ extension HTTPBody: Equatable {
             return str1 == str2
             
         case (.dictionary(let dic1), .dictionary(let dic2)):
-            return true
+            return dictionariesAreEqual(dic1, dic2)
             
         case (.encodable(let encodable1), .encodable(let encodable2)):
-            return String(describing: encodable1) == String(describing: encodable2)  // Compare encoded string representations
+            return String(describing: encodable1) == String(describing: encodable2)
             
         case (.data(let data1), .data(let data2)):
             return data1 == data2
@@ -89,6 +89,16 @@ extension HTTPBody: Equatable {
             return components1 == components2
             
         default:
+            return false
+        }
+    }
+    
+    private static func dictionariesAreEqual(_ dic1: [String: Any], _ dic2: [String: Any]) -> Bool {
+        do {
+            let data1 = try JSONSerialization.data(withJSONObject: dic1, options: [])
+            let data2 = try JSONSerialization.data(withJSONObject: dic2, options: [])
+            return data1 == data2
+        } catch {
             return false
         }
     }
