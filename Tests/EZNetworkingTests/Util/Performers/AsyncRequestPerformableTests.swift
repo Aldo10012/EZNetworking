@@ -21,6 +21,53 @@ final class AsyncRequestPerformableTests: XCTestCase {
         }
     }
     
+    func test_PerformAsync_StatusCode200_WhenCachStrategyIsNetworkOnly_Success() async throws {
+        let request = MockRequest(cacheStrategy: .networkOnly)
+        let etagManager = MockETagManager()
+        let sut = createAsyncRequestPerformer(
+            urlSession: createMockURLSession(statusCode: 200),
+            etagManager: etagManager
+        )
+        
+        _ = try await sut.perform(request: request, decodeTo: Person.self)
+        
+        XCTAssertFalse(etagManager.didGetETag)
+        XCTAssertFalse(etagManager.didUpdateETag)
+    }
+    
+    func test_PerformAsync_StatusCode200_WhenCachStrategyIsValidateWithETag_Success() async throws {
+        let request = MockRequest(cacheStrategy: .validateWithETag)
+        let etagManager = MockETagManager()
+        let cacheManager = MockURLCacheManager()
+        let sut = createAsyncRequestPerformer(
+            urlSession: createMockURLSession(statusCode: 200),
+            cacheManager: cacheManager,
+            etagManager: etagManager
+        )
+        
+        _ = try await sut.perform(request: request, decodeTo: Person.self)
+        
+        XCTAssertTrue(etagManager.didGetETag)
+        XCTAssertTrue(etagManager.didUpdateETag)
+        XCTAssertFalse(cacheManager.didGetCachedResponse)
+    }
+    
+    func test_PerformAsync_StatusCode304_WhenCachStrategyIsValidateWithETag_Success() async throws {
+        let request = MockRequest(cacheStrategy: .validateWithETag)
+        let cacheManager = MockURLCacheManager()
+        let etagManager = MockETagManager()
+        let sut = createAsyncRequestPerformer(
+            urlSession: createMockURLSession(statusCode: 304),
+            cacheManager: cacheManager,
+            etagManager: etagManager
+        )
+        _ = try await sut.perform(request: request, decodeTo: Person.self)
+        
+        XCTAssertTrue(etagManager.didGetETag)
+        XCTAssertFalse(etagManager.didUpdateETag)
+        XCTAssertTrue(cacheManager.didGetCachedResponse)
+    }
+    
     func test_PerformAsync_WhenStatusCodeIsNot200_Fails() async throws {
         let sut = createAsyncRequestPerformer(
             urlSession: createMockURLSession(statusCode: 400)
@@ -146,9 +193,11 @@ final class AsyncRequestPerformableTests: XCTestCase {
 private func createAsyncRequestPerformer(
     urlSession: URLSessionTaskProtocol = createMockURLSession(),
     validator: ResponseValidator = ResponseValidatorImpl(),
-    requestDecoder: RequestDecodable = RequestDecoder()
+    requestDecoder: RequestDecodable = RequestDecoder(),
+    cacheManager: URLCacheManager = MockURLCacheManager(),
+    etagManager: ETagManager = MockETagManager()
 ) -> AsyncRequestPerformer {
-    return AsyncRequestPerformer(urlSession: urlSession, validator: validator, requestDecoder: requestDecoder)
+    return AsyncRequestPerformer(urlSession: urlSession, validator: validator, requestDecoder: requestDecoder, cacheManager: cacheManager, etagManager: etagManager)
 }
 
 private func createMockURLSession(
@@ -176,6 +225,7 @@ private struct MockRequest: Request {
     var parameters: [HTTPParameter]? { nil }
     var headers: [HTTPHeader]? { nil }
     var body: Data? { nil }
+    var cacheStrategy: CacheStrategy = .networkOnly
     var additionalHeaders: [HTTPHeader]?
 }
 
@@ -187,4 +237,38 @@ private struct MockRequestWithNilBuild: Request {
     var body: Data? { nil }
     var urlRequest: URLRequest? { nil }
     var additionalHeaders: [HTTPHeader]?
+}
+
+private class MockURLCacheManager: URLCacheManager {
+    func clearAllCache() { }
+    func clearCache(for request: URLRequest) { }
+    
+    var didGetCachedResponse = false
+    func getCachedResponse(for request: URLRequest) throws -> CachedURLResponse {
+        didGetCachedResponse = true
+        return CachedURLResponse(response: buildResponse(statusCode: 304),
+                                 data: mockPersonJsonData)
+    }
+}
+
+private class MockETagManager: ETagManager {
+    func addETagHeader(to request: URLRequest, for key: String) -> URLRequest {
+        return URLRequest(url: URL(string: "https://www.example.com")!)
+    }
+    
+    var didUpdateETag = false
+    func updateETag(from response: URLResponseHeaders, for key: String) {
+        didUpdateETag = true
+    }
+    
+    func setETag(_ etag: String, for key: String) {}
+    
+    var didGetETag = false
+    func getETag(for key: String) -> String? {
+        didGetETag = true
+        return "some_etag"
+    }
+    
+    func removeETag(for key: String) {}
+    func clearAllETags() {}
 }
