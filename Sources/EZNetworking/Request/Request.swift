@@ -5,7 +5,7 @@ public protocol Request {
     var baseUrlString: String { get }
     var parameters: [HTTPParameter]? { get }
     var headers: [HTTPHeader]? { get }
-    var body: Data? { get }
+    var body: HTTPBody? { get }
     var timeoutInterval: TimeInterval { get }
     var cachePolicy: URLRequest.CachePolicy { get }
 }
@@ -21,7 +21,7 @@ public extension Request {
 
         var request = URLRequest(url: url)
         request.httpMethod = httpMethod.rawValue
-        request.httpBody = body
+        request.httpBody = body?.data
         request.timeoutInterval = timeoutInterval
         request.cachePolicy = cachePolicy
 
@@ -42,7 +42,7 @@ internal struct EZRequest: Request {
     var baseUrlString: String
     var parameters: [HTTPParameter]?
     var headers: [HTTPHeader]?
-    var body: Data?
+    var body: HTTPBody?
     var timeoutInterval: TimeInterval
     var cachePolicy: URLRequest.CachePolicy
 }

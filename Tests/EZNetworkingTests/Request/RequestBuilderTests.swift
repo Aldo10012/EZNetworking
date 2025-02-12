@@ -15,7 +15,7 @@ final class RequestBuilderTests: XCTestCase {
             HTTPHeader.contentType(.json),
             HTTPHeader.authorization(.bearer("token"))
         ]
-        let body = "{\"name\": \"John\"}".data(using: .utf8)!
+        let body = HTTPBody.jsonString("{\"name\": \"John\"}")
         let timeoutInterval: TimeInterval = 30
         
         let request = builder
