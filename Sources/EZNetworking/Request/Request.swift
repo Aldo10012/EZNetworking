@@ -23,6 +23,7 @@ public extension Request {
         request.httpMethod = httpMethod.rawValue
         request.httpBody = body
         request.timeoutInterval = timeoutInterval
+        request.cachePolicy = cachePolicy
 
         if let parameters = parameters {
             try? HTTPParameterEncoderImpl().encodeParameters(for: &request, with: parameters)
