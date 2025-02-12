@@ -92,8 +92,8 @@ private struct MockRequest: Request {
         ]
     }
     
-    var body: Data? {
-        "{\"name\": \"John\"}".data(using: .utf8)
+    var body: EZNetworking.HTTPBody? {
+        .jsonString("{\"name\": \"John\"}")
     }
     
     var cachePolicy: URLRequest.CachePolicy = .useProtocolCachePolicy

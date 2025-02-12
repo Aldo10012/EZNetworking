@@ -1,7 +1,6 @@
 import Foundation
 
 public enum HTTPBody {
-    case none
     case string(_ str: String)
     case dictionary(_ dic: Dictionary<String, Any>)
     case encodable(_ encodable: Encodable)
@@ -13,9 +12,6 @@ public enum HTTPBody {
     
     var data: Data? {
         switch self {
-        case .none:
-            return nil
-
         case .string(let string):
             return string.data(using: .utf8)
             
@@ -61,6 +57,39 @@ public enum HTTPBody {
                 return nil
             }
             return query.data(using: .utf8)
+        }
+    }
+}
+
+extension HTTPBody: Equatable {
+    public static func ==(lhs: HTTPBody, rhs: HTTPBody) -> Bool {
+        switch (lhs, rhs) {
+        case (.string(let str1), .string(let str2)):
+            return str1 == str2
+            
+        case (.dictionary(let dic1), .dictionary(let dic2)):
+            return true
+            
+        case (.encodable(let encodable1), .encodable(let encodable2)):
+            return String(describing: encodable1) == String(describing: encodable2)  // Compare encoded string representations
+            
+        case (.data(let data1), .data(let data2)):
+            return data1 == data2
+            
+        case (.fileURL(let url1), .fileURL(let url2)):
+            return url1 == url2
+            
+        case (.jsonString(let json1), .jsonString(let json2)):
+            return json1 == json2
+            
+        case (.base64(let base64Str1), .base64(let base64Str2)):
+            return base64Str1 == base64Str2
+            
+        case (.urlComponents(let components1), .urlComponents(let components2)):
+            return components1 == components2
+            
+        default:
+            return false
         }
     }
 }

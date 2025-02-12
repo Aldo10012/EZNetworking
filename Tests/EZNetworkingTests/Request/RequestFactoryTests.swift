@@ -15,7 +15,7 @@ final class RequestFactoryTests: XCTestCase {
             HTTPHeader.contentType(.json),
             HTTPHeader.authorization(.bearer("token"))
         ]
-        let body = "{\"name\": \"John\"}".data(using: .utf8)
+        let body = HTTPBody.jsonString("{\"name\": \"John\"}")
         let timeoutInterval: TimeInterval = 30
         
         let request = builder.build(httpMethod: httpMethod,
@@ -44,14 +44,14 @@ final class RequestFactoryTests: XCTestCase {
                                     baseUrlString: urlString,
                                     parameters: nil,
                                     headers: nil,
-                                    body: nil,
+                                    body: .none,
                                     timeoutInterval: 60)
         
         XCTAssertNotNil(request)
         XCTAssertEqual(request.baseUrlString, "https://example.com/api")
         XCTAssertEqual(request.httpMethod, httpMethod)
         XCTAssertNil(request.parameters)
-        XCTAssertNil(request.body)
+        XCTAssertEqual(request.body, .none)
         XCTAssertEqual(request.timeoutInterval, 60)
         XCTAssertNil(request.headers)
         XCTAssertEqual(request.cachePolicy, .useProtocolCachePolicy)

@@ -175,7 +175,7 @@ private struct MockRequest: Request {
     var baseUrlString: String { "https://www.example.com" }
     var parameters: [HTTPParameter]? { nil }
     var headers: [HTTPHeader]? { nil }
-    var body: Data? { nil }
+    var body: HTTPBody? { nil }
 }
 
 private struct MockRequestWithNilBuild: Request {
@@ -183,6 +183,6 @@ private struct MockRequestWithNilBuild: Request {
     var baseUrlString: String { "https://www.example.com" }
     var parameters: [HTTPParameter]? { nil }
     var headers: [HTTPHeader]? { nil }
-    var body: Data? { nil }
+    var body: HTTPBody? { nil }
     var urlRequest: URLRequest? { nil }
 }

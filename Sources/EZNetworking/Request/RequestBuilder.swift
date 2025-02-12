@@ -5,7 +5,7 @@ public protocol RequestBuilder {
     func setBaseUrl(_ baseUrl: String) -> RequestBuilder
     func setParameters(_ parameters: [HTTPParameter]) -> RequestBuilder
     func setHeaders(_ headers: [HTTPHeader]) -> RequestBuilder
-    func setBody(_ body: Data) -> RequestBuilder
+    func setBody(_ body: HTTPBody) -> RequestBuilder
     func setTimeoutInterval(_ timeoutInterval: TimeInterval) -> RequestBuilder
     func setCachePolicy(_ cachePolicy: URLRequest.CachePolicy) -> RequestBuilder
     func build() -> Request?
@@ -16,7 +16,7 @@ public class RequestBuilderImpl: RequestBuilder {
     private var baseUrlString: String?
     private var parameters: [HTTPParameter]?
     private var headers: [HTTPHeader]?
-    private var body: Data?
+    private var body: HTTPBody? = nil
     private var timeoutInterval: TimeInterval?
     private var cachePolicy: URLRequest.CachePolicy = .useProtocolCachePolicy
 
@@ -49,7 +49,7 @@ public class RequestBuilderImpl: RequestBuilder {
         return self
     }
 
-    public func setBody(_ body: Data) -> RequestBuilder {
+    public func setBody(_ body: HTTPBody) -> RequestBuilder {
         self.body = body
         return self
     }

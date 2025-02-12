@@ -5,7 +5,7 @@ public protocol RequestFactory {
                baseUrlString: String,
                parameters: [HTTPParameter]?,
                headers: [HTTPHeader]?,
-               body: Data?,
+               body: HTTPBody?,
                timeoutInterval: TimeInterval,
                cachePolicy: URLRequest.CachePolicy) -> Request
 }
@@ -24,7 +24,7 @@ public class RequestFactoryImpl: RequestFactory {
                baseUrlString: String,
                parameters: [HTTPParameter]?,
                headers: [HTTPHeader]? = nil,
-               body: Data? = nil,
+               body: HTTPBody? = nil,
                timeoutInterval: TimeInterval = 60,
                cachePolicy: URLRequest.CachePolicy = .useProtocolCachePolicy
     ) -> Request {
