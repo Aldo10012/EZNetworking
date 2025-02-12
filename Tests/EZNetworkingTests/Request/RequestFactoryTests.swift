@@ -44,14 +44,14 @@ final class RequestFactoryTests: XCTestCase {
                                     baseUrlString: urlString,
                                     parameters: nil,
                                     headers: nil,
-                                    body: .none,
+                                    body: nil,
                                     timeoutInterval: 60)
         
         XCTAssertNotNil(request)
         XCTAssertEqual(request.baseUrlString, "https://example.com/api")
         XCTAssertEqual(request.httpMethod, httpMethod)
         XCTAssertNil(request.parameters)
-        XCTAssertEqual(request.body, .none)
+        XCTAssertNil(request.body)
         XCTAssertEqual(request.timeoutInterval, 60)
         XCTAssertNil(request.headers)
         XCTAssertEqual(request.cachePolicy, .useProtocolCachePolicy)
