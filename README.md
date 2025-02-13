@@ -1,6 +1,6 @@
 # EZNetworking
 
-EZNetworking is a Swift package that provides a set of awesome utilities to make Swift networking development easier and more fun.
+EZNetworking is a lightweight and efficient Swift package for seamless API calls, HTTP networking, caching, and file downloads. Designed for iOS developers, it simplifies URLSession management and enhances performance with built-in caching support.
 
 ## Table of Content
 - [Installation](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#installation)
