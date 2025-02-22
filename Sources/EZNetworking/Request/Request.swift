@@ -10,10 +10,14 @@ public protocol Request {
     var cachePolicy: URLRequest.CachePolicy { get }
 }
 
+// default values
 public extension Request {
     var timeoutInterval: TimeInterval { 60 }
     var cachePolicy: URLRequest.CachePolicy { .useProtocolCachePolicy }
+}
 
+// additions
+public extension Request {
     var urlRequest: URLRequest? {
         guard let url = URL(string: baseUrlString) else {
             return nil
