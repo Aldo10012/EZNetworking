@@ -248,6 +248,31 @@ let request = RequestBuilderImpl()
     .build()
 ```
 
+#### Cache Policy
+
+Set a cache policy for your request to use using the cachePolicy parameter.
+
+ith `RequestFactory`:
+
+```swift
+let request = RequestFactoryImpl().build(
+    httpMethod: .GET,
+    urlString: "http://www.example.com",
+    cachePolicy: .useProtocolCachePolicy
+)
+```
+
+With `RequestBuilderImpl`:
+
+```swift
+let request = RequestBuilderImpl()
+    .setHttpMethod(.GET)
+    .setBaseUrl("http://www.example.com")
+    .setCachePolicy(.useProtocolCachePolicy)
+    .build()
+```
+
+
 ### Advanced Usage: Conforming to the Request Protocol
 Encapsulate request data in a reusable struct or class conforming to the Request protocol. This approach allows you to manage API requests in one place and inject them where needed.
 
@@ -268,6 +293,7 @@ struct MyRequest: Request {
     ]}
     var body: Data? { HTTPBody.jsonString("{\"name\":\"John\"}") }
     var timeoutInterval: TimeInterval { 30 }
+    var cachePolicy: URLRequest.CachePolicy { .useProtocolCachePolicy }
 }
 ```
 
