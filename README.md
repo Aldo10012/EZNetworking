@@ -14,6 +14,7 @@ EZNetworking is a lightweight and efficient Swift package for seamless API calls
         - [Authorization](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#authorization)
         - [Request Body](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#request-body)
         - [Timeout Interval](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#timeout-interval)
+        - [Cache Policy](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#cache-policy)
     - [Advanced Usage: Conforming to the Request Protocol](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#advanced-usage-conforming-to-the-request-protocol)
 - [Performing a Request](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#performing-a-request)
     - [How to get an api response using Async/Await?](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#how-to-get-an-api-response-using-asyncawait)
