@@ -68,7 +68,7 @@ let request = RequestFactoryImpl().build(
         .contentType(.json),
         .authorization(.bearer("YOUR_API_KEY"))
     ],
-    body: Data(),
+    body: .data(Data()),
     timeInterval: 30
 )
 ```
@@ -100,7 +100,7 @@ let request = RequestBuilderImpl()
         .contentType(.json),
         .authorization(.bearer("YOUR_API_KEY"))
     ])
-    .setBody(Data())
+    .setBody(.data(Data()))
     .setTimeoutInterval(30)
     .build()
 ```
@@ -201,7 +201,7 @@ Include a request body by passing a Data object to the body parameter.
 Example:
 
 ```swift
-let bodyData = "{\"name\":\"John\"}".data(using: .utf8)
+let bodyData = HTTPBody.jsonString("{\"name\":\"John\"}")
 ```
 
 With `RequestFactory`:
@@ -266,7 +266,7 @@ struct MyRequest: Request {
         .contentType(.json),
         .authorization(.bearer("YOUR_API_KEY"))
     ]}
-    var body: Data? { "{\"name\":\"John\"}".data(using: .utf8) }
+    var body: Data? { HTTPBody.jsonString("{\"name\":\"John\"}") }
     var timeoutInterval: TimeInterval { 30 }
 }
 ```
