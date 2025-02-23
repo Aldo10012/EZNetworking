@@ -63,27 +63,41 @@ final class URLResponseValidatorTests: XCTestCase {
         }
     }
     
+    // MARK: 1xx status code
+    
     func test_validateStatus_givenHTTPURLResponseStatusCode100_Throws() throws {
         XCTAssertThrowsError(try sut.validateStatus(from: createHttpUrlResponse(statusCode: 100))) { error in
             XCTAssertEqual(error as? NetworkingError, NetworkingError.information(.continueStatus, [:]))
         }
     }
     
+    // MARK: 2xx status code
+    
     func test_validateStatus_givenHTTPURLResponseStatusCode200_NoThrow() throws {
         XCTAssertNoThrow(try sut.validateStatus(from: createHttpUrlResponse(statusCode: 200)))
     }
     
+    // MARK: 3xx status code
+
     func test_validateStatus_givenHTTPURLResponseStatusCode300_Throws() throws {
         XCTAssertThrowsError(try sut.validateStatus(from: createHttpUrlResponse(statusCode: 300))) { error in
             XCTAssertEqual(error as? NetworkingError, NetworkingError.redirect(.multipleChoices, [:]))
         }
     }
     
+    func test_validateStatus_givenHTTPURLResponseStatusCode304_NoThrow() throws {
+        XCTAssertNoThrow(try sut.validateStatus(from: createHttpUrlResponse(statusCode: 304)))
+    }
+    
+    // MARK: 4xx status code
+
     func test_validateStatus_givenHTTPURLResponseStatusCode400_Throws() throws {
         XCTAssertThrowsError(try sut.validateStatus(from: createHttpUrlResponse(statusCode: 400))) { error in
             XCTAssertEqual(error as? NetworkingError, NetworkingError.httpClientError(.badRequest, [:]))
         }
     }
+    
+    // MARK: 5xx status code
     
     func test_validateStatus_givenHTTPURLResponseStatusCode500_Throws() throws {
         XCTAssertThrowsError(try sut.validateStatus(from: createHttpUrlResponse(statusCode: 500))) { error in
