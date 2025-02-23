@@ -53,7 +53,10 @@ public struct ResponseValidatorImpl: ResponseValidator {
         case .success(_):
             return
         case .redirectionMessage(let status):
-            throw NetworkingError.redirect(status, urlResponseHeaders)
+            guard status == .notModified else {
+                throw NetworkingError.redirect(status, urlResponseHeaders)
+            }
+            return
         case .clientSideError(let error):
             throw NetworkingError.httpClientError(error, urlResponseHeaders)
         case .serverSideError(let error):
