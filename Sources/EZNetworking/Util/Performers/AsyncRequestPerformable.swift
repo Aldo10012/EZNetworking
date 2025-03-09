@@ -1,5 +1,4 @@
 import Foundation
-import UIKit
 
 public protocol AsyncRequestPerformable {
     func perform<T: Decodable>(request: Request, decodeTo decodableObject: T.Type) async throws -> T
