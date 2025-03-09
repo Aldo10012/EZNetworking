@@ -11,10 +11,3 @@ open class SessionDelegate: NSObject {
     weak var streamTaskInterceptor: StreamTaskInterceptor? = nil
     weak var webSocketTaskInterceptor: WebSocketTaskInterceptor? = nil
 }
-
-extension SessionDelegate: URLSessionDelegate {}
-extension SessionDelegate: URLSessionTaskDelegate {}
-extension SessionDelegate: URLSessionDataDelegate {}
-extension SessionDelegate: URLSessionDownloadDelegate {}
-extension SessionDelegate: URLSessionStreamDelegate {}
-extension SessionDelegate: URLSessionWebSocketDelegate {}
