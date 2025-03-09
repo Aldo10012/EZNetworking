@@ -12,6 +12,17 @@ public struct ImageDownloader: ImageDownloadable {
     private let validator: ResponseValidator
     private let requestDecoder: RequestDecodable
     
+    public init(sessionConfiguration: URLSessionConfiguration = .default,
+                sessionDelegate: SessionDelegate = SessionDelegate(),
+                delegateQueue: OperationQueue? = nil) {
+        let urlSession = URLSession(configuration: sessionConfiguration,
+                                    delegate: sessionDelegate,
+                                    delegateQueue: delegateQueue)
+        self.init(urlSession: urlSession,
+                  validator: ResponseValidatorImpl(),
+                  requestDecoder: RequestDecoder())
+    }
+    
     public init(urlSession: URLSessionTaskProtocol = URLSession.shared,
                 validator: ResponseValidator = ResponseValidatorImpl(),
                 requestDecoder: RequestDecodable = RequestDecoder()) {
