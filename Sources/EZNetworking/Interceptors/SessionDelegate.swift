@@ -1,7 +1,6 @@
 import Foundation
 
 open class SessionDelegate: NSObject {
-    // Interceptors
     weak var cacheInterceptor: CacheInterceptor? = nil
     weak var authenticationInterceptor: AuthenticationInterceptor? = nil
     weak var redirectInterceptor: RedirectInterceptor? = nil
@@ -9,5 +8,6 @@ open class SessionDelegate: NSObject {
     weak var taskLifecycleInterceptor: TaskLifecycleInterceptor? = nil
     weak var dataTaskInterceptor: DataTaskInterceptor? = nil
     weak var downloadTaskInterceptor: DownloadTaskInterceptor? = nil
-
+    weak var streamTaskInterceptor: StreamTaskInterceptor? = nil
+    weak var webSocketTaskInterceptor: WebSocketTaskInterceptor? = nil
 }

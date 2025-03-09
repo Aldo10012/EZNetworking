@@ -1,7 +1,5 @@
 import Foundation
 
-// MARK: - URLSession Interceptors
-
 /// Protocol for intercepting URL cache operations
 public protocol CacheInterceptor: AnyObject {
     func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, willCacheResponse proposedResponse: CachedURLResponse, completionHandler: @escaping @Sendable (CachedURLResponse?) -> Void)
@@ -54,4 +52,18 @@ public protocol DownloadTaskInterceptor: AnyObject {
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL)
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64)
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didResumeAtOffset fileOffset: Int64, expectedTotalBytes: Int64)
+}
+
+/// Protocol for intercepting stream tasks specifically
+public protocol StreamTaskInterceptor: AnyObject {
+    func urlSession(_ session: URLSession, readClosedFor streamTask: URLSessionStreamTask)
+    func urlSession(_ session: URLSession, writeClosedFor streamTask: URLSessionStreamTask)
+    func urlSession(_ session: URLSession, betterRouteDiscoveredFor streamTask: URLSessionStreamTask)
+    func urlSession(_ session: URLSession, streamTask: URLSessionStreamTask, didBecome inputStream: InputStream, outputStream: OutputStream)
+}
+
+/// Protocol for intercepting WebSocket tasks specifically
+public protocol WebSocketTaskInterceptor: AnyObject {
+    func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didOpenWithProtocol protocol: String?)
+    func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didCloseWith closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?)
 }
