@@ -6,7 +6,7 @@ extension SessionDelegate: URLSessionWebSocketDelegate {
                           didOpenWithProtocol protocol: String?) {
         webSocketTaskInterceptor?.urlSession(session, webSocketTask: webSocketTask, didOpenWithProtocol: `protocol`)
     }
-    
+
     public func urlSession(_ session: URLSession,
                           webSocketTask: URLSessionWebSocketTask,
                           didCloseWith closeCode: URLSessionWebSocketTask.CloseCode,

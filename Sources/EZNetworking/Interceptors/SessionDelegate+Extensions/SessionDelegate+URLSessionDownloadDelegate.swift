@@ -6,7 +6,7 @@ extension SessionDelegate: URLSessionDownloadDelegate {
                           didFinishDownloadingTo location: URL) {
         downloadTaskInterceptor?.urlSession(session, downloadTask: downloadTask, didFinishDownloadingTo: location)
     }
-    
+
     public func urlSession(_ session: URLSession,
                           downloadTask: URLSessionDownloadTask,
                           didWriteData bytesWritten: Int64,
@@ -14,7 +14,7 @@ extension SessionDelegate: URLSessionDownloadDelegate {
                           totalBytesExpectedToWrite: Int64) {
         downloadTaskInterceptor?.urlSession(session, downloadTask: downloadTask, didWriteData: bytesWritten, totalBytesWritten: totalBytesWritten, totalBytesExpectedToWrite: totalBytesExpectedToWrite)
     }
-    
+
     public func urlSession(_ session: URLSession,
                           downloadTask: URLSessionDownloadTask,
                           didResumeAtOffset fileOffset: Int64,
