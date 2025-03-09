@@ -10,7 +10,7 @@ extension SessionDelegate: URLSessionDelegate {
             completionHandler(.performDefaultHandling, nil)
         }
     }
-    
+
     public func urlSession(_ session: URLSession,
                           didReceive challenge: URLAuthenticationChallenge) async -> (URLSession.AuthChallengeDisposition, URLCredential?) {
         if let interceptor = authenticationInterceptor {

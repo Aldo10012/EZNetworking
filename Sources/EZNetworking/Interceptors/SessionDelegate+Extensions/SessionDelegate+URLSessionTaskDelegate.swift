@@ -12,6 +12,16 @@ extension SessionDelegate: URLSessionTaskDelegate {
             completionHandler(.performDefaultHandling, nil)
         }
     }
+
+    // Async authentication
+    public func urlSession(_ session: URLSession,
+                          task: URLSessionTask,
+                          didReceive challenge: URLAuthenticationChallenge) async -> (URLSession.AuthChallengeDisposition, URLCredential?) {
+        if let interceptor = authenticationInterceptor {
+            return await interceptor.urlSession(session, task: task, didReceive: challenge)
+        }
+        return (.performDefaultHandling, nil)
+    }
     
     // Redirect Interception
     public func urlSession(_ session: URLSession,
@@ -24,6 +34,17 @@ extension SessionDelegate: URLSessionTaskDelegate {
         } else {
             completionHandler(request)
         }
+    }
+    
+    // Async Redirect Interception
+    public func urlSession(_ session: URLSession,
+                          task: URLSessionTask,
+                          willPerformHTTPRedirection response: HTTPURLResponse,
+                          newRequest request: URLRequest) async -> URLRequest? {
+        if let interceptor = redirectInterceptor {
+            return await interceptor.urlSession(session, task: task, willPerformHTTPRedirection: response, newRequest: request)
+        }
+        return request
     }
     
     // Metrics Interception
@@ -44,25 +65,5 @@ extension SessionDelegate: URLSessionTaskDelegate {
                           taskIsWaitingForConnectivity task: URLSessionTask) {
         taskLifecycleInterceptor?.urlSession(session, taskIsWaitingForConnectivity: task)
     }
-    
-    // Async redirect handling
-    public func urlSession(_ session: URLSession,
-                          task: URLSessionTask,
-                          willPerformHTTPRedirection response: HTTPURLResponse,
-                          newRequest request: URLRequest) async -> URLRequest? {
-        if let interceptor = redirectInterceptor {
-            return await interceptor.urlSession(session, task: task, willPerformHTTPRedirection: response, newRequest: request)
-        }
-        return request
-    }
-    
-    // Async authentication
-    public func urlSession(_ session: URLSession,
-                          task: URLSessionTask,
-                          didReceive challenge: URLAuthenticationChallenge) async -> (URLSession.AuthChallengeDisposition, URLCredential?) {
-        if let interceptor = authenticationInterceptor {
-            return await interceptor.urlSession(session, task: task, didReceive: challenge)
-        }
-        return (.performDefaultHandling, nil)
-    }
+
 }

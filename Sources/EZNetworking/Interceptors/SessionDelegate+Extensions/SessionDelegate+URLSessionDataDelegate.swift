@@ -33,13 +33,7 @@ extension SessionDelegate: URLSessionDataDelegate {
             completionHandler(.allow)
         }
     }
-    
-    public func urlSession(_ session: URLSession,
-                          dataTask: URLSessionDataTask,
-                          didReceive data: Data) {
-        dataTaskInterceptor?.urlSession(session, dataTask: dataTask, didReceive: data)
-    }
-    
+
     public func urlSession(_ session: URLSession,
                           dataTask: URLSessionDataTask,
                           didReceive response: URLResponse) async -> URLSession.ResponseDisposition {
@@ -49,6 +43,12 @@ extension SessionDelegate: URLSessionDataDelegate {
         return .allow
     }
     
+    public func urlSession(_ session: URLSession,
+                          dataTask: URLSessionDataTask,
+                          didReceive data: Data) {
+        dataTaskInterceptor?.urlSession(session, dataTask: dataTask, didReceive: data)
+    }
+
     public func urlSession(_ session: URLSession,
                           dataTask: URLSessionDataTask,
                           didBecome downloadTask: URLSessionDownloadTask) {
