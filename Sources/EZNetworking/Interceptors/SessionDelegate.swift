@@ -10,4 +10,24 @@ open class SessionDelegate: NSObject {
     weak var downloadTaskInterceptor: DownloadTaskInterceptor? = nil
     weak var streamTaskInterceptor: StreamTaskInterceptor? = nil
     weak var webSocketTaskInterceptor: WebSocketTaskInterceptor? = nil
+    
+    public init(cacheInterceptor: CacheInterceptor? = nil,
+                authenticationInterceptor: AuthenticationInterceptor? = nil,
+                redirectInterceptor: RedirectInterceptor? = nil,
+                metricsInterceptor: MetricsInterceptor? = nil,
+                taskLifecycleInterceptor: TaskLifecycleInterceptor? = nil,
+                dataTaskInterceptor: DataTaskInterceptor? = nil,
+                downloadTaskInterceptor: DownloadTaskInterceptor? = nil,
+                streamTaskInterceptor: StreamTaskInterceptor? = nil,
+                webSocketTaskInterceptor: WebSocketTaskInterceptor? = nil) {
+        self.cacheInterceptor = cacheInterceptor
+        self.authenticationInterceptor = authenticationInterceptor
+        self.redirectInterceptor = redirectInterceptor
+        self.metricsInterceptor = metricsInterceptor
+        self.taskLifecycleInterceptor = taskLifecycleInterceptor
+        self.dataTaskInterceptor = dataTaskInterceptor
+        self.downloadTaskInterceptor = downloadTaskInterceptor
+        self.streamTaskInterceptor = streamTaskInterceptor
+        self.webSocketTaskInterceptor = webSocketTaskInterceptor
+    }
 }
