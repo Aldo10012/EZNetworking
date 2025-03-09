@@ -7,7 +7,7 @@ final class ImageDownloadableTests: XCTestCase {
     
     func testDownloadImageSuccess() async throws { // note: this is an async test as it actually decodes url to generate the image
         let testURL = URL(string: "https://i.natgeofe.com/n/4f5aaece-3300-41a4-b2a8-ed2708a0a27c/domestic-dog_thumb_square.jpg")!
-        let sut = ImageDownloader()
+        let sut = ImageDownloader(urlSession: URLSession.shared)
         do {
             _ = try await sut.downloadImage(from: testURL)
             XCTAssertTrue(true)
