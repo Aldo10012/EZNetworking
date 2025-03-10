@@ -5,10 +5,7 @@ extension SessionDelegate: URLSessionTaskDelegate {
     public func urlSession(_ session: URLSession,
                           task: URLSessionTask,
                           didReceive challenge: URLAuthenticationChallenge) async -> (URLSession.AuthChallengeDisposition, URLCredential?) {
-        if let interceptor = authenticationInterceptor {
-            return await interceptor.urlSession(session, task: task, didReceive: challenge)
-        }
-        return (.performDefaultHandling, nil)
+        await authenticationInterceptor?.urlSession(session, task: task, didReceive: challenge) ?? (.performDefaultHandling, nil)
     }
 
     // Redirect Interception
@@ -16,10 +13,7 @@ extension SessionDelegate: URLSessionTaskDelegate {
                           task: URLSessionTask,
                           willPerformHTTPRedirection response: HTTPURLResponse,
                           newRequest request: URLRequest) async -> URLRequest? {
-        if let interceptor = redirectInterceptor {
-            return await interceptor.urlSession(session, task: task, willPerformHTTPRedirection: response, newRequest: request)
-        }
-        return request
+        await redirectInterceptor?.urlSession(session, task: task, willPerformHTTPRedirection: response, newRequest: request) ?? request
     }
 
     // Metrics Interception

@@ -3,10 +3,7 @@ import Foundation
 extension SessionDelegate: URLSessionDelegate {
     public func urlSession(_ session: URLSession,
                           didReceive challenge: URLAuthenticationChallenge) async -> (URLSession.AuthChallengeDisposition, URLCredential?) {
-        if let interceptor = authenticationInterceptor {
-            return await interceptor.urlSession(session, didReceive: challenge)
-        }
-        return (.performDefaultHandling, nil)
+        await authenticationInterceptor?.urlSession(session, didReceive: challenge) ?? (.performDefaultHandling, nil)
     }
     
     public func urlSession(_ session: URLSession, didCreateTask task: URLSessionTask) {

@@ -4,19 +4,13 @@ extension SessionDelegate: URLSessionDataDelegate {
     public func urlSession(_ session: URLSession,
                           dataTask: URLSessionDataTask,
                           willCacheResponse proposedResponse: CachedURLResponse) async -> CachedURLResponse? {
-        if let interceptor = cacheInterceptor {
-            return await interceptor.urlSession(session, dataTask: dataTask, willCacheResponse: proposedResponse)
-        }
-        return proposedResponse
+        await cacheInterceptor?.urlSession(session, dataTask: dataTask, willCacheResponse: proposedResponse) ?? proposedResponse
     }
 
     public func urlSession(_ session: URLSession,
                           dataTask: URLSessionDataTask,
                           didReceive response: URLResponse) async -> URLSession.ResponseDisposition {
-        if let interceptor = dataTaskInterceptor {
-            return await interceptor.urlSession(session, dataTask: dataTask, didReceive: response)
-        }
-        return .allow
+        await dataTaskInterceptor?.urlSession(session, dataTask: dataTask, didReceive: response) ?? .allow
     }
 
     public func urlSession(_ session: URLSession,
