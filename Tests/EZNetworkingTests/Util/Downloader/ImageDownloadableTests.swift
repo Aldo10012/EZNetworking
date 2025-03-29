@@ -3,10 +3,14 @@ import XCTest
 
 final class ImageDownloadableTests: XCTestCase {
     
+    private var imageUrlString: String {
+        "https://i.natgeofe.com/n/4f5aaece-3300-41a4-b2a8-ed2708a0a27c/domestic-dog_thumb_square.jpg"
+    }
+    
     // MARK: test Async/Await
     
     func testDownloadImageSuccess() async throws { // note: this is an async test as it actually decodes url to generate the image
-        let testURL = URL(string: "https://i.natgeofe.com/n/4f5aaece-3300-41a4-b2a8-ed2708a0a27c/domestic-dog_thumb_square.jpg")!
+        let testURL = URL(string: imageUrlString)!
         let sut = ImageDownloader(urlSession: URLSession.shared)
         do {
             _ = try await sut.downloadImage(from: testURL)
@@ -17,7 +21,7 @@ final class ImageDownloadableTests: XCTestCase {
     }
 
     func testDownloadImageFails() async throws {
-        let testURL = URL(string: "https://i.natgeofe.com/n/4f5aaece-3300-41a4-b2a8-ed2708a0a27c/domestic-dog_thumb_square.jpg")!
+        let testURL = URL(string: imageUrlString)!
         let urlSession = MockURLSession(data: MockData.mockPersonJsonData,
                                         url: testURL,
                                         urlResponse: buildResponse(statusCode: 200),
@@ -37,7 +41,7 @@ final class ImageDownloadableTests: XCTestCase {
     // MARK: - test callbacks
 
     func testDownloadImageSuccess() {
-        let testURL = URL(string: "https://i.natgeofe.com/n/4f5aaece-3300-41a4-b2a8-ed2708a0a27c/domestic-dog_thumb_square.jpg")!
+        let testURL = URL(string: imageUrlString)!
         let urlSession = MockURLSession(data: MockData.mockPersonJsonData,
                                         urlResponse: buildResponse(statusCode: 200),
                                         error: nil)
@@ -62,7 +66,7 @@ final class ImageDownloadableTests: XCTestCase {
     }
     
     func testDownloadImageCanCancel() throws {
-        let testURL = URL(string: "https://i.natgeofe.com/n/4f5aaece-3300-41a4-b2a8-ed2708a0a27c/domestic-dog_thumb_square.jpg")!
+        let testURL = URL(string: imageUrlString)!
         let urlSession = MockURLSession(data: MockData.mockPersonJsonData,
                                         urlResponse: buildResponse(statusCode: 200),
                                         error: nil)
@@ -76,7 +80,7 @@ final class ImageDownloadableTests: XCTestCase {
     }
 
     func testDownloadImageFailsWhenValidatorThrowsAnyError() {
-        let testURL = URL(string: "https://i.natgeofe.com/n/4f5aaece-3300-41a4-b2a8-ed2708a0a27c/domestic-dog_thumb_square.jpg")!
+        let testURL = URL(string: imageUrlString)!
         let urlSession = MockURLSession(url: testURL,
                                         urlResponse: buildResponse(statusCode: 200),
                                         error: nil)
