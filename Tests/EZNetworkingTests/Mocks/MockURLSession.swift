@@ -60,10 +60,10 @@ class MockURLSession: URLSessionTaskProtocol {
         }
         self.url = url
         
-        guard let data, let url = self.url else {
+        guard let data, let url = self.url, let urlResponse else {
             throw NetworkingError.internalError(.unknown)
         }
-        return (data, URLResponse(url: url, mimeType: nil, expectedContentLength: 0, textEncodingName: nil))
+        return (data, urlResponse)
     }
     
     func downloadTask(with url: URL, completionHandler: @escaping @Sendable (URL?, URLResponse?, Error?) -> Void) -> URLSessionDownloadTask {

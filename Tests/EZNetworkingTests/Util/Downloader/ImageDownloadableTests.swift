@@ -9,9 +9,15 @@ final class ImageDownloadableTests: XCTestCase {
     
     // MARK: test Async/Await
     
-    func testDownloadImageSuccess() async throws { // note: this is an async test as it actually decodes url to generate the image
+    func testDownloadImageSuccess() async throws {
         let testURL = URL(string: imageUrlString)!
-        let sut = ImageDownloader(urlSession: URLSession.shared)
+        let data = try XCTUnwrap(MockData.imageUrlData(from: imageUrlString),
+                                 "Was not able to convert image url into data")
+        let urlSession = MockURLSession(data: data,
+                                        url: testURL,
+                                        urlResponse: buildResponse(statusCode: 200),
+                                        error: nil)
+        let sut = ImageDownloader(urlSession: urlSession)
         do {
             _ = try await sut.downloadImage(from: testURL)
             XCTAssertTrue(true)

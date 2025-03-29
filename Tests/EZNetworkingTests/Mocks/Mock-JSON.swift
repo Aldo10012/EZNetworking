@@ -21,4 +21,16 @@ struct MockData {
         """
         return HTTPBody.jsonString(jsonString).data!
     }
+    
+    static func imageUrlData(from imageUrlString: String) -> Data? {
+        guard let url = URL(string: imageUrlString) else {
+            return nil
+        }
+        do {
+            let data = try Data(contentsOf: url)
+            return data
+        } catch {
+            return nil
+        }
+    }
 }
