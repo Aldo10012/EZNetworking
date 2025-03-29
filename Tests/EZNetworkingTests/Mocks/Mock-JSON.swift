@@ -1,15 +1,24 @@
 import Foundation
+@testable import EZNetworking
 
-let mockPersonJsonData: Data = """
-{
-    "name": "John",
-    "age": 30
+struct MockData {
+    static var mockPersonJsonData: Data {
+        let jsonString = """
+        {
+            "name": "John",
+            "age": 30
+        }
+        """
+        return HTTPBody.jsonString(jsonString).data!
+    }
+    
+    static var invalidMockPersonJsonData: Data {
+        let jsonString = """
+        {
+            "Name": "John",
+            "Age": 30
+        }
+        """
+        return HTTPBody.jsonString(jsonString).data!
+    }
 }
-""".data(using: .utf8)!
-
-let invalidMockPersonJsonData: Data = """
-{
-    "Name": "John",
-    "Age": 30
-}
-""".data(using: .utf8)!

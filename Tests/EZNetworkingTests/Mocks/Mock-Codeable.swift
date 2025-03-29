@@ -1,6 +1,6 @@
 import Foundation
 
-struct Person: Decodable {
+struct Person: Codable {
     var name: String
     var age: Int
 }

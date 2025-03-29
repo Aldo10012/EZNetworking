@@ -6,7 +6,7 @@ final class RequestDecoderTests: XCTestCase {
     func testDocoderCanDocodeMockJSONIntoDeocdableObject() throws {
         let sut = RequestDecoder()
         do {
-            let person = try sut.decode(Person.self, from: mockPersonJsonData)
+            let person = try sut.decode(Person.self, from: MockData.mockPersonJsonData)
             XCTAssertEqual(person.name, "John")
             XCTAssertEqual(person.age, 30)
         } catch {
@@ -17,7 +17,7 @@ final class RequestDecoderTests: XCTestCase {
     func testDocoderCanNotDocodeInvalidMockJSONIntoDeocdableObject() throws {
         let sut = RequestDecoder()
         do {
-            _ = try sut.decode(Person.self, from: invalidMockPersonJsonData)
+            _ = try sut.decode(Person.self, from: MockData.invalidMockPersonJsonData)
             XCTFail("Unexpected error)")
         } catch let error as NetworkingError {
             XCTAssertEqual(error, NetworkingError.internalError(.couldNotParse))
