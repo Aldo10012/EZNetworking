@@ -107,7 +107,7 @@ final class ImageDownloadableTests: XCTestCase {
     }
 
     private func buildResponse(statusCode: Int) -> HTTPURLResponse {
-        HTTPURLResponse(url: URL(string: "https://example.com")!,
+        HTTPURLResponse(url: URL(string: imageUrlString)!,
                         statusCode: statusCode,
                         httpVersion: nil,
                         headerFields: nil)!
