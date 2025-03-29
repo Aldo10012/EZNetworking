@@ -11,13 +11,11 @@ final class ImageDownloadableTests: XCTestCase {
     
     func testDownloadImageSuccess() async throws {
         let testURL = URL(string: imageUrlString)!
-        let data = try XCTUnwrap(MockData.imageUrlData(from: imageUrlString),
-                                 "Was not able to convert image url into data")
-        let urlSession = MockURLSession(data: data,
+        let urlSession = MockURLSession(data: Data(),
                                         url: testURL,
                                         urlResponse: buildResponse(statusCode: 200),
                                         error: nil)
-        let sut = ImageDownloader(urlSession: urlSession)
+        let sut = SpyImageDownloader(urlSession: urlSession)
         do {
             _ = try await sut.downloadImage(from: testURL)
             XCTAssertTrue(true)
@@ -28,7 +26,7 @@ final class ImageDownloadableTests: XCTestCase {
 
     func testDownloadImageFails() async throws {
         let testURL = URL(string: imageUrlString)!
-        let urlSession = MockURLSession(data: MockData.mockPersonJsonData,
+        let urlSession = MockURLSession(data: Data(),
                                         url: testURL,
                                         urlResponse: buildResponse(statusCode: 200),
                                         error: nil)
@@ -48,7 +46,7 @@ final class ImageDownloadableTests: XCTestCase {
 
     func testDownloadImageSuccess() {
         let testURL = URL(string: imageUrlString)!
-        let urlSession = MockURLSession(data: MockData.mockPersonJsonData,
+        let urlSession = MockURLSession(data: Data(),
                                         urlResponse: buildResponse(statusCode: 200),
                                         error: nil)
         let validator = MockURLResponseValidator()
@@ -73,7 +71,7 @@ final class ImageDownloadableTests: XCTestCase {
     
     func testDownloadImageCanCancel() throws {
         let testURL = URL(string: imageUrlString)!
-        let urlSession = MockURLSession(data: MockData.mockPersonJsonData,
+        let urlSession = MockURLSession(data: Data(),
                                         urlResponse: buildResponse(statusCode: 200),
                                         error: nil)
         let validator = MockURLResponseValidator()
@@ -113,5 +111,11 @@ final class ImageDownloadableTests: XCTestCase {
                         statusCode: statusCode,
                         httpVersion: nil,
                         headerFields: nil)!
+    }
+}
+
+private class SpyImageDownloader: ImageDownloader {
+    override func getImage(from data: Data) throws -> UIImage {
+        return UIImage(systemName: "circle")!
     }
 }
