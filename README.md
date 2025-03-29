@@ -26,7 +26,7 @@ EZNetworking is a Swift package designed to simplify network requests and API in
         - [Request Body](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#request-body)
         - [Timeout Interval](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#timeout-interval)
         - [Cache Policy](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#cache-policy)
-    - [Advanced Usage: Conforming to the Request Protocol](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#advanced-usage-conforming-to-the-request-protocol)
+    - [Conforming to the Request Protocol](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#advanced-usage-conforming-to-the-request-protocol)
 - [Performing a Request](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#performing-a-request)
     - [How to get an api response using Async/Await?](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#how-to-get-an-api-response-using-asyncawait)
     - [How to make api call with Async/Await without decoding a response?](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#how-to-make-api-call-using-asyncawait-without-decoding-a-response)
@@ -285,7 +285,7 @@ let request = RequestBuilderImpl()
 ```
 
 
-### Advanced Usage: Conforming to the Request Protocol
+### Conforming to the Request Protocol
 Encapsulate request data in a reusable struct or class conforming to the Request protocol. This approach allows you to manage API requests in one place and inject them where needed.
 
 Example:
