@@ -492,3 +492,212 @@ let task = ImageDownloader().downloadImageTask(url: testURL) { _ in
 // something happens and you want to cancel the download task
 task.cancel()
 ```
+
+### Advanced usage
+EZNetworking provides more advanced usages than just making a request and decoding a response. Clients can also intercept requests through interceptors that act as middleware. 
+
+#### SessionDelegate
+`SessionDelegate` is the entrypoint to allow you to add much more customization to your network calls. To add a `SessionDelegate`, create an instance and pass it into your performer.
+```swift
+let delegate = SessionDelegate()
+let performer = RequestPerformer(sessionDelegate: delegate)
+```
+By default, SessionDelegate by itself doesn't do anything and still allows network requests to act as per normal. If you want to add deeper functionality, you would need to integrate one (or more) of many interceptors available.
+
+#### CacheInterceptor
+CacheInterceptor is a Protocol for intercepting URL cache operations. 
+You can create your own object conforming to CacheInterceptor to meet your specific business needs.
+Example:
+```swift
+class MyCustomCacheInterceptor: CacheInterceptor {
+    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, willCacheResponse proposedResponse: CachedURLResponse) async -> CachedURLResponse? {
+        // your implementation
+    }
+}
+let delegate = SessionDelegate()
+delegate.cacheInterceptor = MyCustomCacheInterceptor()
+let performer = RequestPerformer(sessionDelegate: delegate)
+```
+
+#### AuthenticationInterceptor
+AuthenticationInterceptor is a Protocol for intercepting and handling URL authentication challenges. 
+You can create your own object conforming to AuthenticationInterceptor to handle authentication for your requests.
+Example:
+```swift
+class MyCustomAuthInterceptor: AuthenticationInterceptor {
+    func urlSession(_ session: URLSession, task: URLSessionTask, didReceive challenge: URLAuthenticationChallenge) async -> (URLSession.AuthChallengeDisposition, URLCredential?) {
+        // your implementation
+        return (.useCredential, URLCredential(user: "username", password: "password", persistence: .forSession))
+    }
+    
+    func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge) async -> (URLSession.AuthChallengeDisposition, URLCredential?) {
+        // your implementation
+        return (.performDefaultHandling, nil)
+    }
+}
+
+let delegate = SessionDelegate()
+delegate.authenticationInterceptor = MyCustomAuthInterceptor()
+let performer = RequestPerformer(sessionDelegate: delegate)
+```
+
+#### RedirectInterceptor
+RedirectInterceptor is a Protocol for intercepting URL redirect operations.
+You can create your own object conforming to RedirectInterceptor to control how redirects are handled.
+Example:
+```swift
+class MyCustomRedirectInterceptor: RedirectInterceptor {
+    func urlSession(_ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse, newRequest request: URLRequest) async -> URLRequest? {
+        // your implementation
+        return request
+    }
+}
+
+let delegate = SessionDelegate()
+delegate.redirectInterceptor = MyCustomRedirectInterceptor()
+let performer = RequestPerformer(sessionDelegate: delegate)
+```
+
+#### MetricsInterceptor
+MetricsInterceptor is a Protocol for intercepting URL metrics collection.
+You can create your own object conforming to MetricsInterceptor to collect performance metrics for your network requests.
+Example:
+```swift
+class MyCustomMetricsInterceptor: MetricsInterceptor {
+    func urlSession(_ session: URLSession, task: URLSessionTask, didFinishCollecting metrics: URLSessionTaskMetrics) {
+        // your implementation
+    }
+}
+
+let delegate = SessionDelegate()
+delegate.metricsInterceptor = MyCustomMetricsInterceptor()
+let performer = RequestPerformer(sessionDelegate: delegate)
+```
+
+#### TaskLifecycleInterceptor
+TaskLifecycleInterceptor is a Protocol for intercepting task lifecycle events.
+You can create your own object conforming to TaskLifecycleInterceptor to monitor and respond to the different stages of a network task's lifecycle.
+Example:
+```swift
+class MyCustomLifecycleInterceptor: TaskLifecycleInterceptor {
+    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+        // your implementation
+    }
+    
+    func urlSession(_ session: URLSession, taskIsWaitingForConnectivity task: URLSessionTask) {
+        // your implementation
+    }
+    
+    func urlSession(_ session: URLSession, didCreateTask task: URLSessionTask) {
+        // your implementation
+    }
+}
+
+let delegate = SessionDelegate()
+delegate.taskLifecycleInterceptor = MyCustomLifecycleInterceptor()
+let performer = RequestPerformer(sessionDelegate: delegate)
+```
+
+#### DataTaskInterceptor
+DataTaskInterceptor is a Protocol for intercepting data tasks specifically.
+You can create your own object conforming to DataTaskInterceptor to process incoming data during a request.
+Example:
+```swift
+class MyCustomDataTaskInterceptor: DataTaskInterceptor {
+    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
+        // your implementation
+    }
+    
+    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didBecome downloadTask: URLSessionDownloadTask) {
+        // your implementation
+    }
+    
+    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didBecome streamTask: URLSessionStreamTask) {
+        // your implementation
+    }
+    
+    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse) async -> URLSession.ResponseDisposition {
+        // your implementation
+        return .allow
+    }
+}
+
+let delegate = SessionDelegate()
+delegate.dataTaskInterceptor = MyCustomDataTaskInterceptor()
+let performer = RequestPerformer(sessionDelegate: delegate)
+```
+
+#### DownloadTaskInterceptor
+DownloadTaskInterceptor is a Protocol for intercepting download tasks specifically.
+You can create your own object conforming to DownloadTaskInterceptor to monitor and process file downloads.
+Example:
+```swift
+class MyCustomDownloadInterceptor: DownloadTaskInterceptor {
+    func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
+        // your implementation
+    }
+    
+    func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
+        // your implementation
+    }
+    
+    func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didResumeAtOffset fileOffset: Int64, expectedTotalBytes: Int64) {
+        // your implementation
+    }
+}
+
+let delegate = SessionDelegate()
+delegate.downloadTaskInterceptor = MyCustomDownloadInterceptor()
+let performer = RequestPerformer(sessionDelegate: delegate)
+```
+
+#### StreamTaskInterceptor
+StreamTaskInterceptor is a Protocol for intercepting stream tasks specifically.
+You can create your own object conforming to StreamTaskInterceptor to handle network streaming operations.
+Example:
+```swift
+class MyCustomStreamInterceptor: StreamTaskInterceptor {
+    func urlSession(_ session: URLSession, readClosedFor streamTask: URLSessionStreamTask) {
+        // your implementation
+    }
+    
+    func urlSession(_ session: URLSession, writeClosedFor streamTask: URLSessionStreamTask) {
+        // your implementation
+    }
+    
+    func urlSession(_ session: URLSession, betterRouteDiscoveredFor streamTask: URLSessionStreamTask) {
+        // your implementation
+    }
+    
+    func urlSession(_ session: URLSession, streamTask: URLSessionStreamTask, didBecome inputStream: InputStream, outputStream: OutputStream) {
+        // your implementation
+    }
+}
+
+let delegate = SessionDelegate()
+delegate.streamTaskInterceptor = MyCustomStreamInterceptor()
+let performer = RequestPerformer(sessionDelegate: delegate)
+```
+
+#### WebSocketTaskInterceptor
+WebSocketTaskInterceptor is a Protocol for intercepting WebSocket tasks specifically.
+You can create your own object conforming to WebSocketTaskInterceptor to monitor and respond to WebSocket events.
+Example:
+```swift
+class MyCustomWebSocketInterceptor: WebSocketTaskInterceptor {
+    func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didOpenWithProtocol protocol: String?) {
+        // your implementation
+    }
+    
+    func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didCloseWith closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?) {
+        // your implementation
+    }
+}
+
+let delegate = SessionDelegate()
+delegate.webSocketTaskInterceptor = MyCustomWebSocketInterceptor()
+let performer = RequestPerformer(sessionDelegate: delegate)
+```
+
+
+
