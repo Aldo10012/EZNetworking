@@ -53,7 +53,11 @@ public class ImageDownloader: ImageDownloadable {
 
     @discardableResult
     public func downloadImageTask(url: URL, completion: @escaping((Result<UIImage, NetworkingError>) -> Void)) -> URLSessionDataTask {
-        let task = urlSession.dataTask(with: url) { data, response, error in
+        let task = urlSession.dataTask(with: url) { [weak self] data, response, error in
+            guard let self else {
+                completion(.failure(.internalError(.lostReferenceOfSelf)))
+                return
+            }
             do {
                 try self.validator.validateNoError(error)
                 try self.validator.validateStatus(from: response)
