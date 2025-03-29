@@ -66,7 +66,7 @@ final class RequestPerformerTests: XCTestCase {
     
     func test_PerformTask_WhenDataIsInvalid_Fails() {
         let sut = createRequestPerformer(
-            urlSession: createMockURLSession(data: invalidMockPersonJsonData)
+            urlSession: createMockURLSession(data: MockData.invalidMockPersonJsonData)
         )
         
         let exp = XCTestExpectation()
@@ -194,7 +194,7 @@ final class RequestPerformerTests: XCTestCase {
     
     func test_PerformTask_WithoutDecodable_WhenDataIsInvalid_Fails() {
         let sut = createRequestPerformer(
-            urlSession: createMockURLSession(data: invalidMockPersonJsonData)
+            urlSession: createMockURLSession(data: MockData.invalidMockPersonJsonData)
         )
         let exp = XCTestExpectation()
         sut.performTask(request: MockRequest()) { result in
@@ -253,7 +253,7 @@ private func createRequestPerformer(
 }
 
 private func createMockURLSession(
-    data: Data? = mockPersonJsonData,
+    data: Data? = MockData.mockPersonJsonData,
     statusCode: Int = 200,
     error: Error? = nil
 ) -> MockURLSession {

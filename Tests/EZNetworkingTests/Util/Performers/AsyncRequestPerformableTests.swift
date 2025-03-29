@@ -59,7 +59,7 @@ final class AsyncRequestPerformableTests: XCTestCase {
     
     func test_PerformAsync_WhenDataCannotBeDecodedToType_Fails() async throws {
         let sut = createAsyncRequestPerformer(
-            urlSession: createMockURLSession(data: invalidMockPersonJsonData)
+            urlSession: createMockURLSession(data: MockData.invalidMockPersonJsonData)
         )
         await XCTAssertThrowsErrorAsync(try await sut.perform(request: MockRequest(), decodeTo: Person.self)) { error in
             XCTAssertEqual(error as! NetworkingError, NetworkingError.internalError(.couldNotParse))
@@ -128,7 +128,7 @@ final class AsyncRequestPerformableTests: XCTestCase {
     
     func test_PerformAsync_WithoutResponse_WhenDataCannotBeDecodedToTypeEvenThoughDataWillNotBeDecoded_Succeeds() async throws {
         let sut = createAsyncRequestPerformer(
-            urlSession: createMockURLSession(data: invalidMockPersonJsonData)
+            urlSession: createMockURLSession(data: MockData.invalidMockPersonJsonData)
         )
         _ = try await sut.perform(request: MockRequest())
     }
@@ -152,7 +152,7 @@ private func createAsyncRequestPerformer(
 }
 
 private func createMockURLSession(
-    data: Data? = mockPersonJsonData,
+    data: Data? = MockData.mockPersonJsonData,
     statusCode: Int = 200,
     error: Error? = nil
 ) -> MockURLSession {

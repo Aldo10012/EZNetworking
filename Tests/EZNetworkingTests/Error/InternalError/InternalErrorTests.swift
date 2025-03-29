@@ -40,6 +40,10 @@ final class InternalErrorTestsTests: XCTestCase {
         XCTAssertEqual(InternalError.requestFailed(error), InternalError.requestFailed(error))
     }
     
+    func testLostReferenceOfSelfsEquatable() {
+        XCTAssertEqual(InternalError.lostReferenceOfSelf, InternalError.lostReferenceOfSelf)
+    }
+    
     func testUnknownIsEquatable() {
         XCTAssertEqual(InternalError.unknown, InternalError.unknown)
     }

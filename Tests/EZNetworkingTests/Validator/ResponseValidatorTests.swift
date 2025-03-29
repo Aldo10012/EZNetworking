@@ -28,7 +28,7 @@ final class URLResponseValidatorTests: XCTestCase {
     // MARK: - test validateData()
 
     func test_validateData_givenData_NoThrow() throws {
-        XCTAssertNoThrow(try sut.validateData(mockPersonJsonData))
+        XCTAssertNoThrow(try sut.validateData(MockData.mockPersonJsonData))
     }
     
     func test_validateData_givenNilData_Throws() throws {

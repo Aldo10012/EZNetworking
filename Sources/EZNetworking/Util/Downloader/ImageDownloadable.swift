@@ -7,12 +7,12 @@ public protocol ImageDownloadable {
     func downloadImageTask(url: URL, completion: @escaping((Result<UIImage, NetworkingError>) -> Void)) -> URLSessionDataTask
 }
 
-public struct ImageDownloader: ImageDownloadable {
+public class ImageDownloader: ImageDownloadable {
     private let urlSession: URLSessionTaskProtocol
     private let validator: ResponseValidator
     private let requestDecoder: RequestDecodable
     
-    public init(sessionConfiguration: URLSessionConfiguration = .default,
+    public convenience init(sessionConfiguration: URLSessionConfiguration = .default,
                 sessionDelegate: SessionDelegate = SessionDelegate(),
                 delegateQueue: OperationQueue? = nil,
                 validator: ResponseValidator = ResponseValidatorImpl(),
@@ -53,13 +53,17 @@ public struct ImageDownloader: ImageDownloadable {
 
     @discardableResult
     public func downloadImageTask(url: URL, completion: @escaping((Result<UIImage, NetworkingError>) -> Void)) -> URLSessionDataTask {
-        let task = urlSession.dataTask(with: url) { data, response, error in
+        let task = urlSession.dataTask(with: url) { [weak self] data, response, error in
+            guard let self else {
+                completion(.failure(.internalError(.lostReferenceOfSelf)))
+                return
+            }
             do {
-                try validator.validateNoError(error)
-                try validator.validateStatus(from: response)
-                let validData = try validator.validateData(data)
+                try self.validator.validateNoError(error)
+                try self.validator.validateStatus(from: response)
+                let validData = try self.validator.validateData(data)
                 
-                let image = try getImage(from: validData)
+                let image = try self.getImage(from: validData)
                 completion(.success(image))
             } catch let networkError as NetworkingError {
                 completion(.failure(networkError))
@@ -71,7 +75,7 @@ public struct ImageDownloader: ImageDownloadable {
         return task
     }
     
-    private func getImage(from data: Data) throws -> UIImage {
+    internal func getImage(from data: Data) throws -> UIImage {
         guard let image = UIImage(data: data) else {
             throw NetworkingError.internalError(.invalidImageData)
         }
