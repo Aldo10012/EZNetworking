@@ -35,6 +35,17 @@ EZNetworking is a Swift package designed to simplify network requests and API in
     - [How to granularly control your data task](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#how-to-granularly-control-your-data-task)
 - [Download file](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#download-files)
 - [Downlaod Image](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#download-images)
+- [Advanced usage](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#advanced-usage)
+    - [SessionDelegate](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#sessiondelegate)
+    - [CacheInterceptor](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#cacheinterceptor)
+    - [AuthenticationInterceptor](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#authenticationinterceptor)
+    - [RedirectInterceptor](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#redirectinterceptor)
+    - [MetricsInterceptor](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#metricsinterceptor)
+    - [TaskLifecycleInterceptor](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#tasklifecycleinterceptor)
+    - [DataTaskinterceptor](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#datataskinterceptor)
+    - [DownloadTaskInterceptor](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#downloadtaskinterceptor)
+    - [StreamTaskInterceptor](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#streamtaskinterceptor)
+    - [WebsocketInterceptor](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#websockettaskinterceptor)
  
 
 ## Installation
