@@ -728,11 +728,7 @@ do {
 
 ## Contributing 🤝
 
-Contributions are welcome! Please read our [Contributing Guidelines](CONTRIBUTING.md) for details on:
-- Submitting pull requests
-- Reporting issues
-- Code style guidelines
-- Development setup
+Contributions are welcome! If you have an idea to improve EZNetworking, please feel free to submit and open a pull request or open an issue.
 
 ## License 📄
 
