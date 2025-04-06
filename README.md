@@ -1,452 +1,399 @@
-# EZNetworking
+# EZNetworking - Swift Networking Made Easy
 
-EZNetworking is a Swift package designed to simplify network requests and API interaction in your iOS app. It provides easy-to-use abstractions of URLSession, URLRequest, improves performance with built-in caching support, offers full client flexibility/customization, and much more.
+[![Swift](https://img.shields.io/badge/Swift-5.9-orange.svg)](https://swift.org)
+[![Platform](https://img.shields.io/badge/platform-iOS%2015.0%2B-blue.svg)](https://developer.apple.com/ios/)
+[![SPM Compatible](https://img.shields.io/badge/SPM-compatible-brightgreen.svg)](https://swift.org/package-manager/)
 
-## Features
-- URLRequest abstraction
-- Abstracting API requests
-- Swift concurrency support
-- HTTP response validation
-- Image download
-- File download
-- Caching
-- Request Interceptors/middleware
-- 100% Unit Test coverage
+EZNetworking is a powerful, lightweight Swift networking library that simplifies API interactions in your iOS applications. Built with modern Swift features, it provides an intuitive interface for making HTTP requests, handling responses, and managing network operations.
 
-## Table of Content
-- [Installation](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#installation)
-- [Building a Request](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#building-a-request)
-    - [Building a Request](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#building-a-request)
-        - [Using RequestFactory](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#1-using-requestfactory)
-        - [Using RequestBuilderImpl](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#2-using-requestbuilderimpl)
-    - [Adding Request Details](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#adding-request-details)
-        - [Query Parameters](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#query-parameters)
-        - [HTTP Headers](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#http-headers)
-        - [Authorization](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#authorization)
-        - [Request Body](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#request-body)
-        - [Timeout Interval](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#timeout-interval)
-        - [Cache Policy](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#cache-policy)
-    - [Conforming to the Request Protocol](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#advanced-usage-conforming-to-the-request-protocol)
-- [Performing a Request](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#performing-a-request)
-    - [How to get an api response using Async/Await?](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#how-to-get-an-api-response-using-asyncawait)
-    - [How to make api call with Async/Await without decoding a response?](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#how-to-make-api-call-using-asyncawait-without-decoding-a-response)
-    - [How to get an api response using Completion Handler?](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#how-to-get-an-api-response-using-completion-handlers)
-    - [How to make api call with Completion Handler without decoding a response?](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#how-to-make-api-call-using-completion-handlers-without-decoding-a-response)
-    - [How to granularly control your data task](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#how-to-granularly-control-your-data-task)
-- [Download file](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#download-files)
-- [Downlaod Image](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#download-images)
-- [Advanced usage](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#advanced-usage)
-    - [SessionDelegate](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#sessiondelegate)
-    - [CacheInterceptor](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#cacheinterceptor)
-    - [AuthenticationInterceptor](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#authenticationinterceptor)
-    - [RedirectInterceptor](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#redirectinterceptor)
-    - [MetricsInterceptor](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#metricsinterceptor)
-    - [TaskLifecycleInterceptor](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#tasklifecycleinterceptor)
-    - [DataTaskinterceptor](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#datataskinterceptor)
-    - [DownloadTaskInterceptor](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#downloadtaskinterceptor)
-    - [StreamTaskInterceptor](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#streamtaskinterceptor)
-    - [WebsocketInterceptor](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#websockettaskinterceptor)
- 
+## Key Features 🚀
 
-## Installation
+- **Modern Swift Support**: Built with Swift 5.9 and iOS 15.0+
+- **Async/Await Integration**: First-class support for Swift concurrency
+- **Type-Safe Networking**: Strong typing for requests and responses
+- **Flexible Request Building**: Multiple approaches to creating requests
+- **Comprehensive Interceptors**: Full request/response pipeline control
+- **Built-in Caching**: Efficient response caching system
+- **File & Image Downloads**: Easy-to-use download utilities
+- **Extensive Testing**: 100% unit test coverage
+
+## Table of Contents 📑
+
+- [Installation](#installation)
+- [Quick Start Guide](#quick-start-guide)
+- [Building Requests](#building-requests)
+  - [Using RequestFactory](#using-requestfactory)
+  - [Using RequestBuilder](#using-requestbuilder)
+  - [Request Protocol](#request-protocol)
+- [Request Components](#request-components)
+  - [HTTP Methods](#http-methods)
+  - [Query Parameters](#query-parameters)
+  - [Headers](#headers)
+  - [Authorization](#authorization)
+  - [Request Body](#request-body)
+  - [Timeout & Cache](#timeout-and-cache)
+- [Making Network Calls](#making-network-calls)
+  - [Async/Await](#asyncawait-usage)
+  - [Completion Handlers](#completion-handlers)
+  - [Task Control](#task-control)
+- [Download Features](#download-features)
+  - [File Downloads](#file-downloads)
+  - [Image Downloads](#image-downloads)
+- [Advanced Features](#advanced-features)
+  - [Interceptors](#interceptors)
+    - [Cache Interceptor](#cache-interceptor)
+    - [Authentication Interceptor](#authentication-interceptor)
+    - [Redirect Interceptor](#redirect-interceptor)
+    - [Metrics Interceptor](#metrics-interceptor)
+    - [Task Lifecycle Interceptor](#task-lifecycle-interceptor)
+    - [Data Task Interceptor](#data-task-interceptor)
+    - [Download Task Interceptor](#download-task-interceptor)
+    - [Stream Task Interceptor](#stream-task-interceptor)
+    - [WebSocket Task Interceptor](#websocket-task-interceptor)
+  - [Session Management](#session-management)
+- [Error Handling](#error-handling)
+- [Contributing](#contributing)
+- [License](#license)
+
+## Installation 📦
 
 ### Swift Package Manager
 
-To integrate EZnetworking into your Xcode project using Swift Package Manager, add the following dependency to your Package.swift file:
+Add EZNetworking to your project using Swift Package Manager:
 
-swift
-```
+```swift
 dependencies: [
-    .package(url: "https://github.com/Aldo10012/EZNetworking.git", from: "2.1.0")
+    .package(url: "https://github.com/Aldo10012/EZNetworking.git", from: "3.1.0")
 ]
 ```
-Alternatively, you can add the package directly through Xcode:
 
-Open your project in Xcode.
-Go to File > Add Packages....
-Enter the package repository URL: https://github.com/Aldo10012/EZNetworking.git.
-Choose the version and add the package to your project.
+Or through Xcode:
+1. Go to File > Add Packages
+2. Enter: `https://github.com/Aldo10012/EZNetworking.git`
+3. Select version: 3.1.0 or later
 
+## Quick Start Guide 🚀
 
-## Usage
+Here's a simple example to get you started:
 
-### Building a Request
-The library provides two convenient ways to create URLRequest objects: RequestFactory for quick one-step request creation and RequestBuilderImpl for a more flexible, step-by-step approach.
+```swift
+// Create a request
+let request = RequestFactoryImpl().build(
+    httpMethod: .GET,
+    urlString: "https://api.example.com/data",
+    parameters: [.init(key: "userId", value: "123")]
+)
 
-#### 1. Using RequestFactory
-RequestFactory is perfect for quickly creating a URLRequest in a single function call.
+// Using async/await
+do {
+    let response = try await AsyncRequestPerformer().perform(
+        request: request,
+        decodeTo: UserData.self
+    )
+    print("User data: \(response)")
+} catch {
+    print("Error: \(error)")
+}
+```
 
-Example:
+## Building Requests 🏗️
+
+EZNetworking provides three ways to create requests:
+1. Using RequestFactory for quick, one-line requests
+2. Using RequestBuilder for step-by-step request construction
+3. Implementing the Request protocol for reusable API endpoints
+
+### Using RequestFactory
+
+Perfect for quick, one-line request creation:
 
 ```swift
 let request = RequestFactoryImpl().build(
-    httpMethod: .GET,
-    urlString: "http://www.example.com",
+    httpMethod: .POST,
+    urlString: "https://api.example.com/users",
     parameters: [
-        .init(key: "key_1", value: "value_1"),
-        .init(key: "key_2", value: "value_2")
+        .init(key: "name", value: "John Doe"),
+        .init(key: "email", value: "john@example.com")
     ],
-    header: [
+    headers: [
         .accept(.json),
-        .contentType(.json),
-        .authorization(.bearer("YOUR_API_KEY"))
+        .contentType(.json)
     ],
-    body: .data(Data()),
-    timeInterval: 30
+    body: .jsonString("{\"role\":\"user\"}"),
+    timeoutInterval: 30,
+    cachePolicy: .useProtocolCachePolicy
 )
 ```
 
-Parameters:
+### Using RequestBuilder
 
-- `httpMethod`: Specify the `HTTPMethod` (GET, POST, PUT, DELETE).
-- `urlString`: Provide the base URL as a string.
-- `parameters`: Pass query parameters as an array of `HTTPParameter` (optional).
-- `headers`: Include HTTP headers as an array of `HTTPHeader` (optional).
-- `body`: Add a `Data` object for the request body (optional).
-- `timeoutInterval`: Set the timeout interval for the request (optional).
-
-#### 2. Using RequestBuilderImpl
-For more flexibility, use RequestBuilderImpl to construct a URLRequest step-by-step. This approach allows you to dynamically set request properties as needed.
-
-Example:
+Ideal for complex requests with multiple configurations:
 
 ```swift
 let request = RequestBuilderImpl()
     .setHttpMethod(.POST)
-    .setBaseUrl("http://www.example.com")
+    .setBaseUrl("https://api.example.com")
     .setParameters([
-        .init(key: "key_1", value: "value_1"),
-        .init(key: "key_2", value: "value_2")
+        .init(key: "api_version", value: "v2")
     ])
     .setHeaders([
         .accept(.json),
-        .contentType(.json),
-        .authorization(.bearer("YOUR_API_KEY"))
+        .authorization(.bearer("YOUR_TOKEN"))
     ])
-    .setBody(.data(Data()))
+    .setBody(.jsonString("{\"data\":\"value\"}"))
     .setTimeoutInterval(30)
+    .setCachePolicy(.useProtocolCachePolicy)
     .build()
 ```
-Builder Methods:
 
-- `setHttpMethod(_:)`: Set the `HTTPMethod` method (GET, POST, etc.).
-- `setBaseUrl(_:)`: Define the base URL as a string.
-- `setParameters(_:)`: Add query parameters as an array of `HTTPParameter`.
-- `setHeaders(_:)`: Specify HTTP headers as an array of `HTTPHeader`.
-- `setBody(_:)`: Include the request body as a `Data` object.
-- `setTimeoutInterval(_:)`: Set the timeout interval for the request.
+### Request Protocol
 
-### Adding Request Details
-
-#### Query Parameters
-
-Add query parameters as an array of HTTPParameter.
-
-Example:
+The Request protocol allows you to create reusable request definitions:
 
 ```swift
-let parameters: [HTTPParameter] = [
-    HTTPParameter(key: "key_1", value: "value_1"),
-    HTTPParameter(key: "key_2", value: "value_2")
-]
-```
+struct UserRequest: Request {
+    let userId: String
+    
+    var httpMethod: HTTPMethod { .GET }
+    var baseUrlString: String { "https://api.example.com" }
+    var parameters: [HTTPParameter]? {[
+        .init(key: "user_id", value: userId),
+        .init(key: "version", value: "v2")
+    ]}
+    var headers: [HTTPHeader]? {[
+        .accept(.json),
+        .contentType(.json),
+        .authorization(.bearer("YOUR_TOKEN"))
+    ]}
+    var body: HTTPBody? { nil }
+    var timeoutInterval: TimeInterval { 30 }
+    var cachePolicy: URLRequest.CachePolicy { .useProtocolCachePolicy }
+}
 
-With `RequestFactory`:
-
-```swift
-let request = RequestFactoryImpl().build(
-    httpMethod: .GET,
-    urlString: "http://www.example.com",
-    parameters: parameters
+// Usage
+let userRequest = UserRequest(userId: "123")
+let response = try await AsyncRequestPerformer().perform(
+    request: userRequest,
+    decodeTo: UserData.self
 )
 ```
 
-With `RequestBuilderImpl`:
+## Request Components 🔧
+
+### HTTP Methods
+
+Supported HTTP methods:
+```swift
+public enum HTTPMethod: String {
+    case GET, POST, PUT, DELETE
+}
+```
+
+### Query Parameters
+
+Add query parameters to your requests:
 
 ```swift
-let request = RequestBuilderImpl()
+let parameters: [HTTPParameter] = [
+    .init(key: "page", value: "1"),
+    .init(key: "limit", value: "20"),
+    .init(key: "sort", value: "desc")
+]
+
+// With RequestFactory
+let request1 = RequestFactoryImpl().build(
+    httpMethod: .GET,
+    urlString: "https://api.example.com",
+    parameters: parameters
+)
+
+// With RequestBuilder
+let request2 = RequestBuilderImpl()
     .setHttpMethod(.GET)
-    .setBaseUrl("http://www.example.com")
+    .setBaseUrl("https://api.example.com")
     .setParameters(parameters)
     .build()
 ```
 
-#### HTTP Headers
+### Headers
 
-Include headers with predefined cases in the HTTPHeader enum. Common headers include:
-
-`.accept(.json)`
-`.contentType(.json)`
-`.authorization(.bearer(""))`
-
-Example:
+EZNetworking provides a type-safe way to add headers:
 
 ```swift
 let headers: [HTTPHeader] = [
     .accept(.json),
     .contentType(.json),
-    .authorization(.bearer("YOUR_API_KEY"))
+    .authorization(.bearer("YOUR_TOKEN")),
+    .custom(key: "X-Custom-Header", value: "custom-value")
 ]
+
+// Common header types
+public enum HTTPHeader {
+    case accept(ContentType)
+    case contentType(ContentType)
+    case authorization(AuthorizationType)
+    case custom(key: String, value: String)
+    // ... other http header types
+}
+
+public enum ContentType: String {
+    case json = "application/json"
+    case xml = "application/xml"
+    case formUrlEncoded = "application/x-www-form-urlencoded"
+    case multipartFormData = "multipart/form-data"
+    // ... other content types
+}
 ```
 
-With `RequestFactory`:
+### Authorization
+
+Multiple authorization methods are supported:
 
 ```swift
-let request = RequestFactoryImpl().build(
+// Bearer token
+.authorization(.bearer("YOUR_TOKEN"))
+
+// Custom auth
+.authorization(.custom("Custom-Auth-Value"))
+
+```
+
+### Request Body
+
+Multiple body types are supported:
+
+```swift
+// JSON String
+let jsonBody = HTTPBody.jsonString("{\"key\":\"value\"}")
+
+// Data
+let dataBody = HTTPBody.data(someData)
+
+// Form URL Encoded
+let formBody = HTTPBody.formUrlEncoded([
+    "key1": "value1",
+    "key2": "value2"
+])
+
+// Multipart Form Data
+let multipartBody = HTTPBody.multipartFormData([
+    .init(name: "file", fileName: "image.jpg", data: imageData),
+    .init(name: "description", value: "Profile picture")
+])
+```
+
+### Timeout and Cache
+
+Configure request timeout and caching behavior:
+
+```swift
+// With RequestFactory
+let request1 = RequestFactoryImpl().build(
     httpMethod: .GET,
-    urlString: "http://www.example.com",
-    headers: headers
+    urlString: "https://api.example.com",
+    timeoutInterval: 30,
+    cachePolicy: .returnCacheDataElseLoad
 )
-```
 
-With `RequestBuilderImpl`:
-
-```swift
-let request = RequestBuilderImpl()
+// With RequestBuilder
+let request2 = RequestBuilderImpl()
     .setHttpMethod(.GET)
-    .setBaseUrl("http://www.example.com")
-    .setHeaders(headers)
-    .build()
-```
-
-#### Authorization
-
-The `HTTPHeader.authorization` enum handles common authorization needs:
-
-Bearer Token: `.authorization(.bearer("YOUR_TOKEN"))`
-
-Custom Authorization: `.authorization(.custom("CUSTOM_AUTH_VALUE"))`
-
-#### Request Body
-
-Include a request body by passing a Data object to the body parameter.
-
-Example:
-
-```swift
-let bodyData = HTTPBody.jsonString("{\"name\":\"John\"}")
-```
-
-With `RequestFactory`:
-
-```swift
-let request = RequestFactoryImpl().build(
-    httpMethod: .POST,
-    urlString: "http://www.example.com",
-    body: bodyData
-)
-```
-
-With `RequestBuilderImpl`:
-
-```swift
-let request = RequestBuilderImpl()
-    .setHttpMethod(.POST)
-    .setBaseUrl("http://www.example.com")
-    .setBody(bodyData)
-    .build()
-```
-
-#### Timeout Interval
-
-Set a timeout interval in seconds using the timeoutInterval parameter.
-
-With `RequestFactory`:
-
-```swift
-let request = RequestFactoryImpl().build(
-    httpMethod: .GET,
-    urlString: "http://www.example.com",
-    timeoutInterval: 30
-)
-```
-
-With `RequestBuilderImpl`:
-
-```swift
-let request = RequestBuilderImpl()
-    .setHttpMethod(.GET)
-    .setBaseUrl("http://www.example.com")
+    .setBaseUrl("https://api.example.com")
     .setTimeoutInterval(30)
+    .setCachePolicy(.returnCacheDataElseLoad)
     .build()
 ```
 
-#### Cache Policy
+## Making Network Calls 🌐
 
-Set a cache policy for your request to use using the cachePolicy parameter.
+### Async/Await Usage
 
-ith `RequestFactory`:
-
-```swift
-let request = RequestFactoryImpl().build(
-    httpMethod: .GET,
-    urlString: "http://www.example.com",
-    cachePolicy: .useProtocolCachePolicy
-)
-```
-
-With `RequestBuilderImpl`:
+Modern Swift concurrency support:
 
 ```swift
-let request = RequestBuilderImpl()
-    .setHttpMethod(.GET)
-    .setBaseUrl("http://www.example.com")
-    .setCachePolicy(.useProtocolCachePolicy)
-    .build()
-```
+// With response decoding
+do {
+    let userData = try await AsyncRequestPerformer().perform(request: request, decodeTo: UserData.self)
+    // Handle decoded response
+} catch {
+    // Handle error
+}
 
-
-### Conforming to the Request Protocol
-Encapsulate request data in a reusable struct or class conforming to the Request protocol. This approach allows you to manage API requests in one place and inject them where needed.
-
-Example:
-
-```swift
-struct MyRequest: Request {
-    var httpMethod: HTTPMethod { .GET }
-    var baseUrlString: String { "http://www.example.com" }
-    var parameters: [HTTPParameter]? {[
-        .init(key: "key_1", value: "value_1"),
-        .init(key: "key_2", value: "value_2")
-    ]}
-    var headers: [HTTPHeader]? {[
-        .accept(.json),
-        .contentType(.json),
-        .authorization(.bearer("YOUR_API_KEY"))
-    ]}
-    var body: Data? { HTTPBody.jsonString("{\"name\":\"John\"}") }
-    var timeoutInterval: TimeInterval { 30 }
-    var cachePolicy: URLRequest.CachePolicy { .useProtocolCachePolicy }
+// Without decoding
+do {
+    try await AsyncRequestPerformer().perform(request: request)
+    // Handle success
+} catch {
+    // Handle error
 }
 ```
 
-### Performing a Request
+### Completion Handlers
 
-You can easily execute Requests using `AsyncRequestPerformer()` or `RequestPerformer()` It can manage error handling and is capable of performing requests and returning responses using Async/Await and Completion Handlers.
+Traditional callback-based approach:
 
-- If you opt to perform your network requests using `Async/Await`, try using `AsyncRequestPerformer()`
-- If you opt to perform your network requests using callbacks, try using `RequestPerformer()`
-- each of the below methods contains a `request` argument, which accepts either a `URLRequest` (_which you can use the `RequestBuilder` to construct)_ or a `Request` object
-
-#### How to get an api response using `Async/Await`?
-
-Create a request using either RequestBuilder or Request and inject it into 
 ```swift
-func asyncMethodName() async throws {
-    do {
-        // Option A: using RequestFactory
-        let request = RequestFactoryImpl().build(httpMethod: .GET, urlString: "http://www.example.com", parameters: [])!  
-        let personA = try await AsyncRequestPerformer().perform(request: request, decodeTo: Person.self)
-        print(personA.age, personA.name)
-
-        // Option B: using Request protocol
-        let personB = try await AsyncRequestPerformer().perform(request: GetPersonRequest(), decodeTo: Person.self) // GetPersonRequest conforms to Request
-        print(personB.age, personB.name)
-    } catch let error as NetworkingError {
-        print(error)
-    }
-}
-```
-
-#### How to make api call using `Async/Await` without decoding a response?
-```swift
-func asyncMethodName() async throws {
-    do {
-        // Option A: using RequestFactory
-        let request = RequestFactoryImpl().build(httpMethod: .GET, urlString: "http://www.example.com", parameters: [])!    
-        try await AsyncRequestPerformer().perform(request: request)
-        print("Did succeed")
-
-        // Option B: using Request protocol
-        try await AsyncRequestPerformer().perform(request: GetPersonRequest()) // GetPersonRequest conforms to Request
-        print("Did succeed")
-    } catch let error as NetworkingError {
-        print(error)
-    }
-}
-```
-
-#### How to get an api response using completion handlers?
-```swift
-// Option A: Using RequestFactory
-let request = RequestFactoryImpl().build(httpMethod: .GET, urlString: "http://www.example.com", parameters: [])
-RequestPerformer().performTask(request: request, decodeTo: Person.self) { result in
+// With response decoding
+RequestPerformer().performTask(request: request,decodeTo: UserData.self) { result in
     switch result {
-    case .success(let person):
-        print(person.name, person.age)
+    case .success(let userData):
+        // Handle decoded response
     case .failure(let error):
-        print(error)
+        // Handle error
     }
 }
 
-// Option B: Using Request protocol
-RequestPerformer().performTask(request: GetPersonRequest(), decodeTo: Person.self) { result in // GetPersonRequest conforms to Request
-    switch result {
-    case .success(let person):
-        print(person.name, person.age)
-    case .failure(let error):
-        print(error)
-    }
-}
-```
-
-#### How to make api call using completion handlers without decoding a response?
-```swift
-// Option A: Using RequestFactory
-let request = RequestFactoryImpl().build(httpMethod: .GET, urlString: "http://www.example.com", parameters: [])
+// Without decoding
 RequestPerformer().performTask(request: request) { result in
     switch result {
     case .success:
-        print("did succeed")
+        // Handle success
     case .failure(let error):
-        print(error)
-    }
-}
-
-// Option B: Using Request protocol
-RequestPerformer().performTask(request: GetPersonRequest()) { result in // GetPersonRequest conforms to Request
-    switch result {
-    case .success:
-        print("did succeed")
-    case .failure(let error):
-        print(error)
+        // Handle error
     }
 }
 ```
 
-#### How to granularly control your data task?
+### Task Control
 
-`RequestPerformer().performTask()` returns an instance of `URLSessionDataTask`. It is marked as `@discardableResult` so XCode will not throw any errors if you do not store returned value. Inernally, before returning the data task instance, the `.resume()` method is called you if you only want to call a simple request and don't care about granular control, you don't need to, but if you would like the extra control, you can store the resulting task in a variable and you can call it's methods.
+Control over URLSessionTask:
 
-Example
 ```swift
-let task = RequestPerformer().performTask(request: GetPersonRequest()) { _ in
-   ...
+// Store task reference
+let task = RequestPerformer().performTask(request: request) { _ in
+    // Handle completion
 }
 
-// something happens and you want to cancel the task
+// Cancel task if needed
 task.cancel()
+
+// Resume suspended task
+task.resume()
+
+// Suspend task
+task.suspend()
+
+// Get task state
+print(task.state) // running, suspended, canceling, completed
 ```
 
-### Download Files
+## Download Features 📥
 
-You can easily download files with `async/await` using or with completion handlers using `FileDownloader()`
+### File Downloads
 
-#### Async/Await
 ```swift
-let testURL = URL(string: "https://example.com/example.pdf")!
+let fileURL = URL(string: "https://example.com/file.pdf")!
+
+// Async/await
 do {
-    let localURL = try await FileDownloader().downloadFile(with: testURL)
-    // handle the returned local URL path. Perhaps write and save it in FileManager
-} catch let error as NetworkingError{
-    // handle error
+    let localURL = try await FileDownloader().downloadFile(with: fileURL)
+    // Handle downloaded file
+} catch {
+    // Handle error
 }
-```
 
-#### Completion hander
-```swift
-let testURL = URL(string: "https://example.com/example.pdf")!
-FileDownloader().downloadFile(url: testURL) { result in
+// Completion handler with progress tracking
+let task = FileDownloader().downloadFile(url: testURL) { result in
     switch result {
     case .success:
         // handle the returned local URL path. Perhaps write and save it in FileManager
@@ -454,37 +401,26 @@ FileDownloader().downloadFile(url: testURL) { result in
         // handle error
     }
 }
-```
 
-Similar to `RequestPerformer.performTask()`, `FileDownloader.downloadFile()` returns a `@discardableResult` instance of `URLSessionDownloadTask` that calls `.resume()` just before returning so you as a client don't need to, but if you would like the extra control, you can store the result in a variable and have access to it's several methods such as cancel()
-
-```swift
-let task = FileDownloader().downloadFile(url: testURL) { _ in
-    ...
-}
-// something happens and you want to cancel the download task
+// Cancel download if needed
 task.cancel()
 ```
 
-### Download Images
+### Image Downloads
 
-You can easily download images with `async/await` or with completion handlers using `ImageDownloader()`
-
-#### Async/Await
 ```swift
-let imageURL = URL(string: "https://some_image_url.png")
+let imageURL = URL(string: "https://example.com/image.jpg")!
+
+// Async/await
 do {
     let image = try await ImageDownloader().downloadImage(from: imageURL)
-    // handle success
-} catch let error as NetworkingError {
-    // handle error
+    // Use downloaded image
+} catch {
+    // Handle error
 }
-```
 
-#### Completion hander
-```swift
-let imageURL = URL(string: "https://some_image_url.png")
-ImageDownloader().downloadImageTask(url: imageURL) { result in
+// Completion handler with caching
+let task = ImageDownloader().downloadImageTask(url: imageURL) { result in
     switch result {
     case .success:
         // handle success
@@ -494,221 +430,310 @@ ImageDownloader().downloadImageTask(url: imageURL) { result in
 }
 ```
 
-Similar to `RequestPerformer.performTask()`, `ImageDownloader.downloadImageTask()` returns a `@discardableResult` instance of `URLSessionDataTask` that calls `.resume()` just before returning so you as a client don't need to, but if you would like the extra control, you can store the result in a variable and have access to it's several methods such as cancel()
+## Advanced Features 🔧
+
+### Interceptors
+
+EZNetworking provides a comprehensive set of interceptors for customizing network behavior:
+
+#### Cache Interceptor
+
+Control caching behavior:
 
 ```swift
-let task = ImageDownloader().downloadImageTask(url: testURL) { _ in
-    ...
-}
-// something happens and you want to cancel the download task
-task.cancel()
-```
-
-### Advanced usage
-EZNetworking provides more advanced usages than just making a request and decoding a response. Clients can also intercept requests through interceptors that act as middleware. 
-
-#### SessionDelegate
-`SessionDelegate` is the entrypoint to allow you to add much more customization to your network calls. To add a `SessionDelegate`, create an instance and pass it into your performer.
-```swift
-let delegate = SessionDelegate()
-let performer = RequestPerformer(sessionDelegate: delegate)
-```
-By default, SessionDelegate by itself doesn't do anything and still allows network requests to act as per normal. If you want to add deeper functionality, you would need to integrate one (or more) of many interceptors available.
-
-#### CacheInterceptor
-CacheInterceptor is a Protocol for intercepting URL cache operations. 
-You can create your own object conforming to CacheInterceptor to meet your specific business needs.
-Example:
-```swift
-class MyCustomCacheInterceptor: CacheInterceptor {
-    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, willCacheResponse proposedResponse: CachedURLResponse) async -> CachedURLResponse? {
-        // your implementation
-    }
-}
-let delegate = SessionDelegate()
-delegate.cacheInterceptor = MyCustomCacheInterceptor()
-let performer = RequestPerformer(sessionDelegate: delegate)
-```
-
-#### AuthenticationInterceptor
-AuthenticationInterceptor is a Protocol for intercepting and handling URL authentication challenges. 
-You can create your own object conforming to AuthenticationInterceptor to handle authentication for your requests.
-Example:
-```swift
-class MyCustomAuthInterceptor: AuthenticationInterceptor {
-    func urlSession(_ session: URLSession, task: URLSessionTask, didReceive challenge: URLAuthenticationChallenge) async -> (URLSession.AuthChallengeDisposition, URLCredential?) {
-        // your implementation
-        return (.useCredential, URLCredential(user: "username", password: "password", persistence: .forSession))
-    }
-    
-    func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge) async -> (URLSession.AuthChallengeDisposition, URLCredential?) {
-        // your implementation
-        return (.performDefaultHandling, nil)
+class CustomCacheInterceptor: CacheInterceptor {
+    func urlSession(
+        _ session: URLSession,
+        dataTask: URLSessionDataTask,
+        willCacheResponse proposedResponse: CachedURLResponse
+    ) async -> CachedURLResponse? {
+        // Customize caching behavior
+        return proposedResponse
     }
 }
 
 let delegate = SessionDelegate()
-delegate.authenticationInterceptor = MyCustomAuthInterceptor()
-let performer = RequestPerformer(sessionDelegate: delegate)
+delegate.cacheInterceptor = CustomCacheInterceptor()
 ```
 
-#### RedirectInterceptor
-RedirectInterceptor is a Protocol for intercepting URL redirect operations.
-You can create your own object conforming to RedirectInterceptor to control how redirects are handled.
-Example:
+#### Authentication Interceptor
+
+Handle authentication challenges:
+
 ```swift
-class MyCustomRedirectInterceptor: RedirectInterceptor {
-    func urlSession(_ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse, newRequest request: URLRequest) async -> URLRequest? {
-        // your implementation
+class CustomAuthInterceptor: AuthenticationInterceptor {
+    func urlSession(
+        _ session: URLSession,
+        task: URLSessionTask,
+        didReceive challenge: URLAuthenticationChallenge
+    ) async -> (URLSession.AuthChallengeDisposition, URLCredential?) {
+        // Handle authentication
+        return (.useCredential, URLCredential(
+            user: "username",
+            password: "password",
+            persistence: .forSession
+        ))
+    }
+}
+
+let delegate = SessionDelegate()
+delegate.authenticationInterceptor = CustomAuthInterceptor()
+```
+
+#### Redirect Interceptor
+
+Control URL redirections:
+
+```swift
+class CustomRedirectInterceptor: RedirectInterceptor {
+    func urlSession(
+        _ session: URLSession,
+        task: URLSessionTask,
+        willPerformHTTPRedirection response: HTTPURLResponse,
+        newRequest request: URLRequest
+    ) async -> URLRequest? {
+        // Handle redirection
         return request
     }
 }
 
 let delegate = SessionDelegate()
-delegate.redirectInterceptor = MyCustomRedirectInterceptor()
-let performer = RequestPerformer(sessionDelegate: delegate)
+delegate.redirectInterceptor = CustomRedirectInterceptor()
 ```
 
-#### MetricsInterceptor
-MetricsInterceptor is a Protocol for intercepting URL metrics collection.
-You can create your own object conforming to MetricsInterceptor to collect performance metrics for your network requests.
-Example:
+#### Metrics Interceptor
+
+Collect performance metrics:
+
 ```swift
-class MyCustomMetricsInterceptor: MetricsInterceptor {
-    func urlSession(_ session: URLSession, task: URLSessionTask, didFinishCollecting metrics: URLSessionTaskMetrics) {
-        // your implementation
+class CustomMetricsInterceptor: MetricsInterceptor {
+    func urlSession(
+        _ session: URLSession,
+        task: URLSessionTask,
+        didFinishCollecting metrics: URLSessionTaskMetrics
+    ) {
+        // Process metrics
+        print("Task duration: \(metrics.taskInterval.duration)")
     }
 }
 
 let delegate = SessionDelegate()
-delegate.metricsInterceptor = MyCustomMetricsInterceptor()
-let performer = RequestPerformer(sessionDelegate: delegate)
+delegate.metricsInterceptor = CustomMetricsInterceptor()
 ```
 
-#### TaskLifecycleInterceptor
-TaskLifecycleInterceptor is a Protocol for intercepting task lifecycle events.
-You can create your own object conforming to TaskLifecycleInterceptor to monitor and respond to the different stages of a network task's lifecycle.
-Example:
+#### Task Lifecycle Interceptor
+
+Monitor task lifecycle events:
+
 ```swift
-class MyCustomLifecycleInterceptor: TaskLifecycleInterceptor {
-    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
-        // your implementation
+class CustomLifecycleInterceptor: TaskLifecycleInterceptor {
+    func urlSession(
+        _ session: URLSession,
+        task: URLSessionTask,
+        didCompleteWithError error: Error?
+    ) {
+        // Handle task completion
     }
     
-    func urlSession(_ session: URLSession, taskIsWaitingForConnectivity task: URLSessionTask) {
-        // your implementation
+    func urlSession(
+        _ session: URLSession,
+        taskIsWaitingForConnectivity task: URLSessionTask
+    ) {
+        // Handle connectivity waiting
     }
     
-    func urlSession(_ session: URLSession, didCreateTask task: URLSessionTask) {
-        // your implementation
+    func urlSession(
+        _ session: URLSession,
+        didCreateTask task: URLSessionTask
+    ) {
+        // Handle task creation
     }
 }
 
 let delegate = SessionDelegate()
-delegate.taskLifecycleInterceptor = MyCustomLifecycleInterceptor()
-let performer = RequestPerformer(sessionDelegate: delegate)
+delegate.taskLifecycleInterceptor = CustomLifecycleInterceptor()
 ```
 
-#### DataTaskInterceptor
-DataTaskInterceptor is a Protocol for intercepting data tasks specifically.
-You can create your own object conforming to DataTaskInterceptor to process incoming data during a request.
-Example:
+#### Data Task Interceptor
+
+Process incoming data:
+
 ```swift
-class MyCustomDataTaskInterceptor: DataTaskInterceptor {
-    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
-        // your implementation
+class CustomDataTaskInterceptor: DataTaskInterceptor {
+    func urlSession(
+        _ session: URLSession,
+        dataTask: URLSessionDataTask,
+        didReceive data: Data
+    ) {
+        // Process received data
     }
     
-    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didBecome downloadTask: URLSessionDownloadTask) {
-        // your implementation
-    }
-    
-    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didBecome streamTask: URLSessionStreamTask) {
-        // your implementation
-    }
-    
-    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse) async -> URLSession.ResponseDisposition {
-        // your implementation
+    func urlSession(
+        _ session: URLSession,
+        dataTask: URLSessionDataTask,
+        didReceive response: URLResponse
+    ) async -> URLSession.ResponseDisposition {
+        // Handle response
         return .allow
     }
 }
 
 let delegate = SessionDelegate()
-delegate.dataTaskInterceptor = MyCustomDataTaskInterceptor()
-let performer = RequestPerformer(sessionDelegate: delegate)
+delegate.dataTaskInterceptor = CustomDataTaskInterceptor()
 ```
 
-#### DownloadTaskInterceptor
-DownloadTaskInterceptor is a Protocol for intercepting download tasks specifically.
-You can create your own object conforming to DownloadTaskInterceptor to monitor and process file downloads.
-Example:
+#### Download Task Interceptor
+
+Monitor download progress:
+
 ```swift
-class MyCustomDownloadInterceptor: DownloadTaskInterceptor {
-    func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
-        // your implementation
+class CustomDownloadInterceptor: DownloadTaskInterceptor {
+    func urlSession(
+        _ session: URLSession,
+        downloadTask: URLSessionDownloadTask,
+        didFinishDownloadingTo location: URL
+    ) {
+        // Handle download completion
     }
     
-    func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
-        // your implementation
-    }
-    
-    func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didResumeAtOffset fileOffset: Int64, expectedTotalBytes: Int64) {
-        // your implementation
+    func urlSession(
+        _ session: URLSession,
+        downloadTask: URLSessionDownloadTask,
+        didWriteData bytesWritten: Int64,
+        totalBytesWritten: Int64,
+        totalBytesExpectedToWrite: Int64
+    ) {
+        // Track download progress
+        let progress = Double(totalBytesWritten) / Double(totalBytesExpectedToWrite)
+        print("Download progress: \(progress)")
     }
 }
 
 let delegate = SessionDelegate()
-delegate.downloadTaskInterceptor = MyCustomDownloadInterceptor()
-let performer = RequestPerformer(sessionDelegate: delegate)
+delegate.downloadTaskInterceptor = CustomDownloadInterceptor()
 ```
 
-#### StreamTaskInterceptor
-StreamTaskInterceptor is a Protocol for intercepting stream tasks specifically.
-You can create your own object conforming to StreamTaskInterceptor to handle network streaming operations.
-Example:
+#### Stream Task Interceptor
+
+Handle streaming operations:
+
 ```swift
-class MyCustomStreamInterceptor: StreamTaskInterceptor {
-    func urlSession(_ session: URLSession, readClosedFor streamTask: URLSessionStreamTask) {
-        // your implementation
+class CustomStreamInterceptor: StreamTaskInterceptor {
+    func urlSession(
+        _ session: URLSession,
+        streamTask: URLSessionStreamTask,
+        didBecome inputStream: InputStream,
+        outputStream: OutputStream
+    ) {
+        // Handle streams
     }
     
-    func urlSession(_ session: URLSession, writeClosedFor streamTask: URLSessionStreamTask) {
-        // your implementation
-    }
-    
-    func urlSession(_ session: URLSession, betterRouteDiscoveredFor streamTask: URLSessionStreamTask) {
-        // your implementation
-    }
-    
-    func urlSession(_ session: URLSession, streamTask: URLSessionStreamTask, didBecome inputStream: InputStream, outputStream: OutputStream) {
-        // your implementation
+    func urlSession(
+        _ session: URLSession,
+        readClosedFor streamTask: URLSessionStreamTask
+    ) {
+        // Handle read close
     }
 }
 
 let delegate = SessionDelegate()
-delegate.streamTaskInterceptor = MyCustomStreamInterceptor()
-let performer = RequestPerformer(sessionDelegate: delegate)
+delegate.streamTaskInterceptor = CustomStreamInterceptor()
 ```
 
-#### WebSocketTaskInterceptor
-WebSocketTaskInterceptor is a Protocol for intercepting WebSocket tasks specifically.
-You can create your own object conforming to WebSocketTaskInterceptor to monitor and respond to WebSocket events.
-Example:
+#### WebSocket Task Interceptor
+
+Handle WebSocket communications:
+
 ```swift
-class MyCustomWebSocketInterceptor: WebSocketTaskInterceptor {
-    func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didOpenWithProtocol protocol: String?) {
-        // your implementation
+class CustomWebSocketInterceptor: WebSocketTaskInterceptor {
+    func urlSession(
+        _ session: URLSession,
+        webSocketTask: URLSessionWebSocketTask,
+        didOpenWithProtocol protocol: String?
+    ) {
+        // Handle WebSocket open
     }
     
-    func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didCloseWith closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?) {
-        // your implementation
+    func urlSession(
+        _ session: URLSession,
+        webSocketTask: URLSessionWebSocketTask,
+        didCloseWith closeCode: URLSessionWebSocketTask.CloseCode,
+        reason: Data?
+    ) {
+        // Handle WebSocket close
     }
 }
 
 let delegate = SessionDelegate()
-delegate.webSocketTaskInterceptor = MyCustomWebSocketInterceptor()
-let performer = RequestPerformer(sessionDelegate: delegate)
+delegate.webSocketTaskInterceptor = CustomWebSocketInterceptor()
 ```
 
+### Session Management
 
+Configure and manage URLSession behavior:
 
+```swift
+// Create session delegate with interceptors
+let delegate = SessionDelegate()
+delegate.cacheInterceptor = CustomCacheInterceptor()
+delegate.authenticationInterceptor = CustomAuthInterceptor()
+delegate.metricsInterceptor = CustomMetricsInterceptor()
+
+// Create performer with custom session delegate. Works for RequestPerformer and AsyncRequestPerformer
+let performer = RequestPerformer(sessionDelegate: delegate)
+
+// Use performer for requests
+performer.performTask(request: request) { result in
+    // Handle result
+}
+```
+
+## Error Handling 🚨
+
+EZNetworking provides comprehensive error handling:
+
+```swift
+public enum NetworkingError: Error {
+    case invalidURL
+    case noData
+    case decodingError(Error)
+    case serverError(Int, Data?)
+    case networkError(Error)
+    case invalidResponse
+    case downloadError(Error)
+    // ... other error cases
+}
+
+// Error handling example
+do {
+    let response = try await AsyncRequestPerformer().perform(request: request, decodeTo: UserData.self)
+    // do something with response
+} catch let error as NetworkingError {
+    switch error {
+    case .internalError(let internalError):
+        // some internal error such as failed to decode or url not valid
+    case .information(let hTTPInformationalStatus, let uRLResponseHeaders):
+        // .. some 1xx status code error
+    case .redirect(let hTTPRedirectionStatus, let uRLResponseHeaders):
+        // some 3xx status code error
+    case .httpClientError(let hTTPClientErrorStatus, let uRLResponseHeaders):
+        // some 4xx status code error
+    case .httpServerError(let hTTPServerErrorStatus, let uRLResponseHeaders):
+        // some 5xx status code error
+    case .urlError(let uRLError):
+        // some error of type URLError
+    }
+}
+```
+
+## Contributing 🤝
+
+Contributions are welcome! Please read our [Contributing Guidelines](CONTRIBUTING.md) for details on:
+- Submitting pull requests
+- Reporting issues
+- Code style guidelines
+- Development setup
+
+## License 📄
+
+EZNetworking is available under the MIT license. See the [LICENSE](https://github.com/Aldo10012/EZNetworking?tab=MIT-1-ov-file) file for more info.
