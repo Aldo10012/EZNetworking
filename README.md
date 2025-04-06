@@ -694,14 +694,17 @@ EZNetworking provides comprehensive error handling:
 
 ```swift
 public enum NetworkingError: Error {
-    case invalidURL
-    case noData
-    case decodingError(Error)
-    case serverError(Int, Data?)
-    case networkError(Error)
-    case invalidResponse
-    case downloadError(Error)
-    // ... other error cases
+    // Internal errors
+    case internalError(InternalError)                                   /// any internal error
+
+    // HTTP Status Code errors
+    case information(HTTPInformationalStatus, URLResponseHeaders)       /// 1xx status code errors
+    case redirect(HTTPRedirectionStatus, URLResponseHeaders)            /// 3xx status code errors
+    case httpClientError(HTTPClientErrorStatus, URLResponseHeaders)     /// 4xx status code errors
+    case httpServerError(HTTPServerErrorStatus, URLResponseHeaders)     /// 5xx status code errors
+
+    // URL Errors
+    case urlError(URLError)                                             /// any URL error
 }
 
 // Error handling example
