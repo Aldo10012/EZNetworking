@@ -42,26 +42,14 @@ public class FileDownloader: FileDownloadable {
     }
     
     public func downloadFile(with url: URL) async throws -> URL {
-        do {
-            let (localURL, urlResponse) = try await urlSession.download(from: url, delegate: nil)
-            
-            try validator.validateStatus(from: urlResponse)
-            let unwrappedLocalURL = try validator.validateUrl(localURL)
-            return unwrappedLocalURL
-        } catch let error as NetworkingError {
-            throw error
-        } catch let error as URLError {
-            throw NetworkingError.urlError(error)
-        } catch {
-            throw NetworkingError.internalError(.unknown)
-        }
+        try await downloadFile(with: url, progress: nil)
     }
     
     public func downloadFile(with url: URL, progress: ((Double) -> Void)? = nil) async throws -> URL {
         do {
-            setupProgressTracking(progress: progress)
-            let (localURL, urlResponse) = try await urlSession.download(from: url, delegate: nil)
+            configureProgressTracking(progress: progress)
 
+            let (localURL, urlResponse) = try await urlSession.download(from: url, delegate: nil)
             try validator.validateStatus(from: urlResponse)
             let unwrappedLocalURL = try validator.validateUrl(localURL)
             return unwrappedLocalURL
@@ -76,26 +64,12 @@ public class FileDownloader: FileDownloadable {
 
     @discardableResult
     public func downloadFileTask(url: URL, completion: @escaping((Result<URL, NetworkingError>) -> Void)) -> URLSessionDownloadTask {
-        let task = urlSession.downloadTask(with: url) { [weak self] localURL, response, error in
-            guard let self else { return }
-            do {
-                try validator.validateNoError(error)
-                try validator.validateStatus(from: response)
-                let localURL = try validator.validateUrl(localURL)
-                
-                completion(.success(localURL))
-            } catch let networkError as NetworkingError {
-                completion(.failure(networkError))
-            } catch {
-                completion(.failure(.internalError(.unknown)))
-            }
-        }
-        task.resume()
-        return task
+        return downloadFileTask(url: url, progress: nil, completion: completion)
     }
     
     public func downloadFileTask(url: URL, progress: ((Double) -> Void)?, completion: @escaping ((Result<URL, NetworkingError>) -> Void)) -> URLSessionDownloadTask {
-        setupProgressTracking(progress: progress)
+        configureProgressTracking(progress: progress)
+
         let task = urlSession.downloadTask(with: url) { [weak self] localURL, response, error in
             guard let self else { return }
             do {
@@ -113,8 +87,8 @@ public class FileDownloader: FileDownloadable {
         task.resume()
         return task
     }
-    
-    private func setupProgressTracking(progress: ((Double) -> Void)?) {
+
+    private func configureProgressTracking(progress: ((Double) -> Void)?) {
         if let progress = progress {
             if sessionDelegate?.downloadTaskInterceptor != nil { // user is using custom DownloadTaskInterceptor
                 sessionDelegate?.downloadTaskInterceptor?.progress = progress
