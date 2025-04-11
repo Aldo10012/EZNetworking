@@ -7,6 +7,7 @@ class MockURLSession: URLSessionTaskProtocol {
     var urlResponse: URLResponse?
     var error: Error?
     var completion: ((Data?, URLResponse?, Error?) -> Void)?
+    var sessionDelegate: SessionDelegate? = nil
     
     init(data: Data? = nil, urlResponse: URLResponse? = nil, error: Error? = nil) {
         self.data = data
@@ -68,6 +69,15 @@ class MockURLSession: URLSessionTaskProtocol {
     
     func downloadTask(with url: URL, completionHandler: @escaping @Sendable (URL?, URLResponse?, Error?) -> Void) -> URLSessionDownloadTask {
         
+        // track download progress - 33%
+        sessionDelegate?.downloadTaskInterceptor?.urlSession(.shared, downloadTask: .init(), didWriteData: 100, totalBytesWritten: 33, totalBytesExpectedToWrite: 100)
+        
+        // track resuming download progress - 66%
+        sessionDelegate?.downloadTaskInterceptor?.urlSession(.shared, downloadTask: .init(), didResumeAtOffset: 66, expectedTotalBytes: 100)
+        
+        // track download progress finished - 100%
+        sessionDelegate?.downloadTaskInterceptor?.urlSession(.shared, downloadTask: .init(), didFinishDownloadingTo: URL(fileURLWithPath: "/tmp/test.pdf"))
+
         return MockURLSessionDownloadTask {
             completionHandler(URL(fileURLWithPath: "/tmp/test.pdf"), self.urlResponse, self.error)
         }
@@ -80,6 +90,16 @@ class MockURLSession: URLSessionTaskProtocol {
         guard let urlResponse else {
             throw NetworkingError.internalError(.unknown)
         }
+        
+        // track download progress - 33%
+        sessionDelegate?.downloadTaskInterceptor?.urlSession(.shared, downloadTask: .init(), didWriteData: 100, totalBytesWritten: 33, totalBytesExpectedToWrite: 100)
+        
+        // track resuming download progress - 66%
+        sessionDelegate?.downloadTaskInterceptor?.urlSession(.shared, downloadTask: .init(), didResumeAtOffset: 66, expectedTotalBytes: 100)
+        
+        // track download progress finished - 100%
+        sessionDelegate?.downloadTaskInterceptor?.urlSession(.shared, downloadTask: .init(), didFinishDownloadingTo: URL(fileURLWithPath: "/tmp/test.pdf"))
+
         return (URL(fileURLWithPath: "/tmp/test.pdf"), urlResponse)
     }
 }
