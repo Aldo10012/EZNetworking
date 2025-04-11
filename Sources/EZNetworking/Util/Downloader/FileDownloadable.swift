@@ -59,19 +59,9 @@ public class FileDownloader: FileDownloadable {
     
     public func downloadFile(with url: URL, progress: ((Double) -> Void)? = nil) async throws -> URL {
         do {
-            if let progress = progress {
-                if sessionDelegate?.downloadTaskInterceptor != nil { // user is using custom DownloadTaskInterceptor
-                    sessionDelegate?.downloadTaskInterceptor?.progress = progress
-                } else {
-                    if sessionDelegate == nil {
-                        sessionDelegate = SessionDelegate()
-                    }
-                    fallbackDownloadTaskInterceptor.progress = progress
-                    sessionDelegate?.downloadTaskInterceptor = fallbackDownloadTaskInterceptor
-                }
-            }
+            setupProgressTracking(progress: progress)
             let (localURL, urlResponse) = try await urlSession.download(from: url, delegate: nil)
-            
+
             try validator.validateStatus(from: urlResponse)
             let unwrappedLocalURL = try validator.validateUrl(localURL)
             return unwrappedLocalURL
@@ -83,8 +73,6 @@ public class FileDownloader: FileDownloadable {
             throw NetworkingError.internalError(.unknown)
         }
     }
-
-
 
     @discardableResult
     public func downloadFileTask(url: URL, completion: @escaping((Result<URL, NetworkingError>) -> Void)) -> URLSessionDownloadTask {
@@ -107,17 +95,7 @@ public class FileDownloader: FileDownloadable {
     }
     
     public func downloadFileTask(url: URL, progress: ((Double) -> Void)?, completion: @escaping ((Result<URL, NetworkingError>) -> Void)) -> URLSessionDownloadTask {
-        if let progress = progress {
-            if sessionDelegate?.downloadTaskInterceptor != nil { // user is using custom DownloadTaskInterceptor
-                sessionDelegate?.downloadTaskInterceptor?.progress = progress
-            } else {
-                if sessionDelegate == nil {
-                    sessionDelegate = SessionDelegate()
-                }
-                fallbackDownloadTaskInterceptor.progress = progress
-                sessionDelegate?.downloadTaskInterceptor = fallbackDownloadTaskInterceptor
-            }
-        }
+        setupProgressTracking(progress: progress)
         let task = urlSession.downloadTask(with: url) { [weak self] localURL, response, error in
             guard let self else { return }
             do {
@@ -134,6 +112,20 @@ public class FileDownloader: FileDownloadable {
         }
         task.resume()
         return task
+    }
+    
+    private func setupProgressTracking(progress: ((Double) -> Void)?) {
+        if let progress = progress {
+            if sessionDelegate?.downloadTaskInterceptor != nil { // user is using custom DownloadTaskInterceptor
+                sessionDelegate?.downloadTaskInterceptor?.progress = progress
+            } else {
+                if sessionDelegate == nil {
+                    sessionDelegate = SessionDelegate()
+                }
+                fallbackDownloadTaskInterceptor.progress = progress
+                sessionDelegate?.downloadTaskInterceptor = fallbackDownloadTaskInterceptor
+            }
+        }
     }
 }
 
