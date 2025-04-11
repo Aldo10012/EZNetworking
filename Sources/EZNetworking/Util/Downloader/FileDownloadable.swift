@@ -13,7 +13,9 @@ public class FileDownloader: FileDownloadable {
     private let urlSession: URLSessionTaskProtocol
     private let validator: ResponseValidator
     private let requestDecoder: RequestDecodable
-    private var downloadTaskInterceptor: DownloadTaskInterceptor?
+    private var sessionDelegate: SessionDelegate?
+
+    private let fallbackDownloadTaskInterceptor: DownloadTaskInterceptor = DefaultDownloadTaskInterceptor()
     
     public convenience init(
         sessionConfiguration: URLSessionConfiguration = .default,
@@ -28,7 +30,7 @@ public class FileDownloader: FileDownloadable {
         self.init(urlSession: urlSession,
                   validator: validator,
                   requestDecoder: requestDecoder)
-        self.downloadTaskInterceptor = sessionDelegate.downloadTaskInterceptor
+        self.sessionDelegate = sessionDelegate
     }
 
     public init(urlSession: URLSessionTaskProtocol = URLSession.shared,
@@ -58,10 +60,14 @@ public class FileDownloader: FileDownloadable {
     public func downloadFile(with url: URL, progress: ((Double) -> Void)? = nil) async throws -> URL {
         do {
             if let progress = progress {
-                if downloadTaskInterceptor != nil { // user is using custom DownloadTaskInterceptor
-                    downloadTaskInterceptor?.progress = progress
+                if sessionDelegate?.downloadTaskInterceptor != nil { // user is using custom DownloadTaskInterceptor
+                    sessionDelegate?.downloadTaskInterceptor?.progress = progress
                 } else {
-                    downloadTaskInterceptor = DefaultDownloadTaskInterceptor(progress: progress)
+                    if sessionDelegate == nil {
+                        sessionDelegate = SessionDelegate()
+                    }
+                    fallbackDownloadTaskInterceptor.progress = progress
+                    sessionDelegate?.downloadTaskInterceptor = fallbackDownloadTaskInterceptor
                 }
             }
             let (localURL, urlResponse) = try await urlSession.download(from: url, delegate: nil)
@@ -102,10 +108,14 @@ public class FileDownloader: FileDownloadable {
     
     public func downloadFileTask(url: URL, progress: ((Double) -> Void)?, completion: @escaping ((Result<URL, NetworkingError>) -> Void)) -> URLSessionDownloadTask {
         if let progress = progress {
-            if downloadTaskInterceptor != nil { // user is using custom DownloadTaskInterceptor
-                downloadTaskInterceptor?.progress = progress
+            if sessionDelegate?.downloadTaskInterceptor != nil { // user is using custom DownloadTaskInterceptor
+                sessionDelegate?.downloadTaskInterceptor?.progress = progress
             } else {
-                downloadTaskInterceptor = DefaultDownloadTaskInterceptor(progress: progress)
+                if sessionDelegate == nil {
+                    sessionDelegate = SessionDelegate()
+                }
+                fallbackDownloadTaskInterceptor.progress = progress
+                sessionDelegate?.downloadTaskInterceptor = fallbackDownloadTaskInterceptor
             }
         }
         let task = urlSession.downloadTask(with: url) { [weak self] localURL, response, error in
