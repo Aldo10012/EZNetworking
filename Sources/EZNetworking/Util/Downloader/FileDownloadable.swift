@@ -111,15 +111,15 @@ public class FileDownloader: FileDownloadable {
     }
 
     private func configureProgressTracking(progress: ((Double) -> Void)?) {
-        if let progress = progress {
-            if sessionDelegate.downloadTaskInterceptor != nil {
-                // Update existing interceptor's progress handler
-                sessionDelegate.downloadTaskInterceptor?.progress = progress
-            } else {
-                // Set up fallback interceptor with progress handler
-                fallbackDownloadTaskInterceptor.progress = progress
-                sessionDelegate.downloadTaskInterceptor = fallbackDownloadTaskInterceptor
-            }
+        guard let progress else { return }
+
+        if sessionDelegate.downloadTaskInterceptor != nil {
+            // Update existing interceptor's progress handler
+            sessionDelegate.downloadTaskInterceptor?.progress = progress
+        } else {
+            // Set up fallback interceptor with progress handler
+            fallbackDownloadTaskInterceptor.progress = progress
+            sessionDelegate.downloadTaskInterceptor = fallbackDownloadTaskInterceptor
         }
     }
 }
