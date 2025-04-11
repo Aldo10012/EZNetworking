@@ -64,7 +64,7 @@ public class FileDownloader: FileDownloadable {
         do {
             configureProgressTracking(progress: progress)
 
-            let (localURL, urlResponse) = try await urlSession.download(from: url, delegate: nil)
+            let (localURL, urlResponse) = try await urlSession.download(from: url, delegate: sessionDelegate)
             try validator.validateStatus(from: urlResponse)
             let unwrappedLocalURL = try validator.validateUrl(localURL)
             return unwrappedLocalURL
