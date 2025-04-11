@@ -69,14 +69,7 @@ class MockURLSession: URLSessionTaskProtocol {
     
     func downloadTask(with url: URL, completionHandler: @escaping @Sendable (URL?, URLResponse?, Error?) -> Void) -> URLSessionDownloadTask {
         
-        // track download progress - 33%
-        sessionDelegate?.downloadTaskInterceptor?.urlSession(.shared, downloadTask: .init(), didWriteData: 100, totalBytesWritten: 33, totalBytesExpectedToWrite: 100)
-        
-        // track resuming download progress - 66%
-        sessionDelegate?.downloadTaskInterceptor?.urlSession(.shared, downloadTask: .init(), didResumeAtOffset: 66, expectedTotalBytes: 100)
-        
-        // track download progress finished - 100%
-        sessionDelegate?.downloadTaskInterceptor?.urlSession(.shared, downloadTask: .init(), didFinishDownloadingTo: URL(fileURLWithPath: "/tmp/test.pdf"))
+        simulateDownloadProgress(for: .init())
 
         return MockURLSessionDownloadTask {
             completionHandler(URL(fileURLWithPath: "/tmp/test.pdf"), self.urlResponse, self.error)
@@ -91,16 +84,37 @@ class MockURLSession: URLSessionTaskProtocol {
             throw NetworkingError.internalError(.unknown)
         }
         
-        // track download progress - 33%
-        sessionDelegate?.downloadTaskInterceptor?.urlSession(.shared, downloadTask: .init(), didWriteData: 100, totalBytesWritten: 33, totalBytesExpectedToWrite: 100)
-        
-        // track resuming download progress - 66%
-        sessionDelegate?.downloadTaskInterceptor?.urlSession(.shared, downloadTask: .init(), didResumeAtOffset: 66, expectedTotalBytes: 100)
-        
-        // track download progress finished - 100%
-        sessionDelegate?.downloadTaskInterceptor?.urlSession(.shared, downloadTask: .init(), didFinishDownloadingTo: URL(fileURLWithPath: "/tmp/test.pdf"))
+        simulateDownloadProgress(for: .init())
 
         return (URL(fileURLWithPath: "/tmp/test.pdf"), urlResponse)
+    }
+}
+
+extension MockURLSession {
+    private func simulateDownloadProgress(for task: URLSessionDownloadTask) {
+        // Simulate 50% progress
+        sessionDelegate?.urlSession(
+            .shared,
+            downloadTask: task,
+            didWriteData: 50,
+            totalBytesWritten: 50,
+            totalBytesExpectedToWrite: 100
+        )
+        
+        // Simulate completion
+        sessionDelegate?.urlSession(
+            .shared,
+            downloadTask: task,
+            didWriteData: 50,
+            totalBytesWritten: 100,
+            totalBytesExpectedToWrite: 100
+        )
+        
+        sessionDelegate?.urlSession(
+            .shared,
+            downloadTask: task,
+            didFinishDownloadingTo: URL(fileURLWithPath: "/tmp/test.pdf")
+        )
     }
 }
 
