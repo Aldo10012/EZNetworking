@@ -98,6 +98,8 @@ public class FileDownloader: FileDownloadable {
                 completion(.success(localURL))
             } catch let networkError as NetworkingError {
                 completion(.failure(networkError))
+            } catch let error as URLError {
+                completion(.failure(.urlError(error)))
             } catch {
                 completion(.failure(.internalError(.unknown)))
             }
