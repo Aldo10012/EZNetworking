@@ -86,11 +86,14 @@ public class FileDownloader: FileDownloadable {
         configureProgressTracking(progress: progress)
 
         let task = urlSession.downloadTask(with: url) { [weak self] localURL, response, error in
-            guard let self else { return }
+            guard let self else {
+                completion(.failure(.internalError(.lostReferenceOfSelf)))
+                return
+            }
             do {
-                try validator.validateNoError(error)
-                try validator.validateStatus(from: response)
-                let localURL = try validator.validateUrl(localURL)
+                try self.validator.validateNoError(error)
+                try self.validator.validateStatus(from: response)
+                let localURL = try self.validator.validateUrl(localURL)
                 
                 completion(.success(localURL))
             } catch let networkError as NetworkingError {
