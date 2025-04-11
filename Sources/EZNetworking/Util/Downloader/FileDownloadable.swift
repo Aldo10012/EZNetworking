@@ -13,7 +13,7 @@ public class FileDownloader: FileDownloadable {
     private let urlSession: URLSessionTaskProtocol
     private let validator: ResponseValidator
     private let requestDecoder: RequestDecodable
-    private var sessionDelegate: SessionDelegate?
+    private var sessionDelegate: SessionDelegate
 
     private let fallbackDownloadTaskInterceptor: DownloadTaskInterceptor = DefaultDownloadTaskInterceptor()
     
@@ -29,16 +29,31 @@ public class FileDownloader: FileDownloadable {
                                     delegateQueue: delegateQueue)
         self.init(urlSession: urlSession,
                   validator: validator,
-                  requestDecoder: requestDecoder)
-        self.sessionDelegate = sessionDelegate
+                  requestDecoder: requestDecoder,
+                  sessionDelegate: sessionDelegate)
     }
 
-    public init(urlSession: URLSessionTaskProtocol = URLSession.shared,
-                validator: ResponseValidator = ResponseValidatorImpl(),
-                requestDecoder: RequestDecodable = RequestDecoder()) {
+    public convenience init(
+        urlSession: URLSessionTaskProtocol = URLSession.shared,
+        validator: ResponseValidator = ResponseValidatorImpl(),
+        requestDecoder: RequestDecodable = RequestDecoder()
+    ) {
+        self.init(urlSession: urlSession,
+                  validator: validator,
+                  requestDecoder: requestDecoder,
+                  sessionDelegate: SessionDelegate())
+    }
+
+    internal init(
+        urlSession: URLSessionTaskProtocol = URLSession.shared,
+        validator: ResponseValidator = ResponseValidatorImpl(),
+        requestDecoder: RequestDecodable = RequestDecoder(),
+        sessionDelegate: SessionDelegate = SessionDelegate()
+    ) {
         self.urlSession = urlSession
         self.validator = validator
         self.requestDecoder = requestDecoder
+        self.sessionDelegate = sessionDelegate
     }
     
     public func downloadFile(with url: URL) async throws -> URL {
@@ -90,14 +105,11 @@ public class FileDownloader: FileDownloadable {
 
     private func configureProgressTracking(progress: ((Double) -> Void)?) {
         if let progress = progress {
-            if sessionDelegate?.downloadTaskInterceptor != nil { // user is using custom DownloadTaskInterceptor
-                sessionDelegate?.downloadTaskInterceptor?.progress = progress
+            if sessionDelegate.downloadTaskInterceptor != nil { // user is using custom DownloadTaskInterceptor
+                sessionDelegate.downloadTaskInterceptor?.progress = progress
             } else {
-                if sessionDelegate == nil {
-                    sessionDelegate = SessionDelegate()
-                }
                 fallbackDownloadTaskInterceptor.progress = progress
-                sessionDelegate?.downloadTaskInterceptor = fallbackDownloadTaskInterceptor
+                sessionDelegate.downloadTaskInterceptor = fallbackDownloadTaskInterceptor
             }
         }
     }
