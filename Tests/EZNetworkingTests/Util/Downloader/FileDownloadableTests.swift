@@ -81,9 +81,33 @@ final class FileDownloadableTests: XCTestCase {
         }
     }
     
+    func testDownloadFileDownloadProgressCanBeTracked() async throws {
+        let testURL = URL(string: "https://example.com/example.pdf")!
+        let urlSession = MockURLSession(
+            url: testURL,
+            urlResponse: buildResponse(statusCode: 200),
+            error: nil
+        )
+        let validator = ResponseValidatorImpl()
+        let decoder = RequestDecoder()
+        let delegate = SessionDelegate()
+        urlSession.sessionDelegate = delegate
+        let sut = FileDownloader(urlSession: urlSession, validator: validator, requestDecoder: decoder, sessionDelegate: delegate)
+
+        var didTrackProgress = false
+        do {
+            _ = try await sut.downloadFile(with: testURL, progress: { _ in
+                didTrackProgress = true
+            })
+            XCTAssertTrue(didTrackProgress)
+        } catch {
+            XCTFail()
+        }
+    }
+
     // MARK: test callbacks
     
-    func testDownloadFileSuccess() {
+    func testDownloadFileTaskSuccess() {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = MockURLSession(url: testURL,
                                         urlResponse: buildResponse(statusCode: 200),
@@ -141,6 +165,37 @@ final class FileDownloadableTests: XCTestCase {
             }
         }
         wait(for: [exp], timeout: 0.1)
+    }
+    
+    func testDownloadFileTaskDownloadProgressCanBeTracked() {
+        let testURL = URL(string: "https://example.com/example.pdf")!
+        let urlSession = MockURLSession(
+            url: testURL,
+            urlResponse: buildResponse(statusCode: 200),
+            error: nil
+        )
+        let delegate = SessionDelegate()
+        urlSession.sessionDelegate = delegate
+        
+        let sut = FileDownloader(urlSession: urlSession,
+                                 validator: MockURLResponseValidator(),
+                                 requestDecoder: RequestDecoder(),
+                                 sessionDelegate: delegate)
+        
+        let exp = XCTestExpectation()
+        var didTrackProgress = false
+
+        _ = sut.downloadFileTask(url: testURL, progress: { progress in
+            didTrackProgress = true
+        }) { result in
+            defer { exp.fulfill() }
+            switch result {
+            case .success: XCTAssertTrue(true)
+            case .failure: XCTFail()
+            }
+        }
+        wait(for: [exp], timeout: 0.1)
+        XCTAssertTrue(didTrackProgress)
     }
 
     private func buildResponse(statusCode: Int) -> HTTPURLResponse {

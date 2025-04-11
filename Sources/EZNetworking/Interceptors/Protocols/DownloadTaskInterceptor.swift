@@ -2,6 +2,9 @@ import Foundation
 
 /// Protocol for intercepting download tasks specifically.
 public protocol DownloadTaskInterceptor: AnyObject {
+    /// Track the progress of the download process
+    var progress: (Double) -> Void { get set }
+    
     /// Intercepts when a download task finishes downloading to a location.
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL)
 
