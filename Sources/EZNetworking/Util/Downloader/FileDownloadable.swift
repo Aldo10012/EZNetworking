@@ -6,7 +6,7 @@ public protocol FileDownloadable {
     func downloadFile(with url: URL) async throws -> URL
     func downloadFile(with url: URL, progress: DownloadProgressHandler?) async throws -> URL
     @discardableResult
-    func downloadFileTask(url: URL,completion: @escaping((Result<URL, NetworkingError>) -> Void)) -> URLSessionDownloadTask
+    func downloadFileTask(url: URL, completion: @escaping((Result<URL, NetworkingError>) -> Void)) -> URLSessionDownloadTask
     @discardableResult
     func downloadFileTask(url: URL, progress: DownloadProgressHandler?, completion: @escaping((Result<URL, NetworkingError>) -> Void)) -> URLSessionDownloadTask
 }
