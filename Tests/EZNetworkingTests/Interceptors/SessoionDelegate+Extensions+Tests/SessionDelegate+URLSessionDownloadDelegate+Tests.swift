@@ -38,6 +38,8 @@ final class SessionDelegateURLSessionDownloadDelegateTests: XCTestCase {
 // MARK: mock class
 
 private class MockDownloadTaskInterceptor: DownloadTaskInterceptor {
+    var progress: (Double) -> Void = { _ in }
+    
     var didFinishDownloading = false
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
         didFinishDownloading = true

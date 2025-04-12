@@ -7,6 +7,7 @@ class MockURLSession: URLSessionTaskProtocol {
     var urlResponse: URLResponse?
     var error: Error?
     var completion: ((Data?, URLResponse?, Error?) -> Void)?
+    var sessionDelegate: SessionDelegate? = nil
     
     init(data: Data? = nil, urlResponse: URLResponse? = nil, error: Error? = nil) {
         self.data = data
@@ -68,6 +69,8 @@ class MockURLSession: URLSessionTaskProtocol {
     
     func downloadTask(with url: URL, completionHandler: @escaping @Sendable (URL?, URLResponse?, Error?) -> Void) -> URLSessionDownloadTask {
         
+        simulateDownloadProgress(for: .init())
+
         return MockURLSessionDownloadTask {
             completionHandler(URL(fileURLWithPath: "/tmp/test.pdf"), self.urlResponse, self.error)
         }
@@ -80,7 +83,38 @@ class MockURLSession: URLSessionTaskProtocol {
         guard let urlResponse else {
             throw NetworkingError.internalError(.unknown)
         }
+        
+        simulateDownloadProgress(for: .init())
+
         return (URL(fileURLWithPath: "/tmp/test.pdf"), urlResponse)
+    }
+}
+
+extension MockURLSession {
+    private func simulateDownloadProgress(for task: URLSessionDownloadTask) {
+        // Simulate 50% progress
+        sessionDelegate?.urlSession(
+            .shared,
+            downloadTask: task,
+            didWriteData: 50,
+            totalBytesWritten: 50,
+            totalBytesExpectedToWrite: 100
+        )
+        
+        // Simulate completion
+        sessionDelegate?.urlSession(
+            .shared,
+            downloadTask: task,
+            didWriteData: 50,
+            totalBytesWritten: 100,
+            totalBytesExpectedToWrite: 100
+        )
+        
+        sessionDelegate?.urlSession(
+            .shared,
+            downloadTask: task,
+            didFinishDownloadingTo: URL(fileURLWithPath: "/tmp/test.pdf")
+        )
     }
 }
 
