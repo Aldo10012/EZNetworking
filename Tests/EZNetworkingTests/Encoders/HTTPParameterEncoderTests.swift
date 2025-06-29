@@ -1,13 +1,15 @@
-import XCTest
 @testable import EZNetworking
+import Foundation
+import Testing
 
-final class HTTPParameterEncoderTests: XCTestCase {
+@Suite("Test HTTPParameterEncoderImpl")
+final class HTTPParameterEncoderTests {
+    private let sut = HTTPParameterEncoderImpl()
 
+    @Test("test URL Query Parameters Are Added")
     func testURLQueryParametersAreAdded() throws {
-        let sut = HTTPParameterEncoderImpl()
-        let url = try XCTUnwrap(URL(string: "https://www.example.com"))
+        let url = try #require(URL(string: "https://www.example.com"))
         var urlRequest = URLRequest(url: url)
-        
         
         try sut.encodeParameters(for: &urlRequest, with: [
             HTTPParameter(key: "key_1", value: "value_1"),
@@ -16,7 +18,7 @@ final class HTTPParameterEncoderTests: XCTestCase {
         ])
         
         let expectedURL = "https://www.example.com?key_1=value_1&key_2=value_2&key_3=value_3"
-        XCTAssertEqual(urlRequest.url?.absoluteString, expectedURL)
+        #expect(urlRequest.url?.absoluteString == expectedURL)
     }
 
 }
