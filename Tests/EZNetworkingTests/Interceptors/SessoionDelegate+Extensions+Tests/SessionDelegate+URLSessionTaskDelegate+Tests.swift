@@ -1,27 +1,32 @@
-import XCTest
 @testable import EZNetworking
+import Foundation
+import Testing
 
-final class SessionDelegateURLSessionTaskDelegateTests: XCTestCase {
+@Suite("Test SessionDelegateURLSessionTaskDelegate")
+final class SessionDelegateURLSessionTaskDelegateTests {
     
+    @Test("test SessionDelegate DidReceiveChallenge")
     func testSessionDelegateDidReceiveChallenge() async {
         let authenticationInterceptor = MockAuthenticationInterceptor()
         let delegate = SessionDelegate()
         delegate.authenticationInterceptor = authenticationInterceptor
         
         let (disposition, credential) = await delegate.urlSession(.shared, task: mockURLSessionTask, didReceive: URLAuthenticationChallenge())
-        XCTAssertEqual(disposition, .performDefaultHandling)
-        XCTAssertNil(credential)
-        XCTAssertTrue(authenticationInterceptor.didReceiveChallengeWithTask)
+        #expect(disposition == .performDefaultHandling)
+        #expect(credential == nil)
+        #expect(authenticationInterceptor.didReceiveChallengeWithTask)
     }
     
+    @Test("test SessionDelegate DidReceiveChallenge with no interceptor")
     func testSessionDelegateDidReceiveChallengeWithNoInterceptor() async {
         let delegate = SessionDelegate()
         
         let (disposition, credential) = await delegate.urlSession(.shared, task: mockURLSessionTask, didReceive: URLAuthenticationChallenge())
-        XCTAssertEqual(disposition, .performDefaultHandling)
-        XCTAssertNil(credential)
+        #expect(disposition == .performDefaultHandling)
+        #expect(credential == nil)
     }
     
+    @Test("test SessionDelegate WillPerformHTTPRedirection")
     func testSessionDelegateWillPerformHTTPRedirection() async {
         let redirectInterceptor = MockRedirectInterceptor()
         let delegate = SessionDelegate()
@@ -31,10 +36,11 @@ final class SessionDelegateURLSessionTaskDelegateTests: XCTestCase {
         let request = URLRequest(url: URL(string: "https://redirected.com")!)
         
         let newRequest = await delegate.urlSession(.shared, task: mockURLSessionTask, willPerformHTTPRedirection: response, newRequest: request)
-        XCTAssertEqual(newRequest, request)
-        XCTAssertTrue(redirectInterceptor.didRedirect)
+        #expect(newRequest == request)
+        #expect(redirectInterceptor.didRedirect)
     }
     
+    @Test("test SessionDelegate WillPerformHTTPRedirection with no interceptor")
     func testSessionDelegateWillPerformHTTPRedirectionWithNoInterceptor() async {
         let delegate = SessionDelegate()
         
@@ -42,9 +48,10 @@ final class SessionDelegateURLSessionTaskDelegateTests: XCTestCase {
         let request = URLRequest(url: URL(string: "https://redirected.com")!)
         
         let newRequest = await delegate.urlSession(.shared, task: mockURLSessionTask, willPerformHTTPRedirection: response, newRequest: request)
-        XCTAssertEqual(newRequest, request)
+        #expect(newRequest == request)
     }
     
+    @Test("test SessionDelegate DidFinishCollectingMetrics")
     func testSessionDelegateDidFinishCollectingMetrics() {
         let metricsInterceptor = MockMetricsInterceptor()
         let delegate = SessionDelegate()
@@ -52,9 +59,10 @@ final class SessionDelegateURLSessionTaskDelegateTests: XCTestCase {
         
         delegate.urlSession(.shared, task: mockURLSessionTask, didFinishCollecting: mockURLSessionTaskMetrics)
         
-        XCTAssertTrue(metricsInterceptor.didCollectMetrics)
+        #expect(metricsInterceptor.didCollectMetrics)
     }
     
+    @Test("test SessionDelegate DidCompleteWithError")
     func testSessionDelegateDidCompleteWithError() {
         let taskLifecycleInterceptor = MockTaskLifecycleInterceptor()
         let delegate = SessionDelegate()
@@ -63,9 +71,10 @@ final class SessionDelegateURLSessionTaskDelegateTests: XCTestCase {
         let error = NSError(domain: "TestError", code: 1, userInfo: nil)
         delegate.urlSession(.shared, task: mockURLSessionTask, didCompleteWithError: error)
         
-        XCTAssertTrue(taskLifecycleInterceptor.didCompleteWithError)
+        #expect(taskLifecycleInterceptor.didCompleteWithError)
     }
     
+    @Test("test SessionDelegateT askIsWaitingForConnectivity")
     func testSessionDelegateTaskIsWaitingForConnectivity() {
         let taskLifecycleInterceptor = MockTaskLifecycleInterceptor()
         let delegate = SessionDelegate()
@@ -73,7 +82,7 @@ final class SessionDelegateURLSessionTaskDelegateTests: XCTestCase {
         
         delegate.urlSession(.shared, taskIsWaitingForConnectivity: mockURLSessionTask)
         
-        XCTAssertTrue(taskLifecycleInterceptor.taskIsWaitingForConnectivity)
+        #expect(taskLifecycleInterceptor.taskIsWaitingForConnectivity)
     }
     
 }

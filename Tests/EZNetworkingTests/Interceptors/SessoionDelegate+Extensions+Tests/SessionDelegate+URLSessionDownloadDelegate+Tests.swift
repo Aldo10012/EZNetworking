@@ -1,8 +1,11 @@
-import XCTest
 @testable import EZNetworking
+import Foundation
+import Testing
 
-final class SessionDelegateURLSessionDownloadDelegateTests: XCTestCase {
+@Suite("Test SessionDelegateURLSessionDownloadDelegate")
+final class SessionDelegateURLSessionDownloadDelegateTests {
     
+    @Test("test SessionDelegate DidFinishDownloadingTo")
     func testSessionDelegateDidFinishDownloadingTo() {
         let downloadTaskInterceptor = MockDownloadTaskInterceptor()
         let delegate = SessionDelegate()
@@ -11,9 +14,10 @@ final class SessionDelegateURLSessionDownloadDelegateTests: XCTestCase {
         let mockURL = URL(fileURLWithPath: "/tmp/mockFile")
         delegate.urlSession(.shared, downloadTask: mockUrlSessionDownloadTask, didFinishDownloadingTo: mockURL)
         
-        XCTAssertTrue(downloadTaskInterceptor.didFinishDownloading)
+        #expect(downloadTaskInterceptor.didFinishDownloading)
     }
     
+    @Test("test SessionDelegat eDidWriteData")
     func testSessionDelegateDidWriteData() {
         let downloadTaskInterceptor = MockDownloadTaskInterceptor()
         let delegate = SessionDelegate()
@@ -21,9 +25,10 @@ final class SessionDelegateURLSessionDownloadDelegateTests: XCTestCase {
         
         delegate.urlSession(.shared, downloadTask: mockUrlSessionDownloadTask, didWriteData: 100, totalBytesWritten: 200, totalBytesExpectedToWrite: 1000)
         
-        XCTAssertTrue(downloadTaskInterceptor.didWriteData)
+        #expect(downloadTaskInterceptor.didWriteData)
     }
     
+    @Test("test SessionDelegate DidResumeAtOffset")
     func testSessionDelegateDidResumeAtOffset() {
         let downloadTaskInterceptor = MockDownloadTaskInterceptor()
         let delegate = SessionDelegate()
@@ -31,7 +36,7 @@ final class SessionDelegateURLSessionDownloadDelegateTests: XCTestCase {
         
         delegate.urlSession(.shared, downloadTask: mockUrlSessionDownloadTask, didResumeAtOffset: 500, expectedTotalBytes: 1000)
         
-        XCTAssertTrue(downloadTaskInterceptor.didResumeAtOffset)
+        #expect(downloadTaskInterceptor.didResumeAtOffset)
     }
     
 }

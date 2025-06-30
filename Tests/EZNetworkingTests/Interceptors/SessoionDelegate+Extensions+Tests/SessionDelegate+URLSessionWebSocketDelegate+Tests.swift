@@ -1,8 +1,11 @@
-import XCTest
 @testable import EZNetworking
+import Foundation
+import Testing
 
-final class SessionDelegateURLSessionWebSocketDelegateTests: XCTestCase {
+@Suite("Test SessionDelegateURLSessionWebSocketDelegate")
+final class SessionDelegateURLSessionWebSocketDelegateTests {
     
+    @Test("test SessionDelegate WebSocket DidOpenWithProtocol")
     func testSessionDelegateWebSocketDidOpenWithProtocol() {
         let webSocketInterceptor = MockWebSocketTaskInterceptor()
         let delegate = SessionDelegate()
@@ -12,10 +15,11 @@ final class SessionDelegateURLSessionWebSocketDelegateTests: XCTestCase {
         let protocolString = "test-protocol"
         delegate.urlSession(.shared, webSocketTask: webSocketTask, didOpenWithProtocol: protocolString)
         
-        XCTAssertTrue(webSocketInterceptor.didOpenWithProtocol)
-        XCTAssertEqual(webSocketInterceptor.receivedProtocol, protocolString)
+        #expect(webSocketInterceptor.didOpenWithProtocol)
+        #expect(webSocketInterceptor.receivedProtocol == protocolString)
     }
     
+    @Test("test SessionDelegate WebSocket DidCloseWithCodeAndReason")
     func testSessionDelegateWebSocketDidCloseWithCodeAndReason() {
         let webSocketInterceptor = MockWebSocketTaskInterceptor()
         let delegate = SessionDelegate()
@@ -25,9 +29,9 @@ final class SessionDelegateURLSessionWebSocketDelegateTests: XCTestCase {
         let reasonData = "Closed by server".data(using: .utf8)
         delegate.urlSession(.shared, webSocketTask: mockURLSessionWebSocketTask, didCloseWith: closeCode, reason: reasonData)
         
-        XCTAssertTrue(webSocketInterceptor.didCloseWithCodeAndReason)
-        XCTAssertEqual(webSocketInterceptor.receivedCloseCode, closeCode)
-        XCTAssertEqual(webSocketInterceptor.receivedReason, reasonData)
+        #expect(webSocketInterceptor.didCloseWithCodeAndReason)
+        #expect(webSocketInterceptor.receivedCloseCode == closeCode)
+        #expect(webSocketInterceptor.receivedReason == reasonData)
     }
 }
 
