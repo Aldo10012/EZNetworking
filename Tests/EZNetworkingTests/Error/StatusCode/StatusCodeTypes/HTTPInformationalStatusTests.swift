@@ -1,20 +1,24 @@
-import XCTest
 @testable import EZNetworking
+import Testing
 
-final class HTTPInformationalStatusTests: XCTestCase {
+@Suite("Test HTTPInformationalStatus")
+final class HTTPInformationalStatusTests {
+    @Test("test StatusCode 100 Is HTTPInformationalStatus.continueStatus")
     func testStatusCode100IsContinueStatus() {
-        XCTAssertEqual(HTTPInformationalStatus(statusCode: 100), .continueStatus)
+        #expect(HTTPInformationalStatus(statusCode: 100) == .continueStatus)
     }
-    
+    @Test("test StatusCode 101 Is HTTPInformationalStatus.switchingProtocols")
     func testStatusCode101IsSwitchingProtocols() {
-        XCTAssertEqual(HTTPInformationalStatus(statusCode: 101), .switchingProtocols)
+        #expect(HTTPInformationalStatus(statusCode: 101) == .switchingProtocols)
     }
     
+    @Test("test StatusCode 102 Is HTTPInformationalStatus.processing")
     func testStatusCode102IsProcessing() {
-        XCTAssertEqual(HTTPInformationalStatus(statusCode: 102), .processing)
+        #expect(HTTPInformationalStatus(statusCode: 102) == .processing)
     }
     
+    @Test("test StatusCode 103 Is HTTPInformationalStatus.unknown")
     func testStatusCode103IsUnknown() {
-        XCTAssertEqual(HTTPInformationalStatus(statusCode: 103), .unknown)
+        #expect(HTTPInformationalStatus(statusCode: 103) == .unknown)
     }
 }

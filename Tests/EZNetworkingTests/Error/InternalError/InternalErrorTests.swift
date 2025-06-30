@@ -1,50 +1,62 @@
-import XCTest
 @testable import EZNetworking
+import Testing
 
-final class InternalErrorTestsTests: XCTestCase {
+@Suite("test InternalError")
+final class InternalErrorTests {
  
+    @Test("test InternalError.CouldNotParse Is Equatable")
     func testCouldNotParseIsEquatable() {
-        XCTAssertEqual(InternalError.couldNotParse, InternalError.couldNotParse)
+        #expect(InternalError.couldNotParse == InternalError.couldNotParse)
     }
     
+    @Test("test InternalError.invalidError Is Equatable")
     func testInvalidErrorIsEquatable() {
-        XCTAssertEqual(InternalError.invalidError, InternalError.invalidError)
+        #expect(InternalError.invalidError == InternalError.invalidError)
     }
     
+    @Test("test InternalError.invalidImageData Is Equatable")
     func testInvalidImageDataIsEquatable() {
-        XCTAssertEqual(InternalError.invalidImageData, InternalError.invalidImageData)
+        #expect(InternalError.invalidImageData == InternalError.invalidImageData)
     }
     
+    @Test("test InternalError.noData Is Equatable")
     func testNoDataIsEquatable() {
-        XCTAssertEqual(InternalError.noData, InternalError.noData)
+        #expect(InternalError.noData == InternalError.noData)
     }
     
+    @Test("test InternalError.noHTTPURLResponse Is Equatable")
     func testNoHTTPURLResponseIsEquatable() {
-        XCTAssertEqual(InternalError.noHTTPURLResponse, InternalError.noHTTPURLResponse)
+        #expect(InternalError.noHTTPURLResponse == InternalError.noHTTPURLResponse)
     }
     
+    @Test("test InternalError.noRequest Is Equatable")
     func testNoRequestIsEquatable() {
-        XCTAssertEqual(InternalError.noRequest, InternalError.noRequest)
+        #expect(InternalError.noRequest == InternalError.noRequest)
     }
     
+    @Test("test InternalError.noResponse Is Equatable")
     func testNoResponseIsEquatable() {
-        XCTAssertEqual(InternalError.noResponse, InternalError.noResponse)
+        #expect(InternalError.noResponse == InternalError.noResponse)
     }
     
+    @Test("test InternalError.noURL Is Equatable")
     func testNoURLIsEquatable() {
-        XCTAssertEqual(InternalError.noURL, InternalError.noURL)
+        #expect(InternalError.noURL == InternalError.noURL)
     }
     
+    @Test("test InternalError.requestFailed Is Equatable")
     func testRequestFailedIsEquatableWhenErrorIsSame() {
         let error = NetworkingError.httpClientError(.badRequest, [:])
-        XCTAssertEqual(InternalError.requestFailed(error), InternalError.requestFailed(error))
+        #expect(InternalError.requestFailed(error) == InternalError.requestFailed(error))
     }
     
+    @Test("test InternalError.lostReferenceOfSelf Is Equatable")
     func testLostReferenceOfSelfsEquatable() {
-        XCTAssertEqual(InternalError.lostReferenceOfSelf, InternalError.lostReferenceOfSelf)
+        #expect(InternalError.lostReferenceOfSelf == InternalError.lostReferenceOfSelf)
     }
     
+    @Test("test InternalError.unknown Is Equatable")
     func testUnknownIsEquatable() {
-        XCTAssertEqual(InternalError.unknown, InternalError.unknown)
+        #expect(InternalError.unknown == InternalError.unknown)
     }
 }
