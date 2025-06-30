@@ -1,15 +1,17 @@
-import XCTest
 @testable import EZNetworking
+import Testing
 
-final class HTTPParameterTests: XCTestCase {
+@Suite("Test HTTPParameter")
+final class HTTPParameterTests {
     
-    func testInitialization() {
+    @Test("test HTTPParameter .key and .value")
+    func testHTTPParameterKeyAndValue() {
         let key = "param_key"
         let value = "param_value"
         let parameter = HTTPParameter(key: key, value: value)
         
-        XCTAssertEqual(parameter.key, key)
-        XCTAssertEqual(parameter.value, value)
+        #expect(parameter.key == key)
+        #expect(parameter.value == value)
     }
     
 }
