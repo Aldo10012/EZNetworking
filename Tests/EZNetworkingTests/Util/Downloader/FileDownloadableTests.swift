@@ -1,10 +1,13 @@
-import XCTest
 @testable import EZNetworking
+import Foundation
+import Testing
 
-final class FileDownloadableTests: XCTestCase {
+@Suite("Test FileDownloadable")
+final class FileDownloadableTests {
 
     // MARK: test Async/Await
 
+    @Test("test DownloadFile Success")
     func testDownloadFileSuccess() async throws {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = MockURLSession(
@@ -18,12 +21,13 @@ final class FileDownloadableTests: XCTestCase {
         
         do {
             let localURL = try await sut.downloadFile(with: testURL)
-            XCTAssertEqual(localURL.absoluteString, "file:///tmp/test.pdf")
+            #expect(localURL.absoluteString == "file:///tmp/test.pdf")
         } catch {
-            XCTFail()
+            Issue.record()
         }
     }
     
+    @Test("test DownloadFile Fails When Validator Throws AnyError")
     func testDownloadFileFailsWhenValidatorThrowsAnyError() async throws {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = MockURLSession(
@@ -37,12 +41,13 @@ final class FileDownloadableTests: XCTestCase {
         
         do {
             _ = try await sut.downloadFile(with: testURL)
-            XCTFail("unexpected error")
+            Issue.record("unexpected error")
         } catch let error as NetworkingError {
-            XCTAssertEqual(error, NetworkingError.httpClientError(.forbidden, [:]))
+            #expect(error == NetworkingError.httpClientError(.forbidden, [:]))
         }
     }
     
+    @Test("test DownloadFile Fails When StatusCode Is Not 200")
     func testDownloadFileFailsWhenStatusCodeIsNot200() async throws {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = MockURLSession(
@@ -56,12 +61,13 @@ final class FileDownloadableTests: XCTestCase {
         
         do {
             _ = try await sut.downloadFile(with: testURL)
-            XCTFail("unexpected error")
+            Issue.record("unexpected error")
         } catch let error as NetworkingError{
-            XCTAssertEqual(error, NetworkingError.httpClientError(.badRequest, [:]))
+            #expect(error == NetworkingError.httpClientError(.badRequest, [:]))
         }
     }
     
+    @Test("test DownloadFile Fails When Error Is Not Nil")
     func testDownloadFileFailsWhenErrorIsNotNil() async throws {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = MockURLSession(
@@ -75,12 +81,13 @@ final class FileDownloadableTests: XCTestCase {
         
         do {
             _ = try await sut.downloadFile(with: testURL)
-            XCTFail("unexpected error")
+            Issue.record("unexpected error")
         } catch let error as NetworkingError{
-            XCTAssertEqual(error, NetworkingError.internalError(.unknown))
+            #expect(error == NetworkingError.internalError(.unknown))
         }
     }
     
+    @Test("test DownloadFile Download Progress Can Be Tracked")
     func testDownloadFileDownloadProgressCanBeTracked() async throws {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = MockURLSession(
@@ -99,14 +106,15 @@ final class FileDownloadableTests: XCTestCase {
             _ = try await sut.downloadFile(with: testURL, progress: { _ in
                 didTrackProgress = true
             })
-            XCTAssertTrue(didTrackProgress)
+            #expect(didTrackProgress)
         } catch {
-            XCTFail()
+            Issue.record()
         }
     }
 
     // MARK: test callbacks
     
+    @Test("test DownloadFile Task Success")
     func testDownloadFileTaskSuccess() {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = MockURLSession(url: testURL,
@@ -116,19 +124,20 @@ final class FileDownloadableTests: XCTestCase {
                                  validator: MockURLResponseValidator(),
                                  requestDecoder: RequestDecoder())
         
-        let exp = XCTestExpectation()
+        var didExecute = false
         sut.downloadFileTask(url: testURL) { result in
-            defer { exp.fulfill() }
+            defer { didExecute = true }
             switch result {
             case .success(let localURL):
-                XCTAssertEqual(localURL.absoluteString, "file:///tmp/test.pdf")
+                #expect(localURL.absoluteString == "file:///tmp/test.pdf")
             case .failure:
-                XCTFail()
+                Issue.record()
             }
         }
-        wait(for: [exp], timeout: 0.1)
+        #expect(didExecute)
     }
     
+    @Test("test DownloadFile Can Cancel")
     func testDownloadFileCanCancel() throws {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = MockURLSession(url: testURL,
@@ -140,10 +149,11 @@ final class FileDownloadableTests: XCTestCase {
         
         let task = sut.downloadFileTask(url: testURL) { _ in }
         task.cancel()
-        let downloadTask = try XCTUnwrap(task as? MockURLSessionDownloadTask)
-        XCTAssertTrue(downloadTask.didCancel)
+        let downloadTask = try #require(task as? MockURLSessionDownloadTask)
+        #expect(downloadTask.didCancel)
     }
     
+    @Test("test DownloadFile Fails If Validator Throws Any Error")
     func testDownloadFileFailsIfValidatorThrowsAnyError() {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let validator = MockURLResponseValidator(throwError: NetworkingError.httpClientError(.conflict, [:]))
@@ -154,19 +164,20 @@ final class FileDownloadableTests: XCTestCase {
                                  validator: validator,
                                  requestDecoder: RequestDecoder())
         
-        let exp = XCTestExpectation()
+        var didExecute = false
         sut.downloadFileTask(url: testURL) { result in
-            defer { exp.fulfill() }
+            defer { didExecute = true }
             switch result {
             case .success:
-                XCTFail()
+                Issue.record()
             case .failure(let error):
-                XCTAssertEqual(error, NetworkingError.httpClientError(.conflict, [:]))
+                #expect(error == NetworkingError.httpClientError(.conflict, [:]))
             }
         }
-        wait(for: [exp], timeout: 0.1)
+        #expect(didExecute)
     }
     
+    @Test("test DownloadFile Task Download Progress Can Be Tracked")
     func testDownloadFileTaskDownloadProgressCanBeTracked() {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = MockURLSession(
@@ -182,20 +193,20 @@ final class FileDownloadableTests: XCTestCase {
                                  requestDecoder: RequestDecoder(),
                                  sessionDelegate: delegate)
         
-        let exp = XCTestExpectation()
+        var didExecute = false
         var didTrackProgress = false
 
         _ = sut.downloadFileTask(url: testURL, progress: { progress in
             didTrackProgress = true
         }) { result in
-            defer { exp.fulfill() }
+            defer { didExecute = true }
             switch result {
-            case .success: XCTAssertTrue(true)
-            case .failure: XCTFail()
+            case .success: #expect(true)
+            case .failure: Issue.record()
             }
         }
-        wait(for: [exp], timeout: 0.1)
-        XCTAssertTrue(didTrackProgress)
+        #expect(didExecute)
+        #expect(didTrackProgress)
     }
 
     private func buildResponse(statusCode: Int) -> HTTPURLResponse {
