@@ -1,27 +1,28 @@
-import XCTest
 @testable import EZNetworking
+import Testing
 
-final class RequestDecoderTests: XCTestCase {
+@Suite("Test RequestDecoder")
+final class RequestDecoderTests {
+    private let sut = RequestDecoder()
 
-    func testDocoderCanDocodeMockJSONIntoDeocdableObject() throws {
-        let sut = RequestDecoder()
+    @Test("can decode valid mock JSON into Decodable object")
+    func canDecodeValidMockJSONIntoDecodableObject() throws {
         do {
             let person = try sut.decode(Person.self, from: MockData.mockPersonJsonData)
-            XCTAssertEqual(person.name, "John")
-            XCTAssertEqual(person.age, 30)
+            #expect(person.name == "John")
+            #expect(person.age == 30)
         } catch {
-            XCTFail("Unexpected error)")
-        }
-    }
-    
-    func testDocoderCanNotDocodeInvalidMockJSONIntoDeocdableObject() throws {
-        let sut = RequestDecoder()
-        do {
-            _ = try sut.decode(Person.self, from: MockData.invalidMockPersonJsonData)
-            XCTFail("Unexpected error)")
-        } catch let error as NetworkingError {
-            XCTAssertEqual(error, NetworkingError.internalError(.couldNotParse))
+            Issue.record("Unexpected error)")
         }
     }
 
+    @Test("thorws error if tries to decode invalid mock json")
+    func throwsErrorIfTriesToDecodeInvalidMockJSON() throws {
+        do {
+            _ = try sut.decode(Person.self, from: MockData.invalidMockPersonJsonData)
+            Issue.record("Unexpected error)")
+        } catch let error as NetworkingError {
+            #expect(error == NetworkingError.internalError(.couldNotParse))
+        }
+    }
 }

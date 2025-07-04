@@ -1,7 +1,9 @@
-import XCTest
 @testable import EZNetworking
+import Testing
+import UIKit
 
-final class ImageDownloadableTests: XCTestCase {
+@Suite("Test ImageDownloadable")
+final class ImageDownloadableTests {
     
     private var imageUrlString: String {
         "https://i.natgeofe.com/n/4f5aaece-3300-41a4-b2a8-ed2708a0a27c/domestic-dog_thumb_square.jpg"
@@ -9,6 +11,7 @@ final class ImageDownloadableTests: XCTestCase {
     
     // MARK: test Async/Await
     
+    @Test("test DownloadImage Success")
     func testDownloadImageSuccess() async throws {
         let testURL = URL(string: imageUrlString)!
         let urlSession = MockURLSession(data: Data(),
@@ -18,12 +21,13 @@ final class ImageDownloadableTests: XCTestCase {
         let sut = SpyImageDownloader(urlSession: urlSession)
         do {
             _ = try await sut.downloadImage(from: testURL)
-            XCTAssertTrue(true)
+            #expect(true)
         } catch {
-            XCTFail()
+            Issue.record()
         }
     }
 
+    @Test("test DownloadImage Fails")
     func testDownloadImageFails() async throws {
         let testURL = URL(string: imageUrlString)!
         let urlSession = MockURLSession(data: Data(),
@@ -36,15 +40,16 @@ final class ImageDownloadableTests: XCTestCase {
                                   requestDecoder: RequestDecoder())
         do {
             _ = try await sut.downloadImage(from: testURL)
-            XCTFail()
+            Issue.record()
         } catch let error as NetworkingError {
-            XCTAssertEqual(error, NetworkingError.httpClientError(.badRequest, [:]))
+            #expect(error == NetworkingError.httpClientError(.badRequest, [:]))
         }
     }
 
     // MARK: - test callbacks
 
-    func testDownloadImageSuccess() {
+    @Test("test DownloadImageTask Success 1")
+    func testDownloadImageTaskSuccess() {
         let testURL = URL(string: imageUrlString)!
         let urlSession = MockURLSession(data: Data(),
                                         urlResponse: buildResponse(statusCode: 200),
@@ -52,24 +57,25 @@ final class ImageDownloadableTests: XCTestCase {
         let validator = MockURLResponseValidator()
         let sut = ImageDownloader(urlSession: urlSession, validator: validator)
 
-        let exp = XCTestExpectation()
+        var didExecute = false
         sut.downloadImageTask(url: testURL) { result in
-            defer { exp.fulfill() }
+            defer { didExecute = true }
             switch result {
             case .success:
-                XCTAssertTrue(true)
+                #expect(true)
             case .failure(let error):
                 if error == NetworkingError.internalError(.invalidImageData) {
-                    XCTAssertTrue(true, "mock data was just not suited to generate a UIImage")
+                    #expect(true)
                 } else {
-                    XCTFail()
+                    Issue.record()
                 }
             }
         }
-        wait(for: [exp], timeout: 0.1)
+        #expect(didExecute)
     }
     
-    func testDownloadImageCanCancel() throws {
+    @Test("test DownloadImageTask Can Cancel")
+    func testDownloadImageTaskCanCancel() throws {
         let testURL = URL(string: imageUrlString)!
         let urlSession = MockURLSession(data: Data(),
                                         urlResponse: buildResponse(statusCode: 200),
@@ -79,11 +85,12 @@ final class ImageDownloadableTests: XCTestCase {
 
         let task = sut.downloadImageTask(url: testURL) { _ in }
         task.cancel()
-        let dataTask = try XCTUnwrap(task as? MockURLSessionDataTask)
-        XCTAssertTrue(dataTask.didCancel)
+        let dataTask = try #require(task as? MockURLSessionDataTask)
+        #expect(dataTask.didCancel)
     }
 
-    func testDownloadImageFailsWhenValidatorThrowsAnyError() {
+    @Test("test DownloadImageTask Fails When Validator Throws Any Error")
+    func testDownloadImageTaskFailsWhenValidatorThrowsAnyError() {
         let testURL = URL(string: imageUrlString)!
         let urlSession = MockURLSession(url: testURL,
                                         urlResponse: buildResponse(statusCode: 200),
@@ -93,17 +100,17 @@ final class ImageDownloadableTests: XCTestCase {
                                   validator: validator,
                                   requestDecoder: RequestDecoder())
 
-        let exp = XCTestExpectation()
+        var didExecute = false
         sut.downloadImageTask(url: testURL) { result in
-            defer { exp.fulfill() }
+            defer { didExecute = true }
             switch result {
             case .success:
-                XCTFail()
+                Issue.record()
             case .failure(let error):
-                XCTAssertEqual(error, NetworkingError.httpClientError(.conflict, [:]))
+                #expect(error == NetworkingError.httpClientError(.conflict, [:]))
             }
         }
-        wait(for: [exp], timeout: 0.1)
+        #expect(didExecute)
     }
 
     private func buildResponse(statusCode: Int) -> HTTPURLResponse {

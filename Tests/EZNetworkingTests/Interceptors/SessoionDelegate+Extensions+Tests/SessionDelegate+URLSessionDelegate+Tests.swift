@@ -1,34 +1,39 @@
-import XCTest
 @testable import EZNetworking
+import Foundation
+import Testing
 
-final class SessionDelegateURLSessionDelegateTests: XCTestCase {
+@Suite("Test SessionDelegateURLSessionDelegate")
+final class SessionDelegateURLSessionDelegateTests {
     
+    @Test("test SessionDelegate DidReceiveChallenge")
     func testSessionDelegateDidReceiveChallenge() async {
         let authenticationInterceptor = MockAuthenticationInterceptor()
         let delegate = SessionDelegate()
         delegate.authenticationInterceptor = authenticationInterceptor
         
         let (disposition, credential) = await delegate.urlSession(.shared, didReceive: URLAuthenticationChallenge())
-        XCTAssertEqual(disposition, .performDefaultHandling)
-        XCTAssertNil(credential)
-        XCTAssertTrue(authenticationInterceptor.didReceiveChallenge)
+        #expect(disposition == .performDefaultHandling)
+        #expect(credential == nil)
+        #expect(authenticationInterceptor.didReceiveChallenge)
     }
     
+    @Test("test SessionDelegate DidReceiveChallenge with no interceptor")
     func testSessionDelegateDidReceiveChallengeWithNoInterceptor() async {
         let delegate = SessionDelegate()
         
         let (disposition, credential) = await delegate.urlSession(.shared, didReceive: URLAuthenticationChallenge())
-        XCTAssertEqual(disposition, .performDefaultHandling)
-        XCTAssertNil(credential)
+        #expect(disposition == .performDefaultHandling)
+        #expect(credential == nil)
     }
     
+    @Test("test SessionDelegate DidCreateTask")
     func testSessionDelegateDidCreateTask() {
         let taskLifecycleInterceptor = MockTaskLifecycleInterceptor()
         let delegate = SessionDelegate()
         delegate.taskLifecycleInterceptor = taskLifecycleInterceptor
         
         delegate.urlSession(.shared, didCreateTask: mockUrlSessionDataTask)
-        XCTAssertTrue(taskLifecycleInterceptor.didCreateTask)
+        #expect(taskLifecycleInterceptor.didCreateTask)
     }
 }
 

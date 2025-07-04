@@ -1,11 +1,14 @@
-import XCTest
 @testable import EZNetworking
+import Foundation
+import Testing
 
-final class HTTPHeaderEncoderTests: XCTestCase {
+@Suite("Test HTTPHeaderEncoderImpl")
+final class HTTPHeaderEncoderTests {
+    private let sut = HTTPHeaderEncoderImpl()
     
-    func testURLRequestAllHTTPHeaderFieldsIsSetToInjectedHeaders() throws {
-        let sut = HTTPHeaderEncoderImpl()
-        let url = try XCTUnwrap(URL(string: "https://www.example.com"))
+    @Test("test allHTTPHeaderFields is set to injected headers")
+    func testAllHTTPHeaderFieldsIsSetToInjectedHeaders() throws {
+        let url = try #require(URL(string: "https://www.example.com"))
         var urlRequest = URLRequest(url: url)
         
         sut.encodeHeaders(for: &urlRequest, with: [
@@ -19,6 +22,6 @@ final class HTTPHeaderEncoderTests: XCTestCase {
             "Content-Type": "application/json",
             "Authorization": "Bearer My_API_KEY"
         ]
-        XCTAssertEqual(urlRequest.allHTTPHeaderFields, expextedHeaders)
+        #expect(urlRequest.allHTTPHeaderFields == expextedHeaders)
     }
 }

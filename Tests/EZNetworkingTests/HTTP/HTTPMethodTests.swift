@@ -1,22 +1,26 @@
-import XCTest
 @testable import EZNetworking
+import Testing
 
-final class HTTPMethodTests: XCTestCase {
+@Suite("Test HTTPMethod")
+final class HTTPMethodTests {
 
-    func testGETMethod() {
-        XCTAssertEqual(HTTPMethod.GET.rawValue, "GET")
+    @Test("test HTTPMethod.GET raw value")
+    func testHTTPMethodGetRawValue() {
+        #expect(HTTPMethod.GET.rawValue == "GET")
     }
-    
-    func testPOSTMethod() {
-        XCTAssertEqual(HTTPMethod.POST.rawValue, "POST")
+
+    @Test("test HTTPMethod.POST raw value")
+    func testHTTPMethodPOSTRawValue() {
+        #expect(HTTPMethod.POST.rawValue == "POST")
     }
-    
-    func testPUTMethod() {
-        XCTAssertEqual(HTTPMethod.PUT.rawValue, "PUT")
+
+    @Test("test HTTPMethod.PUT raw value")
+    func testHTTPMethodPUTRawValue() {
+        #expect(HTTPMethod.PUT.rawValue == "PUT")
     }
-    
-    func testDELETEMethod() {
-        XCTAssertEqual(HTTPMethod.DELETE.rawValue, "DELETE")
+
+    @Test("test HTTPMethod.DELETE raw value")
+    func testHTTPMethodDELETERawValue() {
+        #expect(HTTPMethod.DELETE.rawValue == "DELETE")
     }
-    
 }

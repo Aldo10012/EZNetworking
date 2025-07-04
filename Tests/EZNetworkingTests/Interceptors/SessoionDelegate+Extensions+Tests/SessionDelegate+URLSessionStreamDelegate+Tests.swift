@@ -1,8 +1,11 @@
-import XCTest
 @testable import EZNetworking
+import Foundation
+import Testing
 
-final class SessionDelegateURLSessionStreamDelegateTests: XCTestCase {
+@Suite("Test SessionDelegateURLSessionStreamDelegate")
+final class SessionDelegateURLSessionStreamDelegateTests {
     
+    @Test("test SessionDelegate ReadClosedForStreamTask")
     func testSessionDelegateReadClosedForStreamTask() {
         let streamTaskInterceptor = MockStreamTaskInterceptor()
         let delegate = SessionDelegate()
@@ -10,9 +13,10 @@ final class SessionDelegateURLSessionStreamDelegateTests: XCTestCase {
         
         delegate.urlSession(.shared, readClosedFor: mockUrlSessionStreamTask)
         
-        XCTAssertTrue(streamTaskInterceptor.readClosed)
+        #expect(streamTaskInterceptor.readClosed)
     }
     
+    @Test("test SessionDelegate WriteClosedForStreamTask")
     func testSessionDelegateWriteClosedForStreamTask() {
         let streamTaskInterceptor = MockStreamTaskInterceptor()
         let delegate = SessionDelegate()
@@ -20,9 +24,10 @@ final class SessionDelegateURLSessionStreamDelegateTests: XCTestCase {
         
         delegate.urlSession(.shared, writeClosedFor: mockUrlSessionStreamTask)
         
-        XCTAssertTrue(streamTaskInterceptor.writeClosed)
+        #expect(streamTaskInterceptor.writeClosed)
     }
     
+    @Test("test SessionDelegate BetterRouteDiscoveredForStreamTask")
     func testSessionDelegateBetterRouteDiscoveredForStreamTask() {
         let streamTaskInterceptor = MockStreamTaskInterceptor()
         let delegate = SessionDelegate()
@@ -30,9 +35,10 @@ final class SessionDelegateURLSessionStreamDelegateTests: XCTestCase {
         
         delegate.urlSession(.shared, betterRouteDiscoveredFor: mockUrlSessionStreamTask)
         
-        XCTAssertTrue(streamTaskInterceptor.betterRouteDiscovered)
+        #expect(streamTaskInterceptor.betterRouteDiscovered)
     }
     
+    @Test("test SessionDelegate StreamTaskDidBecomeStreams")
     func testSessionDelegateStreamTaskDidBecomeStreams() {
         let streamTaskInterceptor = MockStreamTaskInterceptor()
         let delegate = SessionDelegate()
@@ -42,7 +48,7 @@ final class SessionDelegateURLSessionStreamDelegateTests: XCTestCase {
         let outputStream = OutputStream(toMemory: ())
         delegate.urlSession(.shared, streamTask: mockUrlSessionStreamTask, didBecome: inputStream, outputStream: outputStream)
         
-        XCTAssertTrue(streamTaskInterceptor.didBecomeStreams)
+        #expect(streamTaskInterceptor.didBecomeStreams)
     }
 }
 

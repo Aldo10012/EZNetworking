@@ -1,49 +1,25 @@
-import XCTest
 @testable import EZNetworking
+import Testing
 
-final class HTTPSuccessStatusTests: XCTestCase {
-    
-    func testStatusCode200IsOk() {
-        XCTAssertEqual(HTTPSuccessStatus(statusCode: 200), .ok)
+@Suite("Test HTTPSuccessStatus")
+final class HTTPSuccessStatusTests {
+
+    @Test("test status code maps correctly to HTTPSuccessStatus", arguments: zip(map.keys, map.values))
+    func testStatusCodeMapsCorrectlyToHTTPSuccessStatus(statusCode: Int, status: HTTPSuccessStatus) {
+        #expect(HTTPSuccessStatus(statusCode: statusCode) == status)
     }
-    
-    func testStatusCode201IsCreated() {
-        XCTAssertEqual(HTTPSuccessStatus(statusCode: 201), .created)
-    }
-    
-    func testStatusCode202IsAccepted() {
-        XCTAssertEqual(HTTPSuccessStatus(statusCode: 202), .accepted)
-    }
-    
-    func testStatusCode203IsNonAuthoritativeInformation() {
-        XCTAssertEqual(HTTPSuccessStatus(statusCode: 203), .nonAuthoritativeInformation)
-    }
-    
-    func testStatusCode204IsNoContent() {
-        XCTAssertEqual(HTTPSuccessStatus(statusCode: 204), .noContent)
-    }
-    
-    func testStatusCode205IsResetContent() {
-        XCTAssertEqual(HTTPSuccessStatus(statusCode: 205), .resetContent)
-    }
-    
-    func testStatusCode206IsPartialContent() {
-        XCTAssertEqual(HTTPSuccessStatus(statusCode: 206), .partialContent)
-    }
-    
-    func testStatusCode207IsMultiStatus() {
-        XCTAssertEqual(HTTPSuccessStatus(statusCode: 207), .multiStatus)
-    }
-    
-    func testStatusCode208IsAlreadyReported() {
-        XCTAssertEqual(HTTPSuccessStatus(statusCode: 208), .alreadyReported)
-    }
-    
-    func testStatusCode226IsiMUsed() {
-        XCTAssertEqual(HTTPSuccessStatus(statusCode: 226), .iMUsed)
-    }
-    
-    func testStatusCode210IsUnknown() {
-        XCTAssertEqual(HTTPSuccessStatus(statusCode: 210), .unknown)
-    }
+
+    private static let map: [Int: HTTPSuccessStatus] = [
+        200: HTTPSuccessStatus.ok,
+        201: HTTPSuccessStatus.created,
+        202: HTTPSuccessStatus.accepted,
+        203: HTTPSuccessStatus.nonAuthoritativeInformation,
+        204: HTTPSuccessStatus.noContent,
+        205: HTTPSuccessStatus.resetContent,
+        206: HTTPSuccessStatus.partialContent,
+        207: HTTPSuccessStatus.multiStatus,
+        208: HTTPSuccessStatus.alreadyReported,
+        226: HTTPSuccessStatus.iMUsed,
+        -1: HTTPSuccessStatus.unknown
+    ]
 }

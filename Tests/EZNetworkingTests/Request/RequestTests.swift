@@ -1,72 +1,81 @@
-import XCTest
 @testable import EZNetworking
+import Foundation
+import Testing
 
-final class RequestTests: XCTestCase {
+@Suite("Test Request")
+final class RequestTests {
     
+    @Test("test Request .httpMethod")
     func testRequestHttpMethod() {
-        XCTAssertEqual(MockRequest().httpMethod, .GET)
+        #expect(MockRequest().httpMethod == .GET)
     }
     
+    @Test("test Request .baseUrlString")
     func testRequestBaseUrlString() {
-        XCTAssertEqual(MockRequest().baseUrlString, "https://www.example.com")
+        #expect(MockRequest().baseUrlString == "https://www.example.com")
     }
     
+    @Test("test Request .parameters")
     func testRequestParameters() throws {
         let sut = MockRequest()
-        let parameters = try XCTUnwrap(sut.parameters)
-        XCTAssertEqual(parameters.count, 3)
+        let parameters = try #require(sut.parameters)
+        #expect(parameters.count == 3)
 
-        let firstParam = try XCTUnwrap(parameters[0])
-        XCTAssertEqual(firstParam.key, "key_1")
-        XCTAssertEqual(firstParam.key, "key_1")
+        let firstParam = try #require(parameters[0])
+        #expect(firstParam.key == "key_1")
+        #expect(firstParam.key == "key_1")
 
-        let secondParam = try XCTUnwrap(parameters[1])
-        XCTAssertEqual(secondParam.key, "key_2")
-        XCTAssertEqual(secondParam.key, "key_2")
+        let secondParam = try #require(parameters[1])
+        #expect(secondParam.key == "key_2")
+        #expect(secondParam.key == "key_2")
         
-        let thirdParam = try XCTUnwrap(parameters[2])
-        XCTAssertEqual(thirdParam.key, "key_3")
-        XCTAssertEqual(thirdParam.key, "key_3")
+        let thirdParam = try #require(parameters[2])
+        #expect(thirdParam.key == "key_3")
+        #expect(thirdParam.key == "key_3")
     }
     
+    @Test("test Request .headers")
     func testRequestHeaders() throws {
         let sut = MockRequest()
-        let headers = try XCTUnwrap(sut.headers)
-        XCTAssertEqual(headers.count, 3)
+        let headers = try #require(sut.headers)
+        #expect(headers.count == 3)
 
-        let firstHeader = try XCTUnwrap(headers[0])
-        XCTAssertEqual(firstHeader.key, "Accept")
-        XCTAssertEqual(firstHeader.value, "application/json")
+        let firstHeader = try #require(headers[0])
+        #expect(firstHeader.key == "Accept")
+        #expect(firstHeader.value == "application/json")
         
-        let secondHeader = try XCTUnwrap(headers[1])
-        XCTAssertEqual(secondHeader.key, "Content-Type")
-        XCTAssertEqual(secondHeader.value, "application/json")
+        let secondHeader = try #require(headers[1])
+        #expect(secondHeader.key == "Content-Type")
+        #expect(secondHeader.value == "application/json")
         
-        let thirdHeader = try XCTUnwrap(headers[2])
-        XCTAssertEqual(thirdHeader.key, "Authorization")
-        XCTAssertEqual(thirdHeader.value, "Bearer api_key")
+        let thirdHeader = try #require(headers[2])
+        #expect(thirdHeader.key == "Authorization")
+        #expect(thirdHeader.value == "Bearer api_key")
     }
     
+    @Test("test Request .timeoutInterval")
     func testRequestTimeoutInterval() {
-        XCTAssertEqual(MockRequest().timeoutInterval, 60)
+        #expect(MockRequest().timeoutInterval == 60)
     }
     
+    @Test("test Request .urlRequest")
     func testRequestBuildMethod() throws {
         let request = MockRequest()
-        let sut = try XCTUnwrap(request.urlRequest)
+        let sut = try #require(request.urlRequest)
         
-        XCTAssertEqual(sut.url?.absoluteString, "https://www.example.com?key_1=value_1&key_2=value_2&key_3=value_3")
-        XCTAssertEqual(sut.httpMethod, "GET")
-        XCTAssertEqual(sut.httpBody, "{\"name\": \"John\"}".data(using: .utf8))
-        XCTAssertEqual(sut.timeoutInterval, 60)
-        XCTAssertEqual(sut.value(forHTTPHeaderField: "Content-Type"), "application/json")
-        XCTAssertEqual(sut.value(forHTTPHeaderField: "Authorization"), "Bearer api_key")
+        #expect(sut.url?.absoluteString == "https://www.example.com?key_1=value_1&key_2=value_2&key_3=value_3")
+        #expect(sut.httpMethod == "GET")
+        #expect(sut.httpBody == "{\"name\": \"John\"}".data(using: .utf8))
+        #expect(sut.timeoutInterval == 60)
+        #expect(sut.value(forHTTPHeaderField: "Content-Type") == "application/json")
+        #expect(sut.value(forHTTPHeaderField: "Authorization") == "Bearer api_key")
     }
     
+    @Test("test Request .cachePolicy")
     func testRequestCachePolicy() throws {
         let request = MockRequest(cachePolicy: .returnCacheDataElseLoad)
-        let sut = try XCTUnwrap(request.urlRequest)
-        XCTAssertEqual(sut.cachePolicy, .returnCacheDataElseLoad)
+        let sut = try #require(request.urlRequest)
+        #expect(sut.cachePolicy == .returnCacheDataElseLoad)
     }
     
 }

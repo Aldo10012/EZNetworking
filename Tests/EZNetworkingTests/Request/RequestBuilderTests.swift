@@ -1,8 +1,11 @@
-import XCTest
 @testable import EZNetworking
+import Foundation
+import Testing
 
-final class RequestBuilderTests: XCTestCase {
+@Suite("Test RequestBuilder")
+final class RequestBuilderTests {
     
+    @Test("test BuildURLRequest with valid parameters")
     func testBuildURLRequestWithValidParameters() {
         let builder = RequestBuilderImpl()
         let urlString = "https://example.com/api"
@@ -27,16 +30,17 @@ final class RequestBuilderTests: XCTestCase {
             .setTimeoutInterval(timeoutInterval)
             .build()
         
-        XCTAssertNotNil(request)
-        XCTAssertEqual(request?.baseUrlString, "https://example.com/api")
-        XCTAssertEqual(request?.httpMethod, httpMethod)
-        XCTAssertEqual(request?.parameters, parameters)
-        XCTAssertEqual(request?.body, body)
-        XCTAssertEqual(request?.timeoutInterval, timeoutInterval)
-        XCTAssertEqual(request?.headers, headers)
-        XCTAssertEqual(request?.cachePolicy, .useProtocolCachePolicy)
+        #expect(request != nil)
+        #expect(request?.baseUrlString == "https://example.com/api")
+        #expect(request?.httpMethod == httpMethod)
+        #expect(request?.parameters == parameters)
+        #expect(request?.body == body)
+        #expect(request?.timeoutInterval == timeoutInterval)
+        #expect(request?.headers == headers)
+        #expect(request?.cachePolicy == .useProtocolCachePolicy)
     }
     
+    @Test("test BuildURLRequest with no parameters and headers")
     func testBuildURLRequestWithNoParametersAndHeaders() {
         let builder = RequestBuilderImpl()
         let urlString = "https://example.com/api"
@@ -48,14 +52,14 @@ final class RequestBuilderTests: XCTestCase {
             .setTimeoutInterval(60)
             .build()
         
-        XCTAssertNotNil(request)
-        XCTAssertEqual(request?.baseUrlString, "https://example.com/api")
-        XCTAssertEqual(request?.httpMethod, httpMethod)
-        XCTAssertNil(request?.parameters)
-        XCTAssertNil(request?.body)
-        XCTAssertEqual(request?.timeoutInterval, 60)
-        XCTAssertNil(request?.headers)
-        XCTAssertEqual(request?.cachePolicy, .useProtocolCachePolicy)
+        #expect(request != nil)
+        #expect(request?.baseUrlString == "https://example.com/api")
+        #expect(request?.httpMethod == httpMethod)
+        #expect(request?.parameters == nil)
+        #expect(request?.body == nil)
+        #expect(request?.timeoutInterval == 60)
+        #expect(request?.headers == nil)
+        #expect(request?.cachePolicy == .useProtocolCachePolicy)
     }
 
 }

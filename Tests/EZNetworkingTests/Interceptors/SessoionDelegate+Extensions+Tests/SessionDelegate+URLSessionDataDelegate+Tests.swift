@@ -1,66 +1,75 @@
-import XCTest
 @testable import EZNetworking
+import Foundation
+import Testing
 
-final class SessionDelegateURLSessionDataDelegateTest: XCTestCase {
+@Suite("Test SessionDelegateURLSessionDataDelegate")
+final class SessionDelegateURLSessionDataDelegateTest {
     
-    func testFSessionDelegateWillCacheResponse() async {
+    @Test("test SessionDelegate.willCacheResponse")
+    func testSessionDelegateWillCacheResponse() async {
         let cacheInterceptor = MockCacheInterceptor()
         let delegate = SessionDelegate()
         delegate.cacheInterceptor = cacheInterceptor
         
         let result = await delegate.urlSession(.shared, dataTask: mockUrlSessionDataTask, willCacheResponse: .init())
-        XCTAssertNotNil(result)
-        XCTAssertTrue(cacheInterceptor.didCallWillCacheResponse)
+        #expect(result != nil)
+        #expect(cacheInterceptor.didCallWillCacheResponse)
     }
     
+    @Test("test SessionDelegate.willCacheResponse with no CacheInterceptor injected")
     func testSessionDelegateWillCacheResponseWithNoCacheInterceptorInjected() async {
         let delegate = SessionDelegate()
         
         let result = await delegate.urlSession(.shared, dataTask: mockUrlSessionDataTask, willCacheResponse: .init())
-        XCTAssertNotNil(result)
+        #expect(result != nil)
     }
     
+    @Test("test SessionDelegate.didReceiveResponse")
     func testSessionDelegateDidReceiveResponse() async {
         let dataTaskInterceptor = MockDataTaskInterceptor()
         let delegate = SessionDelegate()
         delegate.dataTaskInterceptor = dataTaskInterceptor
         
         _ = await delegate.urlSession(.shared, dataTask: mockUrlSessionDataTask, didReceive: URLResponse())
-        XCTAssertTrue(dataTaskInterceptor.didReceiveResponse)
+        #expect(dataTaskInterceptor.didReceiveResponse)
     }
     
+    @Test("test SessionDelegate.didReceiveResponse with no interceptor")
     func testSessionDelegateDidReceiveResponseWithNoInterceptor() async {
         let delegate = SessionDelegate()
         
         let disposition = await delegate.urlSession(.shared, dataTask: mockUrlSessionDataTask, didReceive: URLResponse())
-        XCTAssertEqual(disposition, .allow)
+        #expect(disposition == .allow)
     }
     
+    @Test("test SessionDelegate.didReceiveData")
     func testSessionDelegateDidReceiveData() {
         let dataTaskInterceptor = MockDataTaskInterceptor()
         let delegate = SessionDelegate()
         delegate.dataTaskInterceptor = dataTaskInterceptor
         
         delegate.urlSession(.shared, dataTask: mockUrlSessionDataTask, didReceive: Data())
-        XCTAssertTrue(dataTaskInterceptor.didRecieveData)
+        #expect(dataTaskInterceptor.didRecieveData)
     }
     
+    @Test("test SessionDelegate.didBecomeDownloadTask")
     func testSessionDelegateDidBecomeDownloadTask() {
         let dataTaskInterceptor = MockDataTaskInterceptor()
         let delegate = SessionDelegate()
         delegate.dataTaskInterceptor = dataTaskInterceptor
         
         delegate.urlSession(.shared, dataTask: mockUrlSessionDataTask, didBecome: URLSessionDownloadTask())
-        XCTAssertTrue(dataTaskInterceptor.didBecomeDownloadTask)
+        #expect(dataTaskInterceptor.didBecomeDownloadTask)
     }
     
+    @Test("test SessionDelegate.didBecomeStreamTask")
     func testSessionDelegateDidBecomeStreamTask() {
         let dataTaskInterceptor = MockDataTaskInterceptor()
         let delegate = SessionDelegate()
         delegate.dataTaskInterceptor = dataTaskInterceptor
         
         delegate.urlSession(.shared, dataTask: mockUrlSessionDataTask, didBecome: URLSessionStreamTask())
-        XCTAssertTrue(dataTaskInterceptor.didBecomeStreamTask)
+        #expect(dataTaskInterceptor.didBecomeStreamTask)
     }
 }
 
