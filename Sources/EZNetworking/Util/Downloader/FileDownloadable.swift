@@ -4,10 +4,7 @@ public typealias DownloadProgressHandler = (Double) -> Void
 public typealias DownloadCompletionHandler = (Result<URL, NetworkingError>) -> Void
 
 public protocol FileDownloadable {
-    func downloadFile(with url: URL) async throws -> URL
     func downloadFile(with url: URL, progress: DownloadProgressHandler?) async throws -> URL
-    @discardableResult
-    func downloadFileTask(url: URL, completion: @escaping(DownloadCompletionHandler)) -> URLSessionDownloadTask
     @discardableResult
     func downloadFileTask(url: URL, progress: DownloadProgressHandler?, completion: @escaping(DownloadCompletionHandler)) -> URLSessionDownloadTask
 }
@@ -59,10 +56,6 @@ public class FileDownloader: FileDownloadable {
         self.sessionDelegate = sessionDelegate
     }
     
-    public func downloadFile(with url: URL) async throws -> URL {
-        try await downloadFile(with: url, progress: nil)
-    }
-    
     public func downloadFile(with url: URL, progress: DownloadProgressHandler? = nil) async throws -> URL {
         do {
             configureProgressTracking(progress: progress)
@@ -81,10 +74,6 @@ public class FileDownloader: FileDownloadable {
     }
 
     @discardableResult
-    public func downloadFileTask(url: URL, completion: @escaping(DownloadCompletionHandler)) -> URLSessionDownloadTask {
-        return downloadFileTask(url: url, progress: nil, completion: completion)
-    }
-    
     public func downloadFileTask(url: URL, progress: DownloadProgressHandler?, completion: @escaping(DownloadCompletionHandler)) -> URLSessionDownloadTask {
         configureProgressTracking(progress: progress)
 
