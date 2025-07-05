@@ -10,12 +10,14 @@ public class FileUploader: FileUploadable {
     private let urlSession: URLSessionTaskProtocol
     private let validator: ResponseValidator
     private var sessionDelegate: SessionDelegate
+    private let fileManager: FileManager
     
     public convenience init(
         sessionConfiguration: URLSessionConfiguration = .default,
         sessionDelegate: SessionDelegate = SessionDelegate(),
         delegateQueue: OperationQueue? = nil,
-        validator: ResponseValidator = ResponseValidatorImpl()
+        validator: ResponseValidator = ResponseValidatorImpl(),
+        fileManager: FileManager = FileManager.default
     ) {
         let urlSession = URLSession(configuration: sessionConfiguration,
                                     delegate: sessionDelegate,
@@ -27,26 +29,30 @@ public class FileUploader: FileUploadable {
 
     public convenience init(
         urlSession: URLSessionTaskProtocol = URLSession.shared,
-        validator: ResponseValidator = ResponseValidatorImpl()
+        validator: ResponseValidator = ResponseValidatorImpl(),
+        fileManager: FileManager = FileManager.default
     ) {
         self.init(urlSession: urlSession,
                   validator: validator,
-                  sessionDelegate: SessionDelegate())
+                  sessionDelegate: SessionDelegate(),
+                  fileManager: fileManager)
     }
 
     internal init(
         urlSession: URLSessionTaskProtocol = URLSession.shared,
         validator: ResponseValidator = ResponseValidatorImpl(),
-        sessionDelegate: SessionDelegate = SessionDelegate()
+        sessionDelegate: SessionDelegate = SessionDelegate(),
+        fileManager: FileManager = FileManager.default
     ) {
         self.urlSession = urlSession
         self.validator = validator
         self.sessionDelegate = sessionDelegate
+        self.fileManager = fileManager
     }
     
     public func uploadFile(fileURL: URL, to url: URL, completion: @escaping (UploadCompletionHandler)) -> URLSessionUploadTask? {
         // Check if file exists
-        guard FileManager.default.fileExists(atPath: fileURL.path) else { // TODO: Add DI for file manager
+        guard fileManager.fileExists(atPath: fileURL.path) else {
             completion(.failure(.internalError(.couldNotParse))) // TODO: add new internal error .fileNotFound
             return nil
         }
