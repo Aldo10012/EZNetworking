@@ -51,7 +51,7 @@ public class FileUploader: FileUploadable {
             return nil
         }
         do {
-            let (urlRequest, body) = try createBody(fileURL: fileURL, serverURL: url)
+            let (urlRequest, body) = try createRequestAndBody(fileURL: fileURL, serverURL: url)
             
             let uploadTask = urlSession.uploadTask(with: urlRequest, from: body) { [weak self] data, response, error in
                 guard let self else {
@@ -85,7 +85,7 @@ public class FileUploader: FileUploadable {
     
     // MARK: - Helper Methods
 
-    private func createBody(fileURL: URL, serverURL url: URL) throws -> (URLRequest, Data) {
+    private func createRequestAndBody(fileURL: URL, serverURL url: URL) throws -> (URLRequest, Data) {
         // Create multipart form data request
         let boundary = UUID().uuidString
         let request = RequestBuilderImpl()
