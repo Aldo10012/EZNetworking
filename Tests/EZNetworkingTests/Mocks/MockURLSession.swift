@@ -92,6 +92,20 @@ class MockURLSession: URLSessionTaskProtocol {
     func uploadTask(with request: URLRequest, from bodyData: Data?, completionHandler: @escaping @Sendable (Data?, URLResponse?, (any Error)?) -> Void) -> URLSessionUploadTask {
         return .init()
     }
+
+    func upload(for request: URLRequest, from bodyData: Data, delegate: (URLSessionTaskDelegate)?) async throws -> (Data, URLResponse) {
+        if let error = error {
+            throw error
+        }
+        guard let urlResponse else {
+            throw NetworkingError.internalError(.unknown)
+        }
+        guard let data = data else {
+            throw NetworkingError.internalError(.noData)
+        }
+        
+        return (data, urlResponse)
+    }
 }
 
 extension MockURLSession {

@@ -1,6 +1,7 @@
 import Foundation
 
 public protocol FileUploadable {
+    func uploadFile(fileURL: URL, to url: URL) async throws -> Data
     func uploadFile(fileURL: URL, to url: URL, completion: @escaping (UploadCompletionHandler)) -> URLSessionUploadTask?
 }
 
@@ -49,17 +50,30 @@ public class FileUploader: FileUploadable {
         self.sessionDelegate = sessionDelegate
         self.fileManager = fileManager
     }
+
+    public func uploadFile(fileURL: URL, to url: URL) async throws -> Data {
+        // Check if file exists
+        do {
+            try validateFileExists(fileURL: fileURL)
+            let (urlRequest, bodyData) = try createRequestAndBody(fileURL: fileURL, serverURL: url)
+            
+            let (data, response) = try await urlSession.upload(for: urlRequest, from: bodyData, delegate: nil)
+            try self.validator.validateStatus(from: response)
+            let validData = try validator.validateData(data)
+            return validData
+        } catch let error as NetworkingError {
+            throw error
+        } catch {
+            throw NetworkingError.internalError(.unknown)
+        }
+    }
     
     public func uploadFile(fileURL: URL, to url: URL, completion: @escaping (UploadCompletionHandler)) -> URLSessionUploadTask? {
-        // Check if file exists
-        guard fileManager.fileExists(atPath: fileURL.path) else {
-            completion(.failure(.internalError(.fileNotFound)))
-            return nil
-        }
         do {
-            let (urlRequest, body) = try createRequestAndBody(fileURL: fileURL, serverURL: url)
+            try validateFileExists(fileURL: fileURL)
+            let (urlRequest, bodyData) = try createRequestAndBody(fileURL: fileURL, serverURL: url)
             
-            let uploadTask = urlSession.uploadTask(with: urlRequest, from: body) { [weak self] data, response, error in
+            let uploadTask = urlSession.uploadTask(with: urlRequest, from: bodyData) { [weak self] data, response, error in
                 guard let self else {
                     completion(.failure(.internalError(.lostReferenceOfSelf)))
                     return
@@ -90,6 +104,12 @@ public class FileUploader: FileUploadable {
     }
     
     // MARK: - Helper Methods
+
+    private func validateFileExists(fileURL: URL) throws {
+        guard fileManager.fileExists(atPath: fileURL.path) else {
+            throw NetworkingError.internalError(.fileNotFound)
+        }
+    }
 
     private func createRequestAndBody(fileURL: URL, serverURL url: URL) throws -> (URLRequest, Data) {
         // Create multipart form data request

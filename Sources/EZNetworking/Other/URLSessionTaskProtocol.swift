@@ -14,6 +14,7 @@ public protocol URLSessionTaskProtocol {
     func download(from url: URL, delegate: (URLSessionTaskDelegate)?) async throws -> (URL, URLResponse)
 
     // uploadTask
+    func upload(for request: URLRequest, from bodyData: Data, delegate: (URLSessionTaskDelegate)?) async throws -> (Data, URLResponse)
     func uploadTask(with request: URLRequest, from bodyData: Data?, completionHandler: @escaping @Sendable (Data?, URLResponse?, (any Error)?) -> Void) -> URLSessionUploadTask
 
 }
