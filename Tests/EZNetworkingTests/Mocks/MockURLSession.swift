@@ -88,6 +88,10 @@ class MockURLSession: URLSessionTaskProtocol {
 
         return (URL(fileURLWithPath: "/tmp/test.pdf"), urlResponse)
     }
+
+    func uploadTask(with request: URLRequest, from bodyData: Data?, completionHandler: @escaping @Sendable (Data?, URLResponse?, (any Error)?) -> Void) -> URLSessionUploadTask {
+        return .init()
+    }
 }
 
 extension MockURLSession {

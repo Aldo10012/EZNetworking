@@ -25,6 +25,7 @@ final class InternalErrorTests {
         InternalError.noHTTPURLResponse,
         InternalError.invalidImageData,
         InternalError.lostReferenceOfSelf,
+        InternalError.fileNotFound,
         InternalError.unknown,
     ]
 }

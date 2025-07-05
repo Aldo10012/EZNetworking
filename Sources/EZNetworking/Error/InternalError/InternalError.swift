@@ -11,6 +11,7 @@ public enum InternalError: Error {
     case noHTTPURLResponse
     case invalidImageData
     case lostReferenceOfSelf
+    case fileNotFound
     case unknown
 }
 
@@ -26,7 +27,8 @@ extension InternalError: Equatable {
             (.noRequest, .noRequest),
             (.noHTTPURLResponse, .noHTTPURLResponse),
             (.invalidImageData, .invalidImageData),
-            (.lostReferenceOfSelf, .lostReferenceOfSelf):
+            (.lostReferenceOfSelf, .lostReferenceOfSelf),
+            (.fileNotFound, .fileNotFound):
             return true
             
         case let (.requestFailed(lhsError), .requestFailed(rhsError)):

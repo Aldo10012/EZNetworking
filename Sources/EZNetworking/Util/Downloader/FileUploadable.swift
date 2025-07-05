@@ -53,7 +53,7 @@ public class FileUploader: FileUploadable {
     public func uploadFile(fileURL: URL, to url: URL, completion: @escaping (UploadCompletionHandler)) -> URLSessionUploadTask? {
         // Check if file exists
         guard fileManager.fileExists(atPath: fileURL.path) else {
-            completion(.failure(.internalError(.couldNotParse))) // TODO: add new internal error .fileNotFound
+            completion(.failure(.internalError(.fileNotFound)))
             return nil
         }
         do {
