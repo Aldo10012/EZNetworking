@@ -125,7 +125,7 @@ final class FileDownloadableTests {
                                  requestDecoder: RequestDecoder())
         
         var didExecute = false
-        sut.downloadFileTask(url: testURL) { result in
+        sut.downloadFileTask(url: testURL, progress: nil) { result in
             defer { didExecute = true }
             switch result {
             case .success(let localURL):
@@ -147,7 +147,7 @@ final class FileDownloadableTests {
                                  validator: MockURLResponseValidator(),
                                  requestDecoder: RequestDecoder())
         
-        let task = sut.downloadFileTask(url: testURL) { _ in }
+        let task = sut.downloadFileTask(url: testURL, progress: nil) { _ in }
         task.cancel()
         let downloadTask = try #require(task as? MockURLSessionDownloadTask)
         #expect(downloadTask.didCancel)
@@ -165,7 +165,7 @@ final class FileDownloadableTests {
                                  requestDecoder: RequestDecoder())
         
         var didExecute = false
-        sut.downloadFileTask(url: testURL) { result in
+        sut.downloadFileTask(url: testURL, progress: nil) { result in
             defer { didExecute = true }
             switch result {
             case .success:
