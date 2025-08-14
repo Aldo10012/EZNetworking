@@ -35,6 +35,16 @@ final class SessionDelegateURLSessionDelegateTests {
         delegate.urlSession(.shared, didCreateTask: mockUrlSessionDataTask)
         #expect(taskLifecycleInterceptor.didCreateTask)
     }
+
+    @Test("test SessionDelegate DidSendBodyData")
+    func testSessionDelegateDidSendBodyData() {
+        let uploadTaskInterceptor = MockUploadTaskInterceptor(progress: { _ in })
+        let delegate = SessionDelegate()
+        delegate.uploadTaskInterceptor = uploadTaskInterceptor
+
+        delegate.urlSession(.shared, task: mockUrlSessionDataTask, didSendBodyData: 0, totalBytesSent: 0, totalBytesExpectedToSend: 0)
+        #expect(uploadTaskInterceptor.didSendBodyData)
+    }
 }
 
 // MARK: mock classes
@@ -67,6 +77,19 @@ private class MockTaskLifecycleInterceptor: TaskLifecycleInterceptor {
     var didCreateTask = false
     func urlSession(_ session: URLSession, didCreateTask task: URLSessionTask) {
         didCreateTask = true
+    }
+}
+
+private class MockUploadTaskInterceptor: UploadTaskInterceptor {
+    var progress: (Double) -> Void
+    
+    init(progress: @escaping (Double) -> Void = { _ in }) {
+        self.progress = progress
+    }
+    
+    var didSendBodyData = false
+    func urlSession(_ session: URLSession, task: URLSessionTask, didSendBodyData bytesSent: Int64, totalBytesSent: Int64, totalBytesExpectedToSend: Int64) {
+        didSendBodyData = true
     }
 }
 
