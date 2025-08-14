@@ -1,18 +1,21 @@
 import Foundation
 
 public protocol FileUploadable {
-    func uploadFile(fileURL: URL, to url: URL) async throws -> Data
-    func uploadFile(fileURL: URL, to url: URL, completion: @escaping (UploadCompletionHandler)) -> URLSessionUploadTask?
+    func uploadFile(fileURL: URL, to url: URL, progress: UploadProgressHandler?) async throws -> Data
+    func uploadFile(fileURL: URL, to url: URL, progress: UploadProgressHandler?, completion: @escaping (UploadCompletionHandler)) -> URLSessionUploadTask?
 }
 
 public typealias UploadCompletionHandler = (Result<Data?, NetworkingError>) -> Void
+public typealias UploadProgressHandler = (Double) -> Void
 
 public class FileUploader: FileUploadable {
     private let urlSession: URLSessionTaskProtocol
     private let validator: ResponseValidator
     private var sessionDelegate: SessionDelegate
     private let fileManager: FileManager
-    
+
+    private let fallbackUploadTaskInterceptor: UploadTaskInterceptor = DefaultUploadTaskInterceptor()
+
     public convenience init(
         sessionConfiguration: URLSessionConfiguration = .default,
         sessionDelegate: SessionDelegate = SessionDelegate(),
@@ -51,8 +54,9 @@ public class FileUploader: FileUploadable {
         self.fileManager = fileManager
     }
 
-    public func uploadFile(fileURL: URL, to url: URL) async throws -> Data {
-        // Check if file exists
+    public func uploadFile(fileURL: URL, to url: URL, progress: UploadProgressHandler?) async throws -> Data {
+        configureProgressTracking(progress: progress)
+        
         do {
             try validateFileExists(fileURL: fileURL)
             let (urlRequest, bodyData) = try createRequestAndBody(fileURL: fileURL, serverURL: url)
@@ -68,7 +72,9 @@ public class FileUploader: FileUploadable {
         }
     }
     
-    public func uploadFile(fileURL: URL, to url: URL, completion: @escaping (UploadCompletionHandler)) -> URLSessionUploadTask? {
+    public func uploadFile(fileURL: URL, to url: URL, progress: UploadProgressHandler?, completion: @escaping (UploadCompletionHandler)) -> URLSessionUploadTask? {
+        configureProgressTracking(progress: progress)
+        
         do {
             try validateFileExists(fileURL: fileURL)
             let (urlRequest, bodyData) = try createRequestAndBody(fileURL: fileURL, serverURL: url)
@@ -168,5 +174,31 @@ public class FileUploader: FileUploadable {
         case "json": "application/json"
         default: "application/octet-stream"
         }
+    }
+    
+    private func configureProgressTracking(progress: ((Double) -> Void)?) {
+        guard let progress else { return }
+
+        if sessionDelegate.uploadTaskInterceptor != nil {
+            // Update existing interceptor's progress handler
+            sessionDelegate.uploadTaskInterceptor?.progress = progress
+        } else {
+            // Set up fallback interceptor with progress handler
+            fallbackUploadTaskInterceptor.progress = progress
+            sessionDelegate.uploadTaskInterceptor = fallbackUploadTaskInterceptor
+        }
+    }
+}
+
+private class DefaultUploadTaskInterceptor: UploadTaskInterceptor {
+    var progress: (Double) -> Void
+    
+    init(progress: @escaping (Double) -> Void = { _ in }) {
+        self.progress = progress
+    }
+    
+    func urlSession(_ session: URLSession, task: URLSessionTask, didSendBodyData bytesSent: Int64, totalBytesSent: Int64, totalBytesExpectedToSend: Int64) {
+        let currentProgress = Double(totalBytesSent) / Double(totalBytesExpectedToSend)
+        progress(currentProgress)
     }
 }
