@@ -4,20 +4,12 @@ import Testing
 
 @Suite("Test FileDownloadable")
 final class FileDownloadableTests {
-
+    
     // MARK: test Async/Await
-
+    
     @Test("test DownloadFile Success")
     func testDownloadFileSuccess() async throws {
-        let testURL = URL(string: "https://example.com/example.pdf")!
-        let urlSession = MockURLSession(
-            url: testURL,
-            urlResponse: buildResponse(statusCode: 200),
-            error: nil
-        )
-        let validator = MockURLResponseValidator()
-        let decoder = RequestDecoder()
-        let sut = FileDownloader(urlSession: urlSession, validator: validator, requestDecoder: decoder)
+        let sut = createFileDownloader()
         
         do {
             let localURL = try await sut.downloadFile(with: testURL)
@@ -29,15 +21,9 @@ final class FileDownloadableTests {
     
     @Test("test DownloadFile Fails When Validator Throws AnyError")
     func testDownloadFileFailsWhenValidatorThrowsAnyError() async throws {
-        let testURL = URL(string: "https://example.com/example.pdf")!
-        let urlSession = MockURLSession(
-            url: testURL,
-            urlResponse: buildResponse(statusCode: 200),
-            error: nil
+        let sut = createFileDownloader(
+            validator: MockURLResponseValidator(throwError: NetworkingError.httpClientError(.forbidden, [:]))
         )
-        let validator = MockURLResponseValidator(throwError: NetworkingError.httpClientError(.forbidden, [:]))
-        let decoder = RequestDecoder()
-        let sut = FileDownloader(urlSession: urlSession, validator: validator, requestDecoder: decoder)
         
         do {
             _ = try await sut.downloadFile(with: testURL)
@@ -49,15 +35,10 @@ final class FileDownloadableTests {
     
     @Test("test DownloadFile Fails When StatusCode Is Not 200")
     func testDownloadFileFailsWhenStatusCodeIsNot200() async throws {
-        let testURL = URL(string: "https://example.com/example.pdf")!
-        let urlSession = MockURLSession(
-            url: testURL,
-            urlResponse: buildResponse(statusCode: 400),
-            error: nil
+        let sut = createFileDownloader(
+            urlSession: createMockURLSession(statusCode: 400),
+            validator: ResponseValidatorImpl()
         )
-        let validator = ResponseValidatorImpl()
-        let decoder = RequestDecoder()
-        let sut = FileDownloader(urlSession: urlSession, validator: validator, requestDecoder: decoder)
         
         do {
             _ = try await sut.downloadFile(with: testURL)
@@ -69,15 +50,9 @@ final class FileDownloadableTests {
     
     @Test("test DownloadFile Fails When Error Is Not Nil")
     func testDownloadFileFailsWhenErrorIsNotNil() async throws {
-        let testURL = URL(string: "https://example.com/example.pdf")!
-        let urlSession = MockURLSession(
-            url: testURL,
-            urlResponse: buildResponse(statusCode: 200),
-            error: NetworkingError.internalError(.unknown)
+        let sut = createFileDownloader(
+            urlSession: createMockURLSession(error: NetworkingError.internalError(.unknown))
         )
-        let validator = ResponseValidatorImpl()
-        let decoder = RequestDecoder()
-        let sut = FileDownloader(urlSession: urlSession, validator: validator, requestDecoder: decoder)
         
         do {
             _ = try await sut.downloadFile(with: testURL)
@@ -100,7 +75,7 @@ final class FileDownloadableTests {
         let delegate = SessionDelegate()
         urlSession.sessionDelegate = delegate
         let sut = FileDownloader(urlSession: urlSession, validator: validator, requestDecoder: decoder, sessionDelegate: delegate)
-
+        
         var didTrackProgress = false
         do {
             _ = try await sut.downloadFile(with: testURL, progress: { _ in
@@ -111,18 +86,12 @@ final class FileDownloadableTests {
             Issue.record()
         }
     }
-
+    
     // MARK: test callbacks
     
     @Test("test DownloadFile Task Success")
     func testDownloadFileTaskSuccess() {
-        let testURL = URL(string: "https://example.com/example.pdf")!
-        let urlSession = MockURLSession(url: testURL,
-                                        urlResponse: buildResponse(statusCode: 200),
-                                        error: nil)
-        let sut = FileDownloader(urlSession: urlSession,
-                                 validator: MockURLResponseValidator(),
-                                 requestDecoder: RequestDecoder())
+        let sut = createFileDownloader()
         
         var didExecute = false
         sut.downloadFileTask(url: testURL, progress: nil) { result in
@@ -139,13 +108,7 @@ final class FileDownloadableTests {
     
     @Test("test DownloadFile Can Cancel")
     func testDownloadFileCanCancel() throws {
-        let testURL = URL(string: "https://example.com/example.pdf")!
-        let urlSession = MockURLSession(url: testURL,
-                                        urlResponse: buildResponse(statusCode: 200),
-                                        error: nil)
-        let sut = FileDownloader(urlSession: urlSession,
-                                 validator: MockURLResponseValidator(),
-                                 requestDecoder: RequestDecoder())
+        let sut = createFileDownloader()
         
         let task = sut.downloadFileTask(url: testURL, progress: nil) { _ in }
         task.cancel()
@@ -155,14 +118,9 @@ final class FileDownloadableTests {
     
     @Test("test DownloadFile Fails If Validator Throws Any Error")
     func testDownloadFileFailsIfValidatorThrowsAnyError() {
-        let testURL = URL(string: "https://example.com/example.pdf")!
-        let validator = MockURLResponseValidator(throwError: NetworkingError.httpClientError(.conflict, [:]))
-        let urlSession = MockURLSession(url: testURL,
-                                        urlResponse: buildResponse(statusCode: 200),
-                                        error: nil)
-        let sut = FileDownloader(urlSession: urlSession,
-                                 validator: validator,
-                                 requestDecoder: RequestDecoder())
+        let sut = createFileDownloader(
+            validator: MockURLResponseValidator(throwError: NetworkingError.httpClientError(.conflict, [:]))
+        )
         
         var didExecute = false
         sut.downloadFileTask(url: testURL, progress: nil) { result in
@@ -195,7 +153,7 @@ final class FileDownloadableTests {
         
         var didExecute = false
         var didTrackProgress = false
-
+        
         _ = sut.downloadFileTask(url: testURL, progress: { progress in
             didTrackProgress = true
         }) { result in
@@ -208,11 +166,39 @@ final class FileDownloadableTests {
         #expect(didExecute)
         #expect(didTrackProgress)
     }
+}
 
-    private func buildResponse(statusCode: Int) -> HTTPURLResponse {
-        HTTPURLResponse(url: URL(string: "https://example.com")!,
-                        statusCode: statusCode,
-                        httpVersion: nil,
-                        headerFields: nil)!
-    }
+// MARK: helpers
+
+private let testURL = URL(string: "https://example.com/example.pdf")!
+
+private func createFileDownloader(
+    urlSession: URLSessionTaskProtocol = createMockURLSession(statusCode: 200),
+    validator: ResponseValidator = MockURLResponseValidator(),
+    requestDecoder: RequestDecodable = RequestDecoder()
+) -> FileDownloader {
+    return FileDownloader(
+        urlSession: urlSession,
+        validator: validator,
+        requestDecoder: requestDecoder
+    )
+}
+
+private func createMockURLSession(
+    data: Data? = MockData.mockPersonJsonData,
+    statusCode: Int = 200,
+    error: Error? = nil
+) -> MockURLSession {
+    return MockURLSession(
+        url: testURL,
+        urlResponse: buildResponse(statusCode: statusCode),
+        error: error
+    )
+}
+
+private func buildResponse(statusCode: Int) -> HTTPURLResponse {
+    HTTPURLResponse(url: URL(string: "https://example.com")!,
+                    statusCode: statusCode,
+                    httpVersion: nil,
+                    headerFields: nil)!
 }
