@@ -5,22 +5,11 @@ import Testing
 @Suite("Test RequestPerformer")
 final class RequestPerformerTests {
 
-    // MARK: Unit tests for perform using Completion Handler with Request Protocol
+    // MARK: - SUCCESS RESPONSE
 
-    @Test("test PerformTask CanCancel")
-    func test_PerformTask_CanCancel() throws {
+    @Test("test performTask(request:_, decodeTo:_) with valid inputs does decode Person")
+    func performTaskAndDecode_withValidInputs_doesDecodePerson() {
         let sut = createRequestPerformer()
-        
-        let task = sut.performTask(request: MockRequest(), decodeTo: Person.self) { _ in }
-        task?.cancel()
-        let dataTask = try #require(task as? MockURLSessionDataTask)
-        #expect(dataTask.didCancel == true)
-    }
-    
-    @Test("test PerformTask DoesDecodePerson")
-    func test_PerformTask_DoesDecodePerson() {
-        let sut = createRequestPerformer()
-        
         var didExecute = false
         sut.performTask(request: MockRequest(), decodeTo: Person.self) { result in
             defer { didExecute = true }
@@ -34,14 +23,53 @@ final class RequestPerformerTests {
         }
         #expect(didExecute == true)
     }
+
+    @Test("test performTask(request:_) with valid inputs does return success result")
+    func performTask_withValidInputs_doesSucceed() {
+        let sut = createRequestPerformer()
+        var didExecute = false
+        sut.performTask(request: MockRequest()) { result in
+            defer { didExecute = true }
+            switch result {
+            case .success:
+                #expect(true)
+            case .failure:
+                Issue.record()
+            }
+        }
+        #expect(didExecute == true)
+    }
+
+    // MARK: DataTask cancellation
+
+    @Test("test performTask(request:_, decodeTo:_) .cancel() does cancel DataTask")
+    func performTaskAndDecode_cancel_doesCancelDataTask() throws {
+        let sut = createRequestPerformer()
+        
+        let task = sut.performTask(request: MockRequest(), decodeTo: Person.self) { _ in }
+        task?.cancel()
+        let dataTask = try #require(task as? MockURLSessionDataTask)
+        #expect(dataTask.didCancel == true)
+    }
+
+    @Test("test performTask(request:_) .cancel() does cancel DataTask")
+    func performTask_cancel_doesCancelDataTask() throws {
+        let sut = createRequestPerformer()
+        let task = sut.performTask(request: MockRequest()) { _ in }
+        task?.cancel()
+        let dataTask = try #require(task as? MockURLSessionDataTask)
+        #expect(dataTask.didCancel == true)
+    }
     
-    @Test("test PerformTask WhenStatusCode300 Faile")
-    func test_PerformTask_WhenStatusCode300_Faile() {
+    // MARK: - ERROR RESPONSE
+
+    @Test("test performTask(request:_) fails when status code is 3xx")
+    func performTask_throwsErrorWhen_statusCodeIs300() {
         let sut = createRequestPerformer(
             urlSession: createMockURLSession(statusCode: 300)
         )
         var didExecute = false
-        sut.performTask(request: MockRequest(), decodeTo: Person.self) { result in
+        sut.performTask(request: MockRequest()) { result in
             defer { didExecute = true }
             switch result {
             case .success:
@@ -52,14 +80,14 @@ final class RequestPerformerTests {
         }
         #expect(didExecute == true)
     }
-    
-    @Test("test PerformTask WhenStatusCodeIs400 Data")
-    func test_PerformTask_WhenStatusCodeIs400_Data() {
+
+    @Test("test performTask(request:_) fails when status code is 4xx")
+    func performTask_throwsErrorWhen_statusCodeIs400() {
         let sut = createRequestPerformer(
             urlSession: createMockURLSession(statusCode: 400)
         )
         var didExecute = false
-        sut.performTask(request: MockRequest(), decodeTo: Person.self) { result in
+        sut.performTask(request: MockRequest()) { result in
             defer { didExecute = true }
             switch result {
             case .success:
@@ -70,9 +98,88 @@ final class RequestPerformerTests {
         }
         #expect(didExecute == true)
     }
-    
-    @Test("test PerformTask WhenDataIsInvalid Fails")
-    func test_PerformTask_WhenDataIsInvalid_Fails() {
+
+    @Test("test performTask(request:_) fails when status code is 5xx")
+    func performTask_throwsErrorWhen_statusCodeIs500() {
+        let sut = createRequestPerformer(
+            urlSession: createMockURLSession(statusCode: 500)
+        )
+        var didExecute = false
+        sut.performTask(request: MockRequest()) { result in
+            defer { didExecute = true }
+            switch result {
+            case .success:
+                Issue.record()
+            case .failure(let error):
+                #expect(error == NetworkingError.httpServerError(.internalServerError, [:]))
+            }
+        }
+        #expect(didExecute == true)
+    }
+
+    // MARK: URLSession has error
+
+    @Test("test performTask(request:_) fails when urlsession throws URL error")
+    func performTask_throwsErrorWhen_urlSessionThrowsURLError() {
+        let sut = createRequestPerformer(
+            urlSession: createMockURLSession(error: URLError(.networkConnectionLost))
+        )
+        var didExecute = false
+        sut.performTask(request: MockRequest()) { result in
+            defer { didExecute = true }
+            switch result {
+            case .success:
+                Issue.record()
+            case .failure(let error):
+                #expect(error == NetworkingError.urlError(URLError(.networkConnectionLost)))
+            }
+        }
+        #expect(didExecute == true)
+    }
+
+    @Test("test performTask(request:_) fails when urlsession throws unknown error")
+    func performTask_throwsErrorWhen_urlSessionThrowsUnknownError() {
+        enum UnknownError: Error {
+            case error
+        }
+        let sut = createRequestPerformer(
+            urlSession: createMockURLSession(error: UnknownError.error)
+        )
+        var didExecute = false
+        sut.performTask(request: MockRequest()) { result in
+            defer { didExecute = true }
+            switch result {
+            case .success:
+                Issue.record()
+            case .failure(let error):
+                #expect(error == NetworkingError.internalError(.requestFailed(UnknownError.error)))
+            }
+        }
+        #expect(didExecute == true)
+    }
+
+    // MARK: data deocding errors
+
+    @Test("test performTask(request:_, decode:_) fails when data is nil")
+    func performTask_throwsErrorWhen_dataIsNil() {
+        let sut = createRequestPerformer(
+            urlSession: createMockURLSession(data: nil)
+        )
+        var didExecute = false
+        sut.performTask(request: MockRequest(), decodeTo: Person.self) { result in
+            defer { didExecute = true }
+            switch result {
+            case .success:
+                Issue.record()
+            case .failure(let error):
+                #expect(error == NetworkingError.internalError(.noData))
+            }
+        }
+        #expect(didExecute == true)
+    }
+
+    @Test("test performTask(request:_, decode:_) fails when data does not match decodeTo type")
+    func performTask_throwsErrorWhen_dataDoesNotMatchDecodeToType() {
         let sut = createRequestPerformer(
             urlSession: createMockURLSession(data: MockData.invalidMockPersonJsonData)
         )
@@ -89,178 +196,9 @@ final class RequestPerformerTests {
         }
         #expect(didExecute == true)
     }
-    
-    @Test("test PerformTask WhenDataIsNil Fails")
-    func test_PerformTask_WhenDataIsNil_Fails() {
-        let sut = createRequestPerformer(
-            urlSession: createMockURLSession(data: nil)
-        )
-        var didExecute = false
-        sut.performTask(request: MockRequest(), decodeTo: Person.self) { result in
-            defer { didExecute = true }
-            switch result {
-            case .success:
-                Issue.record()
-            case .failure(let error):
-                #expect(error == NetworkingError.internalError(.noData))
-            }
-        }
-        #expect(didExecute == true)
-    }
-    
-    @Test("test PerformTask WhenURLSessionHasError Data")
-    func test_PerformTask_WhenURLSessionHasError_Data() {
-        let sut = createRequestPerformer(
-            urlSession: createMockURLSession(error: NetworkingError.internalError(.unknown))
-        )
-        var didExecute = false
-        sut.performTask(request: MockRequest(), decodeTo: Person.self) { result in
-            defer { didExecute = true }
-            switch result {
-            case .success:
-                Issue.record()
-            case .failure(let error):
-                #expect(error == NetworkingError.internalError(.requestFailed(NetworkingError.internalError(.unknown))))
-            }
-        }
-        #expect(didExecute == true)
-    }
-    
-    @Test("test PerformTask WhenURLSessionHasURLError Data")
-    func test_PerformTask_WhenURLSessionHasURLError_Data() {
-        let sut = createRequestPerformer(
-            urlSession: createMockURLSession(error: URLError(.networkConnectionLost))
-        )
-        var didExecute = false
-        sut.performTask(request: MockRequest(), decodeTo: Person.self) { result in
-            defer { didExecute = true }
-            switch result {
-            case .success:
-                Issue.record()
-            case .failure(let error):
-                #expect(error == NetworkingError.urlError(URLError(.networkConnectionLost)))
-            }
-        }
-        #expect(didExecute == true)
-    }
-    
-    // MARK: Unit tests for perform using Completion Handler and Requesst Protocol without Decodable response
-    
-    @Test("test PerformTask WithoutDecodable CanCancel")
-    func test_PerformTask_WithoutDecodable_CanCancel() throws {
-        let sut = createRequestPerformer()
-        let task = sut.performTask(request: MockRequest()) { _ in }
-        task?.cancel()
-        let dataTask = try #require(task as? MockURLSessionDataTask)
-        #expect(dataTask.didCancel == true)
-    }
-    
-    @Test("test PerformTask WithoutDecodable DoesPass")
-    func test_PerformTask_WithoutDecodable_DoesPass() {
-        let sut = createRequestPerformer()
-        var didExecute = false
-        sut.performTask(request: MockRequest()) { result in
-            defer { didExecute = true }
-            switch result {
-            case .success:
-                #expect(true)
-            case .failure:
-                Issue.record()
-            }
-        }
-        #expect(didExecute == true)
-    }
-    
-    @Test("test PerformTask WithoutDecodable WhenStatusCode300 Fails")
-    func test_PerformTask_WithoutDecodable_WhenStatusCode300_Fails() {
-        let sut = createRequestPerformer(
-            urlSession: createMockURLSession(statusCode: 300)
-        )
-        var didExecute = false
-        sut.performTask(request: MockRequest()) { result in
-            defer { didExecute = true }
-            switch result {
-            case .success:
-                Issue.record()
-            case .failure(let error):
-                #expect(error == NetworkingError.redirect(.multipleChoices, [:]))
-            }
-        }
-        #expect(didExecute == true)
-    }
-    
-    @Test("test PerformTask WithoutDecodable WhenStatusCodeIs400 Fails")
-    func test_PerformTask_WithoutDecodable_WhenStatusCodeIs400_Fails() {
-        let sut = createRequestPerformer(
-            urlSession: createMockURLSession(statusCode: 400)
-        )
-        var didExecute = false
-        sut.performTask(request: MockRequest()) { result in
-            defer { didExecute = true }
-            switch result {
-            case .success:
-                Issue.record()
-            case .failure(let error):
-                #expect(error == NetworkingError.httpClientError(.badRequest, [:]))
-            }
-        }
-        #expect(didExecute == true)
-    }
-    
-    @Test("test PerformTask WithoutDecodable WhenDataIsInvalid Fails")
-    func test_PerformTask_WithoutDecodable_WhenDataIsInvalid_Fails() {
-        let sut = createRequestPerformer(
-            urlSession: createMockURLSession(data: MockData.invalidMockPersonJsonData)
-        )
-        var didExecute = false
-        sut.performTask(request: MockRequest()) { result in
-            defer { didExecute = true }
-            switch result {
-            case .success:
-                #expect(true)
-            case .failure(let error):
-                Issue.record()
-            }
-        }
-        #expect(didExecute == true)
-    }
-    
-    @Test("test PerformTask WithoutDecodable WhenDataIsNil Fails")
-    func test_PerformTask_WithoutDecodable_WhenDataIsNil_Fails() {
-        let sut = createRequestPerformer(
-            urlSession: createMockURLSession(data: nil)
-        )
-        var didExecute = false
-        sut.performTask(request: MockRequest()) { result in
-            defer { didExecute = true }
-            switch result {
-            case .success:
-                Issue.record()
-            case .failure(let error):
-                #expect(error == NetworkingError.internalError(.noData))
-            }
-        }
-        #expect(didExecute == true)
-    }
-    
-    @Test("test PerformTask WithoutDecodable WhenURLSessionHasURLError Data")
-    func test_PerformTask_WithoutDecodable_WhenURLSessionHasURLError_Data() {
-        let sut = createRequestPerformer(
-            urlSession: createMockURLSession(error: URLError(.networkConnectionLost))
-        )
-        var didExecute = false
-        sut.performTask(request: MockRequest()) { result in
-            defer { didExecute = true }
-            switch result {
-            case .success:
-                Issue.record()
-            case .failure(let error):
-                #expect(error == NetworkingError.urlError(URLError(.networkConnectionLost)))
-            }
-        }
-        #expect(didExecute == true)
-    }
 }
+
+// MARK: helpers
 
 private func createRequestPerformer(
     urlSession: URLSessionTaskProtocol = createMockURLSession(),
