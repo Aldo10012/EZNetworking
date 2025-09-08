@@ -1,6 +1,7 @@
 import Foundation
 
 public protocol RequestPerformable {
+    func perform<T: Decodable>(request: Request, decodeTo decodableObject: T.Type) async throws -> T
     func performTask<T: Decodable>(request: Request, decodeTo decodableObject: T.Type, completion: @escaping((Result<T, NetworkingError>) -> Void)) -> URLSessionDataTask?
 }
 
@@ -29,10 +30,31 @@ public struct RequestPerformer: RequestPerformable {
         self.validator = validator
         self.requestDecoder = requestDecoder
     }
-    
-    // MARK: perform using Completion Handler and Request protocol
+
+    // MARK: Async Await
+    public func perform<T: Decodable>(request: Request, decodeTo decodableObject: T.Type) async throws -> T {
+        try await withCheckedThrowingContinuation { continuation in
+            performDataTask(request: request, decodeTo: decodableObject, completion: { result in
+                switch result {
+                case .success(let success):
+                    continuation.resume(returning: success)
+                case .failure(let failure):
+                    continuation.resume(throwing: failure)
+                }
+            })
+        }
+    }
+
+    // MARK: Completion Handler
     @discardableResult
     public func performTask<T: Decodable>(request: Request, decodeTo decodableObject: T.Type, completion: @escaping ((Result<T, NetworkingError>) -> Void)) -> URLSessionDataTask? {
+        return performDataTask(request: request, decodeTo: decodableObject, completion: completion)
+    }
+
+    // MARK: Core
+
+    @discardableResult
+    private func performDataTask<T: Decodable>(request: Request, decodeTo decodableObject: T.Type, completion: @escaping ((Result<T, NetworkingError>) -> Void)) -> URLSessionDataTask? {
 
         guard let urlRequest = request.urlRequest else {
             completion(.failure(.internalError(.noRequest)))
@@ -46,15 +68,17 @@ public struct RequestPerformer: RequestPerformable {
                 
                 let result = try requestDecoder.decode(decodableObject, from: validData)
                 completion(.success(result))
-            } catch let httpError as NetworkingError {
-                completion(.failure(httpError))
-                return
             } catch {
-                completion(.failure(NetworkingError.internalError(.unknown)))
-                return
+                completion(.failure(mapError(error)))
             }
         }
         task.resume()
         return task
+    }
+    
+    private func mapError(_ error: Error) -> NetworkingError {
+        if let networkError = error as? NetworkingError { return networkError }
+        if let urlError = error as? URLError { return .urlError(urlError) }
+        return .internalError(.unknown)
     }
 }

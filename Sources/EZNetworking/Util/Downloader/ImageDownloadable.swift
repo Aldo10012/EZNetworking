@@ -11,7 +11,9 @@ public class ImageDownloader: ImageDownloadable {
     private let urlSession: URLSessionTaskProtocol
     private let validator: ResponseValidator
     private let requestDecoder: RequestDecodable
-    
+
+    // MARK: init
+
     public convenience init(sessionConfiguration: URLSessionConfiguration = .default,
                 sessionDelegate: SessionDelegate = SessionDelegate(),
                 delegateQueue: OperationQueue? = nil,
@@ -32,27 +34,31 @@ public class ImageDownloader: ImageDownloadable {
         self.validator = validator
         self.requestDecoder = requestDecoder
     }
-    
+
+    // MARK: Async Await
     public func downloadImage(from url: URL) async throws -> UIImage {
-        do {
-            let (data, response) = try await urlSession.data(from: url, delegate: nil)
-            
-            try validator.validateStatus(from: response)
-            let validData = try validator.validateData(data)
-            
-            let image = try getImage(from: validData)
-            return image
-        } catch let error as NetworkingError {
-            throw error
-        } catch let error as URLError {
-            throw NetworkingError.urlError(error)
-        } catch {
-            throw NetworkingError.internalError(.unknown)
+        try await withCheckedThrowingContinuation { continuation in
+            _downloadImageTask(url: url) { result in
+                switch result {
+                case .success(let success):
+                    continuation.resume(returning: success)
+                case .failure(let error):
+                    continuation.resume(throwing: error)
+                }
+            }
         }
     }
 
+    // MARK: Completion Handler
     @discardableResult
     public func downloadImageTask(url: URL, completion: @escaping((Result<UIImage, NetworkingError>) -> Void)) -> URLSessionDataTask {
+        return _downloadImageTask(url: url, completion: completion)
+    }
+
+    // MARK: - Core
+    
+    @discardableResult
+    private func _downloadImageTask(url: URL, completion: @escaping((Result<UIImage, NetworkingError>) -> Void)) -> URLSessionDataTask {
         let task = urlSession.dataTask(with: url) { [weak self] data, response, error in
             guard let self else {
                 completion(.failure(.internalError(.lostReferenceOfSelf)))
@@ -65,10 +71,8 @@ public class ImageDownloader: ImageDownloadable {
                 
                 let image = try self.getImage(from: validData)
                 completion(.success(image))
-            } catch let networkError as NetworkingError {
-                completion(.failure(networkError))
             } catch {
-                completion(.failure(.internalError(.unknown)))
+                completion(.failure(mapError(error)))
             }
         }
         task.resume()
@@ -80,5 +84,11 @@ public class ImageDownloader: ImageDownloadable {
             throw NetworkingError.internalError(.invalidImageData)
         }
         return image
+    }
+
+    private func mapError(_ error: Error) -> NetworkingError {
+        if let networkError = error as? NetworkingError { return networkError }
+        if let urlError = error as? URLError { return .urlError(urlError) }
+        return .internalError(.unknown)
     }
 }
