@@ -28,7 +28,7 @@ final class RequestPerformerTests {
     func performTask_withValidInputs_doesSucceed() {
         let sut = createRequestPerformer()
         var didExecute = false
-        sut.performTask(request: MockRequest()) { result in
+        sut.performTask(request: MockRequest(), decodeTo: EmptyResponse.self) { result in
             defer { didExecute = true }
             switch result {
             case .success:
@@ -55,7 +55,7 @@ final class RequestPerformerTests {
     @Test("test performTask(request:_) .cancel() does cancel DataTask")
     func performTask_cancel_doesCancelDataTask() throws {
         let sut = createRequestPerformer()
-        let task = sut.performTask(request: MockRequest()) { _ in }
+        let task = sut.performTask(request: MockRequest(), decodeTo: EmptyResponse.self) { _ in }
         task?.cancel()
         let dataTask = try #require(task as? MockURLSessionDataTask)
         #expect(dataTask.didCancel == true)
@@ -69,7 +69,7 @@ final class RequestPerformerTests {
             urlSession: createMockURLSession(statusCode: 300)
         )
         var didExecute = false
-        sut.performTask(request: MockRequest()) { result in
+        sut.performTask(request: MockRequest(), decodeTo: EmptyResponse.self) { result in
             defer { didExecute = true }
             switch result {
             case .success:
@@ -87,7 +87,7 @@ final class RequestPerformerTests {
             urlSession: createMockURLSession(statusCode: 400)
         )
         var didExecute = false
-        sut.performTask(request: MockRequest()) { result in
+        sut.performTask(request: MockRequest(), decodeTo: EmptyResponse.self) { result in
             defer { didExecute = true }
             switch result {
             case .success:
@@ -105,7 +105,7 @@ final class RequestPerformerTests {
             urlSession: createMockURLSession(statusCode: 500)
         )
         var didExecute = false
-        sut.performTask(request: MockRequest()) { result in
+        sut.performTask(request: MockRequest(), decodeTo: EmptyResponse.self) { result in
             defer { didExecute = true }
             switch result {
             case .success:
@@ -125,7 +125,7 @@ final class RequestPerformerTests {
             urlSession: createMockURLSession(error: URLError(.networkConnectionLost))
         )
         var didExecute = false
-        sut.performTask(request: MockRequest()) { result in
+        sut.performTask(request: MockRequest(), decodeTo: EmptyResponse.self) { result in
             defer { didExecute = true }
             switch result {
             case .success:
@@ -146,7 +146,7 @@ final class RequestPerformerTests {
             urlSession: createMockURLSession(error: UnknownError.error)
         )
         var didExecute = false
-        sut.performTask(request: MockRequest()) { result in
+        sut.performTask(request: MockRequest(), decodeTo: EmptyResponse.self) { result in
             defer { didExecute = true }
             switch result {
             case .success:
