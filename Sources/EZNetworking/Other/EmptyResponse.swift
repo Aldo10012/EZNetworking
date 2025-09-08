@@ -1,1 +1,3 @@
-public struct EmptyResponse: Decodable { }
+public struct EmptyResponse: Decodable {
+    public init() { }
+}
