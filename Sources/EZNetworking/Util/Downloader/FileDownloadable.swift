@@ -17,6 +17,8 @@ public class FileDownloader: FileDownloadable {
 
     private let fallbackDownloadTaskInterceptor: DownloadTaskInterceptor = DefaultDownloadTaskInterceptor()
     
+    // MARK: init
+
     public convenience init(
         sessionConfiguration: URLSessionConfiguration = .default,
         sessionDelegate: SessionDelegate = SessionDelegate(),
@@ -56,6 +58,7 @@ public class FileDownloader: FileDownloadable {
         self.sessionDelegate = sessionDelegate
     }
     
+    // MARK: Async Await
     public func downloadFile(with url: URL, progress: DownloadProgressHandler? = nil) async throws -> URL {
         try await withCheckedThrowingContinuation { continuation in
             _downloadFileTask(url: url, progress: progress) { result in
@@ -69,12 +72,13 @@ public class FileDownloader: FileDownloadable {
         }
     }
 
+    // MARK: Completion Handler
     @discardableResult
     public func downloadFileTask(url: URL, progress: DownloadProgressHandler?, completion: @escaping(DownloadCompletionHandler)) -> URLSessionDownloadTask {
         return _downloadFileTask(url: url, progress: progress, completion: completion)
     }
 
-    // MARK: Core
+    // MARK: - Core
 
     @discardableResult
     private func _downloadFileTask(url: URL, progress: DownloadProgressHandler?, completion: @escaping(DownloadCompletionHandler)) -> URLSessionDownloadTask {
@@ -118,6 +122,8 @@ public class FileDownloader: FileDownloadable {
         }
     }
 }
+
+// MARK: - DefaultDownloadTaskInterceptor
 
 /// Default implementation of DownloadTaskInterceptor
 private class DefaultDownloadTaskInterceptor: DownloadTaskInterceptor {

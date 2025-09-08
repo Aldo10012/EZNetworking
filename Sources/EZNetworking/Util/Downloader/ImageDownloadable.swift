@@ -11,7 +11,9 @@ public class ImageDownloader: ImageDownloadable {
     private let urlSession: URLSessionTaskProtocol
     private let validator: ResponseValidator
     private let requestDecoder: RequestDecodable
-    
+
+    // MARK: init
+
     public convenience init(sessionConfiguration: URLSessionConfiguration = .default,
                 sessionDelegate: SessionDelegate = SessionDelegate(),
                 delegateQueue: OperationQueue? = nil,
@@ -32,7 +34,8 @@ public class ImageDownloader: ImageDownloadable {
         self.validator = validator
         self.requestDecoder = requestDecoder
     }
-    
+
+    // MARK: Async Await
     public func downloadImage(from url: URL) async throws -> UIImage {
         try await withCheckedThrowingContinuation { continuation in
             _downloadImageTask(url: url) { result in
@@ -46,12 +49,13 @@ public class ImageDownloader: ImageDownloadable {
         }
     }
 
+    // MARK: Completion Handler
     @discardableResult
     public func downloadImageTask(url: URL, completion: @escaping((Result<UIImage, NetworkingError>) -> Void)) -> URLSessionDataTask {
         return _downloadImageTask(url: url, completion: completion)
     }
 
-    // MARK: Core
+    // MARK: - Core
     
     @discardableResult
     private func _downloadImageTask(url: URL, completion: @escaping((Result<UIImage, NetworkingError>) -> Void)) -> URLSessionDataTask {
