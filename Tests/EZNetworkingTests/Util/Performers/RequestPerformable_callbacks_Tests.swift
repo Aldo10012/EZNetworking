@@ -2,8 +2,8 @@
 import Foundation
 import Testing
 
-@Suite("Test RequestPerformer")
-final class RequestPerformerTests {
+@Suite("Test RequestPerformable callback methods")
+final class RequestPerformable_callbacks_Tests {
 
     // MARK: - SUCCESS RESPONSE
 

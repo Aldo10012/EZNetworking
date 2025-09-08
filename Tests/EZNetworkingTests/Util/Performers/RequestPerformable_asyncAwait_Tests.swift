@@ -2,8 +2,8 @@
 import Foundation
 import Testing
 
-@Suite("Test AsyncRequestPerformable")
-final class AsyncRequestPerformableTests {
+@Suite("Test RequestPerformable async/await methods")
+final class RequestPerformable_asyncAwait_Tests {
 
     // MARK: - SUCCESS RESPONSE
 
