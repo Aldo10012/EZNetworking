@@ -58,7 +58,7 @@ final class FileDownloadableTests {
             _ = try await sut.downloadFile(with: testURL)
             Issue.record("unexpected error")
         } catch let error as NetworkingError{
-            #expect(error == NetworkingError.internalError(.unknown))
+            #expect(error == NetworkingError.internalError(.requestFailed(NetworkingError.internalError(.unknown))))
         }
     }
     
@@ -174,7 +174,7 @@ private let testURL = URL(string: "https://example.com/example.pdf")!
 
 private func createFileDownloader(
     urlSession: URLSessionTaskProtocol = createMockURLSession(statusCode: 200),
-    validator: ResponseValidator = MockURLResponseValidator(),
+    validator: ResponseValidator = ResponseValidatorImpl(),
     requestDecoder: RequestDecodable = RequestDecoder()
 ) -> FileDownloader {
     return FileDownloader(
