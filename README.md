@@ -313,7 +313,7 @@ Modern Swift concurrency support:
 ```swift
 // With response decoding
 do {
-    let userData = try await AsyncRequestPerformer().perform(request: request, decodeTo: UserData.self)
+    let userData = try await RequestPerformer().perform(request: request, decodeTo: UserData.self)
     // Handle decoded response
 } catch {
     // Handle error
@@ -321,7 +321,7 @@ do {
 
 // Without decoding
 do {
-    try await AsyncRequestPerformer().perform(request: request)
+    try await RequestPerformer().perform(request: request, decodeTo: EmptyResponse.self)
     // Handle success
 } catch {
     // Handle error
@@ -334,7 +334,7 @@ Traditional callback-based approach:
 
 ```swift
 // With response decoding
-RequestPerformer().performTask(request: request,decodeTo: UserData.self) { result in
+RequestPerformer().performTask(request: request, decodeTo: UserData.self) { result in
     switch result {
     case .success(let userData):
         // Handle decoded response
@@ -344,7 +344,7 @@ RequestPerformer().performTask(request: request,decodeTo: UserData.self) { resul
 }
 
 // Without decoding
-RequestPerformer().performTask(request: request) { result in
+RequestPerformer().performTask(request: request, decodeTo: EmptyResponse.self) { result in
     switch result {
     case .success:
         // Handle success
