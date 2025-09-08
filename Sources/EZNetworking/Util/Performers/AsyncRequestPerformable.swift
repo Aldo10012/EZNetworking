@@ -2,7 +2,6 @@ import Foundation
 
 public protocol AsyncRequestPerformable {
     func perform<T: Decodable>(request: Request, decodeTo decodableObject: T.Type) async throws -> T
-    func perform(request: Request) async throws
 }
 
 public struct AsyncRequestPerformer: AsyncRequestPerformable {
@@ -33,16 +32,6 @@ public struct AsyncRequestPerformer: AsyncRequestPerformable {
     
     // MARK: perform request with Async Await and return Decodable using Request Protocol
     public func perform<T: Decodable>(request: Request, decodeTo decodableObject: T.Type) async throws -> T {
-        return try await performRequest(request: request, decodeTo: decodableObject)
-    }
-    
-    // MARK: perform request with Async Await using Request protocol
-    public func perform(request: Request) async throws {
-        try await performRequest(request: request, decodeTo: EmptyResponse.self)
-    }
-    
-    @discardableResult
-    private func performRequest<T: Decodable>(request: Request, decodeTo decodableObject: T.Type) async throws -> T {
         do {
             let urlRequest = try getURLRequest(from: request)
             let (data, response) = try await urlSession.data(for: urlRequest, delegate: nil)

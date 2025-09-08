@@ -27,7 +27,7 @@ final class AsyncRequestPerformableTests {
     func perform_withoutDecoding_withValidInputs_doesNotThrowError() async throws {
         let sut = createAsyncRequestPerformer()
         await #expect(throws: Never.self) {
-            try await sut.perform(request: MockRequest())
+            try await sut.perform(request: MockRequest(), decodeTo: EmptyResponse.self)
         }
     }
 
@@ -43,7 +43,7 @@ final class AsyncRequestPerformableTests {
             urlSession: createMockURLSession(statusCode: 300)
         )
         await #expect(throws: NetworkingError.redirect(.multipleChoices, [:])) {
-            try await sut.perform(request: MockRequest())
+            try await sut.perform(request: MockRequest(), decodeTo: EmptyResponse.self)
         }
     }
 
@@ -53,7 +53,7 @@ final class AsyncRequestPerformableTests {
             urlSession: createMockURLSession(statusCode: 400)
         )
         await #expect(throws: NetworkingError.httpClientError(.badRequest, [:])) {
-            try await sut.perform(request: MockRequest())
+            try await sut.perform(request: MockRequest(), decodeTo: EmptyResponse.self)
         }
     }
 
@@ -63,7 +63,7 @@ final class AsyncRequestPerformableTests {
             urlSession: createMockURLSession(statusCode: 500)
         )
         await #expect(throws: NetworkingError.httpServerError(.internalServerError, [:])) {
-            try await sut.perform(request: MockRequest())
+            try await sut.perform(request: MockRequest(), decodeTo: EmptyResponse.self)
         }
     }
 
