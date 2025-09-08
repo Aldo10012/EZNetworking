@@ -4,39 +4,73 @@ import Testing
 
 @Suite("Test AsyncRequestPerformable")
 final class AsyncRequestPerformableTests {
-    
-    // MARK: Unit test for perform request with Async Await and Request protocol and return Decodable
 
-    @Test("test PerformAsync Success")
-    func test_PerformAsync_Success() async throws {
+    // MARK: - SUCCESS RESPONSE
+
+    @Test("test perform(request:_, decodeTo:_) with all valid inputs does not throw error")
+    func perform_withValidInputs_doesNotThrowError() async throws {
+        let sut = createAsyncRequestPerformer()
+        await #expect(throws: Never.self) {
+            try await sut.perform(request: MockRequest(), decodeTo: Person.self)
+        }
+    }
+
+    @Test("test perform(request:_, decodeTo:_) with all valid inputs decodes data")
+    func perform_withValidInputs_doesDecodeData() async throws {
         let sut = createAsyncRequestPerformer()
         let person = try await sut.perform(request: MockRequest(), decodeTo: Person.self)
         #expect(person.name == "John")
         #expect(person.age == 30)
     }
+
+    @Test("test perform(request:_) with all valid inputs does not throw error")
+    func perform_withoutDecoding_withValidInputs_doesNotThrowError() async throws {
+        let sut = createAsyncRequestPerformer()
+        await #expect(throws: Never.self) {
+            try await sut.perform(request: MockRequest())
+        }
+    }
+
+    // MARK: - ERROR RESPONSE
     
-    @Test("test PerformAsync StatusCode300 Success")
-    func test_PerformAsync_StatusCode300_Success() async throws {
+    
+    
+    // MARK: http status code error tests
+
+    @Test("test perform(request:_) fails when status code is 3xx")
+    func perform_throwsErrorWhen_statusCodeIs300() async throws {
         let sut = createAsyncRequestPerformer(
             urlSession: createMockURLSession(statusCode: 300)
         )
         await #expect(throws: NetworkingError.redirect(.multipleChoices, [:])) {
-            try await sut.perform(request: MockRequest(), decodeTo: Person.self)
+            try await sut.perform(request: MockRequest())
         }
     }
-    
-    @Test("test PerformAsync WhenStatusCodeIsNot200 Fails")
-    func test_PerformAsync_WhenStatusCodeIsNot200_Fails() async throws {
+
+    @Test("test perform(request:_) fails when status code is 4xx")
+    func perform_throwsErrorWhen_statusCodeIs400() async throws {
         let sut = createAsyncRequestPerformer(
             urlSession: createMockURLSession(statusCode: 400)
         )
         await #expect(throws: NetworkingError.httpClientError(.badRequest, [:])) {
-            try await sut.perform(request: MockRequest(), decodeTo: Person.self)
+            try await sut.perform(request: MockRequest())
         }
     }
+
+    @Test("test perform(request:_) fails when status code is 5xx")
+    func perform_throwsErrorWhen_statusCodeIs500() async throws {
+        let sut = createAsyncRequestPerformer(
+            urlSession: createMockURLSession(statusCode: 500)
+        )
+        await #expect(throws: NetworkingError.httpServerError(.internalServerError, [:])) {
+            try await sut.perform(request: MockRequest())
+        }
+    }
+
+    // MARK: URLSession has error
     
-    @Test("test PerformAsync WhenThereIsError Fails")
-    func test_PerformAsync_WhenThereIsError_Fails() async throws {
+    @Test("test perform(request:_) fails when URLSession throws HTTPClientError")
+    func perform_throwsErrorWhen_urlSessionThrowsHTTPClientError() async throws {
         let sut = createAsyncRequestPerformer(
             urlSession: createMockURLSession(error: NetworkingError.httpClientError(.badRequest, [:]))
         )
@@ -45,18 +79,18 @@ final class AsyncRequestPerformableTests {
         }
     }
     
-    @Test("test PerformAsync WhenThereIsHTTPError Fails")
-    func test_PerformAsync_WhenThereIsHTTPError_Fails() async throws {
+    @Test("test perform(request:_) fails when URLSession throws HTTPServerError")
+    func perform_throwsErrorWhen_urlSessionThrowsHTTPServerError() async throws {
         let sut = createAsyncRequestPerformer(
-            urlSession: createMockURLSession(error: NetworkingError.httpClientError(.forbidden, [:]))
+            urlSession: createMockURLSession(error: NetworkingError.httpServerError(.gatewayTimeout, [:]))
         )
-        await #expect(throws: NetworkingError.httpClientError(.forbidden, [:])) {
+        await #expect(throws: NetworkingError.httpServerError(.gatewayTimeout, [:])) {
             try await sut.perform(request: MockRequest(), decodeTo: Person.self)
         }
     }
     
-    @Test("test PerformAsync WhenThereIsURLError Fails")
-    func test_PerformAsync_WhenThereIsURLError_Fails() async throws {
+    @Test("test perform(request:_) fails when URLSession throws URLError")
+    func perform_throwsErrorWhen_urlSessionThrowsURLError() async throws {
         let sut = createAsyncRequestPerformer(
             urlSession: createMockURLSession(error: URLError(.networkConnectionLost))
         )
@@ -64,9 +98,34 @@ final class AsyncRequestPerformableTests {
             try await sut.perform(request: MockRequest(), decodeTo: Person.self)
         }
     }
-    
-    @Test("test PerformAsync WhenDataCannotBeDecodedToType Fails")
-    func test_PerformAsync_WhenDataCannotBeDecodedToType_Fails() async throws {
+
+    @Test("test perform(request:_) fails when URLSession throws unknown error")
+    func perform_throwsErrorWhen_urlSessionThrowsUnknownError() async throws {
+        enum UnknownError: Error {
+            case unknownError
+        }
+        let sut = createAsyncRequestPerformer(
+            urlSession: createMockURLSession(error: UnknownError.unknownError)
+        )
+        await #expect(throws: NetworkingError.internalError(.unknown)) {
+            try await sut.perform(request: MockRequest(), decodeTo: Person.self)
+        }
+    }
+
+    // MARK: data deocding errors
+
+    @Test("test perform(request:_, decodeTo:_) fails when data is nil")
+    func performAndDecode_throwsErrorWhen_dataIsNil() async throws {
+        let sut = createAsyncRequestPerformer(
+            urlSession: createMockURLSession(data: nil)
+        )
+        await #expect(throws: NetworkingError.internalError(.unknown)) {
+            try await sut.perform(request: MockRequest(), decodeTo: Person.self)
+        }
+    }
+
+    @Test("test perform(request:_, decodeTo:_) fails data does not match decodeTo type")
+    func performAndDecode_throwsErrorWhen_dataDoesNotMatchDecodeToType() async throws {
         let sut = createAsyncRequestPerformer(
             urlSession: createMockURLSession(data: MockData.invalidMockPersonJsonData)
         )
@@ -74,93 +133,9 @@ final class AsyncRequestPerformableTests {
             try await sut.perform(request: MockRequest(), decodeTo: Person.self)
         }
     }
-    
-    @Test("test PerformAsync WhenDataIsNil Fails")
-    func test_PerformAsync_WhenDataIsNil_Fails() async throws {
-        let sut = createAsyncRequestPerformer(
-            urlSession: createMockURLSession(data: nil)
-        )
-        await #expect(throws: NetworkingError.internalError(.unknown)) {
-            try await sut.perform(request: MockRequest(), decodeTo: Person.self)
-        }
-    }
-    
-    // MARK: Unit test for perform request with Async Await and Request Protocol and return Decodable
-
-    @Test("test PerformAsync WithoutResponse Success")
-    func test_PerformAsync_WithoutResponse_Success() async throws {
-        let sut = createAsyncRequestPerformer()
-        await #expect(throws: Never.self) { try await sut.perform(request: MockRequest()) }
-    }
-    
-    @Test("test PerformAsync WithoutResponse WhenStatusCode300 Success")
-    func test_PerformAsync_WithoutResponse_WhenStatusCode300_Success() async throws {
-        let sut = createAsyncRequestPerformer(
-            urlSession: createMockURLSession(statusCode: 300)
-        )
-        await #expect(throws: NetworkingError.redirect(.multipleChoices, [:])) {
-            try await sut.perform(request: MockRequest())
-        }
-    }
-    
-    @Test("test PerformAsync WithoutResponse WhenStatusCodeIsNot200 Fails")
-    func test_PerformAsync_WithoutResponse_WhenStatusCodeIsNot200_Fails() async throws {
-        let sut = createAsyncRequestPerformer(
-            urlSession: createMockURLSession(statusCode: 400)
-        )
-        await #expect(throws: NetworkingError.httpClientError(.badRequest, [:])) {
-            try await sut.perform(request: MockRequest())
-        }
-    }
-    
-    @Test("test PerformAsync WithoutResponse WhenThereIsError Fails")
-    func test_PerformAsync_WithoutResponse_WhenThereIsError_Fails() async throws {
-        let sut = createAsyncRequestPerformer(
-            urlSession: createMockURLSession(error: NetworkingError.httpClientError(.badRequest, [:]))
-        )
-        await #expect(throws: NetworkingError.httpClientError(.badRequest, [:])) {
-            try await sut.perform(request: MockRequest())
-        }
-    }
-    
-    @Test("test PerformAsync WithoutResponse WhenThereIsHTTPError Fails")
-    func test_PerformAsync_WithoutResponse_WhenThereIsHTTPError_Fails() async throws {
-        let sut = createAsyncRequestPerformer(
-            urlSession: createMockURLSession(error: NetworkingError.httpClientError(.forbidden, [:]))
-        )
-        await #expect(throws: NetworkingError.httpClientError(.forbidden, [:])) {
-            try await sut.perform(request: MockRequest())
-        }
-    }
-    
-    @Test("test PerformAsync WithoutResponse WhenThereIsURLError Fails")
-    func test_PerformAsync_WithoutResponse_WhenThereIsURLError_Fails() async throws {
-        let sut = createAsyncRequestPerformer(
-            urlSession: createMockURLSession(error: URLError(.networkConnectionLost))
-        )
-        await #expect(throws: NetworkingError.urlError(URLError(.networkConnectionLost))) {
-            try await sut.perform(request: MockRequest())
-        }
-    }
-    
-    @Test("test PerformAsync WithoutResponse WhenDataCannotBeDecodedToTypeEvenThoughDataWillNotBeDecoded Succeeds")
-    func test_PerformAsync_WithoutResponse_WhenDataCannotBeDecodedToTypeEvenThoughDataWillNotBeDecoded_Succeeds() async throws {
-        let sut = createAsyncRequestPerformer(
-            urlSession: createMockURLSession(data: MockData.invalidMockPersonJsonData)
-        )
-        await #expect(throws: Never.self) { try await sut.perform(request: MockRequest()) }
-    }
-    
-    @Test("test PerformAsync WithoutResponse WhenDataIsNil Fails")
-    func test_PerformAsync_WithoutResponse_WhenDataIsNil_Fails() async throws {
-        let sut = createAsyncRequestPerformer(
-            urlSession: createMockURLSession(data: nil)
-        )
-        await #expect(throws: NetworkingError.internalError(.unknown)) {
-            try await sut.perform(request: MockRequest())
-        }
-    }
 }
+
+// MARK: - helpers
 
 private func createAsyncRequestPerformer(
     urlSession: URLSessionTaskProtocol = createMockURLSession(),
