@@ -42,12 +42,8 @@ public struct RequestPerformer: RequestPerformable {
             
             let result = try requestDecoder.decode(decodableObject, from: validData)
             return result
-        } catch let error as NetworkingError {
-            throw error
-        } catch let error as URLError {
-            throw NetworkingError.urlError(error)
         } catch {
-            throw NetworkingError.internalError(.unknown)
+            throw mapError(error)
         }
     }
 
@@ -74,15 +70,19 @@ public struct RequestPerformer: RequestPerformable {
                 
                 let result = try requestDecoder.decode(decodableObject, from: validData)
                 completion(.success(result))
-            } catch let httpError as NetworkingError {
-                completion(.failure(httpError))
-                return
             } catch {
-                completion(.failure(NetworkingError.internalError(.unknown)))
-                return
+                completion(.failure(mapError(error)))
             }
         }
         task.resume()
         return task
+    }
+
+    // MARK: Core
+    
+    private func mapError(_ error: Error) -> NetworkingError {
+        if let networkError = error as? NetworkingError { return networkError }
+        if let urlError = error as? URLError { return .urlError(urlError) }
+        return .internalError(.unknown)
     }
 }
