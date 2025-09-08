@@ -1,6 +1,7 @@
 import Foundation
 
 public protocol RequestPerformable {
+    func perform<T: Decodable>(request: Request, decodeTo decodableObject: T.Type) async throws -> T
     func performTask<T: Decodable>(request: Request, decodeTo decodableObject: T.Type, completion: @escaping((Result<T, NetworkingError>) -> Void)) -> URLSessionDataTask?
 }
 
@@ -29,8 +30,35 @@ public struct RequestPerformer: RequestPerformable {
         self.validator = validator
         self.requestDecoder = requestDecoder
     }
-    
-    // MARK: perform using Completion Handler and Request protocol
+
+    // MARK: Async Await
+    public func perform<T: Decodable>(request: Request, decodeTo decodableObject: T.Type) async throws -> T {
+        do {
+            let urlRequest = try getURLRequest(from: request)
+            let (data, response) = try await urlSession.data(for: urlRequest, delegate: nil)
+            
+            try validator.validateStatus(from: response)
+            let validData = try validator.validateData(data)
+            
+            let result = try requestDecoder.decode(decodableObject, from: validData)
+            return result
+        } catch let error as NetworkingError {
+            throw error
+        } catch let error as URLError {
+            throw NetworkingError.urlError(error)
+        } catch {
+            throw NetworkingError.internalError(.unknown)
+        }
+    }
+
+    private func getURLRequest(from request: Request) throws -> URLRequest {
+        guard let urlRequest = request.urlRequest else {
+            throw NetworkingError.internalError(.noRequest)
+        }
+        return urlRequest
+    }
+
+    // MARK: Completion Handler
     @discardableResult
     public func performTask<T: Decodable>(request: Request, decodeTo decodableObject: T.Type, completion: @escaping ((Result<T, NetworkingError>) -> Void)) -> URLSessionDataTask? {
 
