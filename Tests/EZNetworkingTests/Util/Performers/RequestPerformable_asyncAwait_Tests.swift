@@ -72,9 +72,9 @@ final class RequestPerformable_asyncAwait_Tests {
     @Test("test perform(request:_) fails when URLSession throws HTTPClientError")
     func perform_throwsErrorWhen_urlSessionThrowsHTTPClientError() async throws {
         let sut = createRequestPerformer(
-            urlSession: createMockURLSession(error: NetworkingError.httpClientError(.badRequest, [:]))
+            urlSession: createMockURLSession(error: HTTPClientErrorStatus.badRequest)
         )
-        await #expect(throws: NetworkingError.httpClientError(.badRequest, [:])) {
+        await #expect(throws: NetworkingError.internalError(.requestFailed(HTTPClientErrorStatus.badRequest))) {
             try await sut.perform(request: MockRequest(), decodeTo: Person.self)
         }
     }
@@ -82,9 +82,9 @@ final class RequestPerformable_asyncAwait_Tests {
     @Test("test perform(request:_) fails when URLSession throws HTTPServerError")
     func perform_throwsErrorWhen_urlSessionThrowsHTTPServerError() async throws {
         let sut = createRequestPerformer(
-            urlSession: createMockURLSession(error: NetworkingError.httpServerError(.gatewayTimeout, [:]))
+            urlSession: createMockURLSession(error: HTTPServerErrorStatus.gatewayTimeout)
         )
-        await #expect(throws: NetworkingError.httpServerError(.gatewayTimeout, [:])) {
+        await #expect(throws: NetworkingError.internalError(.requestFailed(HTTPServerErrorStatus.gatewayTimeout))) {
             try await sut.perform(request: MockRequest(), decodeTo: Person.self)
         }
     }
@@ -107,7 +107,7 @@ final class RequestPerformable_asyncAwait_Tests {
         let sut = createRequestPerformer(
             urlSession: createMockURLSession(error: UnknownError.unknownError)
         )
-        await #expect(throws: NetworkingError.internalError(.unknown)) {
+        await #expect(throws: NetworkingError.internalError(.requestFailed(UnknownError.unknownError))) {
             try await sut.perform(request: MockRequest(), decodeTo: Person.self)
         }
     }
@@ -119,7 +119,7 @@ final class RequestPerformable_asyncAwait_Tests {
         let sut = createRequestPerformer(
             urlSession: createMockURLSession(data: nil)
         )
-        await #expect(throws: NetworkingError.internalError(.unknown)) {
+        await #expect(throws: NetworkingError.internalError(.noData)) {
             try await sut.perform(request: MockRequest(), decodeTo: Person.self)
         }
     }

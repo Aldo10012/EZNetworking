@@ -33,30 +33,28 @@ public struct RequestPerformer: RequestPerformable {
 
     // MARK: Async Await
     public func perform<T: Decodable>(request: Request, decodeTo decodableObject: T.Type) async throws -> T {
-        do {
-            let urlRequest = try getURLRequest(from: request)
-            let (data, response) = try await urlSession.data(for: urlRequest, delegate: nil)
-            
-            try validator.validateStatus(from: response)
-            let validData = try validator.validateData(data)
-            
-            let result = try requestDecoder.decode(decodableObject, from: validData)
-            return result
-        } catch {
-            throw mapError(error)
+        try await withCheckedThrowingContinuation { continuation in
+            performDataTask(request: request, decodeTo: decodableObject, completion: { result in
+                switch result {
+                case .success(let success):
+                    continuation.resume(returning: success)
+                case .failure(let failure):
+                    continuation.resume(throwing: failure)
+                }
+            })
         }
-    }
-
-    private func getURLRequest(from request: Request) throws -> URLRequest {
-        guard let urlRequest = request.urlRequest else {
-            throw NetworkingError.internalError(.noRequest)
-        }
-        return urlRequest
     }
 
     // MARK: Completion Handler
     @discardableResult
     public func performTask<T: Decodable>(request: Request, decodeTo decodableObject: T.Type, completion: @escaping ((Result<T, NetworkingError>) -> Void)) -> URLSessionDataTask? {
+        return performDataTask(request: request, decodeTo: decodableObject, completion: completion)
+    }
+
+    // MARK: Core
+
+    @discardableResult
+    private func performDataTask<T: Decodable>(request: Request, decodeTo decodableObject: T.Type, completion: @escaping ((Result<T, NetworkingError>) -> Void)) -> URLSessionDataTask? {
 
         guard let urlRequest = request.urlRequest else {
             completion(.failure(.internalError(.noRequest)))
@@ -77,8 +75,6 @@ public struct RequestPerformer: RequestPerformable {
         task.resume()
         return task
     }
-
-    // MARK: Core
     
     private func mapError(_ error: Error) -> NetworkingError {
         if let networkError = error as? NetworkingError { return networkError }
