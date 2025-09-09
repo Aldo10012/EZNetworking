@@ -1,8 +1,10 @@
+import Combine
 import Foundation
 
 public protocol RequestPerformable {
     func perform<T: Decodable>(request: Request, decodeTo decodableObject: T.Type) async throws -> T
     func performTask<T: Decodable>(request: Request, decodeTo decodableObject: T.Type, completion: @escaping((Result<T, NetworkingError>) -> Void)) -> URLSessionDataTask?
+    func performPublisher<T: Decodable>(request: Request, decodeTo decodableObject: T.Type) -> AnyPublisher<T, NetworkingError>
 }
 
 public struct RequestPerformer: RequestPerformable {
@@ -49,6 +51,16 @@ public struct RequestPerformer: RequestPerformable {
     @discardableResult
     public func performTask<T: Decodable>(request: Request, decodeTo decodableObject: T.Type, completion: @escaping ((Result<T, NetworkingError>) -> Void)) -> URLSessionDataTask? {
         return performDataTask(request: request, decodeTo: decodableObject, completion: completion)
+    }
+
+    // MARK: Publisher
+    public func performPublisher<T: Decodable>(request: Request, decodeTo decodableObject: T.Type) -> AnyPublisher<T, NetworkingError> {
+        Future { promise in
+            performDataTask(request: request, decodeTo: decodableObject) { result in
+                promise(result)
+            }
+        }
+        .eraseToAnyPublisher()
     }
 
     // MARK: Core
