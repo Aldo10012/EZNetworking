@@ -1,3 +1,4 @@
+import Combine
 import Foundation
 
 public typealias DownloadProgressHandler = (Double) -> Void
@@ -5,8 +6,9 @@ public typealias DownloadCompletionHandler = (Result<URL, NetworkingError>) -> V
 
 public protocol FileDownloadable {
     func downloadFile(with url: URL, progress: DownloadProgressHandler?) async throws -> URL
-    @discardableResult
     func downloadFileTask(url: URL, progress: DownloadProgressHandler?, completion: @escaping(DownloadCompletionHandler)) -> URLSessionDownloadTask
+    func downloadPublisher(url: URL, progress: DownloadProgressHandler?) -> AnyPublisher<URL, NetworkingError>
+
 }
 
 public class FileDownloader: FileDownloadable {
@@ -76,6 +78,17 @@ public class FileDownloader: FileDownloadable {
     @discardableResult
     public func downloadFileTask(url: URL, progress: DownloadProgressHandler?, completion: @escaping(DownloadCompletionHandler)) -> URLSessionDownloadTask {
         return _downloadFileTask(url: url, progress: progress, completion: completion)
+    }
+
+    // MARK: Publisher
+    @discardableResult
+    public func downloadPublisher(url: URL, progress: DownloadProgressHandler?) -> AnyPublisher<URL, NetworkingError> {
+        Future { promise in
+            self._downloadFileTask(url: url, progress: progress) { result in
+                promise(result)
+            }
+        }
+        .eraseToAnyPublisher()
     }
 
     // MARK: - Core
