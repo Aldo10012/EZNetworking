@@ -1,3 +1,4 @@
+import Combine
 @testable import EZNetworking
 import Foundation
 import Testing
@@ -163,6 +164,89 @@ final class FileDownloadableTests {
             case .failure: Issue.record()
             }
         }
+        #expect(didExecute)
+        #expect(didTrackProgress)
+    }
+
+    // MARK: test publisher
+    private var cancellables = Set<AnyCancellable>()
+
+    @Test("test DownloadFile Task Success")
+    func testDownloadFilePublisherSuccess() {
+        let sut = createFileDownloader()
+        
+        var didExecute = false
+        sut.downloadPublisher(url: testURL, progress: nil)
+            .sink { completion in
+                switch completion {
+                case .failure: Issue.record()
+                case .finished: break
+                }
+            } receiveValue: { localURL in
+                #expect(localURL.absoluteString == "file:///tmp/test.pdf")
+                didExecute = true
+            }
+            .store(in: &cancellables)
+
+        #expect(didExecute)
+    }
+    
+    @Test("test DownloadFile Fails If Validator Throws Any Error")
+    func testDownloadFilePublisherFailsIfValidatorThrowsAnyError() {
+        let sut = createFileDownloader(
+            validator: MockURLResponseValidator(throwError: NetworkingError.httpClientError(.conflict, [:]))
+        )
+        
+        var didExecute = false
+        sut.downloadPublisher(url: testURL, progress: nil)
+            .sink { completion in
+                switch completion {
+                case .failure(let error):
+                    #expect(error == NetworkingError.httpClientError(.conflict, [:]))
+                    didExecute = true
+                case .finished: Issue.record()
+                }
+            } receiveValue: { _ in
+                Issue.record()
+            }
+            .store(in: &cancellables)
+
+        #expect(didExecute)
+    }
+    
+    @Test("test DownloadFile Task Download Progress Can Be Tracked")
+    func testDownloadFilePublisherTaskDownloadProgressCanBeTracked() {
+        let testURL = URL(string: "https://example.com/example.pdf")!
+        let urlSession = MockURLSession(
+            url: testURL,
+            urlResponse: buildResponse(statusCode: 200),
+            error: nil
+        )
+        let delegate = SessionDelegate()
+        urlSession.sessionDelegate = delegate
+        
+        let sut = FileDownloader(urlSession: urlSession,
+                                 validator: MockURLResponseValidator(),
+                                 requestDecoder: RequestDecoder(),
+                                 sessionDelegate: delegate)
+        
+        var didExecute = false
+        var didTrackProgress = false
+    
+        sut.downloadPublisher(url: testURL) { _ in
+            didTrackProgress = true
+        }
+        .sink { completion in
+            switch completion {
+            case .failure: Issue.record()
+            case .finished: break
+            }
+        } receiveValue: { localURL in
+            #expect(localURL.absoluteString == "file:///tmp/test.pdf")
+            didExecute = true
+        }
+        .store(in: &cancellables)
+
         #expect(didExecute)
         #expect(didTrackProgress)
     }
