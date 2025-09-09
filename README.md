@@ -377,6 +377,23 @@ task.suspend()
 print(task.state) // running, suspended, canceling, completed
 ```
 
+### Publishers
+
+If you prefer using the Combine framework
+
+```swift
+let cancellables = Set<AnyCancellable>()
+
+RequestPerformer()
+    .performPublisher(request: CustomRequest(), decodeTo: CustomeType.swift)
+    .sink(receiveCompletion: { completion in
+        // handle completion
+    }, receiveValue: { customType in
+        // handle response
+    })
+    .store(in: &cancellables)
+```
+
 ## Download Features 📥
 
 ### File Downloads
@@ -404,6 +421,19 @@ let task = FileDownloader().downloadFile(url: testURL) { result in
 
 // Cancel download if needed
 task.cancel()
+
+// Combine Publishers
+let cancellables = Set<AnyCancellable>()
+FileDownloader()
+    .downloadPublisher(url: URL, progress: {
+        // handle progress
+    })
+    .sink(receiveCompletion: { completion in
+        // handle completion
+    }, receiveValue: { localURL in
+        // handle response
+    })
+    .store(in: &cancellables)
 ```
 
 ### Image Downloads
