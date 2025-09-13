@@ -8,7 +8,7 @@ final class FileDownloadable_CallBacks_Tests {
 
     // MARK: SUCCESS
 
-    @Test("test DownloadFile Task Success")
+    @Test("test .downloadFileTask() Success")
     func testDownloadFileTaskSuccess() {
         let sut = createFileDownloader()
         
@@ -27,7 +27,7 @@ final class FileDownloadable_CallBacks_Tests {
 
     // MARK: Task Cancellation
     
-    @Test("test DownloadFile Can Cancel")
+    @Test("test .downloadFileTask() Can Cancel")
     func testDownloadFileCanCancel() throws {
         let sut = createFileDownloader()
         
@@ -39,7 +39,7 @@ final class FileDownloadable_CallBacks_Tests {
 
     // MARK: ERROR - status code
 
-    @Test("test DownloadFile Fails When StatusCode Is Not 200")
+    @Test("test .downloadFileTask() Fails When StatusCode Is Not 200")
     func testDownloadFileFailsWhenStatusCodeIsNot2xx() {
         let sut = createFileDownloader(
             urlSession: createMockURLSession(statusCode: 400)
@@ -60,7 +60,7 @@ final class FileDownloadable_CallBacks_Tests {
 
     // MARK: ERROR - validation
     
-    @Test("test DownloadFile Fails When Validator Throws Any Error")
+    @Test("test .downloadFileTask() Fails When Validator Throws Any Error")
     func testDownloadFileFailsIfValidatorThrowsAnyError() {
         let sut = createFileDownloader(
             validator: MockURLResponseValidator(throwError: NetworkingError.internalError(.noData))
@@ -81,7 +81,7 @@ final class FileDownloadable_CallBacks_Tests {
 
     // MARK: ERROR - url session
 
-    @Test("test DownloadFile Fails When urlSession Error Is Not Nil")
+    @Test("test .downloadFileTask() Fails When urlSession Error Is Not Nil")
     func testDownloadFileFailsWhenUrlSessionHasError() {
         let sut = createFileDownloader(
             urlSession: createMockURLSession(error: HTTPError(statusCode: 500))
@@ -102,7 +102,7 @@ final class FileDownloadable_CallBacks_Tests {
     
     // MARK: Tracking
 
-    @Test("test DownloadFile Task Download Progress Can Be Tracked")
+    @Test("test .downloadFileTask() Download Progress Can Be Tracked")
     func testDownloadFileTaskDownloadProgressCanBeTracked() {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = MockURLSession(
@@ -135,7 +135,7 @@ final class FileDownloadable_CallBacks_Tests {
         #expect(didTrackProgress)
     }
 
-    @Test("test DownloadFileTask Download Progress Tracking Happens Before Return")
+    @Test("test .downloadFileTask() Download Progress Tracking Happens Before Return")
     func testDownloadFileTaskDownloadProgressTrackingHappensBeforeReturn() {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = MockURLSession(
@@ -171,7 +171,7 @@ final class FileDownloadable_CallBacks_Tests {
         #expect(didTrackProgressBeforeReturn == true)
     }
 
-    @Test("test DownloadFile Task Download Progress Tracks Correct Order")
+    @Test("test .downloadFileTask() Download Progress Tracks Correct Order")
     func testDownloadFileTaskDownloadProgressTrackingHappensInCorrectOrder() {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = MockURLSession(

@@ -10,7 +10,7 @@ final class FileDownloadable_publisher_Tests {
 
     // MARK: SUCCESS
 
-    @Test("test DownloadFile Task Success")
+    @Test("test .downloadPublisher() Success")
     func testDownloadFilePublisherSuccess() {
         let sut = createFileDownloader()
         
@@ -32,7 +32,7 @@ final class FileDownloadable_publisher_Tests {
 
     // MARK: ERROR - status code
 
-    @Test("test DownloadFile Fails When Status Code Is Not 200")
+    @Test("test .downloadPublisher() Fails When Status Code Is Not 200")
     func testDownloadFilePublisherFailsWhenStatusCodeIsNot200() {
         let sut = createFileDownloader(
             urlSession: createMockURLSession(statusCode: 400)
@@ -57,7 +57,7 @@ final class FileDownloadable_publisher_Tests {
 
     // MARK: ERROR - validation
 
-    @Test("test DownloadFile Fails If Validator Throws Any Error")
+    @Test("test .downloadPublisher() Fails If Validator Throws Any Error")
     func testDownloadFilePublisherFailsIfValidatorThrowsAnyError() {
         let sut = createFileDownloader(
             validator: MockURLResponseValidator(throwError: NetworkingError.internalError(.noData))
@@ -82,7 +82,7 @@ final class FileDownloadable_publisher_Tests {
 
     // MARK: ERROR - url session
 
-    @Test("test DownloadFile Fails When URLSession Has Error")
+    @Test("test .downloadPublisher() Fails When URLSession Has Error")
     func testDownloadFilePublisherFailsWhenUrlSessionHasError() {
         let sut = createFileDownloader(
             urlSession: createMockURLSession(error: HTTPError(statusCode: 500))
@@ -107,7 +107,7 @@ final class FileDownloadable_publisher_Tests {
 
     // MARK: Tracking
 
-    @Test("test DownloadFile Task Download Progress Can Be Tracked")
+    @Test("test .downloadPublisher() Download Progress Can Be Tracked")
     func testDownloadFilePublisherTaskDownloadProgressCanBeTracked() {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = MockURLSession(
@@ -146,7 +146,7 @@ final class FileDownloadable_publisher_Tests {
         #expect(didTrackProgress)
     }
 
-    @Test("test DownloadFile Task Download Progress Tracking Happens Before Return")
+    @Test("test .downloadPublisher() Download Progress Tracking Happens Before Return")
     func testDownloadFilePublisherTaskDownloadProgressTrackingHappensBeforeReturn() {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = MockURLSession(
@@ -185,7 +185,7 @@ final class FileDownloadable_publisher_Tests {
         #expect(didTrackProgressBeforeReturn == true)
     }
 
-    @Test("test DownloadFile Task Download Progress Tracks Correct Order")
+    @Test("test .downloadPublisher() Download Progress Tracks Correct Order")
     func testDownloadFilePublisherTaskDownloadProgressTracksCorrectOrder() {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = MockURLSession(
