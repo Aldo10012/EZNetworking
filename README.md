@@ -426,7 +426,7 @@ task.cancel()
 // Combine Publishers
 let cancellables = Set<AnyCancellable>()
 FileDownloader()
-    .downloadPublisher(url: URL, progress: {
+    .downloadFilePublisher(url: URL, progress: {
         // handle progress
     })
     .sink(receiveCompletion: { completion in

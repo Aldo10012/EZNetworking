@@ -10,12 +10,12 @@ final class FileDownloadable_publisher_Tests {
 
     // MARK: SUCCESS
 
-    @Test("test .downloadPublisher() Success")
+    @Test("test .downloadFilePublisher() Success")
     func testDownloadFilePublisherSuccess() {
         let sut = createFileDownloader()
         
         var didExecute = false
-        sut.downloadPublisher(url: testURL, progress: nil)
+        sut.downloadFilePublisher(url: testURL, progress: nil)
             .sink { completion in
                 switch completion {
                 case .failure: Issue.record()
@@ -32,14 +32,14 @@ final class FileDownloadable_publisher_Tests {
 
     // MARK: ERROR - status code
 
-    @Test("test .downloadPublisher() Fails When Status Code Is Not 200")
+    @Test("test .downloadFilePublisher() Fails When Status Code Is Not 200")
     func testDownloadFilePublisherFailsWhenStatusCodeIsNot200() {
         let sut = createFileDownloader(
             urlSession: createMockURLSession(statusCode: 400)
         )
         
         var didExecute = false
-        sut.downloadPublisher(url: testURL, progress: nil)
+        sut.downloadFilePublisher(url: testURL, progress: nil)
             .sink { completion in
                 switch completion {
                 case .failure(let error):
@@ -57,14 +57,14 @@ final class FileDownloadable_publisher_Tests {
 
     // MARK: ERROR - validation
 
-    @Test("test .downloadPublisher() Fails If Validator Throws Any Error")
+    @Test("test .downloadFilePublisher() Fails If Validator Throws Any Error")
     func testDownloadFilePublisherFailsIfValidatorThrowsAnyError() {
         let sut = createFileDownloader(
             validator: MockURLResponseValidator(throwError: NetworkingError.internalError(.noData))
         )
         
         var didExecute = false
-        sut.downloadPublisher(url: testURL, progress: nil)
+        sut.downloadFilePublisher(url: testURL, progress: nil)
             .sink { completion in
                 switch completion {
                 case .failure(let error):
@@ -82,14 +82,14 @@ final class FileDownloadable_publisher_Tests {
 
     // MARK: ERROR - url session
 
-    @Test("test .downloadPublisher() Fails When URLSession Has Error")
+    @Test("test .downloadFilePublisher() Fails When URLSession Has Error")
     func testDownloadFilePublisherFailsWhenUrlSessionHasError() {
         let sut = createFileDownloader(
             urlSession: createMockURLSession(error: HTTPError(statusCode: 500))
         )
         
         var didExecute = false
-        sut.downloadPublisher(url: testURL, progress: nil)
+        sut.downloadFilePublisher(url: testURL, progress: nil)
             .sink { completion in
                 switch completion {
                 case .failure(let error):
@@ -107,7 +107,7 @@ final class FileDownloadable_publisher_Tests {
 
     // MARK: Tracking
 
-    @Test("test .downloadPublisher() Download Progress Can Be Tracked")
+    @Test("test .downloadFilePublisher() Download Progress Can Be Tracked")
     func testDownloadFilePublisherTaskDownloadProgressCanBeTracked() {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = MockURLSession(
@@ -128,7 +128,7 @@ final class FileDownloadable_publisher_Tests {
     
         urlSession.progressToExecute = [.inProgress(percent: 50)]
     
-        sut.downloadPublisher(url: testURL) { _ in
+        sut.downloadFilePublisher(url: testURL) { _ in
             didTrackProgress = true
         }
         .sink { completion in
@@ -146,7 +146,7 @@ final class FileDownloadable_publisher_Tests {
         #expect(didTrackProgress)
     }
 
-    @Test("test .downloadPublisher() Download Progress Tracking Happens Before Return")
+    @Test("test .downloadFilePublisher() Download Progress Tracking Happens Before Return")
     func testDownloadFilePublisherTaskDownloadProgressTrackingHappensBeforeReturn() {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = MockURLSession(
@@ -165,7 +165,7 @@ final class FileDownloadable_publisher_Tests {
         urlSession.progressToExecute = [.inProgress(percent: 50)]
         var didTrackProgressBeforeReturn: Bool? = nil
     
-        sut.downloadPublisher(url: testURL) { _ in
+        sut.downloadFilePublisher(url: testURL) { _ in
             if didTrackProgressBeforeReturn == nil {
                 didTrackProgressBeforeReturn = true
             }
@@ -185,7 +185,7 @@ final class FileDownloadable_publisher_Tests {
         #expect(didTrackProgressBeforeReturn == true)
     }
 
-    @Test("test .downloadPublisher() Download Progress Tracks Correct Order")
+    @Test("test .downloadFilePublisher() Download Progress Tracks Correct Order")
     func testDownloadFilePublisherTaskDownloadProgressTracksCorrectOrder() {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = MockURLSession(
@@ -209,7 +209,7 @@ final class FileDownloadable_publisher_Tests {
         ]
         var capturedTracking = [Double]()
     
-        sut.downloadPublisher(url: testURL) { progress in
+        sut.downloadFilePublisher(url: testURL) { progress in
             capturedTracking.append(progress)
         }
         .sink { completion in

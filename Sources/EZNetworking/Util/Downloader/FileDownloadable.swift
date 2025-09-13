@@ -7,7 +7,7 @@ public typealias DownloadCompletionHandler = (Result<URL, NetworkingError>) -> V
 public protocol FileDownloadable {
     func downloadFile(with url: URL, progress: DownloadProgressHandler?) async throws -> URL
     func downloadFileTask(url: URL, progress: DownloadProgressHandler?, completion: @escaping(DownloadCompletionHandler)) -> URLSessionDownloadTask
-    func downloadPublisher(url: URL, progress: DownloadProgressHandler?) -> AnyPublisher<URL, NetworkingError>
+    func downloadFilePublisher(url: URL, progress: DownloadProgressHandler?) -> AnyPublisher<URL, NetworkingError>
 
 }
 
@@ -82,7 +82,7 @@ public class FileDownloader: FileDownloadable {
 
     // MARK: Publisher
     @discardableResult
-    public func downloadPublisher(url: URL, progress: DownloadProgressHandler?) -> AnyPublisher<URL, NetworkingError> {
+    public func downloadFilePublisher(url: URL, progress: DownloadProgressHandler?) -> AnyPublisher<URL, NetworkingError> {
         Future { promise in
             self._downloadFileTask(url: url, progress: progress) { result in
                 promise(result)
