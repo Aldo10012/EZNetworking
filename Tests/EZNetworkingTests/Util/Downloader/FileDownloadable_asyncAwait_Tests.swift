@@ -90,9 +90,11 @@ final class FileDownloadable_AsyncAwait_Tests {
         
         var didTrackProgress = false
         do {
-            _ = try await sut.downloadFile(with: testURL, progress: { _ in
+            _ = try await sut.downloadFile(with: testURL, progress: { value in
+                print("DEBUG: did track with value", value)
                 didTrackProgress = true
             })
+            print("DEBUG: did complete")
             #expect(didTrackProgress)
         } catch {
             Issue.record()
