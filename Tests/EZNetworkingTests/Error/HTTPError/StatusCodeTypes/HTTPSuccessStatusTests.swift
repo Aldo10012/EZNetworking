@@ -4,22 +4,22 @@ import Testing
 @Suite("Test HTTPSuccessStatus")
 final class HTTPSuccessStatusTests {
 
-    @Test("test status code maps correctly to HTTPSuccessStatus", arguments: zip(map.keys, map.values))
-    func testStatusCodeMapsCorrectlyToHTTPSuccessStatus(statusCode: Int, status: HTTPSuccessStatus) {
-        #expect(HTTPSuccessStatus(statusCode: statusCode) == status)
+    @Test("test HTTPSuccessStatus maps status code to description", arguments: zip(map.keys, map.values))
+    func testHTTPSuccessStatusMapsStatusCodeToDescription(statusCode: Int, description: String) {
+        #expect(HTTPSuccessStatus.description(from: statusCode) == description)
     }
 
-    private static let map: [Int: HTTPSuccessStatus] = [
-        200: HTTPSuccessStatus.ok,
-        201: HTTPSuccessStatus.created,
-        202: HTTPSuccessStatus.accepted,
-        203: HTTPSuccessStatus.nonAuthoritativeInformation,
-        204: HTTPSuccessStatus.noContent,
-        205: HTTPSuccessStatus.resetContent,
-        206: HTTPSuccessStatus.partialContent,
-        207: HTTPSuccessStatus.multiStatus,
-        208: HTTPSuccessStatus.alreadyReported,
-        226: HTTPSuccessStatus.iMUsed,
-        -1: HTTPSuccessStatus.unknown
+    private static let map: [Int: String] = [
+        200: "OK",
+        201: "Created",
+        202: "Accepted",
+        203: "Non-Authoritative Information",
+        204: "No Content",
+        205: "Reset Content",
+        206: "Partial Content",
+        207: "Multi-Status",
+        208: "Already Reported",
+        226: "IM Used",
+         -1: "Unknown Success Status"
     ]
 }

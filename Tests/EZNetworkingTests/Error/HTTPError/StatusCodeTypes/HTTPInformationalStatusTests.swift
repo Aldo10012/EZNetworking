@@ -4,15 +4,15 @@ import Testing
 @Suite("Test HTTPInformationalStatus")
 final class HTTPInformationalStatusTests {
 
-    @Test("test status code maps correctly to HTTPInformationalStatus", arguments: zip(map.keys, map.values))
-    func testStatusCodeMapsCorrectlyToHTTPInformationalStatus(statusCode: Int, status: HTTPInformationalStatus) {
-        #expect(HTTPInformationalStatus(statusCode: statusCode) == status)
+    @Test("test HTTPInformationalStatus maps status code to description", arguments: zip(map.keys, map.values))
+    func testHTTPInformationalStatusMapsStatusCodeToDescription(statusCode: Int, description: String) {
+        #expect(HTTPInformationalStatus.description(from: statusCode) == description)
     }
 
-    private static let map: [Int: HTTPInformationalStatus] = [
-        100: HTTPInformationalStatus.continueStatus,
-        101: HTTPInformationalStatus.switchingProtocols,
-        102: HTTPInformationalStatus.processing,
-        -1: HTTPInformationalStatus.unknown
+    private static let map: [Int: String] = [
+        100: "Continue",
+        101: "Switching Protocols",
+        102: "Processing",
+         -1: "Unknown Informational Status"
     ]
 }

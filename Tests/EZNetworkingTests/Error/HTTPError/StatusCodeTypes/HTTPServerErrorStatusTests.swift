@@ -4,23 +4,23 @@ import Testing
 @Suite("Test HTTPServerErrorStatus")
 final class HTTPServerErrorStatusTests {
 
-    @Test("test status code maps correctly to HTTPServerErrorStatus", arguments: zip(map.keys, map.values))
-    func testStatusCodeMapsCorrectlyToHTTPServerErrorStatus(statusCode: Int, status: HTTPServerErrorStatus) {
-        #expect(HTTPServerErrorStatus(statusCode: statusCode) == status)
+    @Test("test HTTPServerErrorStatus maps status code to description", arguments: zip(map.keys, map.values))
+    func testHTTPServerErrorStatusMapsStatusCodeToDescription(statusCode: Int, description: String) {
+        #expect(HTTPServerErrorStatus.description(from: statusCode) == description)
     }
 
-    private static let map = [
-        500: HTTPServerErrorStatus.internalServerError,
-        501: HTTPServerErrorStatus.notImplemented,
-        502: HTTPServerErrorStatus.badGateway,
-        503: HTTPServerErrorStatus.serviceUnavailable,
-        504: HTTPServerErrorStatus.gatewayTimeout,
-        505: HTTPServerErrorStatus.httpVersionNotSupported,
-        506: HTTPServerErrorStatus.variantAlsoNegotiates,
-        507: HTTPServerErrorStatus.insufficientStorage,
-        508: HTTPServerErrorStatus.loopDetected,
-        510: HTTPServerErrorStatus.notExtended,
-        511: HTTPServerErrorStatus.networkAuthenticationRequired,
-        -1: HTTPServerErrorStatus.unknown
+    private static let map: [Int: String] = [
+        500: "Internal Server Error",
+        501: "Not Implemented",
+        502: "Bad Gateway",
+        503: "Service Unavailable",
+        504: "Gateway Timeout",
+        505: "HTTP Version Not Supported",
+        506: "Variant Also Negotiates",
+        507: "Insufficient Storage",
+        508: "Loop Detected",
+        510: "Not Extended",
+        511: "Network Authentication Required",
+         -1: "Unknown Server Error"
     ]
 }

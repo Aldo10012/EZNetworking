@@ -4,20 +4,20 @@ import Testing
 @Suite("Test HTTPRedirectionStatus")
 final class HTTPRedirectionStatusTests {
 
-    @Test("test status code maps correctly to HTTPRedirectionStatus", arguments: zip(map.keys, map.values))
-    func testStatusCodeMapsCorrectlyToHTTPRedirectionStatus(statusCode: Int, status: HTTPRedirectionStatus) {
-        #expect(HTTPRedirectionStatus(statusCode: statusCode) == status)
+    @Test("test HTTPRedirectionStatus maps status code to description", arguments: zip(map.keys, map.values))
+    func testHTTPRedirectionStatusMapsStatusCodeToDescription(statusCode: Int, description: String) {
+        #expect(HTTPRedirectionStatus.description(from: statusCode) == description)
     }
 
-    private static let map: [Int: HTTPRedirectionStatus] = [
-        300: HTTPRedirectionStatus.multipleChoices,
-        301: HTTPRedirectionStatus.movedPermanently,
-        302: HTTPRedirectionStatus.found,
-        303: HTTPRedirectionStatus.seeOther,
-        304: HTTPRedirectionStatus.notModified,
-        305: HTTPRedirectionStatus.useProxy,
-        307: HTTPRedirectionStatus.temporaryRedirect,
-        308: HTTPRedirectionStatus.permanentRedirect,
-        -1: HTTPRedirectionStatus.unknown
+    private static let map: [Int: String] = [
+        300: "Multiple Choices",
+        301: "Moved Permanently",
+        302: "Found",
+        303: "See Other",
+        304: "Not Modified",
+        305: "Use Proxy",
+        307: "Temporary Redirect",
+        308: "Permanent Redirect",
+         -1: "Unknown Redirection Status"
     ]
 }
