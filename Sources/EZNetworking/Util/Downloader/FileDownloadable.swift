@@ -4,11 +4,17 @@ import Foundation
 public typealias DownloadProgressHandler = (Double) -> Void
 public typealias DownloadCompletionHandler = (Result<URL, NetworkingError>) -> Void
 
+public enum DownloadEvent {
+    case progress(Double)
+    case success(URL)
+    case failure(NetworkingError)
+}
+
 public protocol FileDownloadable {
     func downloadFile(with url: URL, progress: DownloadProgressHandler?) async throws -> URL
     func downloadFileTask(url: URL, progress: DownloadProgressHandler?, completion: @escaping(DownloadCompletionHandler)) -> URLSessionDownloadTask
     func downloadFilePublisher(url: URL, progress: DownloadProgressHandler?) -> AnyPublisher<URL, NetworkingError>
-
+    func downloadFileStream(url: URL) -> AsyncStream<DownloadEvent>
 }
 
 public class FileDownloader: FileDownloadable {
@@ -61,6 +67,7 @@ public class FileDownloader: FileDownloadable {
     }
     
     // MARK: Async Await
+
     public func downloadFile(with url: URL, progress: DownloadProgressHandler? = nil) async throws -> URL {
         try await withCheckedThrowingContinuation { continuation in
             _downloadFileTask(url: url, progress: progress) { result in
@@ -75,13 +82,14 @@ public class FileDownloader: FileDownloadable {
     }
 
     // MARK: Completion Handler
+
     @discardableResult
     public func downloadFileTask(url: URL, progress: DownloadProgressHandler?, completion: @escaping(DownloadCompletionHandler)) -> URLSessionDownloadTask {
         return _downloadFileTask(url: url, progress: progress, completion: completion)
     }
 
     // MARK: Publisher
-    @discardableResult
+
     public func downloadFilePublisher(url: URL, progress: DownloadProgressHandler?) -> AnyPublisher<URL, NetworkingError> {
         Future { promise in
             self._downloadFileTask(url: url, progress: progress) { result in
@@ -89,6 +97,31 @@ public class FileDownloader: FileDownloadable {
             }
         }
         .eraseToAnyPublisher()
+    }
+
+    // MARK: AsyncStream
+
+    public func downloadFileStream(url: URL) -> AsyncStream<DownloadEvent> {
+        AsyncStream { continuation in
+            // Progress handler yields progress updates to the stream.
+            let progressHandler: DownloadProgressHandler = { progress in
+                continuation.yield(.progress(progress))
+            }
+            // Start the download task, yielding completion to the stream.
+            let task = self._downloadFileTask(url: url, progress: progressHandler) { result in
+                switch result {
+                case .success(let url):
+                    continuation.yield(.success(url))
+                case .failure(let error):
+                    continuation.yield(.failure(error))
+                }
+                continuation.finish()
+            }
+            // Cancel the task if the stream is terminated.
+            continuation.onTermination = { @Sendable _ in
+                task.cancel()
+            }
+        }
     }
 
     // MARK: - Core
