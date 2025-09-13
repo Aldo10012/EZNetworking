@@ -1,0 +1,124 @@
+import Combine
+@testable import EZNetworking
+import Foundation
+import Testing
+
+@Suite("Test FileDownloadable async await")
+final class FileDownloadable_AsyncAwait_Tests {
+
+    @Test("test DownloadFile Success")
+    func testDownloadFileSuccess() async throws {
+        let sut = createFileDownloader()
+        
+        do {
+            let localURL = try await sut.downloadFile(with: testURL)
+            #expect(localURL.absoluteString == "file:///tmp/test.pdf")
+        } catch {
+            Issue.record()
+        }
+    }
+    
+    @Test("test DownloadFile Fails When Validator Throws AnyError")
+    func testDownloadFileFailsWhenValidatorThrowsAnyError() async throws {
+        let sut = createFileDownloader(
+            validator: MockURLResponseValidator(throwError: NetworkingError.internalError(.noData))
+        )
+        
+        do {
+            _ = try await sut.downloadFile(with: testURL)
+            Issue.record("unexpected error")
+        } catch let error as NetworkingError {
+            #expect(error == NetworkingError.internalError(.noData))
+        }
+    }
+    
+    @Test("test DownloadFile Fails When StatusCode Is Not 200")
+    func testDownloadFileFailsWhenStatusCodeIsNot200() async throws {
+        let sut = createFileDownloader(
+            urlSession: createMockURLSession(statusCode: 400),
+            validator: ResponseValidatorImpl()
+        )
+        
+        do {
+            _ = try await sut.downloadFile(with: testURL)
+            Issue.record("unexpected error")
+        } catch let error as NetworkingError{
+            #expect(error == NetworkingError.httpError(HTTPError(statusCode: 400)))
+        }
+    }
+    
+    @Test("test DownloadFile Fails When Error Is Not Nil")
+    func testDownloadFileFailsWhenErrorIsNotNil() async throws {
+        let sut = createFileDownloader(
+            urlSession: createMockURLSession(error: NetworkingError.internalError(.unknown))
+        )
+        
+        do {
+            _ = try await sut.downloadFile(with: testURL)
+            Issue.record("unexpected error")
+        } catch let error as NetworkingError{
+            #expect(error == NetworkingError.internalError(.requestFailed(NetworkingError.internalError(.unknown))))
+        }
+    }
+    
+    @Test("test DownloadFile Download Progress Can Be Tracked")
+    func testDownloadFileDownloadProgressCanBeTracked() async throws {
+        let testURL = URL(string: "https://example.com/example.pdf")!
+        let urlSession = MockURLSession(
+            url: testURL,
+            urlResponse: buildResponse(statusCode: 200),
+            error: nil
+        )
+        let validator = ResponseValidatorImpl()
+        let decoder = RequestDecoder()
+        let delegate = SessionDelegate()
+        urlSession.sessionDelegate = delegate
+        let sut = FileDownloader(urlSession: urlSession, validator: validator, requestDecoder: decoder, sessionDelegate: delegate)
+        
+        var didTrackProgress = false
+        do {
+            _ = try await sut.downloadFile(with: testURL, progress: { _ in
+                didTrackProgress = true
+            })
+            #expect(didTrackProgress)
+        } catch {
+            Issue.record()
+        }
+    }
+
+}
+
+// MARK: helpers
+
+private let testURL = URL(string: "https://example.com/example.pdf")!
+
+private func createFileDownloader(
+    urlSession: URLSessionTaskProtocol = createMockURLSession(statusCode: 200),
+    validator: ResponseValidator = ResponseValidatorImpl(),
+    requestDecoder: RequestDecodable = RequestDecoder()
+) -> FileDownloader {
+    return FileDownloader(
+        urlSession: urlSession,
+        validator: validator,
+        requestDecoder: requestDecoder
+    )
+}
+
+private func createMockURLSession(
+    data: Data? = MockData.mockPersonJsonData,
+    statusCode: Int = 200,
+    error: Error? = nil
+) -> MockURLSession {
+    return MockURLSession(
+        url: testURL,
+        urlResponse: buildResponse(statusCode: statusCode),
+        error: error
+    )
+}
+
+private func buildResponse(statusCode: Int) -> HTTPURLResponse {
+    HTTPURLResponse(url: URL(string: "https://example.com")!,
+                    statusCode: statusCode,
+                    httpVersion: nil,
+                    headerFields: nil)!
+}
