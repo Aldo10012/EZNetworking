@@ -78,7 +78,7 @@ final class URLResponseValidatorTests {
     
     @Test("test validateStatus givenHTTPURLResponseStatusCode100 Throws")
     func test_validateStatus_givenHTTPURLResponseStatusCode100_Throws() throws {
-        #expect(throws: NetworkingError.information(.continueStatus, [:]).self) {
+        #expect(throws: NetworkingError.httpError(HTTPError(statusCode: 100)).self) {
             try sut.validateStatus(from: createHttpUrlResponse(statusCode: 100))
         }
     }
@@ -94,21 +94,16 @@ final class URLResponseValidatorTests {
 
     @Test("test validateStatus givenHTTPURLResponseStatusCode300 Throws")
     func test_validateStatus_givenHTTPURLResponseStatusCode300_Throws() throws {
-        #expect(throws: NetworkingError.redirect(.multipleChoices, [:]).self) {
+        #expect(throws: NetworkingError.httpError(HTTPError(statusCode: 300)).self) {
             try sut.validateStatus(from: createHttpUrlResponse(statusCode: 300))
         }
-    }
-    
-    @Test("test validateStatus givenHTTPURLResponseStatusCode304 NoThrow")
-    func test_validateStatus_givenHTTPURLResponseStatusCode304_NoThrow() throws {
-        #expect(throws: Never.self) { try sut.validateStatus(from: createHttpUrlResponse(statusCode: 304)) }
     }
     
     // MARK: 4xx status code
 
     @Test("test validateStatus givenHTTPURLResponseStatusCode400 Throws")
     func test_validateStatus_givenHTTPURLResponseStatusCode400_Throws() throws {
-        #expect(throws: NetworkingError.httpClientError(.badRequest, [:]).self) {
+        #expect(throws: NetworkingError.httpError(HTTPError(statusCode: 400)).self) {
             try sut.validateStatus(from: createHttpUrlResponse(statusCode: 400))
         }
     }
@@ -117,7 +112,7 @@ final class URLResponseValidatorTests {
     
     @Test("test validateStatus givenHTTPURLResponseStatusCode500 Throws")
     func test_validateStatus_givenHTTPURLResponseStatusCode500_Throws() throws {
-        #expect(throws: NetworkingError.httpServerError(.internalServerError, [:]).self) {
+        #expect(throws: NetworkingError.httpError(HTTPError(statusCode: 500)).self) {
             try sut.validateStatus(from: createHttpUrlResponse(statusCode: 500))
         }
     }

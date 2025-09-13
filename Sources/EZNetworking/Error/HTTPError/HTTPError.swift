@@ -5,7 +5,7 @@ public struct HTTPError: Error {
     public let headers: [AnyHashable: Any]
     public let category: HTTPErrorCategory
     
-    public init(statusCode: Int, headers: [AnyHashable: Any]) {
+    public init(statusCode: Int, headers: [AnyHashable: Any] = [:]) {
         self.statusCode = statusCode
         self.headers = headers
         self.category = HTTPErrorCategory.from(statusCode: statusCode)
