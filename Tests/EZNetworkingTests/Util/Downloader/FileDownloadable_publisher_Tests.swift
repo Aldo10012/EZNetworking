@@ -126,6 +126,8 @@ final class FileDownloadable_publisher_Tests {
         var didExecute = false
         var didTrackProgress = false
     
+        urlSession.progressToExecute = [.inProgress(percent: 50)]
+    
         sut.downloadPublisher(url: testURL) { _ in
             didTrackProgress = true
         }
@@ -142,6 +144,84 @@ final class FileDownloadable_publisher_Tests {
 
         #expect(didExecute)
         #expect(didTrackProgress)
+    }
+
+    @Test("test DownloadFile Task Download Progress Tracking Happens Before Return")
+    func testDownloadFilePublisherTaskDownloadProgressTrackingHappensBeforeReturn() {
+        let testURL = URL(string: "https://example.com/example.pdf")!
+        let urlSession = MockURLSession(
+            url: testURL,
+            urlResponse: buildResponse(statusCode: 200),
+            error: nil
+        )
+        let delegate = SessionDelegate()
+        urlSession.sessionDelegate = delegate
+        
+        let sut = FileDownloader(urlSession: urlSession,
+                                 validator: MockURLResponseValidator(),
+                                 requestDecoder: RequestDecoder(),
+                                 sessionDelegate: delegate)
+    
+        urlSession.progressToExecute = [.inProgress(percent: 50)]
+        var didTrackProgressBeforeReturn: Bool? = nil
+    
+        sut.downloadPublisher(url: testURL) { _ in
+            if didTrackProgressBeforeReturn == nil {
+                didTrackProgressBeforeReturn = true
+            }
+        }
+        .sink { completion in
+            switch completion {
+            case .failure: Issue.record()
+            case .finished: break
+            }
+        } receiveValue: { _ in
+            if didTrackProgressBeforeReturn == nil {
+                didTrackProgressBeforeReturn = true
+            }
+        }
+        .store(in: &cancellables)
+
+        #expect(didTrackProgressBeforeReturn == true)
+    }
+
+    @Test("test DownloadFile Task Download Progress Tracks Correct Order")
+    func testDownloadFilePublisherTaskDownloadProgressTracksCorrectOrder() {
+        let testURL = URL(string: "https://example.com/example.pdf")!
+        let urlSession = MockURLSession(
+            url: testURL,
+            urlResponse: buildResponse(statusCode: 200),
+            error: nil
+        )
+        let delegate = SessionDelegate()
+        urlSession.sessionDelegate = delegate
+        
+        let sut = FileDownloader(urlSession: urlSession,
+                                 validator: MockURLResponseValidator(),
+                                 requestDecoder: RequestDecoder(),
+                                 sessionDelegate: delegate)
+
+        urlSession.progressToExecute = [
+            .inProgress(percent: 30),
+            .inProgress(percent: 60),
+            .inProgress(percent: 90),
+            .complete
+        ]
+        var capturedTracking = [Double]()
+    
+        sut.downloadPublisher(url: testURL) { progress in
+            capturedTracking.append(progress)
+        }
+        .sink { completion in
+            switch completion {
+            case .failure: Issue.record()
+            case .finished: break
+            }
+        } receiveValue: { _ in }
+        .store(in: &cancellables)
+
+        #expect(capturedTracking.count == 4)
+        #expect(capturedTracking == [0.3, 0.6, 0.9, 1.0])
     }
 }
 

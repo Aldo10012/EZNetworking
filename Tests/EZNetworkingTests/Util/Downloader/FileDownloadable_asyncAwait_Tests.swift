@@ -89,13 +89,85 @@ final class FileDownloadable_AsyncAwait_Tests {
         )
         
         var didTrackProgress = false
+        urlSession.progressToExecute = [.inProgress(percent: 50)]
         do {
             _ = try await sut.downloadFile(with: testURL, progress: { value in
-                print("DEBUG: did track with value", value)
                 didTrackProgress = true
             })
-            print("DEBUG: did complete")
             #expect(didTrackProgress)
+        } catch {
+            Issue.record()
+        }
+    }
+
+    @Test("test DownloadFile Download Progress Tracking Happens Before Return")
+    func testDownloadFileDownloadProgressTrackingHapensBeforeReturn() async throws {
+        let testURL = URL(string: "https://example.com/example.pdf")!
+        let urlSession = MockURLSession(
+            url: testURL,
+            urlResponse: buildResponse(statusCode: 200),
+            error: nil
+        )
+        let delegate = SessionDelegate()
+        urlSession.sessionDelegate = delegate
+        let sut = FileDownloader(
+            urlSession: urlSession,
+            validator: ResponseValidatorImpl(),
+            requestDecoder: RequestDecoder(),
+            sessionDelegate: delegate
+        )
+        
+        urlSession.progressToExecute = [ .inProgress(percent: 50) ]
+        
+        var didTrackProgressBeforeReturn: Bool? = nil
+        
+        do {
+            _ = try await sut.downloadFile(with: testURL, progress: { value in
+                if didTrackProgressBeforeReturn == nil {
+                    didTrackProgressBeforeReturn = true
+                }
+            })
+            
+            if didTrackProgressBeforeReturn == nil {
+                didTrackProgressBeforeReturn = false
+            }
+            
+            #expect(didTrackProgressBeforeReturn == true)
+        } catch {
+            Issue.record()
+        }
+    }
+
+    @Test("test DownloadFile Download Progress Tracking Order")
+    func testDownloadFileDownloadProgressTrackingOrder() async throws {
+        let testURL = URL(string: "https://example.com/example.pdf")!
+        let urlSession = MockURLSession(
+            url: testURL,
+            urlResponse: buildResponse(statusCode: 200),
+            error: nil
+        )
+        let delegate = SessionDelegate()
+        urlSession.sessionDelegate = delegate
+        let sut = FileDownloader(
+            urlSession: urlSession,
+            validator: ResponseValidatorImpl(),
+            requestDecoder: RequestDecoder(),
+            sessionDelegate: delegate
+        )
+        
+        urlSession.progressToExecute = [
+            .inProgress(percent: 30),
+            .inProgress(percent: 60),
+            .inProgress(percent: 90),
+            .complete
+        ]
+        var capturedTracking = [Double]()
+        do {
+            _ = try await sut.downloadFile(with: testURL, progress: { value in
+                capturedTracking.append(value)
+            })
+            #expect(capturedTracking.count == 4)
+            #expect(capturedTracking == [0.3, 0.6, 0.9, 1.0])
         } catch {
             Issue.record()
         }

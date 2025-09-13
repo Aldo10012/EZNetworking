@@ -120,6 +120,7 @@ final class FileDownloadable_CallBacks_Tests {
         
         var didExecute = false
         var didTrackProgress = false
+        urlSession.progressToExecute = [.inProgress(percent: 50)]
         
         _ = sut.downloadFileTask(url: testURL, progress: { progress in
             didTrackProgress = true
@@ -132,6 +133,78 @@ final class FileDownloadable_CallBacks_Tests {
         }
         #expect(didExecute)
         #expect(didTrackProgress)
+    }
+
+    @Test("test DownloadFileTask Download Progress Tracking Happens Before Return")
+    func testDownloadFileTaskDownloadProgressTrackingHappensBeforeReturn() {
+        let testURL = URL(string: "https://example.com/example.pdf")!
+        let urlSession = MockURLSession(
+            url: testURL,
+            urlResponse: buildResponse(statusCode: 200),
+            error: nil
+        )
+        let delegate = SessionDelegate()
+        urlSession.sessionDelegate = delegate
+        
+        let sut = FileDownloader(urlSession: urlSession,
+                                 validator: MockURLResponseValidator(),
+                                 requestDecoder: RequestDecoder(),
+                                 sessionDelegate: delegate)
+        
+        urlSession.progressToExecute = [.inProgress(percent: 50)]
+        var didTrackProgressBeforeReturn: Bool? = nil
+        
+        _ = sut.downloadFileTask(url: testURL, progress: { progress in
+            if didTrackProgressBeforeReturn == nil {
+                didTrackProgressBeforeReturn = true
+            }
+        }) { result in
+            switch result {
+            case .success:
+                if didTrackProgressBeforeReturn == nil {
+                    didTrackProgressBeforeReturn = true
+                }
+            case .failure:
+                Issue.record()
+            }
+        }
+        #expect(didTrackProgressBeforeReturn == true)
+    }
+
+    @Test("test DownloadFile Task Download Progress Tracks Correct Order")
+    func testDownloadFileTaskDownloadProgressTrackingHappensInCorrectOrder() {
+        let testURL = URL(string: "https://example.com/example.pdf")!
+        let urlSession = MockURLSession(
+            url: testURL,
+            urlResponse: buildResponse(statusCode: 200),
+            error: nil
+        )
+        let delegate = SessionDelegate()
+        urlSession.sessionDelegate = delegate
+        
+        let sut = FileDownloader(urlSession: urlSession,
+                                 validator: MockURLResponseValidator(),
+                                 requestDecoder: RequestDecoder(),
+                                 sessionDelegate: delegate)
+        
+        urlSession.progressToExecute = [
+            .inProgress(percent: 30),
+            .inProgress(percent: 60),
+            .inProgress(percent: 90),
+            .complete
+        ]
+        var capturedTracking = [Double]()
+        
+        _ = sut.downloadFileTask(
+            url: testURL,
+            progress: { progress in
+                capturedTracking.append(progress)
+            },
+            completion: { _ in }
+        )
+
+        #expect(capturedTracking.count == 4)
+        #expect(capturedTracking == [0.3, 0.6, 0.9, 1.0])
     }
 
 }

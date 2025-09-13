@@ -38,24 +38,38 @@ class MockURLSession: URLSessionTaskProtocol {
             completionHandler(URL(fileURLWithPath: "/tmp/test.pdf"), self.urlResponse, self.error)
         }
     }
+    var progressToExecute: [DownloadProgress] = []
 }
 
 extension MockURLSession {
+    enum DownloadProgress {
+        case inProgress(percent: Int64)
+        case complete
+    }
+
     private func simulateDownloadProgress(for task: URLSessionDownloadTask) {
-        // Simulate 50% progress
-        sessionDelegate?.urlSession(
-            .shared,
-            downloadTask: task,
-            didWriteData: 50,
-            totalBytesWritten: 50,
-            totalBytesExpectedToWrite: 100
-        )
         
-        sessionDelegate?.urlSession(
-            .shared,
-            downloadTask: task,
-            didFinishDownloadingTo: URL(fileURLWithPath: "/tmp/test.pdf")
-        )
+        for progressToExecute in self.progressToExecute {
+            switch progressToExecute {
+            case .inProgress(let percent):
+                // Simulate x% progress
+                sessionDelegate?.urlSession(
+                    .shared,
+                    downloadTask: task,
+                    didWriteData: 0,
+                    totalBytesWritten: percent,
+                    totalBytesExpectedToWrite: 100
+                )
+                
+            case .complete:
+                // Simulate completion
+                sessionDelegate?.urlSession(
+                    .shared,
+                    downloadTask: task,
+                    didFinishDownloadingTo: URL(fileURLWithPath: "/tmp/test.pdf")
+                )
+            }
+        }
     }
 }
 
