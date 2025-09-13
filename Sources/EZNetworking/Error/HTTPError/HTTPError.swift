@@ -11,7 +11,7 @@ public struct HTTPError: Error {
         self.category = HTTPErrorCategory.from(statusCode: statusCode)
     }
     
-    public var statusCodeDescription: String {
+    public var description: String {
         switch category {
         case .informational:
             return HTTPInformationalStatus.description(from: statusCode)
