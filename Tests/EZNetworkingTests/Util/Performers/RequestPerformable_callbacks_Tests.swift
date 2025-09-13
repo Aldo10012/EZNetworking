@@ -75,7 +75,7 @@ final class RequestPerformable_callbacks_Tests {
             case .success:
                 Issue.record()
             case .failure(let error):
-                #expect(error == NetworkingError.redirect(.multipleChoices, [:]))
+                #expect(error == NetworkingError.httpError(HTTPError(statusCode: 300)))
             }
         }
         #expect(didExecute == true)
@@ -93,7 +93,7 @@ final class RequestPerformable_callbacks_Tests {
             case .success:
                 Issue.record()
             case .failure(let error):
-                #expect(error == NetworkingError.httpClientError(.badRequest, [:]))
+                #expect(error == NetworkingError.httpError(HTTPError(statusCode: 400)))
             }
         }
         #expect(didExecute == true)
@@ -111,7 +111,7 @@ final class RequestPerformable_callbacks_Tests {
             case .success:
                 Issue.record()
             case .failure(let error):
-                #expect(error == NetworkingError.httpServerError(.internalServerError, [:]))
+                #expect(error == NetworkingError.httpError(HTTPError(statusCode: 500)))
             }
         }
         #expect(didExecute == true)
