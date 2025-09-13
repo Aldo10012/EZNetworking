@@ -46,7 +46,7 @@ final class RequestPerformable_publisher_Tests {
             .sink(receiveCompletion: { completion in
                 switch completion {
                 case .failure(let error):
-                    #expect(error == NetworkingError.redirect(.multipleChoices, [:]))
+                    #expect(error == NetworkingError.httpError(HTTPError(statusCode: 300)))
                     didComplete = true
                 case .finished: Issue.record()
                 }
@@ -67,7 +67,7 @@ final class RequestPerformable_publisher_Tests {
             .sink(receiveCompletion: { completion in
                 switch completion {
                 case .failure(let error):
-                    #expect(error == NetworkingError.httpClientError(.badRequest, [:]))
+                    #expect(error == NetworkingError.httpError(HTTPError(statusCode: 400)))
                     didComplete = true
                 case .finished: Issue.record()
                 }
@@ -88,7 +88,7 @@ final class RequestPerformable_publisher_Tests {
             .sink(receiveCompletion: { completion in
                 switch completion {
                 case .failure(let error):
-                    #expect(error == NetworkingError.httpServerError(.internalServerError, [:]))
+                    #expect(error == NetworkingError.httpError(HTTPError(statusCode: 500)))
                     didComplete = true
                 case .finished: Issue.record()
                 }

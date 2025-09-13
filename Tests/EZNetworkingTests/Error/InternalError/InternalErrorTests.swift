@@ -20,7 +20,7 @@ final class InternalErrorTests {
         InternalError.invalidError,
         InternalError.noData,
         InternalError.noResponse,
-        InternalError.requestFailed(NetworkingError.httpClientError(.badRequest, [:])),
+        InternalError.requestFailed(NetworkingError.httpError(.init(statusCode: 400, headers: [:]))),
         InternalError.noRequest,
         InternalError.noHTTPURLResponse,
         InternalError.invalidImageData,

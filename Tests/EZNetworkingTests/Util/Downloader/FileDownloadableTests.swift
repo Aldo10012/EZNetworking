@@ -23,14 +23,14 @@ final class FileDownloadableTests {
     @Test("test DownloadFile Fails When Validator Throws AnyError")
     func testDownloadFileFailsWhenValidatorThrowsAnyError() async throws {
         let sut = createFileDownloader(
-            validator: MockURLResponseValidator(throwError: NetworkingError.httpClientError(.forbidden, [:]))
+            validator: MockURLResponseValidator(throwError: NetworkingError.internalError(.noData))
         )
         
         do {
             _ = try await sut.downloadFile(with: testURL)
             Issue.record("unexpected error")
         } catch let error as NetworkingError {
-            #expect(error == NetworkingError.httpClientError(.forbidden, [:]))
+            #expect(error == NetworkingError.internalError(.noData))
         }
     }
     
@@ -45,7 +45,7 @@ final class FileDownloadableTests {
             _ = try await sut.downloadFile(with: testURL)
             Issue.record("unexpected error")
         } catch let error as NetworkingError{
-            #expect(error == NetworkingError.httpClientError(.badRequest, [:]))
+            #expect(error == NetworkingError.httpError(HTTPError(statusCode: 400)))
         }
     }
     
@@ -120,7 +120,7 @@ final class FileDownloadableTests {
     @Test("test DownloadFile Fails If Validator Throws Any Error")
     func testDownloadFileFailsIfValidatorThrowsAnyError() {
         let sut = createFileDownloader(
-            validator: MockURLResponseValidator(throwError: NetworkingError.httpClientError(.conflict, [:]))
+            validator: MockURLResponseValidator(throwError: NetworkingError.internalError(.noData))
         )
         
         var didExecute = false
@@ -130,7 +130,7 @@ final class FileDownloadableTests {
             case .success:
                 Issue.record()
             case .failure(let error):
-                #expect(error == NetworkingError.httpClientError(.conflict, [:]))
+                #expect(error == NetworkingError.internalError(.noData))
             }
         }
         #expect(didExecute)
@@ -194,7 +194,7 @@ final class FileDownloadableTests {
     @Test("test DownloadFile Fails If Validator Throws Any Error")
     func testDownloadFilePublisherFailsIfValidatorThrowsAnyError() {
         let sut = createFileDownloader(
-            validator: MockURLResponseValidator(throwError: NetworkingError.httpClientError(.conflict, [:]))
+            validator: MockURLResponseValidator(throwError: NetworkingError.internalError(.noData))
         )
         
         var didExecute = false
@@ -202,7 +202,7 @@ final class FileDownloadableTests {
             .sink { completion in
                 switch completion {
                 case .failure(let error):
-                    #expect(error == NetworkingError.httpClientError(.conflict, [:]))
+                    #expect(error == NetworkingError.internalError(.noData))
                     didExecute = true
                 case .finished: Issue.record()
                 }

@@ -44,26 +44,13 @@ public struct ResponseValidatorImpl: ResponseValidator {
     }
 
     private func validateStatusCodeAccepability(from httpURLResponse: HTTPURLResponse) throws {
-        let statusCodeType = HTTPStatusCodeType.evaluate(from: httpURLResponse.statusCode)
-        let urlResponseHeaders = httpURLResponse.allHeaderFields
-        
-        switch statusCodeType {
-        case .information(let status):
-            throw NetworkingError.information(status, urlResponseHeaders)
-        case .success(_):
-            return
-        case .redirectionMessage(let status):
-            guard status == .notModified else {
-                throw NetworkingError.redirect(status, urlResponseHeaders)
-            }
-            return
-        case .clientSideError(let error):
-            throw NetworkingError.httpClientError(error, urlResponseHeaders)
-        case .serverSideError(let error):
-            throw NetworkingError.httpServerError(error, urlResponseHeaders)
-        case .unknown:
-            throw NetworkingError.internalError(.unknown)
+        let statusCode = HTTPError(statusCode: httpURLResponse.statusCode,
+                                   headers: httpURLResponse.allHeaderFields)
+
+        if statusCode.category == .success {
+            return // successful http response (2xx) do not throw error
         }
+        throw NetworkingError.httpError(statusCode)
     }
 }
 
