@@ -6,6 +6,8 @@ import Testing
 @Suite("Test FileDownloadable call backs")
 final class FileDownloadable_CallBacks_Tests {
 
+    // MARK: SUCCESS
+
     @Test("test DownloadFile Task Success")
     func testDownloadFileTaskSuccess() {
         let sut = createFileDownloader()
@@ -22,6 +24,8 @@ final class FileDownloadable_CallBacks_Tests {
         }
         #expect(didExecute)
     }
+
+    // MARK: Task Cancellation
     
     @Test("test DownloadFile Can Cancel")
     func testDownloadFileCanCancel() throws {
@@ -32,8 +36,31 @@ final class FileDownloadable_CallBacks_Tests {
         let downloadTask = try #require(task as? MockURLSessionDownloadTask)
         #expect(downloadTask.didCancel)
     }
+
+    // MARK: ERROR - status code
+
+    @Test("test DownloadFile Fails When StatusCode Is Not 200")
+    func testDownloadFileFailsWhenStatusCodeIsNot2xx() {
+        let sut = createFileDownloader(
+            urlSession: createMockURLSession(statusCode: 400)
+        )
+        
+        var didExecute = false
+        sut.downloadFileTask(url: testURL, progress: nil) { result in
+            defer { didExecute = true }
+            switch result {
+            case .success:
+                Issue.record()
+            case .failure(let error):
+                #expect(error == NetworkingError.httpError(HTTPError(statusCode: 400)))
+            }
+        }
+        #expect(didExecute)
+    }
+
+    // MARK: ERROR - validation
     
-    @Test("test DownloadFile Fails If Validator Throws Any Error")
+    @Test("test DownloadFile Fails When Validator Throws Any Error")
     func testDownloadFileFailsIfValidatorThrowsAnyError() {
         let sut = createFileDownloader(
             validator: MockURLResponseValidator(throwError: NetworkingError.internalError(.noData))
@@ -51,7 +78,30 @@ final class FileDownloadable_CallBacks_Tests {
         }
         #expect(didExecute)
     }
+
+    // MARK: ERROR - url session
+
+    @Test("test DownloadFile Fails When urlSession Error Is Not Nil")
+    func testDownloadFileFailsWhenUrlSessionHasError() {
+        let sut = createFileDownloader(
+            urlSession: createMockURLSession(error: HTTPError(statusCode: 500))
+        )
+        
+        var didExecute = false
+        sut.downloadFileTask(url: testURL, progress: nil) { result in
+            defer { didExecute = true }
+            switch result {
+            case .success:
+                Issue.record()
+            case .failure(let error):
+                #expect(error == NetworkingError.internalError(.requestFailed(HTTPError(statusCode: 500))))
+            }
+        }
+        #expect(didExecute)
+    }
     
+    // MARK: Tracking
+
     @Test("test DownloadFile Task Download Progress Can Be Tracked")
     func testDownloadFileTaskDownloadProgressCanBeTracked() {
         let testURL = URL(string: "https://example.com/example.pdf")!

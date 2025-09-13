@@ -8,6 +8,8 @@ final class FileDownloadable_publisher_Tests {
 
     private var cancellables = Set<AnyCancellable>()
 
+    // MARK: SUCCESS
+
     @Test("test DownloadFile Task Success")
     func testDownloadFilePublisherSuccess() {
         let sut = createFileDownloader()
@@ -27,7 +29,34 @@ final class FileDownloadable_publisher_Tests {
 
         #expect(didExecute)
     }
-    
+
+    // MARK: ERROR - status code
+
+    @Test("test DownloadFile Fails When Status Code Is Not 200")
+    func testDownloadFilePublisherFailsWhenStatusCodeIsNot200() {
+        let sut = createFileDownloader(
+            urlSession: createMockURLSession(statusCode: 400)
+        )
+        
+        var didExecute = false
+        sut.downloadPublisher(url: testURL, progress: nil)
+            .sink { completion in
+                switch completion {
+                case .failure(let error):
+                    #expect(error == NetworkingError.httpError(HTTPError(statusCode: 400)))
+                    didExecute = true
+                case .finished: Issue.record()
+                }
+            } receiveValue: { _ in
+                Issue.record()
+            }
+            .store(in: &cancellables)
+
+        #expect(didExecute)
+    }
+
+    // MARK: ERROR - validation
+
     @Test("test DownloadFile Fails If Validator Throws Any Error")
     func testDownloadFilePublisherFailsIfValidatorThrowsAnyError() {
         let sut = createFileDownloader(
@@ -50,7 +79,34 @@ final class FileDownloadable_publisher_Tests {
 
         #expect(didExecute)
     }
-    
+
+    // MARK: ERROR - url session
+
+    @Test("test DownloadFile Fails When URLSession Has Error")
+    func testDownloadFilePublisherFailsWhenUrlSessionHasError() {
+        let sut = createFileDownloader(
+            urlSession: createMockURLSession(error: HTTPError(statusCode: 500))
+        )
+        
+        var didExecute = false
+        sut.downloadPublisher(url: testURL, progress: nil)
+            .sink { completion in
+                switch completion {
+                case .failure(let error):
+                    #expect(error == NetworkingError.internalError(.requestFailed(HTTPError(statusCode: 500))))
+                    didExecute = true
+                case .finished: Issue.record()
+                }
+            } receiveValue: { _ in
+                Issue.record()
+            }
+            .store(in: &cancellables)
+
+        #expect(didExecute)
+    }
+
+    // MARK: Tracking
+
     @Test("test DownloadFile Task Download Progress Can Be Tracked")
     func testDownloadFilePublisherTaskDownloadProgressCanBeTracked() {
         let testURL = URL(string: "https://example.com/example.pdf")!

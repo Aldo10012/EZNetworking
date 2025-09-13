@@ -6,6 +6,8 @@ import Testing
 @Suite("Test FileDownloadable async await")
 final class FileDownloadable_AsyncAwait_Tests {
 
+    // MARK: SUCCESS
+
     @Test("test DownloadFile Success")
     func testDownloadFileSuccess() async throws {
         let sut = createFileDownloader()
@@ -18,20 +20,8 @@ final class FileDownloadable_AsyncAwait_Tests {
         }
     }
     
-    @Test("test DownloadFile Fails When Validator Throws AnyError")
-    func testDownloadFileFailsWhenValidatorThrowsAnyError() async throws {
-        let sut = createFileDownloader(
-            validator: MockURLResponseValidator(throwError: NetworkingError.internalError(.noData))
-        )
-        
-        do {
-            _ = try await sut.downloadFile(with: testURL)
-            Issue.record("unexpected error")
-        } catch let error as NetworkingError {
-            #expect(error == NetworkingError.internalError(.noData))
-        }
-    }
-    
+    // MARK: ERROR - status code
+
     @Test("test DownloadFile Fails When StatusCode Is Not 200")
     func testDownloadFileFailsWhenStatusCodeIsNot200() async throws {
         let sut = createFileDownloader(
@@ -46,8 +36,26 @@ final class FileDownloadable_AsyncAwait_Tests {
             #expect(error == NetworkingError.httpError(HTTPError(statusCode: 400)))
         }
     }
+
+    // MARK: ERROR - validation
+
+    @Test("test DownloadFile Fails When Validator Throws AnyError")
+    func testDownloadFileFailsWhenValidatorThrowsAnyError() async throws {
+        let sut = createFileDownloader(
+            validator: MockURLResponseValidator(throwError: NetworkingError.internalError(.noData))
+        )
+        
+        do {
+            _ = try await sut.downloadFile(with: testURL)
+            Issue.record("unexpected error")
+        } catch let error as NetworkingError {
+            #expect(error == NetworkingError.internalError(.noData))
+        }
+    }
     
-    @Test("test DownloadFile Fails When Error Is Not Nil")
+    // MARK: ERROR - urlSession
+    
+    @Test("test DownloadFile Fails When urlSession Error Is Not Nil")
     func testDownloadFileFailsWhenErrorIsNotNil() async throws {
         let sut = createFileDownloader(
             urlSession: createMockURLSession(error: NetworkingError.internalError(.unknown))
@@ -60,7 +68,9 @@ final class FileDownloadable_AsyncAwait_Tests {
             #expect(error == NetworkingError.internalError(.requestFailed(NetworkingError.internalError(.unknown))))
         }
     }
-    
+
+    // MARK: Tracking
+
     @Test("test DownloadFile Download Progress Can Be Tracked")
     func testDownloadFileDownloadProgressCanBeTracked() async throws {
         let testURL = URL(string: "https://example.com/example.pdf")!
@@ -69,11 +79,14 @@ final class FileDownloadable_AsyncAwait_Tests {
             urlResponse: buildResponse(statusCode: 200),
             error: nil
         )
-        let validator = ResponseValidatorImpl()
-        let decoder = RequestDecoder()
         let delegate = SessionDelegate()
         urlSession.sessionDelegate = delegate
-        let sut = FileDownloader(urlSession: urlSession, validator: validator, requestDecoder: decoder, sessionDelegate: delegate)
+        let sut = FileDownloader(
+            urlSession: urlSession,
+            validator: ResponseValidatorImpl(),
+            requestDecoder: RequestDecoder(),
+            sessionDelegate: delegate
+        )
         
         var didTrackProgress = false
         do {
