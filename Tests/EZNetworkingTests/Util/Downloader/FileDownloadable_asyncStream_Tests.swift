@@ -25,7 +25,7 @@ final class FileDownloadable_AsyncStream_Tests {
             sessionDelegate: delegate
         )
 
-        var events: [DownloadEvent] = []
+        var events: [DownloadStreamEvent] = []
         for await event in sut.downloadFileStream(url: testURL) {
             events.append(event)
         }
@@ -49,7 +49,7 @@ final class FileDownloadable_AsyncStream_Tests {
             validator: ResponseValidatorImpl()
         )
 
-        var events: [DownloadEvent] = []
+        var events: [DownloadStreamEvent] = []
         for await event in sut.downloadFileStream(url: testURL) {
             events.append(event)
         }
@@ -73,7 +73,7 @@ final class FileDownloadable_AsyncStream_Tests {
             validator: MockURLResponseValidator(throwError: NetworkingError.internalError(.noData))
         )
 
-        var events: [DownloadEvent] = []
+        var events: [DownloadStreamEvent] = []
         for await event in sut.downloadFileStream(url: testURL) {
             events.append(event)
         }
@@ -96,7 +96,7 @@ final class FileDownloadable_AsyncStream_Tests {
             urlSession: createMockURLSession(error: NetworkingError.internalError(.unknown))
         )
 
-        var events: [DownloadEvent] = []
+        var events: [DownloadStreamEvent] = []
         for await event in sut.downloadFileStream(url: testURL) {
             events.append(event)
         }

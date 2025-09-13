@@ -4,7 +4,7 @@ import Foundation
 public typealias DownloadProgressHandler = (Double) -> Void
 public typealias DownloadCompletionHandler = (Result<URL, NetworkingError>) -> Void
 
-public enum DownloadEvent {
+public enum DownloadStreamEvent {
     case progress(Double)
     case success(URL)
     case failure(NetworkingError)
@@ -14,7 +14,7 @@ public protocol FileDownloadable {
     func downloadFile(with url: URL, progress: DownloadProgressHandler?) async throws -> URL
     func downloadFileTask(url: URL, progress: DownloadProgressHandler?, completion: @escaping(DownloadCompletionHandler)) -> URLSessionDownloadTask
     func downloadFilePublisher(url: URL, progress: DownloadProgressHandler?) -> AnyPublisher<URL, NetworkingError>
-    func downloadFileStream(url: URL) -> AsyncStream<DownloadEvent>
+    func downloadFileStream(url: URL) -> AsyncStream<DownloadStreamEvent>
 }
 
 public class FileDownloader: FileDownloadable {
@@ -101,7 +101,7 @@ public class FileDownloader: FileDownloadable {
 
     // MARK: AsyncStream
 
-    public func downloadFileStream(url: URL) -> AsyncStream<DownloadEvent> {
+    public func downloadFileStream(url: URL) -> AsyncStream<DownloadStreamEvent> {
         AsyncStream { continuation in
             // Progress handler yields progress updates to the stream.
             let progressHandler: DownloadProgressHandler = { progress in
