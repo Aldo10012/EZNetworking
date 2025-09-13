@@ -1,27 +1,21 @@
 import Foundation
 
-public enum HTTPServerErrorStatus: Int, Error {
-    case internalServerError = 500
-    case notImplemented = 501
-    case badGateway = 502
-    case serviceUnavailable = 503
-    case gatewayTimeout = 504
-    case httpVersionNotSupported = 505
-    case variantAlsoNegotiates = 506
-    case insufficientStorage = 507
-    case loopDetected = 508
-    case notExtended = 510
-    case networkAuthenticationRequired = 511
-    case unknown = -1
-
-    public init(statusCode: Int) {
-        if let error = HTTPServerErrorStatus(rawValue: statusCode) {
-            self = error
-        } else {
-            self = .unknown
-        }
+enum HTTPServerErrorStatus: Error {
+    static func description(from statusCode: Int) -> String {
+        return HTTPServerErrorStatus.descriptions[statusCode] ?? "Unknown Server Error"
     }
     
-    public var description: String { return "\(self)" }
-    public var statusCode: Int { return self.rawValue }
+    private static let descriptions: [Int: String] = [
+        500: "Internal Server Error",
+        501: "Not Implemented",
+        502: "Bad Gateway",
+        503: "Service Unavailable",
+        504: "Gateway Timeout",
+        505: "HTTP Version Not Supported",
+        506: "Variant Also Negotiates",
+        507: "Insufficient Storage",
+        508: "Loop Detected",
+        510: "Not Extended",
+        511: "Network Authentication Required"
+    ]
 }

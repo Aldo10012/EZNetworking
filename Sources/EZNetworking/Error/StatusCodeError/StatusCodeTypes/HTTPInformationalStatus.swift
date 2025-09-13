@@ -1,19 +1,13 @@
 import Foundation
 
-public enum HTTPInformationalStatus: Int, Error {
-    case continueStatus = 100
-    case switchingProtocols = 101
-    case processing = 102
-    case unknown = -1
-
-    public init(statusCode: Int) {
-        if let error = HTTPInformationalStatus(rawValue: statusCode) {
-            self = error
-        } else {
-            self = .unknown
-        }
+enum HTTPInformationalStatus: Error {
+    static func description(from statusCode: Int) -> String {
+        return HTTPInformationalStatus.descriptions[statusCode] ?? "Unknown Informational Status"
     }
     
-    public var description: String { return "\(self)" }
-    public var statusCode: Int { return self.rawValue }
+    private static let descriptions: [Int: String] = [
+        100: "Continue",
+        101: "Switching Protocols",
+        102: "Processing"
+    ]
 }

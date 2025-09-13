@@ -1,26 +1,20 @@
 import Foundation
 
-public enum HTTPSuccessStatus: Int, Error {
-    case ok = 200
-    case created = 201
-    case accepted = 202
-    case nonAuthoritativeInformation = 203
-    case noContent = 204
-    case resetContent = 205
-    case partialContent = 206
-    case multiStatus = 207
-    case alreadyReported = 208
-    case iMUsed = 226
-    case unknown = -1
-    
-    public init(statusCode: Int) {
-        if let error = HTTPSuccessStatus(rawValue: statusCode) {
-            self = error
-        } else {
-            self = .unknown
-        }
+enum HTTPSuccessStatus: Error {
+    static func description(from statusCode: Int) -> String {
+        return HTTPSuccessStatus.descriptions[statusCode] ?? "Unknown Success Status"
     }
     
-    public var description: String { return "\(self)" }
-    public var statusCode: Int { return self.rawValue }
+    private static let descriptions: [Int: String] = [
+        200: "OK",
+        201: "Created",
+        202: "Accepted",
+        203: "Non-Authoritative Information",
+        204: "No Content",
+        205: "Reset Content",
+        206: "Partial Content",
+        207: "Multi-Status",
+        208: "Already Reported",
+        226: "IM Used"
+    ]
 }

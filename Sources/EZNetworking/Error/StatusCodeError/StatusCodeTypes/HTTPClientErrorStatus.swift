@@ -1,45 +1,39 @@
 import Foundation
 
-public enum HTTPClientErrorStatus: Int, Error {
-    case badRequest = 400
-    case unauthorized = 401
-    case paymentRequired = 402
-    case forbidden = 403
-    case notFound = 404
-    case methodNotAllowed = 405
-    case notAcceptable = 406
-    case proxyAuthenticationRequired = 407
-    case requestTimeout = 408
-    case conflict = 409
-    case gone = 410
-    case lengthRequired = 411
-    case preconditionFailed = 412
-    case payloadTooLarge = 413
-    case uriTooLong = 414
-    case unsupportedMediaType = 415
-    case rangeNotSatisfiable = 416
-    case expectationFailed = 417
-    case imATeapot = 418
-    case misdirectedRequest = 421
-    case unprocessableEntity = 422
-    case locked = 423
-    case failedDependency = 424
-    case tooEarly = 425
-    case upgradeRequired = 426
-    case preconditionRequired = 428
-    case tooManyRequests = 429
-    case requestHeaderFieldsTooLarge = 431
-    case unavailableForLegalReasons = 451
-    case unknown = -1
-
-    public init(statusCode: Int) {
-        if let error = HTTPClientErrorStatus(rawValue: statusCode) {
-            self = error
-        } else {
-            self = .unknown
-        }
+enum HTTPClientErrorStatus: Error {
+    static func description(from statusCode: Int) -> String {
+        HTTPClientErrorStatus.descriptions[statusCode] ?? "Unknown Client Error"
     }
     
-    public var description: String { return "\(self)" }
-    public var statusCode: Int { return self.rawValue }
+    private static let descriptions: [Int: String] = [
+        400: "Bad Request",
+        401: "Unauthorized",
+        402: "Payment Required",
+        403: "Forbidden",
+        404: "Not Found",
+        405: "Method Not Allowed",
+        406: "Not Acceptable",
+        407: "Proxy Authentication Required",
+        408: "Request Timeout",
+        409: "Conflict",
+        410: "Gone",
+        411: "Length Required",
+        412: "Precondition Failed",
+        413: "Payload Too Large",
+        414: "URI Too Long",
+        415: "Unsupported Media Type",
+        416: "Range Not Satisfiable",
+        417: "Expectation Failed",
+        418: "I'm a teapot",
+        421: "Misdirected Request",
+        422: "Unprocessable Entity",
+        423: "Locked",
+        424: "Failed Dependency",
+        425: "Too Early",
+        426: "Upgrade Required",
+        428: "Precondition Required",
+        429: "Too Many Requests",
+        431: "Request Header Fields Too Large",
+        451: "Unavailable For Legal Reasons"
+    ]
 }

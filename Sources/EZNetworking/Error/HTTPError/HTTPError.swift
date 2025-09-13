@@ -11,6 +11,23 @@ public struct HTTPError: Error {
         self.category = HTTPErrorCategory.from(statusCode: statusCode)
     }
     
+    public var statusCodeDescription: String {
+        switch category {
+        case .informational:
+            return HTTPInformationalStatus.description(from: statusCode)
+        case .success:
+            return HTTPSuccessStatus.description(from: statusCode)
+        case .redirection:
+            return HTTPRedirectionStatus.description(from: statusCode)
+        case .clientError:
+            return HTTPClientErrorStatus.description(from: statusCode)
+        case .serverError:
+            return HTTPServerErrorStatus.description(from: statusCode)
+        case .unknown:
+            return "Unknown Status Code (\(statusCode))"
+        }
+    }
+    
     public enum HTTPErrorCategory {
         case informational  // 1xx
         case success        // 2xx

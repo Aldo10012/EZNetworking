@@ -1,24 +1,18 @@
 import Foundation
 
-public enum HTTPRedirectionStatus: Int, Error {
-    case multipleChoices = 300
-    case movedPermanently = 301
-    case found = 302
-    case seeOther = 303
-    case notModified = 304
-    case useProxy = 305
-    case temporaryRedirect = 307
-    case permanentRedirect = 308
-    case unknown = -1
-
-    public init(statusCode: Int) {
-        if let error = HTTPRedirectionStatus(rawValue: statusCode) {
-            self = error
-        } else {
-            self = .unknown
-        }
+enum HTTPRedirectionStatus: Error {
+    static func description(from statusCode: Int) -> String {
+        return HTTPRedirectionStatus.descriptions[statusCode] ?? "Unknown Redirection Status"
     }
     
-    public var description: String { return "\(self)" }
-    public var statusCode: Int { return self.rawValue }
+    private static let descriptions: [Int: String] = [
+        300: "Multiple Choices",
+        301: "Moved Permanently",
+        302: "Found",
+        303: "See Other",
+        304: "Not Modified",
+        305: "Use Proxy",
+        307: "Temporary Redirect",
+        308: "Permanent Redirect"
+    ]
 }
