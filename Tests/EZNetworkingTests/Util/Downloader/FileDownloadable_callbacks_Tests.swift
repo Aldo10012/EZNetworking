@@ -100,10 +100,119 @@ final class FileDownloadable_CallBacks_Tests {
         #expect(didExecute)
     }
     
-    // MARK: Tracking
+    // MARK: TRACKING progress callback
     
     @Test("test .downloadFileTask() Download Progress Can Be Tracked")
     func testDownloadFileTaskDownloadProgressCanBeTracked() {
+        let testURL = URL(string: "https://example.com/example.pdf")!
+        let urlSession = createMockURLSession()
+        
+        urlSession.progressToExecute = [.inProgress(percent: 50)]
+        
+        let sut = FileDownloader(mockSession: urlSession)
+        var didExecute = false
+        var didTrackProgress = false
+        
+        _ = sut.downloadFileTask(url: testURL, progress: { progress in
+            didTrackProgress = true
+        }) { result in
+            defer { didExecute = true }
+            switch result {
+            case .success: #expect(true)
+            case .failure: Issue.record()
+            }
+        }
+        #expect(didExecute)
+        #expect(didTrackProgress)
+    }
+    
+    @Test("test .downloadFileTask() Download Progress Tracking Happens Before Return")
+    func testDownloadFileTaskDownloadProgressTrackingHappensBeforeReturn() {
+        let testURL = URL(string: "https://example.com/example.pdf")!
+        let urlSession = createMockURLSession()
+        
+        urlSession.progressToExecute = [
+            .inProgress(percent: 50)
+        ]
+        
+        let sut = FileDownloader(mockSession: urlSession)
+        var didTrackProgressBeforeReturn: Bool? = nil
+        
+        _ = sut.downloadFileTask(url: testURL, progress: { progress in
+            if didTrackProgressBeforeReturn == nil {
+                didTrackProgressBeforeReturn = true
+            }
+        }) { result in
+            switch result {
+            case .success:
+                if didTrackProgressBeforeReturn == nil {
+                    didTrackProgressBeforeReturn = true
+                }
+            case .failure:
+                Issue.record()
+            }
+        }
+        #expect(didTrackProgressBeforeReturn == true)
+    }
+    
+    @Test("test .downloadFileTask() Download Progress Tracks Correct Order")
+    func testDownloadFileTaskDownloadProgressTrackingHappensInCorrectOrder() {
+        let testURL = URL(string: "https://example.com/example.pdf")!
+        let urlSession = createMockURLSession()
+        
+        urlSession.progressToExecute = [
+            .inProgress(percent: 30),
+            .inProgress(percent: 60),
+            .inProgress(percent: 90),
+            .complete
+        ]
+        
+        let sut = FileDownloader(mockSession: urlSession)
+        var capturedTracking = [Double]()
+        
+        _ = sut.downloadFileTask(
+            url: testURL,
+            progress: { progress in
+                capturedTracking.append(progress)
+            },
+            completion: { _ in }
+        )
+        
+        #expect(capturedTracking.count == 4)
+        #expect(capturedTracking == [0.3, 0.6, 0.9, 1.0])
+    }
+    
+//    @Test("test .downloadFileTask() Progress Can Be Tracked Without Injecting SessionDelegate")
+//    func testDownloadFileTaskDownloadProgressCanBeTrackedWithoutInjectinSessionDelegate() {
+//        let testURL = URL(string: "https://example.com/example.pdf")!
+//        let urlSession = createMockURLSession()
+//        
+//        urlSession.progressToExecute = [
+//            .inProgress(percent: 50)
+//        ]
+//        
+//        let sut = FileDownloader(
+//            mockSession: urlSession
+//        )
+//        
+//        var didExecute = false
+//        var didTrackProgress = false
+//        
+//        _ = sut.downloadFileTask(url: testURL, progress: { progress in
+//            didTrackProgress = true
+//        }) { result in
+//            defer { didExecute = true }
+//            switch result {
+//            case .success: #expect(true)
+//            case .failure: Issue.record()
+//            }
+//        }
+//        #expect(didExecute)
+//        #expect(didTrackProgress)
+//    }
+
+    @Test("test .downloadFileTask() Download Progress Can Be Tracked when Injecting SessionDelegat")
+    func testDownloadFileTaskDownloadProgressCanBeTrackedWhenInjectingSessionDelegate() {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = createMockURLSession()
         
@@ -132,93 +241,30 @@ final class FileDownloadable_CallBacks_Tests {
         #expect(didTrackProgress)
     }
     
-    @Test("test .downloadFileTask() Download Progress Tracking Happens Before Return")
-    func testDownloadFileTaskDownloadProgressTrackingHappensBeforeReturn() {
+    @Test("test .downloadFileTask() Download Progress Can Be Tracked when Injecting DownloadTaskInterceptor")
+    func testDownloadFileTaskDownloadProgressCanBeTrackedWhenInjectingDownloadTaskInterceptor() {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = createMockURLSession()
         
-        let delegate = SessionDelegate()
-        urlSession.sessionDelegate = delegate
-        urlSession.progressToExecute = [
-            .inProgress(percent: 50)
-        ]
-        
-        let sut = FileDownloader(
-            urlSession: urlSession,
-            sessionDelegate: delegate
-        )
-        
-        var didTrackProgressBeforeReturn: Bool? = nil
-        
-        _ = sut.downloadFileTask(url: testURL, progress: { progress in
-            if didTrackProgressBeforeReturn == nil {
-                didTrackProgressBeforeReturn = true
-            }
-        }) { result in
-            switch result {
-            case .success:
-                if didTrackProgressBeforeReturn == nil {
-                    didTrackProgressBeforeReturn = true
-                }
-            case .failure:
-                Issue.record()
-            }
+        var didTrackProgressFromInterceptor = false
+
+        let downloadTaskInterceptor = FileDownloader_MockDownloadTaskInterceptor { _ in
+            didTrackProgressFromInterceptor = true
         }
-        #expect(didTrackProgressBeforeReturn == true)
-    }
-    
-    @Test("test .downloadFileTask() Download Progress Tracks Correct Order")
-    func testDownloadFileTaskDownloadProgressTrackingHappensInCorrectOrder() {
-        let testURL = URL(string: "https://example.com/example.pdf")!
-        let urlSession = createMockURLSession()
-        
-        let delegate = SessionDelegate()
+        let delegate = SessionDelegate(
+            downloadTaskInterceptor: downloadTaskInterceptor
+        )
         urlSession.sessionDelegate = delegate
-        urlSession.progressToExecute = [
-            .inProgress(percent: 30),
-            .inProgress(percent: 60),
-            .inProgress(percent: 90),
-            .complete
-        ]
+        urlSession.progressToExecute = [.inProgress(percent: 50)]
         
         let sut = FileDownloader(
             urlSession: urlSession,
             sessionDelegate: delegate
-        )
-        
-        var capturedTracking = [Double]()
-        
-        _ = sut.downloadFileTask(
-            url: testURL,
-            progress: { progress in
-                capturedTracking.append(progress)
-            },
-            completion: { _ in }
-        )
-        
-        #expect(capturedTracking.count == 4)
-        #expect(capturedTracking == [0.3, 0.6, 0.9, 1.0])
-    }
-    
-    @Test("test .downloadFileTask() Progress Can Be Tracked Without Injecting SessionDelegate")
-    func testDownloadFileTaskDownloadProgressCanBeTrackedWithoutInjectinSessionDelegate() {
-        let testURL = URL(string: "https://example.com/example.pdf")!
-        let urlSession = createMockURLSession()
-        
-        urlSession.progressToExecute = [
-            .inProgress(percent: 50)
-        ]
-        
-        let sut = FileDownloader(
-            mockSession: urlSession
         )
         
         var didExecute = false
-        var didTrackProgress = false
         
-        _ = sut.downloadFileTask(url: testURL, progress: { progress in
-            didTrackProgress = true
-        }) { result in
+        _ = sut.downloadFileTask(url: testURL, progress: nil) { result in
             defer { didExecute = true }
             switch result {
             case .success: #expect(true)
@@ -226,7 +272,8 @@ final class FileDownloadable_CallBacks_Tests {
             }
         }
         #expect(didExecute)
-        #expect(didTrackProgress)
+        #expect(didTrackProgressFromInterceptor)
+        #expect(downloadTaskInterceptor.didCallDidWriteData)
     }
 }
 

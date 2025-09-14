@@ -113,17 +113,11 @@ final class FileDownloadable_AsyncStream_Tests {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = createMockURLSession()
         
-        let delegate = SessionDelegate()
-        urlSession.sessionDelegate = delegate
         urlSession.progressToExecute = [
             .inProgress(percent: 50)
         ]
         
-        let sut = FileDownloader(
-            urlSession: urlSession,
-            sessionDelegate: delegate
-        )
-        
+        let sut = FileDownloader(mockSession: urlSession)
         var didTrackProgress = false
         
         for await event in sut.downloadFileStream(url: testURL) {
@@ -143,17 +137,11 @@ final class FileDownloadable_AsyncStream_Tests {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = createMockURLSession()
         
-        let delegate = SessionDelegate()
-        urlSession.sessionDelegate = delegate
         urlSession.progressToExecute = [
             .inProgress(percent: 50)
         ]
         
-        let sut = FileDownloader(
-            urlSession: urlSession,
-            sessionDelegate: delegate
-        )
-        
+        let sut = FileDownloader(mockSession: urlSession)
         var didTrackProgressBeforeReturn: Bool? = nil
         var numberOfEvents = 0
         
@@ -183,8 +171,6 @@ final class FileDownloadable_AsyncStream_Tests {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = createMockURLSession()
         
-        let delegate = SessionDelegate()
-        urlSession.sessionDelegate = delegate
         urlSession.progressToExecute = [
             .inProgress(percent: 30),
             .inProgress(percent: 60),
@@ -192,11 +178,7 @@ final class FileDownloadable_AsyncStream_Tests {
             .complete
         ]
         
-        let sut = FileDownloader(
-            urlSession: urlSession,
-            sessionDelegate: delegate
-        )
-        
+        let sut = FileDownloader(mockSession: urlSession)
         var progressValues: [Double] = []
         var didReceiveSuccess = false
         
@@ -215,17 +197,46 @@ final class FileDownloadable_AsyncStream_Tests {
         #expect(didReceiveSuccess)
     }
     
-    @Test("test .downloadFileStream() Progress Can Be Tracked Without Injecting SessionDelegate")
-    func testDownloadFileStreamDownloadProgressCanBeTrackedWithoutInjectingSessionDelegate() async throws {
+//    @Test("test .downloadFileStream() Progress Can Be Tracked Without Injecting SessionDelegate")
+//    func testDownloadFileStreamDownloadProgressCanBeTrackedWithoutInjectingSessionDelegate() async throws {
+//        let testURL = URL(string: "https://example.com/example.pdf")!
+//        let urlSession = createMockURLSession()
+//        
+//        urlSession.progressToExecute = [
+//            .inProgress(percent: 50)
+//        ]
+//        
+//        let sut = FileDownloader(
+//            mockSession: urlSession
+//        )
+//        
+//        var didTrackProgress = false
+//        
+//        for await event in sut.downloadFileStream(url: testURL) {
+//            switch event {
+//            case .progress:
+//                didTrackProgress = true
+//            case .success: break
+//            case .failure: Issue.record()
+//            }
+//        }
+//        
+//        #expect(didTrackProgress)
+//    }
+    @Test("test .downloadFileStream() Download Progress Can Be Tracked when Injecting SessionDelegat")
+    func testDownloadFileStreamDownloadProgressCanBeTrackedWhenInjectingSessionDelegate() async throws {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = createMockURLSession()
         
+        let delegate = SessionDelegate()
+        urlSession.sessionDelegate = delegate
         urlSession.progressToExecute = [
             .inProgress(percent: 50)
         ]
         
         let sut = FileDownloader(
-            mockSession: urlSession
+            urlSession: urlSession,
+            sessionDelegate: delegate
         )
         
         var didTrackProgress = false
@@ -240,6 +251,41 @@ final class FileDownloadable_AsyncStream_Tests {
         }
         
         #expect(didTrackProgress)
+    }
+    
+    @Test("test .downloadFileStream() Download Progress Can Be Tracked when Injecting DownloadTaskInterceptor")
+    func testDownloadFileStreamDownloadProgressCanBeTrackedWhenInjectingDownloadTaskInterceptor() async throws {
+        let testURL = URL(string: "https://example.com/example.pdf")!
+        let urlSession = createMockURLSession()
+        var didTrackProgressFromInterceptor = false
+
+        let downloadTaskInterceptor = FileDownloader_MockDownloadTaskInterceptor { _ in
+            didTrackProgressFromInterceptor = true
+        }
+        let delegate = SessionDelegate(
+            downloadTaskInterceptor: downloadTaskInterceptor
+        )
+        urlSession.sessionDelegate = delegate
+        urlSession.progressToExecute = [
+            .inProgress(percent: 50)
+        ]
+        
+        let sut = FileDownloader(
+            urlSession: urlSession,
+            sessionDelegate: delegate
+        )
+        
+        
+        for await event in sut.downloadFileStream(url: testURL) {
+            switch event {
+            case .progress: break
+            case .success: break
+            case .failure: Issue.record()
+            }
+        }
+        
+        #expect(didTrackProgressFromInterceptor == true)
+        #expect(downloadTaskInterceptor.didCallDidWriteData)
     }
     
 }
