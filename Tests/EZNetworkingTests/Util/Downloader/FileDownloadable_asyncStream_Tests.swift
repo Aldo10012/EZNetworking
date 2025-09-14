@@ -236,7 +236,11 @@ final class FileDownloadable_AsyncStream_Tests {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = createMockURLSession()
 
-        let downloadTaskInterceptor = FileDownloader_MockDownloadTaskInterceptor(progress: { _ in })
+        var didTrackProgressStreamEvent = false
+        var didTrackProgressFromInterceptorClosure = false
+        let downloadTaskInterceptor = FileDownloader_MockDownloadTaskInterceptor(progress: { _ in
+            didTrackProgressFromInterceptorClosure = true
+        })
         let delegate = SessionDelegate(
             downloadTaskInterceptor: downloadTaskInterceptor
         )
@@ -253,13 +257,15 @@ final class FileDownloadable_AsyncStream_Tests {
         
         for await event in sut.downloadFileStream(url: testURL) {
             switch event {
-            case .progress: break
+            case .progress: didTrackProgressStreamEvent = true
             case .success: break
             case .failure: Issue.record()
             }
         }
         
         #expect(downloadTaskInterceptor.didCallDidWriteData)
+        #expect(didTrackProgressStreamEvent)
+        #expect(didTrackProgressFromInterceptorClosure == false) // closure inside of interceptor gets overwritten
     }
     
 }
