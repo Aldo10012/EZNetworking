@@ -100,7 +100,7 @@ final class FileDownloadable_CallBacks_Tests {
         #expect(didExecute)
     }
     
-    // MARK: TRACKING progress callback
+    // MARK: Traching with callback
     
     @Test("test .downloadFileTask() Download Progress Can Be Tracked")
     func testDownloadFileTaskDownloadProgressCanBeTracked() {
@@ -182,6 +182,8 @@ final class FileDownloadable_CallBacks_Tests {
         #expect(capturedTracking == [0.3, 0.6, 0.9, 1.0])
     }
     
+    // MARK: Traching with delegate
+    
     @Test("test .downloadFileTask() Download Progress Can Be Tracked when Injecting SessionDelegat")
     func testDownloadFileTaskDownloadProgressCanBeTrackedWhenInjectingSessionDelegate() {
         let testURL = URL(string: "https://example.com/example.pdf")!
@@ -211,6 +213,8 @@ final class FileDownloadable_CallBacks_Tests {
         #expect(didExecute)
         #expect(didTrackProgress)
     }
+    
+    // MARK: Traching with interceptor
     
     @Test("test .downloadFileTask() Download Progress Can Be Tracked when Injecting DownloadTaskInterceptor")
     func testDownloadFileTaskDownloadProgressCanBeTrackedWhenInjectingDownloadTaskInterceptor() {

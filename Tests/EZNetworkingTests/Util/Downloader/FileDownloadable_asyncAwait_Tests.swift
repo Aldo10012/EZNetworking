@@ -148,6 +148,8 @@ final class FileDownloadable_AsyncAwait_Tests {
         }
     }
     
+    // MARK: Traching with delegate
+    
     @Test("test .downloadFile() Download Progress Can Be Tracked when Injecting SessionDelegate")
     func testDownloadFileDownloadProgressCanBeTrackedWhenInjectingSessionDelegate() async throws {
         let testURL = URL(string: "https://example.com/example.pdf")!
@@ -175,6 +177,8 @@ final class FileDownloadable_AsyncAwait_Tests {
             Issue.record()
         }
     }
+    
+    // MARK: Traching with interceptor
     
     @Test("test .downloadFile() Download Progress Can Be Tracked when Injecting DownloadTaskInterceptor")
     func testDownloadFileDownloadProgressCanBeTrackedWhenInjectingDownloadTaskInterceptor() async throws {

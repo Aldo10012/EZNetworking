@@ -197,6 +197,8 @@ final class FileDownloadable_AsyncStream_Tests {
         #expect(didReceiveSuccess)
     }
     
+    // MARK: Traching with delegate
+    
     @Test("test .downloadFileStream() Download Progress Can Be Tracked when Injecting SessionDelegat")
     func testDownloadFileStreamDownloadProgressCanBeTrackedWhenInjectingSessionDelegate() async throws {
         let testURL = URL(string: "https://example.com/example.pdf")!
@@ -226,6 +228,8 @@ final class FileDownloadable_AsyncStream_Tests {
         
         #expect(didTrackProgress)
     }
+    
+    // MARK: Traching with interceptor
     
     @Test("test .downloadFileStream() Download Progress Can Be Tracked when Injecting DownloadTaskInterceptor")
     func testDownloadFileStreamDownloadProgressCanBeTrackedWhenInjectingDownloadTaskInterceptor() async throws {
