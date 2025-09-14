@@ -11,11 +11,7 @@ final class FileDownloadable_AsyncStream_Tests {
     @Test("test .downloadFileStream() Success")
     func testDownloadFileStreamSuccess() async throws {
         let testURL = URL(string: "https://example.com/example.pdf")!
-        let urlSession = MockURLSession(
-            url: testURL,
-            urlResponse: buildResponse(statusCode: 200),
-            error: nil
-        )
+        let urlSession = createMockURLSession()
         let delegate = SessionDelegate()
         urlSession.sessionDelegate = delegate
         let sut = FileDownloader(
