@@ -147,31 +147,7 @@ final class FileDownloadable_AsyncAwait_Tests {
             Issue.record()
         }
     }
-
-//    @Test("test .downloadFile() Progress Can Be Tracked without injecting SessionDelegate")
-//    func testDownloadFileDownloadProgressCanBeTrackedWithoutInjectingSessionDelegate() async throws {
-//        let testURL = URL(string: "https://example.com/example.pdf")!
-//        let urlSession = createMockURLSession()
-//        
-//        urlSession.progressToExecute = [
-//            .inProgress(percent: 50)
-//        ]
-//        
-//        let sut = FileDownloader(
-//            mockSession: urlSession
-//        )
-//        
-//        var didTrackProgress = false
-//        
-//        do {
-//            _ = try await sut.downloadFile(with: testURL, progress: { value in
-//                didTrackProgress = true
-//            })
-//            #expect(didTrackProgress)
-//        } catch {
-//            Issue.record()
-//        }
-//    }
+    
     @Test("test .downloadFile() Download Progress Can Be Tracked when Injecting SessionDelegate")
     func testDownloadFileDownloadProgressCanBeTrackedWhenInjectingSessionDelegate() async throws {
         let testURL = URL(string: "https://example.com/example.pdf")!
