@@ -99,6 +99,34 @@ final class FileDownloadable_AsyncAwait_Tests {
         }
     }
     
+//    @Test("test .downloadFile() Download Progress Can Be Tracked")
+//    func testDownloadFileDownloadProgressCanBeTrackedWithoutInjectingSessionDelegate() async throws {
+//        let testURL = URL(string: "https://example.com/example.pdf")!
+//        let urlSession = createMockURLSession()
+//        
+////        let delegate = SessionDelegate()
+////        urlSession.sessionDelegate = delegate
+//        urlSession.progressToExecute = [
+//            .inProgress(percent: 50)
+//        ]
+//        
+//        let sut = FileDownloader(
+//            urlSession: urlSession
+////            sessionDelegate: delegate
+//        )
+//        
+//        var didTrackProgress = false
+//        
+//        do {
+//            _ = try await sut.downloadFile(with: testURL, progress: { value in
+//                didTrackProgress = true
+//            })
+//            #expect(didTrackProgress)
+//        } catch {
+//            Issue.record()
+//        }
+//    }
+    
     @Test("test .downloadFile() Download Progress Tracking Happens Before Return")
     func testDownloadFileDownloadProgressTrackingHapensBeforeReturn() async throws {
         let testURL = URL(string: "https://example.com/example.pdf")!
