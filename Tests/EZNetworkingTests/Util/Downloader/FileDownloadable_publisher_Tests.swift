@@ -105,24 +105,18 @@ final class FileDownloadable_publisher_Tests {
         #expect(didExecute)
     }
     
-    // MARK: Tracking
+    // MARK: Tracking with callbacks
     
     @Test("test .downloadFilePublisher() Download Progress Can Be Tracked")
     func testDownloadFilePublisherTaskDownloadProgressCanBeTracked() {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = createMockURLSession()
         
-        let delegate = SessionDelegate()
-        urlSession.sessionDelegate = delegate
         urlSession.progressToExecute = [
             .inProgress(percent: 50)
         ]
         
-        let sut = FileDownloader(
-            urlSession: urlSession,
-            sessionDelegate: delegate
-        )
-        
+        let sut = FileDownloader(mockSession: urlSession)
         var didExecute = false
         var didTrackProgress = false
         
@@ -149,17 +143,11 @@ final class FileDownloadable_publisher_Tests {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = createMockURLSession()
         
-        let delegate = SessionDelegate()
-        urlSession.sessionDelegate = delegate
         urlSession.progressToExecute = [
             .inProgress(percent: 50)
         ]
         
-        let sut = FileDownloader(
-            urlSession: urlSession,
-            sessionDelegate: delegate
-        )
-        
+        let sut = FileDownloader(mockSession: urlSession)
         var didTrackProgressBeforeReturn: Bool? = nil
         
         sut.downloadFilePublisher(url: testURL) { _ in
@@ -187,8 +175,6 @@ final class FileDownloadable_publisher_Tests {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = createMockURLSession()
         
-        let delegate = SessionDelegate()
-        urlSession.sessionDelegate = delegate
         urlSession.progressToExecute = [
             .inProgress(percent: 30),
             .inProgress(percent: 60),
@@ -196,11 +182,7 @@ final class FileDownloadable_publisher_Tests {
             .complete
         ]
         
-        let sut = FileDownloader(
-            urlSession: urlSession,
-            sessionDelegate: delegate
-        )
-        
+        let sut = FileDownloader(mockSession: urlSession)
         var capturedTracking = [Double]()
         
         sut.downloadFilePublisher(url: testURL) { progress in
@@ -218,17 +200,22 @@ final class FileDownloadable_publisher_Tests {
         #expect(capturedTracking == [0.3, 0.6, 0.9, 1.0])
     }
     
-    @Test("test .downloadFilePublisher() Progress Can Be Tracked Without Injecting Session Delegate")
-    func testDownloadFilePublisherTaskDownloadProgressCanBeTrackedWithoutInjectingSessionDelegate() {
+    // MARK: Tracking with delegate
+
+    @Test("test .downloadFilePublisher() Download Progress Can Be Tracked when Injecting SessionDelegat")
+    func testDownloadFilePublisherTaskDownloadProgressCanBeTrackedWhenInjectingSessionDelegate() {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = createMockURLSession()
         
+        let delegate = SessionDelegate()
+        urlSession.sessionDelegate = delegate
         urlSession.progressToExecute = [
             .inProgress(percent: 50)
         ]
         
         let sut = FileDownloader(
-            mockSession: urlSession
+            urlSession: urlSession,
+            sessionDelegate: delegate
         )
         
         var didExecute = false
@@ -250,6 +237,50 @@ final class FileDownloadable_publisher_Tests {
         
         #expect(didExecute)
         #expect(didTrackProgress)
+    }
+    
+    // MARK: Tracking with Interceptor
+
+    @Test("test .downloadFilePublisher() Download Progress Can Be Tracked when Injecting DownloadTaskInterceptor")
+    func testDownloadFilePublisherTaskDownloadProgressCanBeTrackedWhenInjectingDownloadTaskInterceptor() {
+        let testURL = URL(string: "https://example.com/example.pdf")!
+        let urlSession = createMockURLSession()
+        
+        var didTrackProgressFromInterceptor = false
+
+        let downloadTaskInterceptor = FileDownloader_MockDownloadTaskInterceptor { _ in
+            didTrackProgressFromInterceptor = true
+        }
+        let delegate = SessionDelegate(
+            downloadTaskInterceptor: downloadTaskInterceptor
+        )
+        urlSession.sessionDelegate = delegate
+        urlSession.progressToExecute = [
+            .inProgress(percent: 50)
+        ]
+        
+        let sut = FileDownloader(
+            urlSession: urlSession,
+            sessionDelegate: delegate
+        )
+        
+        var didExecute = false
+        
+        sut.downloadFilePublisher(url: testURL, progress: nil)
+        .sink { completion in
+            switch completion {
+            case .failure: Issue.record()
+            case .finished: break
+            }
+        } receiveValue: { localURL in
+            #expect(localURL.absoluteString == "file:///tmp/test.pdf")
+            didExecute = true
+        }
+        .store(in: &cancellables)
+        
+        #expect(didExecute)
+        #expect(didTrackProgressFromInterceptor)
+        #expect(downloadTaskInterceptor.didCallDidWriteData)
     }
 }
 

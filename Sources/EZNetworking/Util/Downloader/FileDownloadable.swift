@@ -147,7 +147,7 @@ public class FileDownloader: FileDownloadable {
         return .internalError(.unknown)
     }
 
-    private func configureProgressTracking(progress: ((Double) -> Void)?) {
+    private func configureProgressTracking(progress: DownloadProgressHandler?) {
         guard let progress else { return }
 
         if sessionDelegate.downloadTaskInterceptor != nil {
