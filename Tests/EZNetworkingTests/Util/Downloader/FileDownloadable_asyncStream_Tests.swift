@@ -229,8 +229,8 @@ private func createMockURLSession(
     url: URL = testURL,
     statusCode: Int = 200,
     error: Error? = nil
-) -> MockURLSession {
-    return MockURLSession(
+) -> MockFileDownloaderURLSession {
+    return MockFileDownloaderURLSession(
         url: url,
         urlResponse: buildResponse(statusCode: statusCode),
         error: error
