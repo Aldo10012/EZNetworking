@@ -99,34 +99,6 @@ final class FileDownloadable_AsyncAwait_Tests {
         }
     }
     
-//    @Test("test .downloadFile() Download Progress Can Be Tracked")
-//    func testDownloadFileDownloadProgressCanBeTrackedWithoutInjectingSessionDelegate() async throws {
-//        let testURL = URL(string: "https://example.com/example.pdf")!
-//        let urlSession = createMockURLSession()
-//        
-////        let delegate = SessionDelegate()
-////        urlSession.sessionDelegate = delegate
-//        urlSession.progressToExecute = [
-//            .inProgress(percent: 50)
-//        ]
-//        
-//        let sut = FileDownloader(
-//            urlSession: urlSession
-////            sessionDelegate: delegate
-//        )
-//        
-//        var didTrackProgress = false
-//        
-//        do {
-//            _ = try await sut.downloadFile(with: testURL, progress: { value in
-//                didTrackProgress = true
-//            })
-//            #expect(didTrackProgress)
-//        } catch {
-//            Issue.record()
-//        }
-//    }
-    
     @Test("test .downloadFile() Download Progress Tracking Happens Before Return")
     func testDownloadFileDownloadProgressTrackingHapensBeforeReturn() async throws {
         let testURL = URL(string: "https://example.com/example.pdf")!
@@ -193,6 +165,31 @@ final class FileDownloadable_AsyncAwait_Tests {
             Issue.record()
         }
     }
+
+    @Test("test .downloadFile() Progress Can Be Tracked without injecting SessionDelegate")
+    func testDownloadFileDownloadProgressCanBeTrackedWithoutInjectingSessionDelegate() async throws {
+        let testURL = URL(string: "https://example.com/example.pdf")!
+        let urlSession = createMockURLSession()
+        
+        urlSession.progressToExecute = [
+            .inProgress(percent: 50)
+        ]
+        
+        let sut = FileDownloader(
+            mockSession: urlSession
+        )
+        
+        var didTrackProgress = false
+        
+        do {
+            _ = try await sut.downloadFile(with: testURL, progress: { value in
+                didTrackProgress = true
+            })
+            #expect(didTrackProgress)
+        } catch {
+            Issue.record()
+        }
+    }
     
 }
 
@@ -229,4 +226,23 @@ private func buildResponse(statusCode: Int) -> HTTPURLResponse {
                     statusCode: statusCode,
                     httpVersion: nil,
                     headerFields: nil)!
+}
+
+// MARK: test init extension
+extension FileDownloader {
+    /// Test-only initializer that mimics the production logic but uses MockFileDownloaderURLSession.
+    convenience init(
+        mockSession: MockFileDownloaderURLSession,
+        validator: ResponseValidator = ResponseValidatorImpl(),
+        requestDecoder: RequestDecodable = RequestDecoder()
+    ) {
+        let sessionDelegate = SessionDelegate()
+        mockSession.sessionDelegate = sessionDelegate
+        self.init(
+            urlSession: mockSession,
+            validator: validator,
+            requestDecoder: requestDecoder,
+            sessionDelegate: sessionDelegate
+        )
+    }
 }

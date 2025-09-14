@@ -200,6 +200,34 @@ final class FileDownloadable_CallBacks_Tests {
         #expect(capturedTracking == [0.3, 0.6, 0.9, 1.0])
     }
     
+    @Test("test .downloadFileTask() Progress Can Be Tracked Without Injecting SessionDelegate")
+    func testDownloadFileTaskDownloadProgressCanBeTrackedWithoutInjectinSessionDelegate() {
+        let testURL = URL(string: "https://example.com/example.pdf")!
+        let urlSession = createMockURLSession()
+        
+        urlSession.progressToExecute = [
+            .inProgress(percent: 50)
+        ]
+        
+        let sut = FileDownloader(
+            mockSession: urlSession
+        )
+        
+        var didExecute = false
+        var didTrackProgress = false
+        
+        _ = sut.downloadFileTask(url: testURL, progress: { progress in
+            didTrackProgress = true
+        }) { result in
+            defer { didExecute = true }
+            switch result {
+            case .success: #expect(true)
+            case .failure: Issue.record()
+            }
+        }
+        #expect(didExecute)
+        #expect(didTrackProgress)
+    }
 }
 
 // MARK: helpers

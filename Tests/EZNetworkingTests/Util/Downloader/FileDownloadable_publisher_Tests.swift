@@ -217,6 +217,40 @@ final class FileDownloadable_publisher_Tests {
         #expect(capturedTracking.count == 4)
         #expect(capturedTracking == [0.3, 0.6, 0.9, 1.0])
     }
+    
+    @Test("test .downloadFilePublisher() Progress Can Be Tracked Without Injecting Session Delegate")
+    func testDownloadFilePublisherTaskDownloadProgressCanBeTrackedWithoutInjectingSessionDelegate() {
+        let testURL = URL(string: "https://example.com/example.pdf")!
+        let urlSession = createMockURLSession()
+        
+        urlSession.progressToExecute = [
+            .inProgress(percent: 50)
+        ]
+        
+        let sut = FileDownloader(
+            mockSession: urlSession
+        )
+        
+        var didExecute = false
+        var didTrackProgress = false
+        
+        sut.downloadFilePublisher(url: testURL) { _ in
+            didTrackProgress = true
+        }
+        .sink { completion in
+            switch completion {
+            case .failure: Issue.record()
+            case .finished: break
+            }
+        } receiveValue: { localURL in
+            #expect(localURL.absoluteString == "file:///tmp/test.pdf")
+            didExecute = true
+        }
+        .store(in: &cancellables)
+        
+        #expect(didExecute)
+        #expect(didTrackProgress)
+    }
 }
 
 // MARK: helpers
