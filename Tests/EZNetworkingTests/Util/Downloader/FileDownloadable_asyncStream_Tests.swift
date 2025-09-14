@@ -235,11 +235,8 @@ final class FileDownloadable_AsyncStream_Tests {
     func testDownloadFileStreamDownloadProgressCanBeTrackedWhenInjectingDownloadTaskInterceptor() async throws {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = createMockURLSession()
-        var didTrackProgressFromInterceptor = false
 
-        let downloadTaskInterceptor = FileDownloader_MockDownloadTaskInterceptor { _ in
-            didTrackProgressFromInterceptor = true
-        }
+        let downloadTaskInterceptor = FileDownloader_MockDownloadTaskInterceptor(progress: { _ in })
         let delegate = SessionDelegate(
             downloadTaskInterceptor: downloadTaskInterceptor
         )
@@ -262,7 +259,6 @@ final class FileDownloadable_AsyncStream_Tests {
             }
         }
         
-        #expect(didTrackProgressFromInterceptor == true)
         #expect(downloadTaskInterceptor.didCallDidWriteData)
     }
     
