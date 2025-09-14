@@ -205,8 +205,8 @@ private func createMockURLSession(
     data: Data? = MockData.mockPersonJsonData,
     statusCode: Int = 200,
     error: Error? = nil
-) -> MockURLSession {
-    return MockURLSession(
+) -> MockRequestPerformerURLSession {
+    return MockRequestPerformerURLSession(
         data: data,
         urlResponse: buildResponse(statusCode: statusCode),
         error: error

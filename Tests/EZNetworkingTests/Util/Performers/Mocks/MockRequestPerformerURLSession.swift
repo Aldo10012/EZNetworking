@@ -1,7 +1,7 @@
 import Foundation
 import EZNetworking
 
-class MockURLSession: URLSessionTaskProtocol {
+class MockRequestPerformerURLSession: URLSessionTaskProtocol {
     var url: URL?
     var data: Data?
     var urlResponse: URLResponse?
@@ -41,7 +41,7 @@ class MockURLSession: URLSessionTaskProtocol {
     var progressToExecute: [DownloadProgress] = []
 }
 
-extension MockURLSession {
+extension MockRequestPerformerURLSession {
     enum DownloadProgress {
         case inProgress(percent: Int64)
         case complete
