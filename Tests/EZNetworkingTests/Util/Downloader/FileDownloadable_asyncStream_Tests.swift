@@ -119,13 +119,14 @@ final class FileDownloadable_AsyncStream_Tests {
 
         let delegate = SessionDelegate()
         urlSession.sessionDelegate = delegate
+        urlSession.progressToExecute = [
+            .inProgress(percent: 50)
+        ]
         
         let sut = FileDownloader(
             urlSession: urlSession,
             sessionDelegate: delegate
         )
-
-        urlSession.progressToExecute = [ .inProgress(percent: 50) ]
 
         var didTrackProgress = false
 
@@ -148,13 +149,14 @@ final class FileDownloadable_AsyncStream_Tests {
         
         let delegate = SessionDelegate()
         urlSession.sessionDelegate = delegate
+        urlSession.progressToExecute = [
+            .inProgress(percent: 50)
+        ]
 
         let sut = FileDownloader(
             urlSession: urlSession,
             sessionDelegate: delegate
         )
-
-        urlSession.progressToExecute = [ .inProgress(percent: 50) ]
 
         var didTrackProgressBeforeReturn: Bool? = nil
         var numberOfEvents = 0
@@ -187,18 +189,18 @@ final class FileDownloadable_AsyncStream_Tests {
 
         let delegate = SessionDelegate()
         urlSession.sessionDelegate = delegate
-
-        let sut = FileDownloader(
-            urlSession: urlSession,
-            sessionDelegate: delegate
-        )
-
         urlSession.progressToExecute = [
             .inProgress(percent: 30),
             .inProgress(percent: 60),
             .inProgress(percent: 90),
             .complete
         ]
+
+        let sut = FileDownloader(
+            urlSession: urlSession,
+            sessionDelegate: delegate
+        )
+
         var progressValues: [Double] = []
         var didReceiveSuccess = false
 

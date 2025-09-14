@@ -78,6 +78,9 @@ final class FileDownloadable_AsyncAwait_Tests {
         
         let delegate = SessionDelegate()
         urlSession.sessionDelegate = delegate
+        urlSession.progressToExecute = [
+            .inProgress(percent: 50)
+        ]
         
         let sut = FileDownloader(
             urlSession: urlSession,
@@ -85,7 +88,7 @@ final class FileDownloadable_AsyncAwait_Tests {
         )
         
         var didTrackProgress = false
-        urlSession.progressToExecute = [.inProgress(percent: 50)]
+        
         do {
             _ = try await sut.downloadFile(with: testURL, progress: { value in
                 didTrackProgress = true
@@ -103,13 +106,14 @@ final class FileDownloadable_AsyncAwait_Tests {
 
         let delegate = SessionDelegate()
         urlSession.sessionDelegate = delegate
+        urlSession.progressToExecute = [
+            .inProgress(percent: 50)
+        ]
         
         let sut = FileDownloader(
             urlSession: urlSession,
             sessionDelegate: delegate
         )
-        
-        urlSession.progressToExecute = [ .inProgress(percent: 50) ]
         
         var didTrackProgressBeforeReturn: Bool? = nil
         
@@ -137,19 +141,20 @@ final class FileDownloadable_AsyncAwait_Tests {
 
         let delegate = SessionDelegate()
         urlSession.sessionDelegate = delegate
-        
-        let sut = FileDownloader(
-            urlSession: urlSession,
-            sessionDelegate: delegate
-        )
-        
         urlSession.progressToExecute = [
             .inProgress(percent: 30),
             .inProgress(percent: 60),
             .inProgress(percent: 90),
             .complete
         ]
+        
+        let sut = FileDownloader(
+            urlSession: urlSession,
+            sessionDelegate: delegate
+        )
+        
         var capturedTracking = [Double]()
+        
         do {
             _ = try await sut.downloadFile(with: testURL, progress: { value in
                 capturedTracking.append(value)
