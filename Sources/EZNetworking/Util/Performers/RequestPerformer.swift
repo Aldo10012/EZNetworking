@@ -12,19 +12,6 @@ public struct RequestPerformer: RequestPerformable {
     private let validator: ResponseValidator
     private let requestDecoder: RequestDecodable
     
-    public init(sessionConfiguration: URLSessionConfiguration = .default,
-                sessionDelegate: SessionDelegate = SessionDelegate(),
-                delegateQueue: OperationQueue? = nil,
-                validator: ResponseValidator = ResponseValidatorImpl(),
-                requestDecoder: RequestDecodable = RequestDecoder()) {
-        let urlSession = URLSession(configuration: sessionConfiguration,
-                                    delegate: sessionDelegate,
-                                    delegateQueue: delegateQueue)
-        self.init(urlSession: urlSession,
-                  validator: validator,
-                  requestDecoder: requestDecoder)
-    }
-    
     public init(urlSession: URLSessionTaskProtocol = URLSession.shared,
                 validator: ResponseValidator = ResponseValidatorImpl(),
                 requestDecoder: RequestDecodable = RequestDecoder()) {
