@@ -34,6 +34,7 @@ public class FileDownloader: FileDownloadable {
         validator: ResponseValidator = ResponseValidatorImpl(),
         requestDecoder: RequestDecodable = RequestDecoder()
     ) {
+        // Always use the provided sessionDelegate as the delegate for URLSession
         let urlSession = URLSession(configuration: sessionConfiguration,
                                     delegate: sessionDelegate,
                                     delegateQueue: delegateQueue)
@@ -42,16 +43,29 @@ public class FileDownloader: FileDownloadable {
                   requestDecoder: requestDecoder,
                   sessionDelegate: sessionDelegate)
     }
-
+    
     public convenience init(
         urlSession: URLSessionTaskProtocol = URLSession.shared,
         validator: ResponseValidator = ResponseValidatorImpl(),
         requestDecoder: RequestDecodable = RequestDecoder()
     ) {
-        self.init(urlSession: urlSession,
+        // url injected urlSession but not a SessionDelegate
+        // this can cause issues with tracking
+        // to resolve, we create an instance of SessionDelegate and new instance of URLSession
+        let sessionDelegate = SessionDelegate()
+        var urlSessionWithSessionDelegate: URLSessionTaskProtocol?
+
+        if let properURLSession = urlSession as? URLSession {
+            urlSessionWithSessionDelegate = URLSession(
+                configuration: properURLSession.configuration,
+                delegate: sessionDelegate,
+                delegateQueue: properURLSession.delegateQueue
+            )
+        }
+        self.init(urlSession: urlSessionWithSessionDelegate ?? urlSession,
                   validator: validator,
                   requestDecoder: requestDecoder,
-                  sessionDelegate: SessionDelegate())
+                  sessionDelegate: sessionDelegate)
     }
 
     internal init(
