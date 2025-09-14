@@ -5,9 +5,9 @@ import Testing
 
 @Suite("Test FileDownloadable async await")
 final class FileDownloadable_AsyncAwait_Tests {
-
+    
     // MARK: SUCCESS
-
+    
     @Test("test .downloadFile() Success")
     func testDownloadFileSuccess() async throws {
         let sut = createFileDownloader()
@@ -21,7 +21,7 @@ final class FileDownloadable_AsyncAwait_Tests {
     }
     
     // MARK: ERROR - status code
-
+    
     @Test("test .downloadFile() Fails When StatusCode Is Not 200")
     func testDownloadFileFailsWhenStatusCodeIsNot200() async throws {
         let sut = createFileDownloader(
@@ -36,9 +36,9 @@ final class FileDownloadable_AsyncAwait_Tests {
             #expect(error == NetworkingError.httpError(HTTPError(statusCode: 400)))
         }
     }
-
+    
     // MARK: ERROR - validation
-
+    
     @Test("test .downloadFile() Fails When Validator Throws AnyError")
     func testDownloadFileFailsWhenValidatorThrowsAnyError() async throws {
         let sut = createFileDownloader(
@@ -68,9 +68,9 @@ final class FileDownloadable_AsyncAwait_Tests {
             #expect(error == NetworkingError.internalError(.requestFailed(NetworkingError.internalError(.unknown))))
         }
     }
-
+    
     // MARK: Tracking
-
+    
     @Test("test .downloadFile() Download Progress Can Be Tracked")
     func testDownloadFileDownloadProgressCanBeTracked() async throws {
         let testURL = URL(string: "https://example.com/example.pdf")!
@@ -98,12 +98,12 @@ final class FileDownloadable_AsyncAwait_Tests {
             Issue.record()
         }
     }
-
+    
     @Test("test .downloadFile() Download Progress Tracking Happens Before Return")
     func testDownloadFileDownloadProgressTrackingHapensBeforeReturn() async throws {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = createMockURLSession()
-
+        
         let delegate = SessionDelegate()
         urlSession.sessionDelegate = delegate
         urlSession.progressToExecute = [
@@ -133,12 +133,12 @@ final class FileDownloadable_AsyncAwait_Tests {
             Issue.record()
         }
     }
-
+    
     @Test("test .downloadFile() Download Progress Tracking Order")
     func testDownloadFileDownloadProgressTrackingOrder() async throws {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = createMockURLSession()
-
+        
         let delegate = SessionDelegate()
         urlSession.sessionDelegate = delegate
         urlSession.progressToExecute = [
@@ -165,7 +165,7 @@ final class FileDownloadable_AsyncAwait_Tests {
             Issue.record()
         }
     }
-
+    
 }
 
 // MARK: helpers

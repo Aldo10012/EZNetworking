@@ -5,9 +5,9 @@ import Testing
 
 @Suite("Test FileDownloadable call backs")
 final class FileDownloadable_CallBacks_Tests {
-
+    
     // MARK: SUCCESS
-
+    
     @Test("test .downloadFileTask() Success")
     func testDownloadFileTaskSuccess() {
         let sut = createFileDownloader()
@@ -24,7 +24,7 @@ final class FileDownloadable_CallBacks_Tests {
         }
         #expect(didExecute)
     }
-
+    
     // MARK: Task Cancellation
     
     @Test("test .downloadFileTask() Can Cancel")
@@ -36,9 +36,9 @@ final class FileDownloadable_CallBacks_Tests {
         let downloadTask = try #require(task as? MockURLSessionDownloadTask)
         #expect(downloadTask.didCancel)
     }
-
+    
     // MARK: ERROR - status code
-
+    
     @Test("test .downloadFileTask() Fails When StatusCode Is Not 200")
     func testDownloadFileFailsWhenStatusCodeIsNot2xx() {
         let sut = createFileDownloader(
@@ -57,7 +57,7 @@ final class FileDownloadable_CallBacks_Tests {
         }
         #expect(didExecute)
     }
-
+    
     // MARK: ERROR - validation
     
     @Test("test .downloadFileTask() Fails When Validator Throws Any Error")
@@ -78,9 +78,9 @@ final class FileDownloadable_CallBacks_Tests {
         }
         #expect(didExecute)
     }
-
+    
     // MARK: ERROR - url session
-
+    
     @Test("test .downloadFileTask() Fails When urlSession Error Is Not Nil")
     func testDownloadFileFailsWhenUrlSessionHasError() {
         let sut = createFileDownloader(
@@ -101,7 +101,7 @@ final class FileDownloadable_CallBacks_Tests {
     }
     
     // MARK: Tracking
-
+    
     @Test("test .downloadFileTask() Download Progress Can Be Tracked")
     func testDownloadFileTaskDownloadProgressCanBeTracked() {
         let testURL = URL(string: "https://example.com/example.pdf")!
@@ -131,7 +131,7 @@ final class FileDownloadable_CallBacks_Tests {
         #expect(didExecute)
         #expect(didTrackProgress)
     }
-
+    
     @Test("test .downloadFileTask() Download Progress Tracking Happens Before Return")
     func testDownloadFileTaskDownloadProgressTrackingHappensBeforeReturn() {
         let testURL = URL(string: "https://example.com/example.pdf")!
@@ -166,7 +166,7 @@ final class FileDownloadable_CallBacks_Tests {
         }
         #expect(didTrackProgressBeforeReturn == true)
     }
-
+    
     @Test("test .downloadFileTask() Download Progress Tracks Correct Order")
     func testDownloadFileTaskDownloadProgressTrackingHappensInCorrectOrder() {
         let testURL = URL(string: "https://example.com/example.pdf")!
@@ -195,11 +195,11 @@ final class FileDownloadable_CallBacks_Tests {
             },
             completion: { _ in }
         )
-
+        
         #expect(capturedTracking.count == 4)
         #expect(capturedTracking == [0.3, 0.6, 0.9, 1.0])
     }
-
+    
 }
 
 // MARK: helpers

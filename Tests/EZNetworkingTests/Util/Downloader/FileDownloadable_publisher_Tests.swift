@@ -5,11 +5,11 @@ import Testing
 
 @Suite("Test FileDownloadable publishers")
 final class FileDownloadable_publisher_Tests {
-
+    
     private var cancellables = Set<AnyCancellable>()
-
+    
     // MARK: SUCCESS
-
+    
     @Test("test .downloadFilePublisher() Success")
     func testDownloadFilePublisherSuccess() {
         let sut = createFileDownloader()
@@ -26,12 +26,12 @@ final class FileDownloadable_publisher_Tests {
                 didExecute = true
             }
             .store(in: &cancellables)
-
+        
         #expect(didExecute)
     }
-
+    
     // MARK: ERROR - status code
-
+    
     @Test("test .downloadFilePublisher() Fails When Status Code Is Not 200")
     func testDownloadFilePublisherFailsWhenStatusCodeIsNot200() {
         let sut = createFileDownloader(
@@ -51,12 +51,12 @@ final class FileDownloadable_publisher_Tests {
                 Issue.record()
             }
             .store(in: &cancellables)
-
+        
         #expect(didExecute)
     }
-
+    
     // MARK: ERROR - validation
-
+    
     @Test("test .downloadFilePublisher() Fails If Validator Throws Any Error")
     func testDownloadFilePublisherFailsIfValidatorThrowsAnyError() {
         let sut = createFileDownloader(
@@ -76,12 +76,12 @@ final class FileDownloadable_publisher_Tests {
                 Issue.record()
             }
             .store(in: &cancellables)
-
+        
         #expect(didExecute)
     }
-
+    
     // MARK: ERROR - url session
-
+    
     @Test("test .downloadFilePublisher() Fails When URLSession Has Error")
     func testDownloadFilePublisherFailsWhenUrlSessionHasError() {
         let sut = createFileDownloader(
@@ -101,12 +101,12 @@ final class FileDownloadable_publisher_Tests {
                 Issue.record()
             }
             .store(in: &cancellables)
-
+        
         #expect(didExecute)
     }
-
+    
     // MARK: Tracking
-
+    
     @Test("test .downloadFilePublisher() Download Progress Can Be Tracked")
     func testDownloadFilePublisherTaskDownloadProgressCanBeTracked() {
         let testURL = URL(string: "https://example.com/example.pdf")!
@@ -125,7 +125,7 @@ final class FileDownloadable_publisher_Tests {
         
         var didExecute = false
         var didTrackProgress = false
-    
+        
         sut.downloadFilePublisher(url: testURL) { _ in
             didTrackProgress = true
         }
@@ -139,11 +139,11 @@ final class FileDownloadable_publisher_Tests {
             didExecute = true
         }
         .store(in: &cancellables)
-
+        
         #expect(didExecute)
         #expect(didTrackProgress)
     }
-
+    
     @Test("test .downloadFilePublisher() Download Progress Tracking Happens Before Return")
     func testDownloadFilePublisherTaskDownloadProgressTrackingHappensBeforeReturn() {
         let testURL = URL(string: "https://example.com/example.pdf")!
@@ -159,9 +159,9 @@ final class FileDownloadable_publisher_Tests {
             urlSession: urlSession,
             sessionDelegate: delegate
         )
-    
+        
         var didTrackProgressBeforeReturn: Bool? = nil
-    
+        
         sut.downloadFilePublisher(url: testURL) { _ in
             if didTrackProgressBeforeReturn == nil {
                 didTrackProgressBeforeReturn = true
@@ -178,10 +178,10 @@ final class FileDownloadable_publisher_Tests {
             }
         }
         .store(in: &cancellables)
-
+        
         #expect(didTrackProgressBeforeReturn == true)
     }
-
+    
     @Test("test .downloadFilePublisher() Download Progress Tracks Correct Order")
     func testDownloadFilePublisherTaskDownloadProgressTracksCorrectOrder() {
         let testURL = URL(string: "https://example.com/example.pdf")!
@@ -200,10 +200,9 @@ final class FileDownloadable_publisher_Tests {
             urlSession: urlSession,
             sessionDelegate: delegate
         )
-
         
         var capturedTracking = [Double]()
-    
+        
         sut.downloadFilePublisher(url: testURL) { progress in
             capturedTracking.append(progress)
         }
@@ -213,8 +212,8 @@ final class FileDownloadable_publisher_Tests {
             case .finished: break
             }
         } receiveValue: { _ in }
-        .store(in: &cancellables)
-
+            .store(in: &cancellables)
+        
         #expect(capturedTracking.count == 4)
         #expect(capturedTracking == [0.3, 0.6, 0.9, 1.0])
     }
