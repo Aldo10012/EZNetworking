@@ -9,13 +9,6 @@ class MockFileDownloaderURLSession: URLSessionTaskProtocol {
     var completion: ((Data?, URLResponse?, Error?) -> Void)?
     var sessionDelegate: SessionDelegate? = nil
     
-    init(data: Data? = nil, urlResponse: URLResponse? = nil, error: Error? = nil) {
-        self.data = data
-        self.urlResponse = urlResponse
-        self.error = error
-        self.url = nil
-    }
-    
     init(data: Data? = nil, url: URL? = nil, urlResponse: URLResponse? = nil, error: Error? = nil) {
         self.data = data
         self.url = url
@@ -23,11 +16,9 @@ class MockFileDownloaderURLSession: URLSessionTaskProtocol {
         self.error = error
     }
     
+    // not used for FileDownloader tests
     func dataTask(with request: URLRequest, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTask {
-        self.completion = completionHandler
-        return MockURLSessionDataTask {
-            completionHandler(self.data, self.urlResponse, self.error)
-        }
+        return .init()
     }
     
     func downloadTask(with url: URL, completionHandler: @escaping @Sendable (URL?, URLResponse?, Error?) -> Void) -> URLSessionDownloadTask {
