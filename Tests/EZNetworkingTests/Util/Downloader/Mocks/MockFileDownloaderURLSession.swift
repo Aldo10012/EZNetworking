@@ -1,20 +1,13 @@
 import Foundation
 import EZNetworking
 
-class MockURLSession: URLSessionTaskProtocol {
+class MockFileDownloaderURLSession: URLSessionTaskProtocol {
     var url: URL?
     var data: Data?
     var urlResponse: URLResponse?
     var error: Error?
     var completion: ((Data?, URLResponse?, Error?) -> Void)?
     var sessionDelegate: SessionDelegate? = nil
-    
-    init(data: Data? = nil, urlResponse: URLResponse? = nil, error: Error? = nil) {
-        self.data = data
-        self.urlResponse = urlResponse
-        self.error = error
-        self.url = nil
-    }
     
     init(data: Data? = nil, url: URL? = nil, urlResponse: URLResponse? = nil, error: Error? = nil) {
         self.data = data
@@ -23,11 +16,9 @@ class MockURLSession: URLSessionTaskProtocol {
         self.error = error
     }
     
+    // not used for FileDownloader tests
     func dataTask(with request: URLRequest, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTask {
-        self.completion = completionHandler
-        return MockURLSessionDataTask {
-            completionHandler(self.data, self.urlResponse, self.error)
-        }
+        MockURLSessionDataTask { completionHandler(nil, nil, nil) }
     }
     
     func downloadTask(with url: URL, completionHandler: @escaping @Sendable (URL?, URLResponse?, Error?) -> Void) -> URLSessionDownloadTask {
@@ -41,7 +32,7 @@ class MockURLSession: URLSessionTaskProtocol {
     var progressToExecute: [DownloadProgress] = []
 }
 
-extension MockURLSession {
+extension MockFileDownloaderURLSession {
     enum DownloadProgress {
         case inProgress(percent: Int64)
         case complete
@@ -70,39 +61,5 @@ extension MockURLSession {
                 )
             }
         }
-    }
-}
-
-class MockURLSessionDataTask: URLSessionDataTask {
-    private let closure: () -> Void
-    var didCancel: Bool = false
-    
-    init(closure: @escaping () -> Void) {
-        self.closure = closure
-    }
-    
-    override func resume() {
-        closure()
-    }
-    
-    override func cancel() {
-        didCancel = true
-    }
-}
-
-class MockURLSessionDownloadTask: URLSessionDownloadTask {
-    private let closure: () -> Void
-    var didCancel: Bool = false
-
-    init(closure: @escaping () -> Void) {
-        self.closure = closure
-    }
-    
-    override func resume() {
-        closure()
-    }
-    
-    override func cancel() {
-        didCancel = true
     }
 }

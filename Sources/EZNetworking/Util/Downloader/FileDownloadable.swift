@@ -27,43 +27,35 @@ public class FileDownloader: FileDownloadable {
     
     // MARK: init
 
-    public convenience init(
-        sessionConfiguration: URLSessionConfiguration = .default,
-        sessionDelegate: SessionDelegate = SessionDelegate(),
-        delegateQueue: OperationQueue? = nil,
-        validator: ResponseValidator = ResponseValidatorImpl(),
-        requestDecoder: RequestDecodable = RequestDecoder()
-    ) {
-        let urlSession = URLSession(configuration: sessionConfiguration,
-                                    delegate: sessionDelegate,
-                                    delegateQueue: delegateQueue)
-        self.init(urlSession: urlSession,
-                  validator: validator,
-                  requestDecoder: requestDecoder,
-                  sessionDelegate: sessionDelegate)
-    }
-
-    public convenience init(
-        urlSession: URLSessionTaskProtocol = URLSession.shared,
-        validator: ResponseValidator = ResponseValidatorImpl(),
-        requestDecoder: RequestDecodable = RequestDecoder()
-    ) {
-        self.init(urlSession: urlSession,
-                  validator: validator,
-                  requestDecoder: requestDecoder,
-                  sessionDelegate: SessionDelegate())
-    }
-
-    internal init(
+    public init(
         urlSession: URLSessionTaskProtocol = URLSession.shared,
         validator: ResponseValidator = ResponseValidatorImpl(),
         requestDecoder: RequestDecodable = RequestDecoder(),
-        sessionDelegate: SessionDelegate = SessionDelegate()
+        sessionDelegate: SessionDelegate? = nil // Now optional!
     ) {
-        self.urlSession = urlSession
+        if let urlSession = urlSession as? URLSession {
+            // If the session already has a delegate, use it (if it's a SessionDelegate)
+            if let existingDelegate = urlSession.delegate as? SessionDelegate {
+                self.sessionDelegate = existingDelegate
+                self.urlSession = urlSession
+            } else {
+                // If no delegate or not a SessionDelegate, create one
+                let newDelegate = sessionDelegate ?? SessionDelegate()
+                let newSession = URLSession(
+                    configuration: urlSession.configuration,
+                    delegate: newDelegate,
+                    delegateQueue: urlSession.delegateQueue
+                )
+                self.sessionDelegate = newDelegate
+                self.urlSession = newSession
+            }
+        } else {
+            // For mocks or custom protocol types
+            self.sessionDelegate = sessionDelegate ?? SessionDelegate()
+            self.urlSession = urlSession
+        }
         self.validator = validator
         self.requestDecoder = requestDecoder
-        self.sessionDelegate = sessionDelegate
     }
     
     // MARK: Async Await

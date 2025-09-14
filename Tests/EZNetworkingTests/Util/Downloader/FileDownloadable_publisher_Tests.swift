@@ -5,11 +5,11 @@ import Testing
 
 @Suite("Test FileDownloadable publishers")
 final class FileDownloadable_publisher_Tests {
-
+    
     private var cancellables = Set<AnyCancellable>()
-
+    
     // MARK: SUCCESS
-
+    
     @Test("test .downloadFilePublisher() Success")
     func testDownloadFilePublisherSuccess() {
         let sut = createFileDownloader()
@@ -26,12 +26,12 @@ final class FileDownloadable_publisher_Tests {
                 didExecute = true
             }
             .store(in: &cancellables)
-
+        
         #expect(didExecute)
     }
-
+    
     // MARK: ERROR - status code
-
+    
     @Test("test .downloadFilePublisher() Fails When Status Code Is Not 200")
     func testDownloadFilePublisherFailsWhenStatusCodeIsNot200() {
         let sut = createFileDownloader(
@@ -51,12 +51,12 @@ final class FileDownloadable_publisher_Tests {
                 Issue.record()
             }
             .store(in: &cancellables)
-
+        
         #expect(didExecute)
     }
-
+    
     // MARK: ERROR - validation
-
+    
     @Test("test .downloadFilePublisher() Fails If Validator Throws Any Error")
     func testDownloadFilePublisherFailsIfValidatorThrowsAnyError() {
         let sut = createFileDownloader(
@@ -76,12 +76,12 @@ final class FileDownloadable_publisher_Tests {
                 Issue.record()
             }
             .store(in: &cancellables)
-
+        
         #expect(didExecute)
     }
-
+    
     // MARK: ERROR - url session
-
+    
     @Test("test .downloadFilePublisher() Fails When URLSession Has Error")
     func testDownloadFilePublisherFailsWhenUrlSessionHasError() {
         let sut = createFileDownloader(
@@ -101,33 +101,31 @@ final class FileDownloadable_publisher_Tests {
                 Issue.record()
             }
             .store(in: &cancellables)
-
+        
         #expect(didExecute)
     }
-
+    
     // MARK: Tracking
-
+    
     @Test("test .downloadFilePublisher() Download Progress Can Be Tracked")
     func testDownloadFilePublisherTaskDownloadProgressCanBeTracked() {
         let testURL = URL(string: "https://example.com/example.pdf")!
-        let urlSession = MockURLSession(
-            url: testURL,
-            urlResponse: buildResponse(statusCode: 200),
-            error: nil
-        )
+        let urlSession = createMockURLSession()
+        
         let delegate = SessionDelegate()
         urlSession.sessionDelegate = delegate
+        urlSession.progressToExecute = [
+            .inProgress(percent: 50)
+        ]
         
-        let sut = FileDownloader(urlSession: urlSession,
-                                 validator: MockURLResponseValidator(),
-                                 requestDecoder: RequestDecoder(),
-                                 sessionDelegate: delegate)
+        let sut = FileDownloader(
+            urlSession: urlSession,
+            sessionDelegate: delegate
+        )
         
         var didExecute = false
         var didTrackProgress = false
-    
-        urlSession.progressToExecute = [.inProgress(percent: 50)]
-    
+        
         sut.downloadFilePublisher(url: testURL) { _ in
             didTrackProgress = true
         }
@@ -141,30 +139,29 @@ final class FileDownloadable_publisher_Tests {
             didExecute = true
         }
         .store(in: &cancellables)
-
+        
         #expect(didExecute)
         #expect(didTrackProgress)
     }
-
+    
     @Test("test .downloadFilePublisher() Download Progress Tracking Happens Before Return")
     func testDownloadFilePublisherTaskDownloadProgressTrackingHappensBeforeReturn() {
         let testURL = URL(string: "https://example.com/example.pdf")!
-        let urlSession = MockURLSession(
-            url: testURL,
-            urlResponse: buildResponse(statusCode: 200),
-            error: nil
-        )
+        let urlSession = createMockURLSession()
+        
         let delegate = SessionDelegate()
         urlSession.sessionDelegate = delegate
+        urlSession.progressToExecute = [
+            .inProgress(percent: 50)
+        ]
         
-        let sut = FileDownloader(urlSession: urlSession,
-                                 validator: MockURLResponseValidator(),
-                                 requestDecoder: RequestDecoder(),
-                                 sessionDelegate: delegate)
-    
-        urlSession.progressToExecute = [.inProgress(percent: 50)]
+        let sut = FileDownloader(
+            urlSession: urlSession,
+            sessionDelegate: delegate
+        )
+        
         var didTrackProgressBeforeReturn: Bool? = nil
-    
+        
         sut.downloadFilePublisher(url: testURL) { _ in
             if didTrackProgressBeforeReturn == nil {
                 didTrackProgressBeforeReturn = true
@@ -181,34 +178,31 @@ final class FileDownloadable_publisher_Tests {
             }
         }
         .store(in: &cancellables)
-
+        
         #expect(didTrackProgressBeforeReturn == true)
     }
-
+    
     @Test("test .downloadFilePublisher() Download Progress Tracks Correct Order")
     func testDownloadFilePublisherTaskDownloadProgressTracksCorrectOrder() {
         let testURL = URL(string: "https://example.com/example.pdf")!
-        let urlSession = MockURLSession(
-            url: testURL,
-            urlResponse: buildResponse(statusCode: 200),
-            error: nil
-        )
+        let urlSession = createMockURLSession()
+        
         let delegate = SessionDelegate()
         urlSession.sessionDelegate = delegate
-        
-        let sut = FileDownloader(urlSession: urlSession,
-                                 validator: MockURLResponseValidator(),
-                                 requestDecoder: RequestDecoder(),
-                                 sessionDelegate: delegate)
-
         urlSession.progressToExecute = [
             .inProgress(percent: 30),
             .inProgress(percent: 60),
             .inProgress(percent: 90),
             .complete
         ]
+        
+        let sut = FileDownloader(
+            urlSession: urlSession,
+            sessionDelegate: delegate
+        )
+        
         var capturedTracking = [Double]()
-    
+        
         sut.downloadFilePublisher(url: testURL) { progress in
             capturedTracking.append(progress)
         }
@@ -218,10 +212,44 @@ final class FileDownloadable_publisher_Tests {
             case .finished: break
             }
         } receiveValue: { _ in }
-        .store(in: &cancellables)
-
+            .store(in: &cancellables)
+        
         #expect(capturedTracking.count == 4)
         #expect(capturedTracking == [0.3, 0.6, 0.9, 1.0])
+    }
+    
+    @Test("test .downloadFilePublisher() Progress Can Be Tracked Without Injecting Session Delegate")
+    func testDownloadFilePublisherTaskDownloadProgressCanBeTrackedWithoutInjectingSessionDelegate() {
+        let testURL = URL(string: "https://example.com/example.pdf")!
+        let urlSession = createMockURLSession()
+        
+        urlSession.progressToExecute = [
+            .inProgress(percent: 50)
+        ]
+        
+        let sut = FileDownloader(
+            mockSession: urlSession
+        )
+        
+        var didExecute = false
+        var didTrackProgress = false
+        
+        sut.downloadFilePublisher(url: testURL) { _ in
+            didTrackProgress = true
+        }
+        .sink { completion in
+            switch completion {
+            case .failure: Issue.record()
+            case .finished: break
+            }
+        } receiveValue: { localURL in
+            #expect(localURL.absoluteString == "file:///tmp/test.pdf")
+            didExecute = true
+        }
+        .store(in: &cancellables)
+        
+        #expect(didExecute)
+        #expect(didTrackProgress)
     }
 }
 
@@ -242,12 +270,12 @@ private func createFileDownloader(
 }
 
 private func createMockURLSession(
-    data: Data? = MockData.mockPersonJsonData,
+    url: URL = testURL,
     statusCode: Int = 200,
     error: Error? = nil
-) -> MockURLSession {
-    return MockURLSession(
-        url: testURL,
+) -> MockFileDownloaderURLSession {
+    return MockFileDownloaderURLSession(
+        url: url,
         urlResponse: buildResponse(statusCode: statusCode),
         error: error
     )
