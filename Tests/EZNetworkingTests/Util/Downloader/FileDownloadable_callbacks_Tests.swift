@@ -105,17 +105,12 @@ final class FileDownloadable_CallBacks_Tests {
     @Test("test .downloadFileTask() Download Progress Can Be Tracked")
     func testDownloadFileTaskDownloadProgressCanBeTracked() {
         let testURL = URL(string: "https://example.com/example.pdf")!
-        let urlSession = MockURLSession(
-            url: testURL,
-            urlResponse: buildResponse(statusCode: 200),
-            error: nil
-        )
+        let urlSession = createMockURLSession()
+        
         let delegate = SessionDelegate()
         urlSession.sessionDelegate = delegate
         
         let sut = FileDownloader(urlSession: urlSession,
-                                 validator: MockURLResponseValidator(),
-                                 requestDecoder: RequestDecoder(),
                                  sessionDelegate: delegate)
         
         var didExecute = false
@@ -138,17 +133,12 @@ final class FileDownloadable_CallBacks_Tests {
     @Test("test .downloadFileTask() Download Progress Tracking Happens Before Return")
     func testDownloadFileTaskDownloadProgressTrackingHappensBeforeReturn() {
         let testURL = URL(string: "https://example.com/example.pdf")!
-        let urlSession = MockURLSession(
-            url: testURL,
-            urlResponse: buildResponse(statusCode: 200),
-            error: nil
-        )
+        let urlSession = createMockURLSession()
+        
         let delegate = SessionDelegate()
         urlSession.sessionDelegate = delegate
         
         let sut = FileDownloader(urlSession: urlSession,
-                                 validator: MockURLResponseValidator(),
-                                 requestDecoder: RequestDecoder(),
                                  sessionDelegate: delegate)
         
         urlSession.progressToExecute = [.inProgress(percent: 50)]
@@ -174,17 +164,12 @@ final class FileDownloadable_CallBacks_Tests {
     @Test("test .downloadFileTask() Download Progress Tracks Correct Order")
     func testDownloadFileTaskDownloadProgressTrackingHappensInCorrectOrder() {
         let testURL = URL(string: "https://example.com/example.pdf")!
-        let urlSession = MockURLSession(
-            url: testURL,
-            urlResponse: buildResponse(statusCode: 200),
-            error: nil
-        )
+        let urlSession = createMockURLSession()
+        
         let delegate = SessionDelegate()
         urlSession.sessionDelegate = delegate
         
         let sut = FileDownloader(urlSession: urlSession,
-                                 validator: MockURLResponseValidator(),
-                                 requestDecoder: RequestDecoder(),
                                  sessionDelegate: delegate)
         
         urlSession.progressToExecute = [
@@ -226,12 +211,12 @@ private func createFileDownloader(
 }
 
 private func createMockURLSession(
-    data: Data? = MockData.mockPersonJsonData,
+    url: URL = testURL,
     statusCode: Int = 200,
     error: Error? = nil
 ) -> MockURLSession {
     return MockURLSession(
-        url: testURL,
+        url: url,
         urlResponse: buildResponse(statusCode: statusCode),
         error: error
     )

@@ -115,17 +115,13 @@ final class FileDownloadable_AsyncStream_Tests {
     @Test("test .downloadFileStream() Download Progress Can Be Tracked")
     func testDownloadFileStreamDownloadProgressCanBeTracked() async throws {
         let testURL = URL(string: "https://example.com/example.pdf")!
-        let urlSession = MockURLSession(
-            url: testURL,
-            urlResponse: buildResponse(statusCode: 200),
-            error: nil
-        )
+        let urlSession = createMockURLSession()
+
         let delegate = SessionDelegate()
         urlSession.sessionDelegate = delegate
+        
         let sut = FileDownloader(
             urlSession: urlSession,
-            validator: ResponseValidatorImpl(),
-            requestDecoder: RequestDecoder(),
             sessionDelegate: delegate
         )
 
@@ -148,17 +144,13 @@ final class FileDownloadable_AsyncStream_Tests {
     @Test("test .downloadFileStream() Download Progress Tracking Happens Before Final Result")
     func testDownloadFileStreamDownloadProgressTrackingHappensBeforeFinalResult() async throws {
         let testURL = URL(string: "https://example.com/example.pdf")!
-        let urlSession = MockURLSession(
-            url: testURL,
-            urlResponse: buildResponse(statusCode: 200),
-            error: nil
-        )
+        let urlSession = createMockURLSession()
+        
         let delegate = SessionDelegate()
         urlSession.sessionDelegate = delegate
+
         let sut = FileDownloader(
             urlSession: urlSession,
-            validator: ResponseValidatorImpl(),
-            requestDecoder: RequestDecoder(),
             sessionDelegate: delegate
         )
 
@@ -191,17 +183,13 @@ final class FileDownloadable_AsyncStream_Tests {
     @Test("test .downloadFileStream() Download Progress Tracking Order")
     func testDownloadFileStreamDownloadProgressTrackingOrder() async throws {
         let testURL = URL(string: "https://example.com/example.pdf")!
-        let urlSession = MockURLSession(
-            url: testURL,
-            urlResponse: buildResponse(statusCode: 200),
-            error: nil
-        )
+        let urlSession = createMockURLSession()
+
         let delegate = SessionDelegate()
         urlSession.sessionDelegate = delegate
+
         let sut = FileDownloader(
             urlSession: urlSession,
-            validator: ResponseValidatorImpl(),
-            requestDecoder: RequestDecoder(),
             sessionDelegate: delegate
         )
 
@@ -236,12 +224,12 @@ final class FileDownloadable_AsyncStream_Tests {
 private let testURL = URL(string: "https://example.com/example.pdf")!
 
 private func createMockURLSession(
-    data: Data? = MockData.mockPersonJsonData,
+    url: URL = testURL,
     statusCode: Int = 200,
     error: Error? = nil
 ) -> MockURLSession {
     return MockURLSession(
-        url: testURL,
+        url: url,
         urlResponse: buildResponse(statusCode: statusCode),
         error: error
     )
