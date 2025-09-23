@@ -13,7 +13,7 @@ final class FileDownloadable_AsyncAwait_Tests {
         let sut = createFileDownloader()
         
         do {
-            let localURL = try await sut.downloadFile(with: testURL)
+            let localURL = try await sut.downloadFile(from: testURL)
             #expect(localURL.absoluteString == "file:///tmp/test.pdf")
         } catch {
             Issue.record()
@@ -30,7 +30,7 @@ final class FileDownloadable_AsyncAwait_Tests {
         )
         
         do {
-            _ = try await sut.downloadFile(with: testURL)
+            _ = try await sut.downloadFile(from: testURL)
             Issue.record("unexpected error")
         } catch let error as NetworkingError{
             #expect(error == NetworkingError.httpError(HTTPError(statusCode: 400)))
@@ -46,7 +46,7 @@ final class FileDownloadable_AsyncAwait_Tests {
         )
         
         do {
-            _ = try await sut.downloadFile(with: testURL)
+            _ = try await sut.downloadFile(from: testURL)
             Issue.record("unexpected error")
         } catch let error as NetworkingError {
             #expect(error == NetworkingError.internalError(.noData))
@@ -62,7 +62,7 @@ final class FileDownloadable_AsyncAwait_Tests {
         )
         
         do {
-            _ = try await sut.downloadFile(with: testURL)
+            _ = try await sut.downloadFile(from: testURL)
             Issue.record("unexpected error")
         } catch let error as NetworkingError{
             #expect(error == NetworkingError.internalError(.requestFailed(NetworkingError.internalError(.unknown))))
@@ -84,7 +84,7 @@ final class FileDownloadable_AsyncAwait_Tests {
         var didTrackProgress = false
         
         do {
-            _ = try await sut.downloadFile(with: testURL, progress: { value in
+            _ = try await sut.downloadFile(from: testURL, progress: { value in
                 didTrackProgress = true
             })
             #expect(didTrackProgress)
@@ -106,7 +106,7 @@ final class FileDownloadable_AsyncAwait_Tests {
         var didTrackProgressBeforeReturn: Bool? = nil
         
         do {
-            _ = try await sut.downloadFile(with: testURL, progress: { value in
+            _ = try await sut.downloadFile(from: testURL, progress: { value in
                 if didTrackProgressBeforeReturn == nil {
                     didTrackProgressBeforeReturn = true
                 }
@@ -138,7 +138,7 @@ final class FileDownloadable_AsyncAwait_Tests {
         var capturedTracking = [Double]()
         
         do {
-            _ = try await sut.downloadFile(with: testURL, progress: { value in
+            _ = try await sut.downloadFile(from: testURL, progress: { value in
                 capturedTracking.append(value)
             })
             #expect(capturedTracking.count == 4)
@@ -169,7 +169,7 @@ final class FileDownloadable_AsyncAwait_Tests {
         var didTrackProgress = false
         
         do {
-            _ = try await sut.downloadFile(with: testURL, progress: { value in
+            _ = try await sut.downloadFile(from: testURL, progress: { value in
                 didTrackProgress = true
             })
             #expect(didTrackProgress)
@@ -205,7 +205,7 @@ final class FileDownloadable_AsyncAwait_Tests {
         
         
         do {
-            _ = try await sut.downloadFile(with: testURL, progress: nil)
+            _ = try await sut.downloadFile(from: testURL, progress: nil)
             #expect(didTrackProgressFromInterceptor)
             #expect(downloadInterceptor.didCallDidWriteData == true)
         } catch {

@@ -11,7 +11,7 @@ public enum DownloadStreamEvent {
 }
 
 public protocol FileDownloadable {
-    func downloadFile(with url: URL, progress: DownloadProgressHandler?) async throws -> URL
+    func downloadFile(from serverUrl: URL, progress: DownloadProgressHandler?) async throws -> URL
     func downloadFileTask(url: URL, progress: DownloadProgressHandler?, completion: @escaping(DownloadCompletionHandler)) -> URLSessionDownloadTask
     func downloadFilePublisher(url: URL, progress: DownloadProgressHandler?) -> AnyPublisher<URL, NetworkingError>
     func downloadFileStream(url: URL) -> AsyncStream<DownloadStreamEvent>
@@ -60,9 +60,9 @@ public class FileDownloader: FileDownloadable {
     
     // MARK: Async Await
 
-    public func downloadFile(with url: URL, progress: DownloadProgressHandler? = nil) async throws -> URL {
+    public func downloadFile(from serverUrl: URL, progress: DownloadProgressHandler? = nil) async throws -> URL {
         try await withCheckedThrowingContinuation { continuation in
-            _downloadFileTask(url: url, progress: progress) { result in
+            _downloadFileTask(url: serverUrl, progress: progress) { result in
                 switch result {
                 case .success(let success):
                     continuation.resume(returning: success)
