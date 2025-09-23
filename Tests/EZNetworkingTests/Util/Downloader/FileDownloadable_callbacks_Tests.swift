@@ -13,7 +13,7 @@ final class FileDownloadable_CallBacks_Tests {
         let sut = createFileDownloader()
         
         var didExecute = false
-        sut.downloadFileTask(url: testURL, progress: nil) { result in
+        sut.downloadFileTask(from: testURL, progress: nil) { result in
             defer { didExecute = true }
             switch result {
             case .success(let localURL):
@@ -31,7 +31,7 @@ final class FileDownloadable_CallBacks_Tests {
     func testDownloadFileCanCancel() throws {
         let sut = createFileDownloader()
         
-        let task = sut.downloadFileTask(url: testURL, progress: nil) { _ in }
+        let task = sut.downloadFileTask(from: testURL, progress: nil) { _ in }
         task.cancel()
         let downloadTask = try #require(task as? MockURLSessionDownloadTask)
         #expect(downloadTask.didCancel)
@@ -46,7 +46,7 @@ final class FileDownloadable_CallBacks_Tests {
         )
         
         var didExecute = false
-        sut.downloadFileTask(url: testURL, progress: nil) { result in
+        sut.downloadFileTask(from: testURL, progress: nil) { result in
             defer { didExecute = true }
             switch result {
             case .success:
@@ -67,7 +67,7 @@ final class FileDownloadable_CallBacks_Tests {
         )
         
         var didExecute = false
-        sut.downloadFileTask(url: testURL, progress: nil) { result in
+        sut.downloadFileTask(from: testURL, progress: nil) { result in
             defer { didExecute = true }
             switch result {
             case .success:
@@ -88,7 +88,7 @@ final class FileDownloadable_CallBacks_Tests {
         )
         
         var didExecute = false
-        sut.downloadFileTask(url: testURL, progress: nil) { result in
+        sut.downloadFileTask(from: testURL, progress: nil) { result in
             defer { didExecute = true }
             switch result {
             case .success:
@@ -113,7 +113,7 @@ final class FileDownloadable_CallBacks_Tests {
         var didExecute = false
         var didTrackProgress = false
         
-        _ = sut.downloadFileTask(url: testURL, progress: { progress in
+        _ = sut.downloadFileTask(from: testURL, progress: { progress in
             didTrackProgress = true
         }) { result in
             defer { didExecute = true }
@@ -138,7 +138,7 @@ final class FileDownloadable_CallBacks_Tests {
         let sut = FileDownloader(mockSession: urlSession)
         var didTrackProgressBeforeReturn: Bool? = nil
         
-        _ = sut.downloadFileTask(url: testURL, progress: { progress in
+        _ = sut.downloadFileTask(from: testURL, progress: { progress in
             if didTrackProgressBeforeReturn == nil {
                 didTrackProgressBeforeReturn = true
             }
@@ -171,7 +171,7 @@ final class FileDownloadable_CallBacks_Tests {
         var capturedTracking = [Double]()
         
         _ = sut.downloadFileTask(
-            url: testURL,
+            from: testURL,
             progress: { progress in
                 capturedTracking.append(progress)
             },
@@ -201,7 +201,7 @@ final class FileDownloadable_CallBacks_Tests {
         var didExecute = false
         var didTrackProgress = false
         
-        _ = sut.downloadFileTask(url: testURL, progress: { progress in
+        _ = sut.downloadFileTask(from: testURL, progress: { progress in
             didTrackProgress = true
         }) { result in
             defer { didExecute = true }
@@ -239,7 +239,7 @@ final class FileDownloadable_CallBacks_Tests {
         
         var didExecute = false
         
-        _ = sut.downloadFileTask(url: testURL, progress: nil) { result in
+        _ = sut.downloadFileTask(from: testURL, progress: nil) { result in
             defer { didExecute = true }
             switch result {
             case .success: #expect(true)
