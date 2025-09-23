@@ -15,7 +15,7 @@ final class FileDownloadable_publisher_Tests {
         let sut = createFileDownloader()
         
         var didExecute = false
-        sut.downloadFilePublisher(url: testURL, progress: nil)
+        sut.downloadFilePublisher(from: testURL, progress: nil)
             .sink { completion in
                 switch completion {
                 case .failure: Issue.record()
@@ -39,7 +39,7 @@ final class FileDownloadable_publisher_Tests {
         )
         
         var didExecute = false
-        sut.downloadFilePublisher(url: testURL, progress: nil)
+        sut.downloadFilePublisher(from: testURL, progress: nil)
             .sink { completion in
                 switch completion {
                 case .failure(let error):
@@ -64,7 +64,7 @@ final class FileDownloadable_publisher_Tests {
         )
         
         var didExecute = false
-        sut.downloadFilePublisher(url: testURL, progress: nil)
+        sut.downloadFilePublisher(from: testURL, progress: nil)
             .sink { completion in
                 switch completion {
                 case .failure(let error):
@@ -89,7 +89,7 @@ final class FileDownloadable_publisher_Tests {
         )
         
         var didExecute = false
-        sut.downloadFilePublisher(url: testURL, progress: nil)
+        sut.downloadFilePublisher(from: testURL, progress: nil)
             .sink { completion in
                 switch completion {
                 case .failure(let error):
@@ -120,7 +120,7 @@ final class FileDownloadable_publisher_Tests {
         var didExecute = false
         var didTrackProgress = false
         
-        sut.downloadFilePublisher(url: testURL) { _ in
+        sut.downloadFilePublisher(from: testURL) { _ in
             didTrackProgress = true
         }
         .sink { completion in
@@ -150,7 +150,7 @@ final class FileDownloadable_publisher_Tests {
         let sut = FileDownloader(mockSession: urlSession)
         var didTrackProgressBeforeReturn: Bool? = nil
         
-        sut.downloadFilePublisher(url: testURL) { _ in
+        sut.downloadFilePublisher(from: testURL) { _ in
             if didTrackProgressBeforeReturn == nil {
                 didTrackProgressBeforeReturn = true
             }
@@ -185,7 +185,7 @@ final class FileDownloadable_publisher_Tests {
         let sut = FileDownloader(mockSession: urlSession)
         var capturedTracking = [Double]()
         
-        sut.downloadFilePublisher(url: testURL) { progress in
+        sut.downloadFilePublisher(from: testURL) { progress in
             capturedTracking.append(progress)
         }
         .sink { completion in
@@ -221,7 +221,7 @@ final class FileDownloadable_publisher_Tests {
         var didExecute = false
         var didTrackProgress = false
         
-        sut.downloadFilePublisher(url: testURL) { _ in
+        sut.downloadFilePublisher(from: testURL) { _ in
             didTrackProgress = true
         }
         .sink { completion in
@@ -266,7 +266,7 @@ final class FileDownloadable_publisher_Tests {
         
         var didExecute = false
         
-        sut.downloadFilePublisher(url: testURL, progress: nil)
+        sut.downloadFilePublisher(from: testURL, progress: nil)
         .sink { completion in
             switch completion {
             case .failure: Issue.record()

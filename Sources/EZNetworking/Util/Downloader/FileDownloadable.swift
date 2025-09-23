@@ -13,7 +13,7 @@ public enum DownloadStreamEvent {
 public protocol FileDownloadable {
     func downloadFile(from serverUrl: URL, progress: DownloadProgressHandler?) async throws -> URL
     func downloadFileTask(from serverUrl: URL, progress: DownloadProgressHandler?, completion: @escaping(DownloadCompletionHandler)) -> URLSessionDownloadTask
-    func downloadFilePublisher(url: URL, progress: DownloadProgressHandler?) -> AnyPublisher<URL, NetworkingError>
+    func downloadFilePublisher(from serverUrl: URL, progress: DownloadProgressHandler?) -> AnyPublisher<URL, NetworkingError>
     func downloadFileStream(url: URL) -> AsyncStream<DownloadStreamEvent>
 }
 
@@ -82,9 +82,9 @@ public class FileDownloader: FileDownloadable {
 
     // MARK: Publisher
 
-    public func downloadFilePublisher(url: URL, progress: DownloadProgressHandler?) -> AnyPublisher<URL, NetworkingError> {
+    public func downloadFilePublisher(from serverUrl: URL, progress: DownloadProgressHandler?) -> AnyPublisher<URL, NetworkingError> {
         Future { promise in
-            self._downloadFileTask(url: url, progress: progress) { result in
+            self._downloadFileTask(url: serverUrl, progress: progress) { result in
                 promise(result)
             }
         }
