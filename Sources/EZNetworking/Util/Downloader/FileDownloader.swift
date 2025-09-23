@@ -46,7 +46,7 @@ public class FileDownloader: FileDownloadable {
 
     public func downloadFile(from serverUrl: URL, progress: DownloadProgressHandler? = nil) async throws -> URL {
         try await withCheckedThrowingContinuation { continuation in
-            _downloadFileTask(url: serverUrl, progress: progress) { result in
+            performDownloadTask(url: serverUrl, progress: progress) { result in
                 switch result {
                 case .success(let success):
                     continuation.resume(returning: success)
@@ -61,14 +61,14 @@ public class FileDownloader: FileDownloadable {
 
     @discardableResult
     public func downloadFileTask(from serverUrl: URL, progress: DownloadProgressHandler?, completion: @escaping(DownloadCompletionHandler)) -> URLSessionDownloadTask {
-        return _downloadFileTask(url: serverUrl, progress: progress, completion: completion)
+        return performDownloadTask(url: serverUrl, progress: progress, completion: completion)
     }
 
     // MARK: Publisher
 
     public func downloadFilePublisher(from serverUrl: URL, progress: DownloadProgressHandler?) -> AnyPublisher<URL, NetworkingError> {
         Future { promise in
-            self._downloadFileTask(url: serverUrl, progress: progress) { result in
+            self.performDownloadTask(url: serverUrl, progress: progress) { result in
                 promise(result)
             }
         }
@@ -84,7 +84,7 @@ public class FileDownloader: FileDownloadable {
                 continuation.yield(.progress(progress))
             }
             // Start the download task, yielding completion to the stream.
-            let task = self._downloadFileTask(url: serverUrl, progress: progressHandler) { result in
+            let task = self.performDownloadTask(url: serverUrl, progress: progressHandler) { result in
                 switch result {
                 case .success(let url):
                     continuation.yield(.success(url))
@@ -103,7 +103,7 @@ public class FileDownloader: FileDownloadable {
     // MARK: - Core
 
     @discardableResult
-    private func _downloadFileTask(url: URL, progress: DownloadProgressHandler?, completion: @escaping(DownloadCompletionHandler)) -> URLSessionDownloadTask {
+    private func performDownloadTask(url: URL, progress: DownloadProgressHandler?, completion: @escaping(DownloadCompletionHandler)) -> URLSessionDownloadTask {
         configureProgressTracking(progress: progress)
 
         let task = urlSession.downloadTask(with: url) { [weak self] localURL, response, error in
