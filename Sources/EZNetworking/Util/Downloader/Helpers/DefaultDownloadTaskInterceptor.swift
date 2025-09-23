@@ -1,7 +1,6 @@
 import Combine
 import Foundation
 
-
 /// Default implementation of DownloadTaskInterceptor
 internal class DefaultDownloadTaskInterceptor: DownloadTaskInterceptor {
     var progress: (Double) -> Void
