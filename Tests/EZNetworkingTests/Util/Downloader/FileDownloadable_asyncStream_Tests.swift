@@ -22,7 +22,7 @@ final class FileDownloadable_AsyncStream_Tests {
         )
         
         var events: [DownloadStreamEvent] = []
-        for await event in sut.downloadFileStream(url: testURL) {
+        for await event in sut.downloadFileStream(from: testURL) {
             events.append(event)
         }
         
@@ -46,7 +46,7 @@ final class FileDownloadable_AsyncStream_Tests {
         )
         
         var events: [DownloadStreamEvent] = []
-        for await event in sut.downloadFileStream(url: testURL) {
+        for await event in sut.downloadFileStream(from: testURL) {
             events.append(event)
         }
         
@@ -70,7 +70,7 @@ final class FileDownloadable_AsyncStream_Tests {
         )
         
         var events: [DownloadStreamEvent] = []
-        for await event in sut.downloadFileStream(url: testURL) {
+        for await event in sut.downloadFileStream(from: testURL) {
             events.append(event)
         }
         
@@ -93,7 +93,7 @@ final class FileDownloadable_AsyncStream_Tests {
         )
         
         var events: [DownloadStreamEvent] = []
-        for await event in sut.downloadFileStream(url: testURL) {
+        for await event in sut.downloadFileStream(from: testURL) {
             events.append(event)
         }
         
@@ -120,7 +120,7 @@ final class FileDownloadable_AsyncStream_Tests {
         let sut = FileDownloader(mockSession: urlSession)
         var didTrackProgress = false
         
-        for await event in sut.downloadFileStream(url: testURL) {
+        for await event in sut.downloadFileStream(from: testURL) {
             switch event {
             case .progress:
                 didTrackProgress = true
@@ -145,7 +145,7 @@ final class FileDownloadable_AsyncStream_Tests {
         var didTrackProgressBeforeReturn: Bool? = nil
         var numberOfEvents = 0
         
-        for await event in sut.downloadFileStream(url: testURL) {
+        for await event in sut.downloadFileStream(from: testURL) {
             switch event {
             case .progress:
                 numberOfEvents += 1
@@ -182,7 +182,7 @@ final class FileDownloadable_AsyncStream_Tests {
         var progressValues: [Double] = []
         var didReceiveSuccess = false
         
-        for await event in sut.downloadFileStream(url: testURL) {
+        for await event in sut.downloadFileStream(from: testURL) {
             switch event {
             case .progress(let value):
                 progressValues.append(value)
@@ -217,7 +217,7 @@ final class FileDownloadable_AsyncStream_Tests {
         
         var didTrackProgress = false
         
-        for await event in sut.downloadFileStream(url: testURL) {
+        for await event in sut.downloadFileStream(from: testURL) {
             switch event {
             case .progress:
                 didTrackProgress = true
@@ -255,7 +255,7 @@ final class FileDownloadable_AsyncStream_Tests {
         )
         
         
-        for await event in sut.downloadFileStream(url: testURL) {
+        for await event in sut.downloadFileStream(from: testURL) {
             switch event {
             case .progress: didTrackProgressStreamEvent = true
             case .success: break
