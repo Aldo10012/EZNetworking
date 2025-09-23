@@ -14,7 +14,7 @@ public protocol FileDownloadable {
     func downloadFile(from serverUrl: URL, progress: DownloadProgressHandler?) async throws -> URL
     func downloadFileTask(from serverUrl: URL, progress: DownloadProgressHandler?, completion: @escaping(DownloadCompletionHandler)) -> URLSessionDownloadTask
     func downloadFilePublisher(from serverUrl: URL, progress: DownloadProgressHandler?) -> AnyPublisher<URL, NetworkingError>
-    func downloadFileStream(url: URL) -> AsyncStream<DownloadStreamEvent>
+    func downloadFileStream(from serverUrl: URL) -> AsyncStream<DownloadStreamEvent>
 }
 
 public class FileDownloader: FileDownloadable {
@@ -93,14 +93,14 @@ public class FileDownloader: FileDownloadable {
 
     // MARK: AsyncStream
 
-    public func downloadFileStream(url: URL) -> AsyncStream<DownloadStreamEvent> {
+    public func downloadFileStream(from serverUrl: URL) -> AsyncStream<DownloadStreamEvent> {
         AsyncStream { continuation in
             // Progress handler yields progress updates to the stream.
             let progressHandler: DownloadProgressHandler = { progress in
                 continuation.yield(.progress(progress))
             }
             // Start the download task, yielding completion to the stream.
-            let task = self._downloadFileTask(url: url, progress: progressHandler) { result in
+            let task = self._downloadFileTask(url: serverUrl, progress: progressHandler) { result in
                 switch result {
                 case .success(let url):
                     continuation.yield(.success(url))
