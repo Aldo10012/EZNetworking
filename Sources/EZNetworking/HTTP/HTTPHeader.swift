@@ -1,14 +1,14 @@
 import Foundation
 
 public enum HTTPHeader: Equatable {
-    case accept(MediaType)
+    case accept(MimeType)
     case acceptCharset(String)
     case acceptEncoding(String)
     case acceptLanguage(String)
     case authorization(AuthorizationType)
     case cacheControl(String)
     case contentLength(String)
-    case contentType(MediaType)
+    case contentType(MimeType)
     case cookie(String)
     case host(String)
     case ifModifiedSince(String)
@@ -61,7 +61,7 @@ public enum HTTPHeader: Equatable {
     }
 }
 
-public enum MediaType: Equatable {
+public enum MimeType: Equatable {
     // MARK: - Application Types
     case json
     case xml
