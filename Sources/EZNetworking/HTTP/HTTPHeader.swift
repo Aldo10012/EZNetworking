@@ -60,15 +60,3 @@ public enum HTTPHeader: Equatable {
         }
     }
 }
-
-public enum AuthorizationType: Equatable {
-    case bearer(String)
-    case custom(String)
-
-    var value: String {
-        switch self {
-        case .bearer(let value): return "Bearer \(value)"
-        case .custom(let value): return value
-        }
-    }
-}
