@@ -35,4 +35,15 @@ extension SessionDelegate: URLSessionTaskDelegate {
         taskLifecycleInterceptor?.urlSession(session, taskIsWaitingForConnectivity: task)
     }
 
+    public func urlSession(_ session: URLSession,
+                          task: URLSessionTask,
+                          didSendBodyData bytesSent: Int64,
+                          totalBytesSent: Int64,
+                          totalBytesExpectedToSend: Int64) {
+        guard totalBytesExpectedToSend > 0 else { return }
+        let currentProgress = Double(totalBytesSent) / Double(totalBytesExpectedToSend)
+        uploadTaskInterceptor?.progress(currentProgress)
+    }
+    // TODO: update
+
 }
