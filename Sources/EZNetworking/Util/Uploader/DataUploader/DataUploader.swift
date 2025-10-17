@@ -1,7 +1,7 @@
 import Foundation
 import Combine
 
-public class DataUploadaber: DataUploadable {
+public class DataUploader: DataUploadable {
     private let urlSession: URLSessionTaskProtocol
     private let validator: ResponseValidator
     private var sessionDelegate: SessionDelegate

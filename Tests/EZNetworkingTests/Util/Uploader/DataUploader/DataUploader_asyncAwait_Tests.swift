@@ -9,7 +9,7 @@ final class DataUploader_asyncAwait_Tests {
     
     @Test("test .uploadData() with all valid inputs does not throw error")
     func test_upload_withValidInputs_doesNotThrowError() async throws {
-        let sut = DataUploadaber(urlSession: createMockURLSession())
+        let sut = DataUploader(urlSession: createMockURLSession())
         await #expect(throws: Never.self) {
             try await sut.uploadData(mockData, with: mockRequest, progress: nil)
         }
@@ -96,7 +96,7 @@ final class DataUploader_asyncAwait_Tests {
             .inProgress(percent: 50)
         ]
         
-        let sut = DataUploadaber(mockSession: urlSession)
+        let sut = DataUploader(mockSession: urlSession)
         var didTrackProgress = false
         
         do {
@@ -116,7 +116,7 @@ final class DataUploader_asyncAwait_Tests {
             .inProgress(percent: 50)
         ]
         
-        let sut = DataUploadaber(mockSession: urlSession)
+        let sut = DataUploader(mockSession: urlSession)
         var progressAndReturnList = [String]()
         
         do {
@@ -143,7 +143,7 @@ final class DataUploader_asyncAwait_Tests {
             .complete
         ]
         
-        let sut = DataUploadaber(mockSession: urlSession)
+        let sut = DataUploader(mockSession: urlSession)
         var capturedTracking = [Double]()
         
         do {
@@ -169,7 +169,7 @@ final class DataUploader_asyncAwait_Tests {
             .inProgress(percent: 50)
         ]
         
-        let sut = DataUploadaber(
+        let sut = DataUploader(
             urlSession: urlSession,
             sessionDelegate: delegate
         )
@@ -205,7 +205,7 @@ final class DataUploader_asyncAwait_Tests {
             .inProgress(percent: 50)
         ]
         
-        let sut = DataUploadaber(
+        let sut = DataUploader(
             urlSession: urlSession,
             sessionDelegate: delegate
         )
@@ -226,8 +226,8 @@ final class DataUploader_asyncAwait_Tests {
 
 private func createDataUploader(
     urlSession: URLSessionTaskProtocol = createMockURLSession()
-) -> DataUploadaber {
-    return DataUploadaber(urlSession: urlSession)
+) -> DataUploader {
+    return DataUploader(urlSession: urlSession)
 }
 
 private func createMockURLSession(
@@ -253,7 +253,7 @@ private struct MockRequest: Request {
     var body: HTTPBody? { nil }
 }
 
-private extension DataUploadaber {
+private extension DataUploader {
     /// Test-only initializer that mimics the production logic but uses MockFileDownloaderURLSession.
     convenience init(
         mockSession: MockDataUploaderURLSession,
