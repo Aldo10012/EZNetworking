@@ -40,10 +40,6 @@ extension SessionDelegate: URLSessionTaskDelegate {
                           didSendBodyData bytesSent: Int64,
                           totalBytesSent: Int64,
                           totalBytesExpectedToSend: Int64) {
-        guard totalBytesExpectedToSend > 0 else { return }
-        let currentProgress = Double(totalBytesSent) / Double(totalBytesExpectedToSend)
-        uploadTaskInterceptor?.progress(currentProgress)
+        uploadTaskInterceptor?.urlSession(session, task: task, didSendBodyData: bytesSent, totalBytesSent: totalBytesSent, totalBytesExpectedToSend: totalBytesExpectedToSend)
     }
-    // TODO: update
-
 }
