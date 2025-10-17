@@ -58,7 +58,7 @@ public class MultipartFormUploadaber: MultipartFormUploadable {
         var request = request
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
         let data = MultipartFormDataBuilder.buildBody(parts: parts, boundary: boundary)
-        return uploadDataTask(data, with: request, progress: progress, completion: completion)
+        return _uploadDataTask(data, with: request, progress: progress, completion: completion)
     }
 
     // MARK: Combine
@@ -95,6 +95,24 @@ public class MultipartFormUploadaber: MultipartFormUploadable {
     }
 
     // MARK: - Core
+    
+    private func _uploadDataTask(_ data: Data, with request: URLRequest, progress: UploadProgressHandler?, completion: @escaping (UploadCompletionHandler)) -> URLSessionUploadTask {
+        let request = request
+        configureProgressTracking(progress: progress)
+        let task = urlSession.uploadTask(with: request, from: data) { [weak self] data, response, error in
+            guard let self else { completion(.failure(.internalError(.lostReferenceOfSelf))); return }
+            do {
+                try self.validator.validateNoError(error)
+                try self.validator.validateStatus(from: response)
+                let validData = try self.validator.validateData(data)
+                completion(.success(validData))
+            } catch {
+                completion(.failure(self.mapError(error)))
+            }
+        }
+        task.resume()
+        return task
+    }
 
     private func mapError(_ error: Error) -> NetworkingError {
         if let networkError = error as? NetworkingError { return networkError }
