@@ -40,7 +40,7 @@ public class DataUploadaber: DataUploadable {
     
     public func uploadData(_ data: Data, with request: URLRequest, progress: UploadProgressHandler?) async throws -> Data {
         try await withCheckedThrowingContinuation { continuation in
-            self.uploadDataTask(data, with: request, progress: progress) { result in
+            self._uploadDataTask(data, with: request, progress: progress) { result in
                 switch result {
                 case .success(let data):
                     continuation.resume(returning: data)
@@ -53,26 +53,12 @@ public class DataUploadaber: DataUploadable {
     
     @discardableResult
     public func uploadDataTask(_ data: Data, with request: URLRequest, progress: UploadProgressHandler?, completion: @escaping (UploadCompletionHandler)) -> URLSessionUploadTask {
-        let request = request
-        configureProgressTracking(progress: progress)
-        let task = urlSession.uploadTask(with: request, from: data) { [weak self] data, response, error in
-            guard let self else { completion(.failure(.internalError(.lostReferenceOfSelf))); return }
-            do {
-                try self.validator.validateNoError(error)
-                try self.validator.validateStatus(from: response)
-                let validData = try self.validator.validateData(data)
-                completion(.success(validData))
-            } catch {
-                completion(.failure(self.mapError(error)))
-            }
-        }
-        task.resume()
-        return task
+        return _uploadDataTask(data, with: request, progress: progress, completion: completion)
     }
     
     public func uploadDataPublisher(_ data: Data, with request: URLRequest, progress: UploadProgressHandler?) -> AnyPublisher<Data, NetworkingError> {
         Future { promise in
-            _ = self.uploadDataTask(data, with: request, progress: progress) { result in
+            _ = self._uploadDataTask(data, with: request, progress: progress) { result in
                 promise(result)
             }
         }
@@ -84,7 +70,7 @@ public class DataUploadaber: DataUploadable {
             let progressHandler: UploadProgressHandler = { progress in
                 continuation.yield(.progress(progress))
             }
-            let task = self.uploadDataTask(data, with: request, progress: progressHandler) { result in
+            let task = self._uploadDataTask(data, with: request, progress: progressHandler) { result in
                 switch result {
                 case .success(let data):
                     continuation.yield(.success(data))
@@ -101,6 +87,24 @@ public class DataUploadaber: DataUploadable {
 
     
     // MARK: Core
+    
+    private func _uploadDataTask(_ data: Data, with request: URLRequest, progress: UploadProgressHandler?, completion: @escaping (UploadCompletionHandler)) -> URLSessionUploadTask {
+        let request = request
+        configureProgressTracking(progress: progress)
+        let task = urlSession.uploadTask(with: request, from: data) { [weak self] data, response, error in
+            guard let self else { completion(.failure(.internalError(.lostReferenceOfSelf))); return }
+            do {
+                try self.validator.validateNoError(error)
+                try self.validator.validateStatus(from: response)
+                let validData = try self.validator.validateData(data)
+                completion(.success(validData))
+            } catch {
+                completion(.failure(self.mapError(error)))
+            }
+        }
+        task.resume()
+        return task
+    }
     
     private func mapError(_ error: Error) -> NetworkingError {
         if let networkError = error as? NetworkingError { return networkError }
