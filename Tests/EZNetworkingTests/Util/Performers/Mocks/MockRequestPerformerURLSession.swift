@@ -25,4 +25,9 @@ class MockRequestPerformerURLSession: URLSessionTaskProtocol {
     func downloadTask(with url: URL, completionHandler: @escaping @Sendable (URL?, URLResponse?, Error?) -> Void) -> URLSessionDownloadTask {
         MockURLSessionDownloadTask { completionHandler(nil, nil, nil) }
     }
+    
+    // not used for RequestPerformer unit tests
+    func uploadTask(with request: URLRequest, from bodyData: Data?, completionHandler: @escaping @Sendable (Data?, URLResponse?, (any Error)?) -> Void) -> URLSessionUploadTask {
+        URLSessionUploadTask()
+    }
 }

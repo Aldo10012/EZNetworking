@@ -21,6 +21,11 @@ class MockFileDownloaderURLSession: URLSessionTaskProtocol {
         MockURLSessionDataTask { completionHandler(nil, nil, nil) }
     }
     
+    // not used for FileDownloader tests
+    func uploadTask(with request: URLRequest, from bodyData: Data?, completionHandler: @escaping @Sendable (Data?, URLResponse?, (any Error)?) -> Void) -> URLSessionUploadTask {
+        URLSessionUploadTask()
+    }
+    
     func downloadTask(with url: URL, completionHandler: @escaping @Sendable (URL?, URLResponse?, Error?) -> Void) -> URLSessionDownloadTask {
         
         simulateDownloadProgress(for: .init())
