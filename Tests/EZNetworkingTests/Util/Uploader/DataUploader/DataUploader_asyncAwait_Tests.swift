@@ -89,7 +89,6 @@ final class DataUploader_asyncAwait_Tests {
     
     // MARK: - Tracking
     
-    
     @Test("test .uploadData() Download Progress Can Be Tracked")
     func test_upload_progress_canBeTracked() async throws {
         let urlSession = createMockURLSession()
@@ -101,7 +100,7 @@ final class DataUploader_asyncAwait_Tests {
         var didTrackProgress = false
         
         do {
-            _ = try await sut.uploadData(MockData.mockPersonJsonData, with: MockRequest(), progress: { _ in
+            _ = try await sut.uploadData(mockData, with: rockRequest, progress: { _ in
                 didTrackProgress = true
             })
             #expect(didTrackProgress)
@@ -109,7 +108,119 @@ final class DataUploader_asyncAwait_Tests {
             Issue.record()
         }
     }
+    
+    @Test("test .uploadData() Progress Tracking Happens Before Return")
+    func test_upload_progressTrackingHappensBeforeReturn() async throws {
+        let urlSession = createMockURLSession()
+        urlSession.progressToExecute = [
+            .inProgress(percent: 50)
+        ]
+        
+        let sut = DataUploadaber(mockSession: urlSession)
+        var progressAndReturnList = [String]()
+        
+        do {
+            _ = try await sut.uploadData(mockData, with: rockRequest, progress: { _ in
+                progressAndReturnList.append("did track progress")
+            })
+            progressAndReturnList.append("did return")
+                        
+            #expect(progressAndReturnList.count == 2)
+            #expect(progressAndReturnList[0] == "did track progress")
+            #expect(progressAndReturnList[1] == "did return")
+        } catch {
+            Issue.record()
+        }
+    }
+    
+    @Test("test .uploadData() Progress Tracking Order")
+    func test_upload_progressTrackingOrder() async throws {
+        let urlSession = createMockURLSession()
+        urlSession.progressToExecute = [
+            .inProgress(percent: 30),
+            .inProgress(percent: 60),
+            .inProgress(percent: 90),
+            .complete
+        ]
+        
+        let sut = DataUploadaber(mockSession: urlSession)
+        var capturedTracking = [Double]()
+        
+        do {
+            _ = try await sut.uploadData(mockData, with: rockRequest, progress: { value in
+                capturedTracking.append(value)
+            })
+            #expect(capturedTracking.count == 4)
+            #expect(capturedTracking == [0.3, 0.6, 0.9, 1.0])
+        } catch {
+            Issue.record()
+        }
+    }
+    
+    // MARK: Traching with delegate
+    
+    @Test("test .uploadData() Download Progress Can Be Tracked when Injecting SessionDelegate")
+    func test_upload_progressCanBeTrackedWhenInjectingSessionDelegate() async throws {
+        let urlSession = createMockURLSession()
+        
+        let delegate = SessionDelegate()
+        urlSession.sessionDelegate = delegate
+        urlSession.progressToExecute = [
+            .inProgress(percent: 50)
+        ]
+        
+        let sut = DataUploadaber(
+            urlSession: urlSession,
+            sessionDelegate: delegate
+        )
+        
+        var didTrackProgress = false
+        
+        do {
+            _ = try await sut.uploadData(mockData, with: rockRequest, progress: { value in
+                didTrackProgress = true
+            })
+            #expect(didTrackProgress)
+        } catch {
+            Issue.record()
+        }
+    }
+    
+    // MARK: Traching with interceptor
+    
+    @Test("test .upload() Download Progress Can Be Tracked when Injecting DownloadTaskInterceptor")
+    func test_upload_progressCanBeTrackedWhenInjectingDownloadTaskInterceptor() async throws {
+        let urlSession = createMockURLSession()
+        
+        var didTrackProgressFromInterceptor = false
+
+        let uploadInterceptor = DataUploader_MockUploadTaskInterceptor(progress: { _ in
+            didTrackProgressFromInterceptor = true
+        })
+        let delegate = SessionDelegate(
+            uploadTaskInterceptor: uploadInterceptor
+        )
+        urlSession.sessionDelegate = delegate
+        urlSession.progressToExecute = [
+            .inProgress(percent: 50)
+        ]
+        
+        let sut = DataUploadaber(
+            urlSession: urlSession,
+            sessionDelegate: delegate
+        )
+        
+        
+        do {
+            _ = try await sut.uploadData(mockData, with: rockRequest, progress: nil)
+            #expect(didTrackProgressFromInterceptor)
+            #expect(uploadInterceptor.didCallDidSendBodyData == true)
+        } catch {
+            Issue.record()
+        }
+    }
 }
+
 
 // MARK: - helpers
 
@@ -142,7 +253,7 @@ private struct MockRequest: Request {
     var body: HTTPBody? { nil }
 }
 
-extension DataUploadaber {
+private extension DataUploadaber {
     /// Test-only initializer that mimics the production logic but uses MockFileDownloaderURLSession.
     convenience init(
         mockSession: MockDataUploaderURLSession,
@@ -158,3 +269,6 @@ extension DataUploadaber {
         )
     }
 }
+
+private let mockData = MockData.mockPersonJsonData
+private let rockRequest = MockRequest()
