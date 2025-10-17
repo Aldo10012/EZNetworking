@@ -11,7 +11,7 @@ final class DataUploader_asyncAwait_Tests {
     func test_upload_withValidInputs_doesNotThrowError() async throws {
         let sut = DataUploadaber(urlSession: createMockURLSession())
         await #expect(throws: Never.self) {
-            try await sut.uploadData(MockData.mockPersonJsonData, with: MockRequest(), progress: nil)
+            try await sut.uploadData(mockData, with: mockRequest, progress: nil)
         }
     }
     
@@ -26,7 +26,7 @@ final class DataUploader_asyncAwait_Tests {
         let session = createMockURLSession(urlResponse: buildResponse(statusCode: 300))
         let sut = createDataUploader(urlSession: session)
         await #expect(throws: NetworkingError.httpError(HTTPError(statusCode: 300))) {
-            try await sut.uploadData(MockData.mockPersonJsonData, with: MockRequest(), progress: nil)
+            try await sut.uploadData(mockData, with: mockRequest, progress: nil)
         }
     }
     
@@ -35,7 +35,7 @@ final class DataUploader_asyncAwait_Tests {
         let session = createMockURLSession(urlResponse: buildResponse(statusCode: 400))
         let sut = createDataUploader(urlSession: session)
         await #expect(throws: NetworkingError.httpError(HTTPError(statusCode: 400))) {
-            try await sut.uploadData(MockData.mockPersonJsonData, with: MockRequest(), progress: nil)
+            try await sut.uploadData(mockData, with: mockRequest, progress: nil)
         }
     }
     
@@ -44,7 +44,7 @@ final class DataUploader_asyncAwait_Tests {
         let session = createMockURLSession(urlResponse: buildResponse(statusCode: 500))
         let sut = createDataUploader(urlSession: session)
         await #expect(throws: NetworkingError.httpError(HTTPError(statusCode: 500))) {
-            try await sut.uploadData(MockData.mockPersonJsonData, with: MockRequest(), progress: nil)
+            try await sut.uploadData(mockData, with: mockRequest, progress: nil)
         }
     }
     
@@ -55,7 +55,7 @@ final class DataUploader_asyncAwait_Tests {
         let session = createMockURLSession(error: HTTPError(statusCode: 300))
         let sut = createDataUploader(urlSession: session)
         await #expect(throws: NetworkingError.internalError(.requestFailed(HTTPError(statusCode: 300)))) {
-            try await sut.uploadData(MockData.mockPersonJsonData, with: MockRequest(), progress: nil)
+            try await sut.uploadData(mockData, with: mockRequest, progress: nil)
         }
     }
 
@@ -64,7 +64,7 @@ final class DataUploader_asyncAwait_Tests {
         let session = createMockURLSession(error: HTTPError(statusCode: 400))
         let sut = createDataUploader(urlSession: session)
         await #expect(throws: NetworkingError.internalError(.requestFailed(HTTPError(statusCode: 400)))) {
-            try await sut.uploadData(MockData.mockPersonJsonData, with: MockRequest(), progress: nil)
+            try await sut.uploadData(mockData, with: mockRequest, progress: nil)
         }
     }
 
@@ -73,7 +73,7 @@ final class DataUploader_asyncAwait_Tests {
         let session = createMockURLSession(error: HTTPError(statusCode: 500))
         let sut = createDataUploader(urlSession: session)
         await #expect(throws: NetworkingError.internalError(.requestFailed(HTTPError(statusCode: 500)))) {
-            try await sut.uploadData(MockData.mockPersonJsonData, with: MockRequest(), progress: nil)
+            try await sut.uploadData(mockData, with: mockRequest, progress: nil)
         }
     }
     
@@ -83,7 +83,7 @@ final class DataUploader_asyncAwait_Tests {
         let session = createMockURLSession(error: networkError)
         let sut = createDataUploader(urlSession: session)
         await #expect(throws: NetworkingError.urlError(URLError(.notConnectedToInternet))) {
-            try await sut.uploadData(MockData.mockPersonJsonData, with: MockRequest(), progress: nil)
+            try await sut.uploadData(mockData, with: mockRequest, progress: nil)
         }
     }
     
@@ -100,7 +100,7 @@ final class DataUploader_asyncAwait_Tests {
         var didTrackProgress = false
         
         do {
-            _ = try await sut.uploadData(mockData, with: rockRequest, progress: { _ in
+            _ = try await sut.uploadData(mockData, with: mockRequest, progress: { _ in
                 didTrackProgress = true
             })
             #expect(didTrackProgress)
@@ -120,7 +120,7 @@ final class DataUploader_asyncAwait_Tests {
         var progressAndReturnList = [String]()
         
         do {
-            _ = try await sut.uploadData(mockData, with: rockRequest, progress: { _ in
+            _ = try await sut.uploadData(mockData, with: mockRequest, progress: { _ in
                 progressAndReturnList.append("did track progress")
             })
             progressAndReturnList.append("did return")
@@ -147,7 +147,7 @@ final class DataUploader_asyncAwait_Tests {
         var capturedTracking = [Double]()
         
         do {
-            _ = try await sut.uploadData(mockData, with: rockRequest, progress: { value in
+            _ = try await sut.uploadData(mockData, with: mockRequest, progress: { value in
                 capturedTracking.append(value)
             })
             #expect(capturedTracking.count == 4)
@@ -177,7 +177,7 @@ final class DataUploader_asyncAwait_Tests {
         var didTrackProgress = false
         
         do {
-            _ = try await sut.uploadData(mockData, with: rockRequest, progress: { value in
+            _ = try await sut.uploadData(mockData, with: mockRequest, progress: { value in
                 didTrackProgress = true
             })
             #expect(didTrackProgress)
@@ -212,7 +212,7 @@ final class DataUploader_asyncAwait_Tests {
         
         
         do {
-            _ = try await sut.uploadData(mockData, with: rockRequest, progress: nil)
+            _ = try await sut.uploadData(mockData, with: mockRequest, progress: nil)
             #expect(didTrackProgressFromInterceptor)
             #expect(uploadInterceptor.didCallDidSendBodyData == true)
         } catch {
@@ -271,4 +271,4 @@ private extension DataUploadaber {
 }
 
 private let mockData = MockData.mockPersonJsonData
-private let rockRequest = MockRequest()
+private let mockRequest = MockRequest()
