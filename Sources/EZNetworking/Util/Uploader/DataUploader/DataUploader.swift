@@ -104,7 +104,10 @@ public class DataUploadaber: DataUploadable {
         }
         
         let task = urlSession.uploadTask(with: urlRequest, from: data) { [weak self] data, response, error in
-            guard let self else { completion(.failure(.internalError(.lostReferenceOfSelf))); return }
+            guard let self else {
+                completion(.failure(.internalError(.lostReferenceOfSelf)))
+                return
+            }
             do {
                 try self.validator.validateNoError(error)
                 try self.validator.validateStatus(from: response)
