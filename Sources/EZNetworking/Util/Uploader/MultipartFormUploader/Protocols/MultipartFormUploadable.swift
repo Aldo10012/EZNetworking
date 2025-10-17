@@ -11,3 +11,7 @@ public protocol MultipartFormUploadable {
 
     func uploadMultipartStream(_ parts: [MultipartFormPart], boundary: String, with request: URLRequest) -> AsyncStream<UploadStreamEvent>
 }
+
+public enum MultipartFormPart {
+    case data(name: String, filename: String?, mimeType: String?, data: Data)
+}
