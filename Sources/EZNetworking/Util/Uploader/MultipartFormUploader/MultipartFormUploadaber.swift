@@ -1,7 +1,7 @@
 import Combine
 import Foundation
 
-public class FileUploader: FileUploadable {
+public class MultipartFormUploadaber: MultipartFormUploadable {
     private let urlSession: URLSessionTaskProtocol
     private let validator: ResponseValidator
     private var sessionDelegate: SessionDelegate
@@ -38,8 +38,6 @@ public class FileUploader: FileUploadable {
 
     // MARK: Async/Await
 
-
-
     public func uploadMultipart(_ parts: [MultipartFormPart], boundary: String, with request: URLRequest, progress: UploadProgressHandler?) async throws -> Data {
         try await withCheckedThrowingContinuation { continuation in
             self.uploadMultipartTask(parts, boundary: boundary, with: request, progress: progress) { result in
@@ -55,10 +53,6 @@ public class FileUploader: FileUploadable {
 
     // MARK: Completion Handlers
 
-    
-
-    
-
     @discardableResult
     public func uploadMultipartTask(_ parts: [MultipartFormPart], boundary: String, with request: URLRequest, progress: UploadProgressHandler?, completion: @escaping (UploadCompletionHandler)) -> URLSessionUploadTask {
         var request = request
@@ -68,8 +62,6 @@ public class FileUploader: FileUploadable {
     }
 
     // MARK: Combine
-
-
 
     public func uploadMultipartPublisher(_ parts: [MultipartFormPart], boundary: String, with request: URLRequest, progress: UploadProgressHandler?) -> AnyPublisher<Data, NetworkingError> {
         Future { promise in
@@ -81,8 +73,6 @@ public class FileUploader: FileUploadable {
     }
 
     // MARK: AsyncStream
-
-
 
     public func uploadMultipartStream(_ parts: [MultipartFormPart], boundary: String, with request: URLRequest) -> AsyncStream<UploadStreamEvent> {
         AsyncStream { continuation in
