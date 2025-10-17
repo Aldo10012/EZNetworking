@@ -1,15 +1,15 @@
-import Combine
 import Foundation
+import Combine
 
 public class FileUploader: FileUploadable {
     private let urlSession: URLSessionTaskProtocol
     private let validator: ResponseValidator
     private var sessionDelegate: SessionDelegate
-
+    
     private let fallbackUploadTaskInterceptor: DefaultUploadTaskInterceptor = DefaultUploadTaskInterceptor()
-
+    
     // MARK: init
-
+    
     public init(
         urlSession: URLSessionTaskProtocol = URLSession.shared,
         validator: ResponseValidator = ResponseValidatorImpl(),
@@ -35,14 +35,12 @@ public class FileUploader: FileUploadable {
         }
         self.validator = validator
     }
-
-    // MARK: Async/Await
-
-
-
-    public func uploadMultipart(_ parts: [MultipartFormPart], boundary: String, with request: URLRequest, progress: UploadProgressHandler?) async throws -> Data {
+    
+    // MARK: - Methods
+    
+    public func uploadFile(at fileURL: URL, with request: URLRequest, progress: UploadProgressHandler?) async throws -> Data {
         try await withCheckedThrowingContinuation { continuation in
-            self.uploadMultipartTask(parts, boundary: boundary, with: request, progress: progress) { result in
+            self.uploadFileTask(fileURL, with: request, progress: progress) { result in
                 switch result {
                 case .success(let data):
                     continuation.resume(returning: data)
@@ -53,43 +51,40 @@ public class FileUploader: FileUploadable {
         }
     }
 
-    // MARK: Completion Handlers
-
-    
-
-    
-
     @discardableResult
-    public func uploadMultipartTask(_ parts: [MultipartFormPart], boundary: String, with request: URLRequest, progress: UploadProgressHandler?, completion: @escaping (UploadCompletionHandler)) -> URLSessionUploadTask {
-        var request = request
-        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-        let data = MultipartFormDataBuilder.buildBody(parts: parts, boundary: boundary)
-        return uploadDataTask(data, with: request, progress: progress, completion: completion)
+    public func uploadFileTask(_ fileURL: URL, with request: URLRequest, progress: UploadProgressHandler?, completion: @escaping (UploadCompletionHandler)) -> URLSessionUploadTask {
+        let request = request
+        configureProgressTracking(progress: progress)
+        let task = urlSession.uploadTask(with: request, fromFile: fileURL) { [weak self] data, response, error in
+            guard let self else { completion(.failure(.internalError(.lostReferenceOfSelf))); return }
+            do {
+                try self.validator.validateNoError(error)
+                try self.validator.validateStatus(from: response)
+                let validData = try self.validator.validateData(data)
+                completion(.success(validData))
+            } catch {
+                completion(.failure(self.mapError(error)))
+            }
+        }
+        task.resume()
+        return task
     }
-
-    // MARK: Combine
-
-
-
-    public func uploadMultipartPublisher(_ parts: [MultipartFormPart], boundary: String, with request: URLRequest, progress: UploadProgressHandler?) -> AnyPublisher<Data, NetworkingError> {
+    
+    public func uploadFilePublisher(_ fileURL: URL, with request: URLRequest, progress: UploadProgressHandler?) -> AnyPublisher<Data, NetworkingError> {
         Future { promise in
-            _ = self.uploadMultipartTask(parts, boundary: boundary, with: request, progress: progress) { result in
+            _ = self.uploadFileTask(fileURL, with: request, progress: progress) { result in
                 promise(result)
             }
         }
         .eraseToAnyPublisher()
     }
 
-    // MARK: AsyncStream
-
-
-
-    public func uploadMultipartStream(_ parts: [MultipartFormPart], boundary: String, with request: URLRequest) -> AsyncStream<UploadStreamEvent> {
+    public func uploadFileStream(_ fileURL: URL, with request: URLRequest) -> AsyncStream<UploadStreamEvent> {
         AsyncStream { continuation in
             let progressHandler: UploadProgressHandler = { progress in
                 continuation.yield(.progress(progress))
             }
-            let task = self.uploadMultipartTask(parts, boundary: boundary, with: request, progress: progressHandler) { result in
+            let task = self.uploadFileTask(fileURL, with: request, progress: progressHandler) { result in
                 switch result {
                 case .success(let data):
                     continuation.yield(.success(data))
@@ -104,6 +99,7 @@ public class FileUploader: FileUploadable {
         }
     }
 
+    
     // MARK: - Core
 
     private func mapError(_ error: Error) -> NetworkingError {
