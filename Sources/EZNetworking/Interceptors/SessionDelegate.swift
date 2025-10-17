@@ -8,6 +8,7 @@ public class SessionDelegate: NSObject {
     public weak var taskLifecycleInterceptor: TaskLifecycleInterceptor? = nil
     public weak var dataTaskInterceptor: DataTaskInterceptor? = nil
     public weak var downloadTaskInterceptor: DownloadTaskInterceptor? = nil
+    public weak var uploadTaskInterceptor: UploadTaskInterceptor? = nil
     public weak var streamTaskInterceptor: StreamTaskInterceptor? = nil
     public weak var webSocketTaskInterceptor: WebSocketTaskInterceptor? = nil
     
@@ -18,6 +19,7 @@ public class SessionDelegate: NSObject {
                 taskLifecycleInterceptor: TaskLifecycleInterceptor? = nil,
                 dataTaskInterceptor: DataTaskInterceptor? = nil,
                 downloadTaskInterceptor: DownloadTaskInterceptor? = nil,
+                uploadTaskInterceptor: UploadTaskInterceptor? = nil,
                 streamTaskInterceptor: StreamTaskInterceptor? = nil,
                 webSocketTaskInterceptor: WebSocketTaskInterceptor? = nil) {
         self.cacheInterceptor = cacheInterceptor
@@ -27,6 +29,7 @@ public class SessionDelegate: NSObject {
         self.taskLifecycleInterceptor = taskLifecycleInterceptor
         self.dataTaskInterceptor = dataTaskInterceptor
         self.downloadTaskInterceptor = downloadTaskInterceptor
+        self.uploadTaskInterceptor = uploadTaskInterceptor
         self.streamTaskInterceptor = streamTaskInterceptor
         self.webSocketTaskInterceptor = webSocketTaskInterceptor
     }
