@@ -450,7 +450,7 @@ do {
   })
   // handle success
 } catch {
-  print("error =", error)
+  // handle error
 }
 ```
 
