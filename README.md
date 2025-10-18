@@ -758,35 +758,21 @@ EZNetworking provides comprehensive error handling:
 
 ```swift
 public enum NetworkingError: Error {
-    // Internal errors
-    case internalError(InternalError)                                   /// any internal error
-
-    // HTTP Status Code errors
-    case information(HTTPInformationalStatus, URLResponseHeaders)       /// 1xx status code errors
-    case redirect(HTTPRedirectionStatus, URLResponseHeaders)            /// 3xx status code errors
-    case httpClientError(HTTPClientErrorStatus, URLResponseHeaders)     /// 4xx status code errors
-    case httpServerError(HTTPServerErrorStatus, URLResponseHeaders)     /// 5xx status code errors
-
-    // URL Errors
-    case urlError(URLError)                                             /// any URL error
+    case internalError(InternalError)     /// any internal error
+    case httpError(HTTPError)             /// any HTTP status code error
+    case urlError(URLError)               /// any URL error
 }
 
 // Error handling example
 do {
     let response = try await AsyncRequestPerformer().perform(request: request, decodeTo: UserData.self)
-    // do something with response
+    // do something with the response
 } catch let error as NetworkingError {
     switch error {
     case .internalError(let internalError):
-        // some internal error such as failed to decode or url not valid
-    case .information(let hTTPInformationalStatus, let uRLResponseHeaders):
-        // .. some 1xx status code error
-    case .redirect(let hTTPRedirectionStatus, let uRLResponseHeaders):
-        // some 3xx status code error
-    case .httpClientError(let hTTPClientErrorStatus, let uRLResponseHeaders):
-        // some 4xx status code error
-    case .httpServerError(let hTTPServerErrorStatus, let uRLResponseHeaders):
-        // some 5xx status code error
+        // some internal error, such as failed to decode or the URL is not valid
+    case .httpError(let httpError):
+        // some HTTP error, such as status code 404
     case .urlError(let uRLError):
         // some error of type URLError
     }
