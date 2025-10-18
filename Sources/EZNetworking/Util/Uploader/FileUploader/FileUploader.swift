@@ -54,6 +54,7 @@ public class FileUploader: FileUploadable {
     
     // MARK: Completion Handler
     
+    @discardableResult
     public func uploadFileTask(_ fileURL: URL, with request: any Request, progress: UploadProgressHandler?, completion: @escaping UploadCompletionHandler) -> URLSessionUploadTask? {
         return _uploadFileTask(fileURL, with: request, progress: progress, completion: completion)
     }
