@@ -41,6 +41,7 @@ EZNetworking is a powerful, lightweight Swift networking library that simplifies
   - [File Downloads](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#file-downloads)
 - [Upload Features](https://github.com/Aldo10012/EZNetworking/?tab=readme-ov-file#upload-features)
   - [Date Upload](https://github.com/Aldo10012/EZNetworking/?tab=readme-ov-file#uploading-raw-data)
+  - [File Upload](https://github.com/Aldo10012/EZNetworking/blob/main/README.md#uploading-file)
 - [Advanced Features](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#advanced-features-)
   - [Interceptors](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#interceptors)
     - [Cache Interceptor](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#cache-interceptor)
