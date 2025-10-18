@@ -437,30 +437,62 @@ FileDownloader()
     .store(in: &cancellables)
 ```
 
-### Image Downloads
+### Upload Features
 
+#### Uploading raw data
+
+##### Async Await
 ```swift
-let imageURL = URL(string: "https://example.com/image.jpg")!
-
-// Async/await
 do {
-    let image = try await ImageDownloader().downloadImage(from: imageURL)
-    // Use downloaded image
+  let resultData = try await DataUploader().uploadData(data, with: request, progress: { progress in
+    // track progress
+  })
+  // handle success
 } catch {
-    // Handle error
-}
-
-// Completion handler with caching
-let task = ImageDownloader().downloadImageTask(url: imageURL) { result in
-    switch result {
-    case .success:
-        // handle success
-    case .failure(let error):
-        // handle error
-    }
+  print("error =", error)
 }
 ```
 
+##### AsyncStream
+```swift
+for await event in DataUploader().uploadDataStream(data, with: request) {
+  switch event {
+  case .progress(let value): // handle progress
+  case .success(let data): // handle success
+  case .failure(let error): // handle error
+  }
+}
+```
+
+##### Completion Handler
+```swift
+DataUploader().uploadData(data, with: request, progress: { progress in 
+  // track progress
+}, completion: { result in
+  switch result {
+  case: .success(let data):
+    // handle success
+  case: .failure(let error):
+    // handle error
+  }
+})
+```
+
+##### Combine Publisher
+```swift
+DataUploader().uploadDataPublisher(data, with: request: progress: { progress in
+  // track progress
+})
+.sink { completion in
+  switch completion {
+  case .failure: // handle error
+  case .finished: // handle completion
+  }
+} receiveValue: { data in
+  // handle data
+}
+.store(in: &cancellables)
+```
 ## Advanced Features 🔧
 
 ### Interceptors
