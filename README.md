@@ -495,6 +495,74 @@ DataUploader().uploadDataPublisher(data, with: request: progress: { progress in
 }
 .store(in: &cancellables)
 ```
+
+### Uploading File
+
+To get a file that exists in your bundle, do this
+
+```swift
+fileURL = Bundle.main.url(forResource: "myDocument", withExtension: "txt")
+```
+
+To get a file that exists in your files directory, do this
+
+```swift
+let customFileURL = URL(fileURLWithPath: "/Users/username/Documents/myFile.pdf")
+```
+
+#### Async Await
+```swift
+do {
+  let resultData = try await FileUploader().uploadFile(fileURL, with: request, progress: { progress in
+    // track progress
+  })
+  // handle success
+} catch {
+  // handle error
+}
+```
+
+#### AsyncStream
+```swift
+for await event in FileUploader().uploadFileStream(fileURL, with: request) {
+  switch event {
+  case .progress(let value): // handle progress
+  case .success(let data): // handle success
+  case .failure(let error): // handle error
+  }
+}
+```
+
+#### Completion Handler
+```swift
+FileUploader().uploadFileTask(fileURL, with: request, progress: { progress in 
+  // track progress
+}, completion: { result in
+  switch result {
+  case: .success(let data):
+    // handle success
+  case: .failure(let error):
+    // handle error
+  }
+})
+```
+
+#### Combine Publisher
+```swift
+FileUploader().uploadFilePublisher(fileURL, with: request: progress: { progress in
+  // track progress
+})
+.sink { completion in
+  switch completion {
+  case .failure: // handle error
+  case .finished: // handle completion
+  }
+} receiveValue: { data in
+  // handle data
+}
+.store(in: &cancellables)
+```
+
 ## Advanced Features 🔧
 
 ### Interceptors
