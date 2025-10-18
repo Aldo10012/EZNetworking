@@ -50,6 +50,7 @@ EZNetworking is a powerful, lightweight Swift networking library that simplifies
     - [Task Lifecycle Interceptor](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#task-lifecycle-interceptor)
     - [Data Task Interceptor](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#data-task-interceptor)
     - [Download Task Interceptor](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#download-task-interceptor)
+    - [Upload Task Interceptor](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#upload-task-interceptor)
     - [Stream Task Interceptor](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#stream-task-interceptor)
     - [WebSocket Task Interceptor](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#websocket-task-interceptor)
   - [Session Management](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#session-management)
@@ -675,6 +676,20 @@ class CustomDownloadInterceptor: DownloadTaskInterceptor {
 
 let delegate = SessionDelegate()
 delegate.downloadTaskInterceptor = CustomDownloadInterceptor()
+```
+
+#### Upload Task Interceptor
+
+Monitor upload progress
+
+```swift
+class CustomUploadTaskInterceptor: UploadTaskInterceptor {
+    var progress: (Double) -> Void
+
+    func urlSession(_ session: URLSession, task: URLSessionTask, didSendBodyData bytesSent: Int64, totalBytesSent: Int64, totalBytesExpectedToSend: Int64) {
+        // Track upload progress
+    }
+}
 ```
 
 #### Stream Task Interceptor
