@@ -38,7 +38,7 @@ public class FileUploader: FileUploadable {
     
     // MARK: Async Await
     
-    public func uploadFile(at fileURL: URL, with request: any Request, progress: UploadProgressHandler?) async throws -> Data {
+    public func uploadFile(_ fileURL: URL, with request: any Request, progress: UploadProgressHandler?) async throws -> Data {
         try await withCheckedThrowingContinuation { continuation in
             self._uploadFileTask(fileURL, with: request, progress: progress) { result in
                 switch result {
