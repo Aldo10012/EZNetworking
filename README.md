@@ -39,7 +39,8 @@ EZNetworking is a powerful, lightweight Swift networking library that simplifies
   - [Combine Publishers](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#publishers)
 - [Download Features](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#download-features-)
   - [File Downloads](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#file-downloads)
-  - [Image Downloads](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#image-downloads)
+- [Upload Features](https://github.com/Aldo10012/EZNetworking/?tab=readme-ov-file#upload-features)
+  - [Date Upload](https://github.com/Aldo10012/EZNetworking/?tab=readme-ov-file#uploading-raw-data)
 - [Advanced Features](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#advanced-features-)
   - [Interceptors](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#interceptors)
     - [Cache Interceptor](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#cache-interceptor)
@@ -437,11 +438,11 @@ FileDownloader()
     .store(in: &cancellables)
 ```
 
-### Upload Features
+## Upload Features 📥
 
-#### Uploading raw data
+### Uploading raw data
 
-##### Async Await
+#### Async Await
 ```swift
 do {
   let resultData = try await DataUploader().uploadData(data, with: request, progress: { progress in
@@ -453,7 +454,7 @@ do {
 }
 ```
 
-##### AsyncStream
+#### AsyncStream
 ```swift
 for await event in DataUploader().uploadDataStream(data, with: request) {
   switch event {
@@ -464,7 +465,7 @@ for await event in DataUploader().uploadDataStream(data, with: request) {
 }
 ```
 
-##### Completion Handler
+#### Completion Handler
 ```swift
 DataUploader().uploadData(data, with: request, progress: { progress in 
   // track progress
@@ -478,7 +479,7 @@ DataUploader().uploadData(data, with: request, progress: { progress in
 })
 ```
 
-##### Combine Publisher
+#### Combine Publisher
 ```swift
 DataUploader().uploadDataPublisher(data, with: request: progress: { progress in
   // track progress
