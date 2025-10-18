@@ -2,6 +2,8 @@ import Foundation
 import EZNetworking
 
 class MockRequestPerformerURLSession: URLSessionTaskProtocol {
+    
+    
     var data: Data?
     var urlResponse: URLResponse?
     var error: Error?
@@ -21,13 +23,14 @@ class MockRequestPerformerURLSession: URLSessionTaskProtocol {
         }
     }
     
-    // not used for RequestPerformer unit tests
+    // MARK: unused methods
     func downloadTask(with url: URL, completionHandler: @escaping @Sendable (URL?, URLResponse?, Error?) -> Void) -> URLSessionDownloadTask {
         MockURLSessionDownloadTask { completionHandler(nil, nil, nil) }
     }
-    
-    // not used for RequestPerformer unit tests
     func uploadTask(with request: URLRequest, from bodyData: Data?, completionHandler: @escaping @Sendable (Data?, URLResponse?, (any Error)?) -> Void) -> URLSessionUploadTask {
+        URLSessionUploadTask()
+    }
+    func uploadTask(with request: URLRequest, fromFile fileURL: URL, completionHandler: @escaping @Sendable (Data?, URLResponse?, (any Error)?) -> Void) -> URLSessionUploadTask {
         URLSessionUploadTask()
     }
 }

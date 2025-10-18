@@ -9,21 +9,13 @@ class MockFileDownloaderURLSession: URLSessionTaskProtocol {
     var completion: ((Data?, URLResponse?, Error?) -> Void)?
     var sessionDelegate: SessionDelegate? = nil
     
+    var progressToExecute: [DownloadProgress] = []
+    
     init(data: Data? = nil, url: URL? = nil, urlResponse: URLResponse? = nil, error: Error? = nil) {
         self.data = data
         self.url = url
         self.urlResponse = urlResponse
         self.error = error
-    }
-    
-    // not used for FileDownloader tests
-    func dataTask(with request: URLRequest, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTask {
-        MockURLSessionDataTask { completionHandler(nil, nil, nil) }
-    }
-    
-    // not used for FileDownloader tests
-    func uploadTask(with request: URLRequest, from bodyData: Data?, completionHandler: @escaping @Sendable (Data?, URLResponse?, (any Error)?) -> Void) -> URLSessionUploadTask {
-        URLSessionUploadTask()
     }
     
     func downloadTask(with url: URL, completionHandler: @escaping @Sendable (URL?, URLResponse?, Error?) -> Void) -> URLSessionDownloadTask {
@@ -34,7 +26,17 @@ class MockFileDownloaderURLSession: URLSessionTaskProtocol {
             completionHandler(URL(fileURLWithPath: "/tmp/test.pdf"), self.urlResponse, self.error)
         }
     }
-    var progressToExecute: [DownloadProgress] = []
+    
+    // MARK: unused methods
+    func dataTask(with request: URLRequest, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTask {
+        MockURLSessionDataTask { completionHandler(nil, nil, nil) }
+    }
+    func uploadTask(with request: URLRequest, from bodyData: Data?, completionHandler: @escaping @Sendable (Data?, URLResponse?, (any Error)?) -> Void) -> URLSessionUploadTask {
+        URLSessionUploadTask()
+    }
+    func uploadTask(with request: URLRequest, fromFile fileURL: URL, completionHandler: @escaping @Sendable (Data?, URLResponse?, (any Error)?) -> Void) -> URLSessionUploadTask {
+        URLSessionUploadTask()
+    }
 }
 
 extension MockFileDownloaderURLSession {

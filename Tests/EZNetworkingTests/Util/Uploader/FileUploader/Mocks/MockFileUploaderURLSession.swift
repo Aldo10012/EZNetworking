@@ -1,7 +1,7 @@
 import Foundation
 import EZNetworking
 
-class MockDataUploaderURLSession: URLSessionTaskProtocol {
+class MockFileUploaderURLSession: URLSessionTaskProtocol {
     var data: Data?
     var urlResponse: URLResponse?
     var error: Error?
@@ -19,7 +19,7 @@ class MockDataUploaderURLSession: URLSessionTaskProtocol {
         self.error = error
     }
     
-    func uploadTask(with request: URLRequest, from bodyData: Data?, completionHandler: @escaping @Sendable (Data?, URLResponse?, (any Error)?) -> Void) -> URLSessionUploadTask {
+    func uploadTask(with request: URLRequest, fromFile fileURL: URL, completionHandler: @escaping @Sendable (Data?, URLResponse?, (any Error)?) -> Void) -> URLSessionUploadTask {
         self.completionHandler = completionHandler
 
         simulateDownloadProgress(for: .init())
@@ -39,12 +39,12 @@ class MockDataUploaderURLSession: URLSessionTaskProtocol {
         URLSessionDownloadTask()
     }
     
-    func uploadTask(with request: URLRequest, fromFile fileURL: URL, completionHandler: @escaping @Sendable (Data?, URLResponse?, (any Error)?) -> Void) -> URLSessionUploadTask {
+    func uploadTask(with request: URLRequest, from bodyData: Data?, completionHandler: @escaping @Sendable (Data?, URLResponse?, (any Error)?) -> Void) -> URLSessionUploadTask {
         URLSessionUploadTask()
     }
 }
 
-extension MockDataUploaderURLSession {
+extension MockFileUploaderURLSession {
     enum UploadProgress {
         case inProgress(percent: Int64)
         case complete
