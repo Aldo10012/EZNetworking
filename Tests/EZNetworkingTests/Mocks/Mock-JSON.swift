@@ -9,7 +9,7 @@ struct MockData {
             "age": 30
         }
         """
-        return HTTPBody.jsonString(jsonString).data!
+        return HTTPBody.jsonString(jsonString)!
     }
     
     static var invalidMockPersonJsonData: Data {
@@ -19,7 +19,7 @@ struct MockData {
             "Age": 30
         }
         """
-        return HTTPBody.jsonString(jsonString).data!
+        return HTTPBody.jsonString(jsonString)!
     }
     
     static func imageUrlData(from imageUrlString: String) -> Data? {

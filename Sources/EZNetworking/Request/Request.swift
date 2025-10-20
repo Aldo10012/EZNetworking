@@ -25,7 +25,7 @@ public extension Request {
 
         var request = URLRequest(url: url)
         request.httpMethod = httpMethod.rawValue
-        request.httpBody = body?.data
+        request.httpBody = body
         request.timeoutInterval = timeoutInterval
         request.cachePolicy = cachePolicy
 

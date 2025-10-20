@@ -8,8 +8,7 @@ class HTTPBodyTests {
     // MARK: - Test string case
     @Test("test String Success")
     func testStringSuccess() {
-        let body = HTTPBody.string("Hello World")
-        let data = body.data
+        let data = HTTPBody.string("Hello World")
         
         #expect(data != nil)
         #expect(String(data: data!, encoding: .utf8) == "Hello World")
@@ -19,8 +18,7 @@ class HTTPBodyTests {
     @Test("test Dictionary Success")
     func testDictionarySuccess() {
         let dictionary: [String: Any] = ["key": "value"]
-        let body = HTTPBody.dictionary(dictionary)
-        let data = body.data
+        let data = HTTPBody.dictionary(dictionary)
         
         #expect(data != nil)
         let decoded = try? JSONSerialization.jsonObject(with: data!, options: []) as? [String: String]
@@ -30,8 +28,7 @@ class HTTPBodyTests {
     @Test("test Dictionary Success 2")
     func testDictionarySuccess2() {
         let dictionary: [String: Any] = ["key": ["subKey": "subValue"]]
-        let body = HTTPBody.dictionary(dictionary)
-        let data = body.data
+        let data = HTTPBody.dictionary(dictionary)
         
         #expect(data != nil)
         let decoded = try? JSONSerialization.jsonObject(with: data!, options: []) as? [String: [String: String]]
@@ -47,8 +44,7 @@ class HTTPBodyTests {
     @Test("test Encodable Success")
     func testEncodableSuccess() {
         let encodable = TestEncodable(id: 1, name: "Test")
-        let body = HTTPBody.encodable(encodable)
-        let data = body.data
+        let data = HTTPBody.encodable(encodable)
         
         #expect(data != nil)
         let decoded = try? JSONDecoder().decode(TestEncodable.self, from: data!)
@@ -60,16 +56,16 @@ class HTTPBodyTests {
     @Test("test Data Success")
     func testDataSuccess() {
         let data = Data([0x01, 0x02, 0x03])
-        let body = HTTPBody.data(data)
+        let data1 = HTTPBody.data(data)
         
-        #expect(body.data == data)
+        #expect(data == data1)
     }
     
     @Test("test Data Failure")
     func testDataFailure() {
-        let body = HTTPBody.data(Data())
+        let data = HTTPBody.data(Data())
         
-        #expect(body.data == Data())
+        #expect(data == Data())
     }
     
     // MARK: - Test fileURL case
@@ -77,18 +73,17 @@ class HTTPBodyTests {
     @Test("test File URLFailure")
     func testFileURLFailure() {
         let fileURL = URL(fileURLWithPath: "/path/to/non/existing/file")
-        let body = HTTPBody.fileURL(fileURL)
+        let data = HTTPBody.fileURL(fileURL)
         
-        #expect(body.data == nil)
+        #expect(data == nil)
     }
     
     // MARK: - Test jsonString case
     @Test("test Json String Success")
     func testJsonStringSuccess() {
         let json = "{\"key\":\"value\"}"
-        let body = HTTPBody.jsonString(json)
+        let data = HTTPBody.jsonString(json)
         
-        let data = body.data
         #expect(data != nil)
         #expect(String(data: data!, encoding: .utf8) == json)
     }
@@ -96,18 +91,17 @@ class HTTPBodyTests {
     @Test("test Json String Failure")
     func testJsonStringFailure() {
         let json = "{\"key\": \"value\""
-        let body = HTTPBody.jsonString(json)
+        let data = HTTPBody.jsonString(json)
         
-        #expect(body.data != nil)
+        #expect(data != nil)
     }
     
     // MARK: - Test base64 case
     @Test("test Base64 Success")
     func testBase64Success() {
         let base64String = "SGVsbG8gV29ybGQ="
-        let body = HTTPBody.base64(base64String)
+        let data = HTTPBody.base64(base64String)
         
-        let data = body.data
         #expect(data != nil)
         #expect(String(data: data!, encoding: .utf8) == "Hello World")
     }
@@ -115,9 +109,9 @@ class HTTPBodyTests {
     @Test("test Base64 Failure")
     func testBase64Failure() {
         let base64String = "InvalidBase64String"
-        let body = HTTPBody.base64(base64String)
+        let data = HTTPBody.base64(base64String)
         
-        #expect(body.data == nil)
+        #expect(data == nil)
     }
     
     @Test("test UrlComponents Success")
@@ -126,8 +120,7 @@ class HTTPBodyTests {
         var components = URLComponents()
         components.queryItems = [URLQueryItem(name: "key", value: "value")]
         
-        let body = HTTPBody.urlComponents(components)
-        let data = body.data
+        let data = HTTPBody.urlComponents(components)
         
         #expect(data != nil)
         #expect(String(data: data!, encoding: .utf8) == "key=value")
@@ -138,18 +131,18 @@ class HTTPBodyTests {
         var components = URLComponents()
         components.queryItems = nil
         
-        let body = HTTPBody.urlComponents(components)
-        #expect(body.data == nil)
+        let data = HTTPBody.urlComponents(components)
+        #expect(data == nil)
     }
     
     @Test("test String Equality")
     func testStringEquality() {
-        let body1 = HTTPBody.string("testString")
-        let body2 = HTTPBody.string("testString")
-        let body3 = HTTPBody.string("differentString")
+        let data1 = HTTPBody.string("testString")
+        let data2 = HTTPBody.string("testString")
+        let data3 = HTTPBody.string("differentString")
         
-        #expect(body1 == body2)
-        #expect(body1 != body3)
+        #expect(data1 == data2)
+        #expect(data1 != data3)
     }
     
     @Test("test Dictionary Equality")
@@ -157,10 +150,10 @@ class HTTPBodyTests {
         let dictionary1: [String: Any] = ["key1": "value1", "key2": 2]
         let dictionary2: [String: Any] = ["key1": "value1", "key2": 3]
         
-        let body1 = HTTPBody.dictionary(dictionary1)
-        let body2 = HTTPBody.dictionary(dictionary2)
+        let data1 = HTTPBody.dictionary(dictionary1)
+        let data2 = HTTPBody.dictionary(dictionary2)
         
-        #expect(body1 != body2)
+        #expect(data1 != data2)
     }
     
     @Test("test Encodable Equality")
@@ -174,12 +167,12 @@ class HTTPBodyTests {
         let encodable2 = TestEncodable(id: 1, name: "Test")
         let encodable3 = TestEncodable(id: 2, name: "Test")
         
-        let body1 = HTTPBody.encodable(encodable1)
-        let body2 = HTTPBody.encodable(encodable2)
-        let body3 = HTTPBody.encodable(encodable3)
+        let data1 = HTTPBody.encodable(encodable1)
+        let data2 = HTTPBody.encodable(encodable2)
+        let data3 = HTTPBody.encodable(encodable3)
         
-        #expect(body1 == body2)
-        #expect(body1 != body3)
+        #expect(data1 == data2)
+        #expect(data1 != data3)
     }
     
     // Test for .data case
@@ -189,30 +182,30 @@ class HTTPBodyTests {
         let data2 = Data([0x01, 0x02, 0x03])
         let data3 = Data([0x01, 0x02, 0x04])
         
-        let body1 = HTTPBody.data(data1)
-        let body2 = HTTPBody.data(data2)
-        let body3 = HTTPBody.data(data3)
+        let data4 = HTTPBody.data(data1)
+        let data5 = HTTPBody.data(data2)
+        let data6 = HTTPBody.data(data3)
         
-        #expect(body1 == body2)
-        #expect(body1 != body3)
+        #expect(data1 == data2)
+        #expect(data1 != data3)
     }
     
     @Test("test Mixed Case Equality")
     func testMixedCaseEquality() {
         let stringBody = HTTPBody.string("testString")
         let dictionaryBody: [String: Any] = ["key": "value"]
-        let body1 = HTTPBody.dictionary(dictionaryBody)
+        let data1 = HTTPBody.dictionary(dictionaryBody)
         
-        #expect(stringBody != body1)
+        #expect(stringBody != data1)
     }
     
     @Test("test Data Equality Nil")
     func testDataEqualityNil() {
-        let body1 = HTTPBody.data(Data([0x01, 0x02, 0x03]))
-        let body2 = HTTPBody.data(Data([0x01, 0x02, 0x03]))
+        let data1 = HTTPBody.data(Data([0x01, 0x02, 0x03]))
+        let data2 = HTTPBody.data(Data([0x01, 0x02, 0x03]))
         
-        #expect(body1 == body2)
-        let body3 = HTTPBody.data(Data())
-        #expect(body1 != body3)
+        #expect(data1 == data2)
+        let data3 = HTTPBody.data(Data())
+        #expect(data1 != data3)
     }
 }
