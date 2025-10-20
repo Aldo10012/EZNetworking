@@ -19,10 +19,6 @@ public extension HTTPBody {
         }
     }
 
-    static func data(_ data: Data) -> Data? {
-        data
-    }
-
     static func fileURL(_ url: URL) -> Data? {
         try? Data(contentsOf: url)
     }

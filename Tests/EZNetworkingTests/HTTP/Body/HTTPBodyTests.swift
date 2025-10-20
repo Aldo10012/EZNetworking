@@ -52,22 +52,6 @@ class HTTPBodyTests {
         #expect(decoded?.name == "Test")
     }
     
-    // MARK: - Test data case
-    @Test("test Data Success")
-    func testDataSuccess() {
-        let data = Data([0x01, 0x02, 0x03])
-        let data1 = HTTPBody.data(data)
-        
-        #expect(data == data1)
-    }
-    
-    @Test("test Data Failure")
-    func testDataFailure() {
-        let data = HTTPBody.data(Data())
-        
-        #expect(data == Data())
-    }
-    
     // MARK: - Test fileURL case
     
     @Test("test File URLFailure")
@@ -175,21 +159,6 @@ class HTTPBodyTests {
         #expect(data1 != data3)
     }
     
-    // Test for .data case
-    @Test("test Data Equality")
-    func testDataEquality() {
-        let data1 = Data([0x01, 0x02, 0x03])
-        let data2 = Data([0x01, 0x02, 0x03])
-        let data3 = Data([0x01, 0x02, 0x04])
-        
-        let data4 = HTTPBody.data(data1)
-        let data5 = HTTPBody.data(data2)
-        let data6 = HTTPBody.data(data3)
-        
-        #expect(data1 == data2)
-        #expect(data1 != data3)
-    }
-    
     @Test("test Mixed Case Equality")
     func testMixedCaseEquality() {
         let stringBody = HTTPBody.string("testString")
@@ -199,13 +168,4 @@ class HTTPBodyTests {
         #expect(stringBody != data1)
     }
     
-    @Test("test Data Equality Nil")
-    func testDataEqualityNil() {
-        let data1 = HTTPBody.data(Data([0x01, 0x02, 0x03]))
-        let data2 = HTTPBody.data(Data([0x01, 0x02, 0x03]))
-        
-        #expect(data1 == data2)
-        let data3 = HTTPBody.data(Data())
-        #expect(data1 != data3)
-    }
 }
