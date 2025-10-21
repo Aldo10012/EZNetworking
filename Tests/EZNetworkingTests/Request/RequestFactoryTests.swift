@@ -18,7 +18,7 @@ final class RequestFactoryTests {
             HTTPHeader.contentType(.json),
             HTTPHeader.authorization(.bearer("token"))
         ]
-        let body = HTTPBody.jsonString("{\"name\": \"John\"}")
+        let body = HTTPBody(jsonString: "{\"name\": \"John\"}")
         let timeoutInterval: TimeInterval = 30
         
         let request = builder.build(httpMethod: httpMethod,
