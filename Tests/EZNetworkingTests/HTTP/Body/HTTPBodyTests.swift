@@ -168,4 +168,41 @@ class HTTPBodyTests {
         #expect(stringBody != data1)
     }
     
+    // MARK: Test .appending()
+    
+    @Test("test .appending(_:) is chainable and returns concatenated data")
+    func test_appending_chainable_concatenates() {
+        let result = HTTPBody()
+            .appending(HTTPBody(string: "A"))
+            .appending(HTTPBody(string: "B"))
+            .appending(HTTPBody(string: "C"))
+        
+        #expect(String(data: result, encoding: .utf8) == "ABC")
+    }
+    
+    @Test("test .appending(nil) returns original unchanged")
+    func test_appending_nil_returnsSame() {
+        let original = HTTPBody(string: "X")!
+        let appended = original.appending(nil)
+        
+        #expect(appended == original)
+    }
+    
+    @Test("test .appending(_) does not mutate the original Data (non-mutating API)")
+    func test_appending_doesNotMutateOriginal() {
+        let original = HTTPBody(string: "orig")!
+        let copyBefore = original
+        _ = original.appending(HTTPBody(string: "more"))
+        // original should remain equal to the copy made before calling appending(_:)
+        #expect(original == copyBefore)
+    }
+    
+    @Test("test .appending(empty Data) returns concatenated result equal to original + empty")
+    func test_appending_emptyData_behavesCorrectly() {
+        let original = HTTPBody(string: "Y")!
+        let empty = Data()
+        let result = original.appending(empty)
+        
+        #expect(result == original) // concatenating empty should yield the same bytes
+    }
 }

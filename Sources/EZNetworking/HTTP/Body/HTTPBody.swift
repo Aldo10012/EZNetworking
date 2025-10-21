@@ -45,3 +45,12 @@ public extension HTTPBody {
         self = data
     }
 }
+
+public extension HTTPBody {
+    func appending(_ data: Data?) -> Data {
+        guard let dataToAppend = data else { return self }
+        var copy = self
+        copy.append(dataToAppend)
+        return copy
+    }
+}
