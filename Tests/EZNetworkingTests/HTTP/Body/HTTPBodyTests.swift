@@ -142,21 +142,24 @@ class HTTPBodyTests {
     
     @Test("test Encodable Equality")
     func testEncodableEquality() {
-        struct TestEncodable: Codable, Equatable {
-            let id: Int
-            let name: String
-        }
-        
         let encodable1 = TestEncodable(id: 1, name: "Test")
         let encodable2 = TestEncodable(id: 1, name: "Test")
-        let encodable3 = TestEncodable(id: 2, name: "Test")
         
         let data1 = HTTPBody(encodable: encodable1)
         let data2 = HTTPBody(encodable: encodable2)
-        let data3 = HTTPBody(encodable: encodable3)
         
         #expect(data1 == data2)
-        #expect(data1 != data3)
+    }
+    
+    @Test("test Encodable not Equal when different")
+    func testEncodableNonEquality() {
+        let encodable1 = TestEncodable(id: 1, name: "Test")
+        let encodable2 = TestEncodable(id: 2, name: "test")
+        
+        let data1 = HTTPBody(encodable: encodable1)
+        let data2 = HTTPBody(encodable: encodable2)
+        
+        #expect(data1 != data2)
     }
     
     @Test("test Mixed Case Equality")
