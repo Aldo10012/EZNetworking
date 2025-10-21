@@ -151,6 +151,17 @@ class HTTPBodyTests {
         #expect(data1 == data2)
     }
     
+    @Test("test Encodable not Equal when different")
+    func testEncodableNonEquality() {
+        let encodable1 = TestEncodable(id: 1, name: "Test")
+        let encodable2 = TestEncodable(id: 2, name: "test")
+        
+        let data1 = HTTPBody(encodable: encodable1)
+        let data2 = HTTPBody(encodable: encodable2)
+        
+        #expect(data1 != data2)
+    }
+    
     @Test("test encodable HTTPBody can decode to correct type")
     func testEncodableHttpBodyCanDecodeToCorrectType() {
         let sut = TestEncodable(id: 1, name: "Test")
@@ -161,17 +172,6 @@ class HTTPBodyTests {
         #expect(throws: Never.self) {
             try? JSONDecoder().decode(TestEncodable.self, from: data)
         }
-    }
-    
-    @Test("test Encodable not Equal when different")
-    func testEncodableNonEquality() {
-        let encodable1 = TestEncodable(id: 1, name: "Test")
-        let encodable2 = TestEncodable(id: 2, name: "test")
-        
-        let data1 = HTTPBody(encodable: encodable1)
-        let data2 = HTTPBody(encodable: encodable2)
-        
-        #expect(data1 != data2)
     }
     
     @Test("test Mixed Case Equality")
