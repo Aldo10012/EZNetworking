@@ -18,7 +18,7 @@ final class RequestBuilderTests {
             HTTPHeader.contentType(.json),
             HTTPHeader.authorization(.bearer("token"))
         ]
-        let body = HTTPBody.fromJsonString("{\"name\": \"John\"}")!
+        let body = HTTPBody(jsonString: "{\"name\": \"John\"}")!
         let timeoutInterval: TimeInterval = 30
         
         let request = builder

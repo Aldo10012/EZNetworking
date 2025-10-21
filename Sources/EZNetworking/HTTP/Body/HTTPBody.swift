@@ -3,36 +3,45 @@ import Foundation
 public typealias HTTPBody = Data
 
 public extension HTTPBody {
-    static func fromString(_ str: String) -> Data? {
-        str.data(using: .utf8)
+    /// Create `Data` from a UTF-8 `String`.
+    init?(string: String) {
+        guard let data = string.data(using: .utf8) else { return nil }
+        self = data
     }
 
-    static func fromDictionary(_ dic: [String: Any]) -> Data? {
-        try? JSONSerialization.data(withJSONObject: dic, options: [])
+    /// Create `Data` by serializing a dictionary to JSON.
+    init?(dictionary: [String: Any]) {
+        guard let data = try? JSONSerialization.data(withJSONObject: dictionary, options: []) else { return nil }
+        self = data
     }
 
-    static func fromEncodable<T: Encodable>(_ encodable: T) -> Data? {
-        do {
-            return try JSONEncoder().encode(encodable)
-        } catch {
-            return nil
-        }
+    /// Encode an `Encodable` value to JSON `Data`.
+    init?<T: Encodable>(encodable: T, encoder: JSONEncoder = JSONEncoder()) {
+        guard let data = try? encoder.encode(encodable) else { return nil }
+        self = data
     }
 
-    static func fromFileURL(_ url: URL) -> Data? {
-        try? Data(contentsOf: url)
+    /// Read file contents into `Data`.
+    init?(fileURL url: URL) {
+        guard let data = try? Data(contentsOf: url) else { return nil }
+        self = data
     }
 
-    static func fromJsonString(_ json: String) -> Data? {
-        Data(json.utf8)
+    /// Create `Data` from a JSON-formatted `String`.
+    init?(jsonString: String) {
+        self.init(string: jsonString)
     }
 
-    static func fromBase64(_ base64String: String) -> Data? {
-        Data(base64Encoded: base64String)
+    /// Create `Data` from a Base64 encoded string.
+    init?(base64: String) {
+        guard let data = Data(base64Encoded: base64) else { return nil }
+        self = data
     }
 
-    static func fromURLComponents(_ components: URLComponents) -> Data? {
-        guard let query = components.percentEncodedQuery else { return nil }
-        return query.data(using: .utf8)
+    /// Create `Data` from URLComponents' percent-encoded query.
+    init?(urlComponents: URLComponents) {
+        guard let query = urlComponents.percentEncodedQuery,
+              let data = query.data(using: .utf8) else { return nil }
+        self = data
     }
 }
