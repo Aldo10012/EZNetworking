@@ -151,6 +151,18 @@ class HTTPBodyTests {
         #expect(data1 == data2)
     }
     
+    @Test("test encodable HTTPBody can decode to correct type")
+    func testEncodableHttpBodyCanDecodeToCorrectType() {
+        let sut = TestEncodable(id: 1, name: "Test")
+        guard let data = HTTPBody(encodable: sut) else {
+            Issue.record(); return
+        }
+        
+        #expect(throws: Never.self) {
+            try? JSONDecoder().decode(TestEncodable.self, from: data)
+        }
+    }
+    
     @Test("test Encodable not Equal when different")
     func testEncodableNonEquality() {
         let encodable1 = TestEncodable(id: 1, name: "Test")
