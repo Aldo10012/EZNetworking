@@ -11,7 +11,7 @@ final class MimeTypeTests {
         #expect(MimeType.json.value == "application/json")
         #expect(MimeType.xml.value == "application/xml")
         #expect(MimeType.formUrlEncoded.value == "application/x-www-form-urlencoded")
-        #expect(MimeType.multipartFormData.value == "multipart/form-data")
+        #expect(MimeType.multipartFormData(boundary: "some_boundary").value == "multipart/form-data; boundary=some_boundary")
         #expect(MimeType.pdf.value == "application/pdf")
         #expect(MimeType.zip.value == "application/zip")
         #expect(MimeType.octetStream.value == "application/octet-stream")
@@ -152,7 +152,7 @@ final class MimeTypeTests {
     func testAllMimeTypeValuesAreNonEmpty() {
         let allMimeTypes: [MimeType] = [
             // Application Types
-            .json, .xml, .formUrlEncoded, .multipartFormData, .pdf, .zip, .octetStream, .javascript, .wasm,
+            .json, .xml, .formUrlEncoded, .multipartFormData(boundary: ""), .pdf, .zip, .octetStream, .javascript, .wasm,
             // Text Types
             .plain, .html, .css, .csv, .rtf, .xmlText,
             // Image Types
@@ -174,7 +174,7 @@ final class MimeTypeTests {
     func testMimeTypeValuesContainForwardSlash() {
         let allMimeTypes: [MimeType] = [
             // Application Types
-            .json, .xml, .formUrlEncoded, .multipartFormData, .pdf, .zip, .octetStream, .javascript, .wasm,
+            .json, .xml, .formUrlEncoded, .multipartFormData(boundary: ""), .pdf, .zip, .octetStream, .javascript, .wasm,
             // Text Types
             .plain, .html, .css, .csv, .rtf, .xmlText,
             // Image Types
@@ -212,7 +212,7 @@ final class MimeTypeTests {
     
     @Test("test application MIME types follow correct pattern")
     func testApplicationMimeTypesFollowCorrectPattern() {
-        let applicationTypes: [MimeType] = [.json, .xml, .formUrlEncoded, .multipartFormData, .pdf, .zip, .octetStream, .javascript, .wasm]
+        let applicationTypes: [MimeType] = [.json, .xml, .formUrlEncoded, .multipartFormData(boundary: ""), .pdf, .zip, .octetStream, .javascript, .wasm]
         
         for mimeType in applicationTypes {
             let value = mimeType.value
@@ -294,7 +294,7 @@ final class MimeTypeTests {
         // This test ensures that if we add new cases to the enum, we remember to update the switch statement
         let allCases: [MimeType] = [
             // Application Types
-            .json, .xml, .formUrlEncoded, .multipartFormData, .pdf, .zip, .octetStream, .javascript, .wasm,
+            .json, .xml, .formUrlEncoded, .multipartFormData(boundary: ""), .pdf, .zip, .octetStream, .javascript, .wasm,
             // Text Types
             .plain, .html, .css, .csv, .rtf, .xmlText,
             // Image Types
