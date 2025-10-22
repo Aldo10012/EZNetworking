@@ -1,25 +1,23 @@
 import Foundation
 
+/// A single part in a multipart/form-data HTTP body.
 public struct MultipartFormPart {
     /// The form field name.
-    /// The field’s name in the form, like “profile_picture” or “description.”
     public var name: String
-    /// Part payload bytes.
-    /// The actual data to be sent, whether it’s text or binary.
+
+    /// The raw bytes for this part.
     public var data: Data
-    /// Optional filename (present for file parts).
-    /// If the data is a file, this is the name the server will recognize.
-    /// Example: protifle_picture.png
+
+    /// Optional filename for file parts; nil for simple fields.
     public var filename: String?
-    /// Optional content type (e.g. "image/png" or "text/plain; charset=utf-8").
-    /// Describes what kind of data it is, such as “image/jpeg” or “text/plain.”
+
+    /// The MIME type for this part's payload.
     public var mimeType: MimeType
-    
-    /// content length of the data part which is crucial one/
-    public var contentLength: Int {
-        data.count
-    }
-    
+
+    /// Number of bytes in the payload.
+    public var contentLength: Int { data.count }
+
+    /// Payload decoded as UTF-8 string, or nil if decoding fails.
     public var value: String? {
         get {
             return autoreleasepool { String(bytes: self.data, encoding: .utf8) }
@@ -35,14 +33,16 @@ public struct MultipartFormPart {
             }
         }
     }
-    
+
+    /// Designated initializer with full metadata.
     public init(name: String, data: Data, filename: String? = nil, mimeType: MimeType) {
         self.name = name
         self.data = data
         self.filename = filename
         self.mimeType = mimeType
     }
-    
+
+    /// Convenience initializer for text fields (UTF-8).
     public init(name: String, value: String, mimeType: MimeType = .plain) {
         let data = value.data(using: .utf8, allowLossyConversion: true)!
         self.init(name: name, data: data, filename: nil, mimeType: mimeType)
