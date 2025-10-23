@@ -18,7 +18,7 @@ final class RequestFactoryTests {
             HTTPHeader.contentType(.json),
             HTTPHeader.authorization(.bearer("token"))
         ]
-        let body = HTTPBody(jsonString: "{\"name\": \"John\"}")
+        let body = Data(jsonString: "{\"name\": \"John\"}")
         let timeoutInterval: TimeInterval = 30
         
         let request = builder.build(httpMethod: httpMethod,
@@ -32,7 +32,7 @@ final class RequestFactoryTests {
         #expect(request.baseUrlString == "https://example.com/api")
         #expect(request.httpMethod == httpMethod)
         #expect(request.parameters == parameters)
-        #expect(request.body == body)
+        #expect(request.body?.toData() == body)
         #expect(request.timeoutInterval == timeoutInterval)
         #expect(request.headers == headers)
         #expect(request.cachePolicy == .useProtocolCachePolicy)
