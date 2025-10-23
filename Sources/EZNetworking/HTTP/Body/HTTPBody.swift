@@ -1,6 +1,6 @@
 import Foundation
 
-public typealias HTTPBody = Data
+public typealias HTTPBody = DataConvertible
 
 public protocol DataConvertible {
     func toData() -> Data?

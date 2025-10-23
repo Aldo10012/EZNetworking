@@ -75,7 +75,7 @@ class DataExtensionsTests {
     @Test("test Json String Failure")
     func testJsonStringFailure() {
         let json = "{\"key\": \"value\""
-        let data = HTTPBody(jsonString: json)
+        let data = Data(jsonString: json)
         
         #expect(data != nil)
     }
@@ -176,7 +176,7 @@ class DataExtensionsTests {
     
     @Test("test Mixed Case Equality")
     func testMixedCaseEquality() {
-        let stringBody = HTTPBody(string: "testString")
+        let stringBody = Data(string: "testString")
         let dictionaryBody: [String: Any] = ["key": "value"]
         let data1 = Data(dictionary: dictionaryBody)
         

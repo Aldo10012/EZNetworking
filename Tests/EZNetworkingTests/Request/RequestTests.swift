@@ -102,7 +102,7 @@ private struct MockRequest: Request {
     }
     
     var body: EZNetworking.HTTPBody? {
-        HTTPBody(jsonString: "{\"name\": \"John\"}")
+        Data(jsonString: "{\"name\": \"John\"}")
     }
     
     var cachePolicy: URLRequest.CachePolicy = .useProtocolCachePolicy
