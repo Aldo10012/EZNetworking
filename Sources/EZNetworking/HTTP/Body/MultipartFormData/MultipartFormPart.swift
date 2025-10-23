@@ -42,3 +42,13 @@ public struct MultipartFormPart {
         self.init(name: name, data: Data(value.utf8), filename: nil, mimeType: .plain)
     }
 }
+
+public extension MultipartFormPart {
+    static func string(name: String, value: String) -> MultipartFormPart {
+        MultipartFormPart(name: name, value: value)
+    }
+    
+    static func file(name: String, data: Data, filename: String, mimeType: MimeType) -> MultipartFormPart {
+        MultipartFormPart(name: name, data: data, filename: filename, mimeType: mimeType)
+    }
+}
