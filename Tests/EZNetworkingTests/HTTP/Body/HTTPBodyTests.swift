@@ -9,4 +9,15 @@ class HTTPBodyTests {
     func testDataIsHTTPBody() {
         #expect(Data() is HTTPBody)
     }
+    
+    @Test("test Data is DataConvertible")
+    func testDataIsDataConvertible() {
+        #expect(Data() is DataConvertible)
+    }
+    
+    @Test("test Data is equal to data.toData()")
+    func testDataIsEqualToDataToData() {
+        let data = Data()
+        #expect(data == data.toData())
+    }
 }
