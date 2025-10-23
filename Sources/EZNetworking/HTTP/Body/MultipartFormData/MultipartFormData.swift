@@ -2,6 +2,30 @@ import Foundation
 
 public class MultipartFormData: DataConvertible {
     
+    // MARK: - Helper Types
+    
+    enum Constants {
+        static let crlf = "\r\n"
+    }
+    
+    enum BoundaryGenerator {
+        enum BoundaryType {
+            case initial, encapsulated, final
+        }
+        
+        static func boundaryData(forBoundaryType boundaryType: BoundaryType, boundary: String) -> Data {
+            let boundaryText = switch boundaryType {
+            case .initial:
+                "--\(boundary)\(Constants.crlf)"
+            case .encapsulated:
+                "\(Constants.crlf)--\(boundary)\(Constants.crlf)"
+            case .final:
+                "\(Constants.crlf)--\(boundary)--\(Constants.crlf)"
+            }
+            return Data(boundaryText.utf8)
+        }
+    }
+    
     // MARK: Variables
 
     public let parts: [MultipartFormPart]
