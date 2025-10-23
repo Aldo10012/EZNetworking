@@ -43,12 +43,18 @@ public struct MultipartFormPart {
 
 public extension MultipartFormPart {
     /// Creates a text field part with a UTF-8 encoded value.
-    static func field(name: String, value: String) -> MultipartFormPart {
+    static func fieldPart(name: String, value: String) -> MultipartFormPart {
         MultipartFormPart(name: name, value: value)
     }
     
     /// Creates a file upload part with binary data and metadata.
-    static func file(name: String, data: Data, filename: String, mimeType: MimeType) -> MultipartFormPart {
+    static func filePart(name: String, data: Data, filename: String, mimeType: MimeType) -> MultipartFormPart {
         MultipartFormPart(name: name, data: data, filename: filename, mimeType: mimeType)
     }
+    
+    /// Creates a data-only part (no filename) with the given MIME type, useful for raw blobs or non-file fields.
+    static func dataPart(name: String, data: Data, mimeType: MimeType) -> MultipartFormPart {
+        MultipartFormPart(name: name, data: data, filename: nil, mimeType: mimeType)
+    }
+
 }
