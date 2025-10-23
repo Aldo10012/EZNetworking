@@ -20,13 +20,7 @@ public struct MultipartFormPart {
     /// Payload decoded as UTF-8 string, or nil if decoding fails.
     public var value: String? {
         get { String(data: data, encoding: .utf8) }
-        set {
-            if let newValue = newValue {
-                data = Data(newValue.utf8)
-            } else {
-                data = Data()
-            }
-        }
+        set { data = newValue.map { Data($0.utf8) } ?? Data() }
     }
 
     // MARK: - Internal Initializers
