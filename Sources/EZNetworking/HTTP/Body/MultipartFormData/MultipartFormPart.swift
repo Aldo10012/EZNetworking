@@ -29,16 +29,15 @@ public struct MultipartFormPart {
         }
     }
 
-    /// Designated initializer with full metadata.
-    public init(name: String, data: Data, filename: String? = nil, mimeType: MimeType) {
+    // MARK: - Internal Initializers
+    internal init(name: String, data: Data, filename: String? = nil, mimeType: MimeType) {
         self.name = name
         self.data = data
         self.filename = filename
         self.mimeType = mimeType
     }
 
-    /// Convenience initializer for text fields (UTF-8).
-    public init(name: String, value: String) {
+    internal init(name: String, value: String) {
         self.init(name: name, data: Data(value.utf8), filename: nil, mimeType: .plain)
     }
 }
