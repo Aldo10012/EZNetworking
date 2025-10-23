@@ -5,13 +5,13 @@ import Testing
 @Suite("Test MultipartFormPart")
 class MultipartFormPartTests {
     
-    @Test("explicit initializer sets all properties")
-    func test_explicitInitializer_setsProperties() {
+    @Test("explicit MultipartFormPart.file sets all properties")
+    func test_MultipartFormPartfile_setsProperties() {
         let payload = "hello".data(using: .utf8)!
-        let part = MultipartFormPart(name: "field",
-                                     data: payload,
-                                     filename: "file.txt",
-                                     mimeType: .plain)
+        let part = MultipartFormPart.file(name: "field",
+                                          data: payload,
+                                          filename: "file.txt",
+                                          mimeType: .plain)
         
         #expect(part.name == "field")
         #expect(part.filename == "file.txt")
@@ -20,10 +20,10 @@ class MultipartFormPartTests {
         #expect(part.contentLength == 5)
     }
     
-    @Test("test text Field initializer")
-    func test_textField_initializer() {
+    @Test("explicit MultipartFormPart.string sets all properties")
+    func test_MultipartFormPartString_setsProperties() {
         let payload = "value".data(using: .utf8)!
-        let part = MultipartFormPart(name: "file_name", value: "value")
+        let part = MultipartFormPart.string(name: "file_name", value: "value")
         
         #expect(part.name == "file_name")
         #expect(part.filename == nil)
