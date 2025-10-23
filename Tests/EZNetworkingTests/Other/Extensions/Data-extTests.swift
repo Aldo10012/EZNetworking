@@ -4,7 +4,7 @@ import Testing
 
 @Suite("Test Data Extensions")
 class DataExtensionsTests {
-
+    
     // MARK: - Test string case
     @Test("test String Success")
     func testStringSuccess() {
