@@ -4,7 +4,7 @@ public class MultipartFormData: DataConvertible {
     
     // MARK: - Helper Types
     
-    enum EncodingCharacters {
+    enum Constants {
         static let crlf = "\r\n"
     }
     
@@ -20,11 +20,11 @@ public class MultipartFormData: DataConvertible {
         static func boundaryData(forBoundaryType boundaryType: BoundaryType, boundary: String) -> Data {
             let boundaryText = switch boundaryType {
             case .initial:
-                "--\(boundary)\(EncodingCharacters.crlf)"
+                "--\(boundary)\(Constants.crlf)"
             case .encapsulated:
-                "\(EncodingCharacters.crlf)--\(boundary)\(EncodingCharacters.crlf)"
+                "\(Constants.crlf)--\(boundary)\(Constants.crlf)"
             case .final:
-                "\(EncodingCharacters.crlf)--\(boundary)--\(EncodingCharacters.crlf)"
+                "\(Constants.crlf)--\(boundary)--\(Constants.crlf)"
             }
             
             return Data(boundaryText.utf8)
@@ -60,10 +60,10 @@ public class MultipartFormData: DataConvertible {
                 headers += "; filename=\"\(filename)\""
             }
             
-            headers += EncodingCharacters.crlf
+            headers += Constants.crlf
             
             // Include Content-Type header if present
-            headers += "Content-Type: \(part.mimeType.value)\(EncodingCharacters.crlf)\(EncodingCharacters.crlf)"
+            headers += "Content-Type: \(part.mimeType.value)\(Constants.crlf)\(Constants.crlf)"
             
             // Add headers as Data
             data.append(Data(headers.utf8))

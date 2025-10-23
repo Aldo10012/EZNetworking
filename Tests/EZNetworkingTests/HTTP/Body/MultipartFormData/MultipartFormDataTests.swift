@@ -7,9 +7,9 @@ class MultipartFormDataTests {
     
     // MARK: - Test EncodingCharacters
     
-    @Test("test EncodingCharacters.crlf")
+    @Test("test Constants.crlf")
     func testEncodingCharacters() {
-        #expect(MultipartFormData.EncodingCharacters.crlf == "\r\n")
+        #expect(MultipartFormData.Constants.crlf == "\r\n")
     }
     
     // MARK: - Test BoundaryGenerator
