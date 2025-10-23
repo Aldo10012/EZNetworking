@@ -8,7 +8,7 @@ class DataExtensionsTests {
     // MARK: - Test string case
     @Test("test String Success")
     func testStringSuccess() {
-        let data = HTTPBody(string: "Hello World")
+        let data = Data(string: "Hello World")
         
         #expect(data != nil)
         #expect(String(data: data!, encoding: .utf8) == "Hello World")
@@ -18,7 +18,7 @@ class DataExtensionsTests {
     @Test("test Dictionary Success")
     func testDictionarySuccess() {
         let dictionary: [String: Any] = ["key": "value"]
-        let data = HTTPBody(dictionary: dictionary)
+        let data = Data(dictionary: dictionary)
         
         #expect(data != nil)
         let decoded = try? JSONSerialization.jsonObject(with: data!, options: []) as? [String: String]
@@ -28,7 +28,7 @@ class DataExtensionsTests {
     @Test("test Dictionary Success 2")
     func testDictionarySuccess2() {
         let dictionary: [String: Any] = ["key": ["subKey": "subValue"]]
-        let data = HTTPBody(dictionary: dictionary)
+        let data = Data(dictionary: dictionary)
         
         #expect(data != nil)
         let decoded = try? JSONSerialization.jsonObject(with: data!, options: []) as? [String: [String: String]]
@@ -44,7 +44,7 @@ class DataExtensionsTests {
     @Test("test Encodable Success")
     func testEncodableSuccess() {
         let encodable = TestEncodable(id: 1, name: "Test")
-        let data = HTTPBody(encodable: encodable)
+        let data = Data(encodable: encodable)
         
         #expect(data != nil)
         let decoded = try? JSONDecoder().decode(TestEncodable.self, from: data!)
@@ -57,7 +57,7 @@ class DataExtensionsTests {
     @Test("test File URLFailure")
     func testFileURLFailure() {
         let fileURL = URL(fileURLWithPath: "/path/to/non/existing/file")
-        let data = HTTPBody(fileURL: fileURL)
+        let data = Data(fileURL: fileURL)
         
         #expect(data == nil)
     }
@@ -66,7 +66,7 @@ class DataExtensionsTests {
     @Test("test Json String Success")
     func testJsonStringSuccess() {
         let json = "{\"key\":\"value\"}"
-        let data = HTTPBody(jsonString: json)
+        let data = Data(jsonString: json)
         
         #expect(data != nil)
         #expect(String(data: data!, encoding: .utf8) == json)
@@ -84,7 +84,7 @@ class DataExtensionsTests {
     @Test("test Base64 Success")
     func testBase64Success() {
         let base64String = "SGVsbG8gV29ybGQ="
-        let data = HTTPBody(base64: base64String)
+        let data = Data(base64: base64String)
         
         #expect(data != nil)
         #expect(String(data: data!, encoding: .utf8) == "Hello World")
@@ -93,7 +93,7 @@ class DataExtensionsTests {
     @Test("test Base64 Failure")
     func testBase64Failure() {
         let base64String = "InvalidBase64String"
-        let data = HTTPBody(base64: base64String)
+        let data = Data(base64: base64String)
         
         #expect(data == nil)
     }
@@ -104,7 +104,7 @@ class DataExtensionsTests {
         var components = URLComponents()
         components.queryItems = [URLQueryItem(name: "key", value: "value")]
         
-        let data = HTTPBody(urlComponents: components)
+        let data = Data(urlComponents: components)
         
         #expect(data != nil)
         #expect(String(data: data!, encoding: .utf8) == "key=value")
@@ -115,15 +115,15 @@ class DataExtensionsTests {
         var components = URLComponents()
         components.queryItems = nil
         
-        let data = HTTPBody(urlComponents: components)
+        let data = Data(urlComponents: components)
         #expect(data == nil)
     }
     
     @Test("test String Equality")
     func testStringEquality() {
-        let data1 = HTTPBody(string: "testString")
-        let data2 = HTTPBody(string: "testString")
-        let data3 = HTTPBody(string: "differentString")
+        let data1 = Data(string: "testString")
+        let data2 = Data(string: "testString")
+        let data3 = Data(string: "differentString")
         
         #expect(data1 == data2)
         #expect(data1 != data3)
@@ -134,8 +134,8 @@ class DataExtensionsTests {
         let dictionary1: [String: Any] = ["key1": "value1", "key2": 2]
         let dictionary2: [String: Any] = ["key1": "value1", "key2": 3]
         
-        let data1 = HTTPBody(dictionary: dictionary1)
-        let data2 = HTTPBody(dictionary: dictionary2)
+        let data1 = Data(dictionary: dictionary1)
+        let data2 = Data(dictionary: dictionary2)
         
         #expect(data1 != data2)
     }
@@ -145,8 +145,8 @@ class DataExtensionsTests {
         let encodable1 = TestEncodable(id: 1, name: "Test")
         let encodable2 = TestEncodable(id: 1, name: "Test")
         
-        let data1 = HTTPBody(encodable: encodable1)
-        let data2 = HTTPBody(encodable: encodable2)
+        let data1 = Data(encodable: encodable1)
+        let data2 = Data(encodable: encodable2)
         
         #expect(data1 == data2)
     }
@@ -156,8 +156,8 @@ class DataExtensionsTests {
         let encodable1 = TestEncodable(id: 1, name: "Test")
         let encodable2 = TestEncodable(id: 2, name: "test")
         
-        let data1 = HTTPBody(encodable: encodable1)
-        let data2 = HTTPBody(encodable: encodable2)
+        let data1 = Data(encodable: encodable1)
+        let data2 = Data(encodable: encodable2)
         
         #expect(data1 != data2)
     }
@@ -165,7 +165,7 @@ class DataExtensionsTests {
     @Test("test encodable HTTPBody can decode to correct type")
     func testEncodableHttpBodyCanDecodeToCorrectType() {
         let sut = TestEncodable(id: 1, name: "Test")
-        guard let data = HTTPBody(encodable: sut) else {
+        guard let data = Data(encodable: sut) else {
             Issue.record(); return
         }
         
@@ -178,7 +178,7 @@ class DataExtensionsTests {
     func testMixedCaseEquality() {
         let stringBody = HTTPBody(string: "testString")
         let dictionaryBody: [String: Any] = ["key": "value"]
-        let data1 = HTTPBody(dictionary: dictionaryBody)
+        let data1 = Data(dictionary: dictionaryBody)
         
         #expect(stringBody != data1)
     }
@@ -187,17 +187,17 @@ class DataExtensionsTests {
     
     @Test("test .appending(_:) is chainable and returns concatenated data")
     func test_appending_chainable_concatenates() {
-        let result = HTTPBody()
-            .appending(HTTPBody(string: "A"))
-            .appending(HTTPBody(string: "B"))
-            .appending(HTTPBody(string: "C"))
+        let result = Data()
+            .appending(Data(string: "A"))
+            .appending(Data(string: "B"))
+            .appending(Data(string: "C"))
         
         #expect(String(data: result, encoding: .utf8) == "ABC")
     }
     
     @Test("test .appending(nil) returns original unchanged")
     func test_appending_nil_returnsSame() {
-        let original = HTTPBody(string: "X")!
+        let original = Data(string: "X")!
         let appended = original.appending(nil)
         
         #expect(appended == original)
@@ -205,16 +205,16 @@ class DataExtensionsTests {
     
     @Test("test .appending(_) does not mutate the original Data (non-mutating API)")
     func test_appending_doesNotMutateOriginal() {
-        let original = HTTPBody(string: "orig")!
+        let original = Data(string: "orig")!
         let copyBefore = original
-        _ = original.appending(HTTPBody(string: "more"))
+        _ = original.appending(Data(string: "more"))
         // original should remain equal to the copy made before calling appending(_:)
         #expect(original == copyBefore)
     }
     
     @Test("test .appending(empty Data) returns concatenated result equal to original + empty")
     func test_appending_emptyData_behavesCorrectly() {
-        let original = HTTPBody(string: "Y")!
+        let original = Data(string: "Y")!
         let empty = Data()
         let result = original.appending(empty)
         
