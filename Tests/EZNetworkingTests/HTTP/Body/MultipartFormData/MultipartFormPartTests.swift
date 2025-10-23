@@ -23,7 +23,7 @@ class MultipartFormPartTests {
     @Test("explicit MultipartFormPart.string sets all properties")
     func test_MultipartFormPartString_setsProperties() {
         let payload = "value".data(using: .utf8)!
-        let part = MultipartFormPart.string(name: "file_name", value: "value")
+        let part = MultipartFormPart.field(name: "file_name", value: "value")
         
         #expect(part.name == "file_name")
         #expect(part.filename == nil)
