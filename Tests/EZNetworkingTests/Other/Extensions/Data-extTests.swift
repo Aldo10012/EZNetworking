@@ -4,7 +4,7 @@ import Testing
 
 @Suite("Test Data Extensions")
 class DataExtensionsTests {
-    
+
     // MARK: - Test string case
     @Test("test String Success")
     func testStringSuccess() {
@@ -170,8 +170,8 @@ class DataExtensionsTests {
         #expect(data1 != data2)
     }
     
-    @Test("test encodable HTTPBody can decode to correct type")
-    func testEncodableHttpBodyCanDecodeToCorrectType() {
+    @Test("test encodable Data can decode to correct type")
+    func testEncodableDataCanDecodeToCorrectType() {
         let sut = TestEncodable(id: 1, name: "Test")
         guard let data = Data(encodable: sut) else {
             Issue.record(); return
@@ -189,6 +189,16 @@ class DataExtensionsTests {
         let data1 = Data(dictionary: dictionaryBody)
         
         #expect(stringBody != data1)
+    }
+    
+    // MARK: Test multipartFormData
+    
+    @Test("test multipartFormData")
+    func testMultipartFormData() {
+        let multipartFormData = MultipartFormData(parts: [])
+        let data = Data(multipartFormData: multipartFormData)
+        
+        #expect(data != nil)
     }
     
     // MARK: Test .appending()
