@@ -1,6 +1,6 @@
 import Foundation
 
-public extension HTTPBody {
+public extension Data {
     /// Create `Data` from a UTF-8 `String`.
     init?(string: String) {
         guard let data = string.data(using: .utf8) else { return nil }
@@ -44,7 +44,7 @@ public extension HTTPBody {
     }
 }
 
-public extension HTTPBody {
+public extension Data {
     func appending(_ data: Data?) -> Data {
         guard let dataToAppend = data else { return self }
         var copy = self
