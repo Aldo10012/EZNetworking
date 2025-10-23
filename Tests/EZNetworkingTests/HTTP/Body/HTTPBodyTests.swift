@@ -2,8 +2,8 @@
 import Foundation
 import Testing
 
-@Suite("Test HTTPBody")
-class HTTPBodyTests {
+@Suite("Test Data")
+class DataTests {
 
     @Test("test Data is HTTPBody")
     func testDataIsHTTPBody() {
