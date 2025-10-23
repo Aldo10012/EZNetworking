@@ -216,4 +216,61 @@ class MultipartFormDataTests {
         #expect(normalizedDecoded == normalizedExpected)
     }
     
+    @Test("test MultipartFormData encodes field, file and JSON parts")
+    func test_MultipartFormData__field_file_and_json_data_parts() {
+        struct User: Encodable {
+            let username: String
+        }
+        let mockImageData = Data("mock_image_data".utf8)
+        
+        let parts: [MultipartFormPart] = [
+            MultipartFormPart.fieldPart(
+                name: "username",
+                value: "Daniel"
+            ),
+            MultipartFormPart.filePart(
+                name: "profile_picture",
+                data: mockImageData,
+                filename: "profile.jpg",
+                mimeType: .jpeg
+            ),
+            MultipartFormPart.dataPart(
+                name: "metadata",
+                data: Data(encodable: User(username: "Daniel"))!,
+                mimeType: .json
+            )
+        ]
+        let sut = MultipartFormData(parts: parts, boundary: "SOME_BOUNDARY")
+        
+        guard let data = sut.toData(), let decodedString = String(data: data, encoding: .utf8) else {
+            Issue.record()
+            return
+        }
+        
+        let expectedString = """
+        --SOME_BOUNDARY
+        Content-Disposition: form-data; name="username"
+        Content-Type: text/plain
+        
+        Daniel
+        --SOME_BOUNDARY
+        Content-Disposition: form-data; name="profile_picture"; filename="profile.jpg"
+        Content-Type: image/jpeg
+
+        mock_image_data
+        --SOME_BOUNDARY
+        Content-Disposition: form-data; name="metadata"
+        Content-Type: application/json
+
+        {"username":"Daniel"}
+        --SOME_BOUNDARY--
+        
+        """
+        
+        let normalizedDecoded = decodedString.replacingOccurrences(of: "\r\n", with: "\n")
+        let normalizedExpected = expectedString.replacingOccurrences(of: "\r\n", with: "\n")
+
+        #expect(normalizedDecoded == normalizedExpected)
+    }
+    
 }
