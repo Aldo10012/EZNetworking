@@ -36,7 +36,7 @@ class DataExtensionsTests {
     }
     
     // MARK: - Test encodable case
-    struct TestEncodable: Codable {
+    struct TestEncodable: Codable, Equatable {
         let id: Int
         let name: String
     }
@@ -145,10 +145,18 @@ class DataExtensionsTests {
         let encodable1 = TestEncodable(id: 1, name: "Test")
         let encodable2 = TestEncodable(id: 1, name: "Test")
         
-        let data1 = Data(encodable: encodable1)
-        let data2 = Data(encodable: encodable2)
+        guard let data1 = Data(encodable: encodable1), let data2 = Data(encodable: encodable2) else {
+            Issue.record()
+            return
+        }
         
-        #expect(data1 == data2)
+        do {
+            let decoded1 = try JSONDecoder().decode(TestEncodable.self, from: data1)
+            let decoded2 = try JSONDecoder().decode(TestEncodable.self, from: data2)
+            #expect(decoded1 == decoded2)
+        } catch {
+            Issue.record()
+        }
     }
     
     @Test("test Encodable not Equal when different")
