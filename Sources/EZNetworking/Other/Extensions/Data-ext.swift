@@ -44,7 +44,7 @@ public extension Data {
     }
     
     init?(multipartFormData: MultipartFormData) {
-        guard let data = multipartFormData.data else { return nil }
+        guard let data = multipartFormData.toData() else { return nil }
         self = data
     }
 }

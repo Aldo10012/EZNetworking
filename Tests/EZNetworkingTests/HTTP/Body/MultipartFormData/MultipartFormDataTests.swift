@@ -53,7 +53,7 @@ class MultipartFormDataTests {
         ]
         let sut = MultipartFormData(parts: parts, boundary: "SOME_BOUNDARY")
         
-        guard let data = sut.data, let decodedString = String(data: data, encoding: .utf8) else {
+        guard let data = sut.toData(), let decodedString = String(data: data, encoding: .utf8) else {
             Issue.record()
             return
         }
@@ -82,7 +82,7 @@ class MultipartFormDataTests {
         ]
         let sut = MultipartFormData(parts: parts, boundary: "SOME_BOUNDARY")
         
-        guard let data = sut.data, let decodedString = String(data: data, encoding: .utf8) else {
+        guard let data = sut.toData(), let decodedString = String(data: data, encoding: .utf8) else {
             Issue.record()
             return
         }
@@ -118,7 +118,7 @@ class MultipartFormDataTests {
         ]
         let sut = MultipartFormData(parts: parts, boundary: "SOME_BOUNDARY")
         
-        guard let data = sut.data, let decodedString = String(data: data, encoding: .utf8) else {
+        guard let data = sut.toData(), let decodedString = String(data: data, encoding: .utf8) else {
             Issue.record()
             return
         }
@@ -154,7 +154,7 @@ class MultipartFormDataTests {
         ]
         let sut = MultipartFormData(parts: parts, boundary: "SOME_BOUNDARY")
         
-        guard let data = sut.data, let decodedString = String(data: data, encoding: .utf8) else {
+        guard let data = sut.toData(), let decodedString = String(data: data, encoding: .utf8) else {
             Issue.record()
             return
         }
@@ -191,7 +191,7 @@ class MultipartFormDataTests {
         ]
         let sut = MultipartFormData(parts: parts, boundary: "SOME_BOUNDARY")
         
-        guard let data = sut.data, let decodedString = String(data: data, encoding: .utf8) else {
+        guard let data = sut.toData(), let decodedString = String(data: data, encoding: .utf8) else {
             Issue.record()
             return
         }

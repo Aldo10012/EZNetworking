@@ -1,6 +1,6 @@
 import Foundation
 
-public class MultipartFormData {
+public class MultipartFormData: DataConvertible {
     
     // MARK: - Helper Types
     
@@ -45,7 +45,7 @@ public class MultipartFormData {
     
     // MARK: Data
     
-    public var data: Data? {
+    public func toData() -> Data? {
         var data = Data()
         
         // 1️⃣ Append initial boundary
