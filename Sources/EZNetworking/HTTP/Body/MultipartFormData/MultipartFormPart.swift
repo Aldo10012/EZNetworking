@@ -19,17 +19,12 @@ public struct MultipartFormPart {
 
     /// Payload decoded as UTF-8 string, or nil if decoding fails.
     public var value: String? {
-        get {
-            return autoreleasepool { String(bytes: self.data, encoding: .utf8) }
-        }
+        get { String(data: data, encoding: .utf8) }
         set {
-            autoreleasepool {
-                guard let value = newValue else {
-                    self.data = Data()
-                    return
-                }
-                
-                self.data = value.data(using: .utf8, allowLossyConversion: true)!
+            if let newValue = newValue {
+                data = Data(newValue.utf8)
+            } else {
+                data = Data()
             }
         }
     }
@@ -43,8 +38,7 @@ public struct MultipartFormPart {
     }
 
     /// Convenience initializer for text fields (UTF-8).
-    public init(name: String, value: String, mimeType: MimeType = .plain) {
-        let data = value.data(using: .utf8, allowLossyConversion: true)!
-        self.init(name: name, data: data, filename: nil, mimeType: mimeType)
+    public init(name: String, value: String) {
+        self.init(name: name, data: Data(value.utf8), filename: nil, mimeType: .plain)
     }
 }
