@@ -4,11 +4,13 @@ public class MultipartFormData: DataConvertible {
     
     // MARK: Variables
 
+    public let parts: [MultipartFormPart]
     public let boundary: String
     
     // MARK: Init
     
-    public init(boundary: String) {
+    public init(parts: [MultipartFormPart], boundary: String) {
+        self.parts = parts
         self.boundary = boundary
     }
     
