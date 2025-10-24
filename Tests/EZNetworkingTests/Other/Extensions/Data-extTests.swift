@@ -98,6 +98,38 @@ class DataExtensionsTests {
         #expect(data == nil)
     }
     
+    // MARK: - Test MultipartFormData
+
+    @Test("test MultipartFormData")
+    func testMultipartFormData() {
+        let multipartFormData = MultipartFormData(
+            parts: [
+                .fieldPart(name: "username", value: "Daniel")
+            ],
+            boundary: "BOUNDARY"
+        )
+        guard let data = Data(multipartFormData: multipartFormData),
+              let decodedString = String(data: data, encoding: .utf8) else {
+            Issue.record()
+            return
+        }
+        
+        let expectedString = """
+        --BOUNDARY
+        Content-Disposition: form-data; name="username"
+        Content-Type: text/plain
+
+        Daniel
+        --BOUNDARY--
+
+        """
+        
+        let normalizedDecoded = decodedString.replacingOccurrences(of: "\r\n", with: "\n")
+        let normalizedExpected = expectedString.replacingOccurrences(of: "\r\n", with: "\n")
+
+        #expect(normalizedDecoded == normalizedExpected)
+    }
+    
     @Test("test UrlComponents Success")
     // MARK: - Test urlComponents case
     func testUrlComponentsSuccess() {

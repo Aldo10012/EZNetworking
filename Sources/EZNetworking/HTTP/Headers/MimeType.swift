@@ -5,7 +5,7 @@ public enum MimeType: Equatable {
     case json
     case xml
     case formUrlEncoded
-    case multipartFormData
+    case multipartFormData(boundary: String)
     case pdf
     case zip
     case octetStream
@@ -65,7 +65,7 @@ public enum MimeType: Equatable {
         case .json: return "application/json"
         case .xml: return "application/xml"
         case .formUrlEncoded: return "application/x-www-form-urlencoded"
-        case .multipartFormData: return "multipart/form-data"
+        case .multipartFormData(let boundary): return "multipart/form-data; boundary=\(boundary)"
         case .pdf: return "application/pdf"
         case .zip: return "application/zip"
         case .octetStream: return "application/octet-stream"

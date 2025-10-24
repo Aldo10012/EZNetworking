@@ -42,6 +42,12 @@ public extension Data {
               let data = query.data(using: .utf8) else { return nil }
         self = data
     }
+
+    /// Create `Data` from MultipartFormData
+    init?(multipartFormData: MultipartFormData) {
+        guard let data = multipartFormData.toData() else { return nil }
+        self = data
+    }
 }
 
 public extension Data {
