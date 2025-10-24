@@ -42,6 +42,7 @@ EZNetworking is a powerful, lightweight Swift networking library that simplifies
 - [Upload Features](https://github.com/Aldo10012/EZNetworking/?tab=readme-ov-file#upload-features)
   - [Date Upload](https://github.com/Aldo10012/EZNetworking/?tab=readme-ov-file#uploading-raw-data)
   - [File Upload](https://github.com/Aldo10012/EZNetworking/blob/main/README.md#uploading-file)
+  - [Multipart-form Upload](https://github.com/Aldo10012/EZNetworking/blob/main/README.md#uploading-multipart-form-data)
 - [Advanced Features](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#advanced-features-)
   - [Interceptors](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#interceptors)
     - [Cache Interceptor](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#cache-interceptor)
@@ -562,6 +563,54 @@ FileUploader().uploadFilePublisher(fileURL, with: request: progress: { progress 
   // handle data
 }
 .store(in: &cancellables)
+```
+
+### Uploading multipart form data
+
+```swift
+let parts: [MultipartFormPart] = [
+    MultipartFormPart.fieldPart(
+        name: "username",
+        value: "Daniel"
+    ),
+    MultipartFormPart.filePart(
+        name: "profile_picture",
+        data: fileData,
+        filename: "profile.jpg",
+        mimeType: .jpeg
+    ),
+    MultipartFormPart.dataPart(
+        name: "metadata",
+        data: Data(encodable: user)!,
+        mimeType: .json
+    )
+]
+let multippartFormData = MultipartFormData(parts: parts, boundary: "SOME_BOUNDARY")
+
+// example usage on Request
+
+let request = RequestFactoryImpl().build(
+    httpMethod: .POST,
+    baseUrlString: "https://www.example.com/upload",
+    parameters: nil,
+    headers: [
+        .contentType(.multipartFormData(boundary: "SOME_BOUNDARY"))
+    ],
+    body: nil 
+    // dont inject multippartFormData into the request body. Inject it into DataUploader instead.
+    // Reason for this is DataUploader internally uses `URLSession.shared.uploadTask()` which is optimized for uploading data to a server. It takes `data` as an argument and ignores the data provided in `URLRequest.httpBody` 
+)
+
+// use DataUploader for uploading the data to a server
+
+for await event in DataUploader().uploadDataStream(multippartFormData.toData()!, with: request) {
+  switch event {
+  case .progress(let value): // handle progress
+  case .success(let data): // handle success
+  case .failure(let error): // handle error
+  }
+}
+
 ```
 
 ## Advanced Features 🔧
