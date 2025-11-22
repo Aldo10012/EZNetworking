@@ -1,22 +1,5 @@
 import Foundation
 
-/// Messages sent to the WebSocket
-public typealias OutboundMessage = URLSessionWebSocketTask.Message
-
-/// Messages received from the WebSocket
-public typealias InboundMessage = URLSessionWebSocketTask.Message
-
-public protocol WebSocketClient {
-    /// Connect to the WebSocket server
-    func connect()
-    
-    /// Disconnect from the WebSocket server
-    func disconnect()
-    
-    /// Send a message (string or binary) to the WebSocket
-    func send(_ message: OutboundMessage) async throws
-}
-
 public class WebSocketClientImpl: WebSocketClient {
     private let urlSession: URLSessionTaskProtocol
     private let validator: ResponseValidator
@@ -69,16 +52,6 @@ public class WebSocketClientImpl: WebSocketClient {
     }
     
     public func send(_ message: OutboundMessage) async throws {
-        // TODO: implement
-    }
-}
-
-internal class DefaultWebSocketTaskInterceptor: WebSocketTaskInterceptor {
-    func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didOpenWithProtocol protocol: String?) {
-        // TODO: implement
-    }
-    
-    func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didCloseWith closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?) {
         // TODO: implement
     }
 }
