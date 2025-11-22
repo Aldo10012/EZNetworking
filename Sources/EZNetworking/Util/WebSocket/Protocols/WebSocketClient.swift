@@ -8,7 +8,7 @@ public typealias InboundMessage = URLSessionWebSocketTask.Message
 
 public protocol WebSocketClient {
     /// Connect to the WebSocket server
-    func connect()
+    func connect(with: URL, protocols: [String])
     
     /// Disconnect from the WebSocket server
     func disconnect()
