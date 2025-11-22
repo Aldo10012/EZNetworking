@@ -51,8 +51,9 @@ public class WebSocketClientImpl: WebSocketClient {
         webSocketTask?.resume()
     }
     
-    public func disconnect() {
+    public func disconnect(with closeCode: URLSessionWebSocketTask.CloseCode = .normalClosure, reason: Data? = nil) {
         // TODO: implement
+        webSocketTask?.cancel(with: closeCode, reason: reason)
     }
     
     public func send(_ message: OutboundMessage) async throws {
