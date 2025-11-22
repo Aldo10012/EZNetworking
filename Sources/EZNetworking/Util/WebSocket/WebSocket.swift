@@ -8,7 +8,7 @@ public class WebSocketClientImpl: WebSocketClient {
     
     private let fallbackDownloadTaskInterceptor: WebSocketTaskInterceptor = DefaultWebSocketTaskInterceptor()
     
-    private var webSocketTask: URLSessionWebSocketTask?
+    private var webSocketTask: WebSocketTaskProtocol? // URLSessionWebSocketTask protocol
     
     // MARK: init
     
@@ -47,7 +47,7 @@ public class WebSocketClientImpl: WebSocketClient {
     
     public func connect(with url: URL, protocols: [String] = []) {
         // TODO: implement
-        webSocketTask = urlSession.webSocketTask(with: url, protocols: protocols)
+        webSocketTask = urlSession.webSocketTaskInspectable(with: url, protocols: protocols)
         webSocketTask?.resume()
     }
     
