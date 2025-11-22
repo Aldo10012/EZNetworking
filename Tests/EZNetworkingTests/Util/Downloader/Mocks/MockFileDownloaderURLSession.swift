@@ -37,6 +37,9 @@ class MockFileDownloaderURLSession: URLSessionTaskProtocol {
     func uploadTask(with request: URLRequest, fromFile fileURL: URL, completionHandler: @escaping @Sendable (Data?, URLResponse?, (any Error)?) -> Void) -> URLSessionUploadTask {
         URLSessionUploadTask()
     }
+    func webSocketTaskInspectable(with: URL, protocols: [String]) -> WebSocketTaskProtocol {
+        MockURLSessionWebSocketTask()
+    }
 }
 
 extension MockFileDownloaderURLSession {
@@ -69,4 +72,16 @@ extension MockFileDownloaderURLSession {
             }
         }
     }
+}
+
+class MockURLSessionWebSocketTask: WebSocketTaskProtocol {
+    init() {}
+
+    func resume() {}
+    
+    func cancel(with closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?) {}
+    
+    func send(_ message: URLSessionWebSocketTask.Message, completionHandler: @escaping @Sendable ((any Error)?) -> Void) { }
+    
+    func receive(completionHandler: @escaping @Sendable (Result<URLSessionWebSocketTask.Message, any Error>) -> Void) { }
 }
