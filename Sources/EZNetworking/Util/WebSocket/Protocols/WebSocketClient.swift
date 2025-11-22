@@ -8,10 +8,10 @@ public typealias InboundMessage = URLSessionWebSocketTask.Message
 
 public protocol WebSocketClient {
     /// Connect to the WebSocket server
-    func connect(with: URL, protocols: [String])
+    func connect(with url: URL, protocols: [String])
     
     /// Disconnect from the WebSocket server
-    func disconnect()
+    func disconnect(with closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?)
     
     /// Send a message (string or binary) to the WebSocket
     func send(_ message: OutboundMessage) async throws
