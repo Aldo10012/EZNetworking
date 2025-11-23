@@ -1,14 +1,21 @@
 import Foundation
 
-public class WebSocketClientImpl: WebSocketClient {
+public actor WebSocketEngine: WebSocketClient {
+    // Dependencies
     private let urlSession: URLSessionTaskProtocol
     private let validator: ResponseValidator
     private let requestDecoder: RequestDecodable
     private var sessionDelegate: SessionDelegate
-    
-    private let fallbackDownloadTaskInterceptor: WebSocketTaskInterceptor = DefaultWebSocketTaskInterceptor()
-    
+        
+    // Task
     private var webSocketTask: WebSocketTaskProtocol? // URLSessionWebSocketTask protocol
+
+    // AsyncStream Continuation
+    private var continuation: AsyncStream<URLSessionWebSocketTask.Message>.Continuation?
+
+    // State
+    private var streamCreated = false
+    private var isConnected = false
     
     // MARK: init
     
@@ -43,20 +50,79 @@ public class WebSocketClientImpl: WebSocketClient {
         self.requestDecoder = requestDecoder
     }
     
-    // MARK: WebSocket
+    deinit {
+        isConnected = false
+        webSocketTask?.cancel(with: .normalClosure, reason: nil)
+        continuation?.finish()
+    }
     
-    public func connect(with url: URL, protocols: [String] = []) {
-        // TODO: implement
+    // MARK: Connection
+    
+    public func connect(with url: URL, protocols: [String] = []) async throws {
+        guard !isConnected else { return }
+        
         webSocketTask = urlSession.webSocketTaskInspectable(with: url, protocols: protocols)
         webSocketTask?.resume()
+        isConnected = true
+        
+        // TODO: start ping loop
+        startPingLoop(intervalSeconds: 30)
     }
     
-    public func disconnect(with closeCode: URLSessionWebSocketTask.CloseCode = .normalClosure, reason: Data? = nil) {
+    public func disconnect(with closeCode: URLSessionWebSocketTask.CloseCode = .normalClosure, reason: Data? = nil) async {
         // TODO: implement
+        isConnected = false
         webSocketTask?.cancel(with: closeCode, reason: reason)
+        continuation?.finish()
     }
     
+    // MARK: Sending messages
     public func send(_ message: OutboundMessage) async throws {
         // TODO: implement
     }
+    
+    // MARK: - Receiving messages
+    
+    // MARK: - Helper methods
+    func startPingLoop(intervalSeconds: UInt64) {
+        Task {
+            var consecutiveFailures = 0
+            let maxFailures = 3
+            
+            while isConnected {
+                do {
+                    try await self.sendPing()
+                    consecutiveFailures = 0
+                } catch {
+                    consecutiveFailures += 1
+                }
+                
+                if consecutiveFailures >= maxFailures {
+                    await self.disconnect(with: .goingAway)
+                    continuation?.finish()
+                    break
+                }
+                
+                try? await Task.sleep(nanoseconds: intervalSeconds * 1_000_000_000)
+            }
+        }
+    }
+    
+    /// Sends a single ping and waits for a pong response.
+    func sendPing() async throws {
+            guard let task = webSocketTask else {
+                // TODO: create new WebSocket error type
+                throw NetworkingError.internalError(.couldNotParse) // WebSocketError.notConnected
+            }
+
+            try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+                task.sendPing { error in
+                    if let error {
+                        continuation.resume(throwing: error)
+                    } else {
+                        continuation.resume()
+                    }
+                }
+            }
+        }
 }
