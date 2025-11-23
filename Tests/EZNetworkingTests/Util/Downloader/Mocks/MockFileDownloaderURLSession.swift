@@ -74,6 +74,7 @@ extension MockFileDownloaderURLSession {
     }
 }
 
+// TODO: move somewhere else
 class MockURLSessionWebSocketTask: WebSocketTaskProtocol {
     init() {}
 
@@ -84,4 +85,6 @@ class MockURLSessionWebSocketTask: WebSocketTaskProtocol {
     func send(_ message: URLSessionWebSocketTask.Message, completionHandler: @escaping @Sendable ((any Error)?) -> Void) { }
     
     func receive(completionHandler: @escaping @Sendable (Result<URLSessionWebSocketTask.Message, any Error>) -> Void) { }
+    
+    func sendPing(pongReceiveHandler: @escaping @Sendable ((any Error)?) -> Void) { }
 }
