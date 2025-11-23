@@ -24,6 +24,7 @@ extension URLSession: URLSessionTaskProtocol {
 public protocol WebSocketTaskProtocol {
     func resume()
     func cancel(with closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?)
+    func sendPing(pongReceiveHandler: @escaping @Sendable ((any Error)?) -> Void)
     func send(_ message: URLSessionWebSocketTask.Message, completionHandler: @escaping @Sendable (Error?) -> Void)
     func receive(completionHandler: @escaping @Sendable (Result<URLSessionWebSocketTask.Message, Error>) -> Void)
 }
