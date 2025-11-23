@@ -110,19 +110,19 @@ public actor WebSocketEngine: WebSocketClient {
     
     /// Sends a single ping and waits for a pong response.
     private func sendPing() async throws {
-            guard let task = webSocketTask else {
-                // TODO: create new WebSocket error type
-                throw NetworkingError.internalError(.couldNotParse) // WebSocketError.notConnected
-            }
-
-            try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-                task.sendPing { error in
-                    if let error {
-                        continuation.resume(throwing: error)
-                    } else {
-                        continuation.resume()
-                    }
+        guard let task = webSocketTask else {
+            // TODO: create new WebSocket error type
+            throw NetworkingError.internalError(.couldNotParse) // WebSocketError.notConnected
+        }
+        
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            task.sendPing { error in
+                if let error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume()
                 }
             }
         }
+    }
 }
