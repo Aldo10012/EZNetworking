@@ -83,8 +83,8 @@ public actor WebSocketEngine: WebSocketClient {
     
     // MARK: - Receiving messages
     
-    // MARK: - Helper methods
-    func startPingLoop(intervalSeconds: UInt64) {
+    // MARK: - Ping loop
+    private func startPingLoop(intervalSeconds: UInt64) {
         Task {
             var consecutiveFailures = 0
             let maxFailures = 3
@@ -109,7 +109,7 @@ public actor WebSocketEngine: WebSocketClient {
     }
     
     /// Sends a single ping and waits for a pong response.
-    func sendPing() async throws {
+    private func sendPing() async throws {
             guard let task = webSocketTask else {
                 // TODO: create new WebSocket error type
                 throw NetworkingError.internalError(.couldNotParse) // WebSocketError.notConnected
