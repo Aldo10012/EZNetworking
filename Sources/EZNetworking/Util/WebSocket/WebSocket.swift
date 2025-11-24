@@ -18,7 +18,7 @@ public actor WebSocketEngine: WebSocketClient {
     private var connectionStateContinuation: AsyncStream<WebSocketConnectionState>.Continuation?
 
     // State
-    private var connectionState: WebSocketConnectionState = .disconnected
+    private var connectionState: WebSocketConnectionState = .idle
     
     // Connection state stream
     public private(set) lazy var connectionStateStream: AsyncStream<WebSocketConnectionState> = {
@@ -29,7 +29,7 @@ public actor WebSocketEngine: WebSocketClient {
             }
             Task {
                 await self.setConnectionStateContinuation(continuation)
-                continuation.yield(.disconnected)
+                continuation.yield(.idle) // set initial connection to stream
             }
         }
     }()

@@ -8,6 +8,7 @@ final class WebSocketConnectionStateTests {
 	func testBasicEquality() {
 		#expect(WebSocketConnectionState.disconnected == .disconnected)
 		#expect(WebSocketConnectionState.connecting == .connecting)
+        #expect(WebSocketConnectionState.idle == .idle)
 	}
 
 	@Test("connected state equality with protocol values")

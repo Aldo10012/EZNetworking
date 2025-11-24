@@ -1,6 +1,7 @@
 import Foundation
 
 public enum WebSocketConnectionState: Equatable {
+    case idle
     case disconnected
     case connecting
     case connected(protocol: String?)
@@ -9,6 +10,8 @@ public enum WebSocketConnectionState: Equatable {
     
     public static func == (lhs: WebSocketConnectionState, rhs: WebSocketConnectionState) -> Bool {
         switch (lhs, rhs) {
+        case (.idle, .idle):
+            return true
         case (.disconnected, .disconnected):
             return true
         case (.connecting, .connecting):
