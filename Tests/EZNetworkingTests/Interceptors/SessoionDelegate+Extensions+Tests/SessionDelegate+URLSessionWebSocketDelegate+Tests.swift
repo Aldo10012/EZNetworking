@@ -52,7 +52,7 @@ final class SessionDelegateURLSessionWebSocketDelegateTests {
 // MARK: mock class
 
 private class MockWebSocketTaskInterceptor: WebSocketTaskInterceptor {
-    var onEvent: (EZNetworking.WebSocketTaskEvent) -> Void = { _ in }
+    var onEvent: ((WebSocketTaskEvent) -> Void)? = { _ in }
     
     var didOpenWithProtocol = false
     var receivedProtocol: String?
