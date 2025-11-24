@@ -5,7 +5,10 @@ public actor WebSocketEngine: WebSocketClient {
     private let urlSession: URLSessionTaskProtocol
     private let validator: ResponseValidator
     private let requestDecoder: RequestDecodable
+    
+    // Delegate & Interceptors
     private var sessionDelegate: SessionDelegate
+    private var fallbackWebSocketTaskInterceptor = DefaultWebSocketTaskInterceptor()
         
     // Task
     private var webSocketTask: WebSocketTaskProtocol? // URLSessionWebSocketTask protocol
@@ -14,7 +17,6 @@ public actor WebSocketEngine: WebSocketClient {
     private var continuation: AsyncStream<URLSessionWebSocketTask.Message>.Continuation?
 
     // State
-    private var streamCreated = false
     private var isConnected = false
     
     // MARK: init
@@ -72,6 +74,8 @@ public actor WebSocketEngine: WebSocketClient {
         
         startPingLoop(intervalSeconds: 30)
     }
+    
+    // TODO: add func that observs connection change
 
     // MARK: Disconnect
     
