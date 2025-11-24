@@ -17,7 +17,7 @@ public actor WebSocketEngine: WebSocketClient {
     private var continuation: AsyncStream<URLSessionWebSocketTask.Message>.Continuation?
 
     // State
-    private var isConnected = false
+    private var connectionState: WebSocketConnectionState = .disconnected
     
     // MARK: init
     
@@ -53,7 +53,7 @@ public actor WebSocketEngine: WebSocketClient {
     }
     
     deinit {
-        isConnected = false
+        connectionState = .disconnected
         webSocketTask?.cancel(with: .normalClosure, reason: nil)
         continuation?.finish()
     }
@@ -61,27 +61,81 @@ public actor WebSocketEngine: WebSocketClient {
     // MARK: Connection
     
     public func connect(with url: URL, protocols: [String] = []) async throws {
-        guard !isConnected else {
+        if case .connected(protocol: _) = connectionState {
             throw WebSocketError.alreadyConnected
         }
         
         webSocketTask = urlSession.webSocketTaskInspectable(with: url, protocols: protocols)
         
-        // TODO: add logic to validate connection is established before we resume the task
+        // Ensure there's an interceptor to observe open/close events
+        if sessionDelegate.webSocketTaskInterceptor == nil {
+            sessionDelegate.webSocketTaskInterceptor = fallbackWebSocketTaskInterceptor
+        }
         
-        webSocketTask?.resume()
-        isConnected = true
-        
+        // establish web socket connection
+        do {
+            let proto = try await waitForConnection()
+            connectionState = .connected(protocol: proto)
+        } catch let wsError as WebSocketError {
+            connectionState = .failed(error: wsError)
+            throw wsError
+        } catch {
+            connectionState = .failed(error: .connectionFailed(underlying: error))
+            throw WebSocketError.connectionFailed(underlying: error)
+        }
+
+        // now that web socket connection is established, set up pinp-pong to keep connection alive
         startPingLoop(intervalSeconds: 30)
     }
-    
-    // TODO: add func that observs connection change
 
+    private func waitForConnection() async throws -> String? {
+        guard let task = webSocketTask else {
+            throw WebSocketError.taskNotInitialized
+        }
+
+        do {
+            let proto = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<String?, Error>) in
+                var resumed = false
+
+                sessionDelegate.webSocketTaskInterceptor?.onEvent = { event in
+                    guard !resumed else { return }
+                    resumed = true
+                    switch event {
+                    case .didOpen(let proto):
+                        continuation.resume(returning: proto)
+                        
+                    case .didClose(let code, let reason):
+                        let reasonStr = reason.flatMap { String(data: $0, encoding: .utf8) }
+                        let err = WebSocketError.unexpectedDisconnection(code: code, reason: reasonStr)
+                        continuation.resume(throwing: err)
+                    }
+                }
+
+                // Resume the task after the handler is installed to avoid races
+                task.resume()
+            }
+
+            // clear handler
+            sessionDelegate.webSocketTaskInterceptor?.onEvent = { _ in }
+            return proto
+        } catch {
+            throw WebSocketError.connectionFailed(underlying: error)
+        }
+    }
+    
     // MARK: Disconnect
     
+    /// user disconnects web socket connection
     public func disconnect(with closeCode: URLSessionWebSocketTask.CloseCode = .normalClosure, reason: Data? = nil) async {
-        isConnected = false
+        connectionState = .disconnected
         webSocketTask?.cancel(with: closeCode, reason: reason)
+        continuation?.finish()
+    }
+    
+    /// connection is lost. Internal
+    private func handleConnectionLoss(error: WebSocketError) async {
+        connectionState = .connectionLost(reason: error)
+        webSocketTask?.cancel(with: .goingAway, reason: nil)
         continuation?.finish()
     }
     
@@ -91,7 +145,7 @@ public actor WebSocketEngine: WebSocketClient {
             var consecutiveFailures = 0
             let maxFailures = 3
             
-            while isConnected {
+            while await self.isConnectedState() {
                 do {
                     try await self.sendPing()
                     consecutiveFailures = 0
@@ -100,8 +154,8 @@ public actor WebSocketEngine: WebSocketClient {
                 }
                 
                 if consecutiveFailures >= maxFailures {
-                    await self.disconnect(with: .goingAway)
-                    continuation?.finish()
+                    let error = WebSocketError.keepAliveFailure(consecutiveFailures: consecutiveFailures)
+                    await self.handleConnectionLoss(error: error)
                     break
                 }
                 
@@ -133,8 +187,7 @@ public actor WebSocketEngine: WebSocketClient {
     
     // MARK: Sending messages
     public func send(_ message: OutboundMessage) async throws {
-        // TODO: implement
-        guard isConnected else {
+        guard case .connected = connectionState else {
             throw WebSocketError.notConnected
         }
         
@@ -145,4 +198,12 @@ public actor WebSocketEngine: WebSocketClient {
     
     // MARK: - Receiving messages
 
+}
+
+extension WebSocketEngine {
+    // Helper to check if current state is connected
+    private func isConnectedState() async -> Bool {
+        if case .connected = connectionState { return true }
+        return false
+    }
 }
