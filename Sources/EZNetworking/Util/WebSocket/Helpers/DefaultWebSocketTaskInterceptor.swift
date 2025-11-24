@@ -8,11 +8,11 @@ internal class DefaultWebSocketTaskInterceptor: WebSocketTaskInterceptor {
     }
     
     func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didOpenWithProtocol protocol: String?) {
-        onEvent(.didOpen(protocol: `protocol`))
+        onEvent(.didOpenWithProtocol(protocolStr: `protocol`))
     }
     
     func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: any Error) {
-        onEvent(.didCompleteWithError(err: error))
+        onEvent(.didOpenWithError(error: error))
     }
     
     func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didCloseWith closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?) {
