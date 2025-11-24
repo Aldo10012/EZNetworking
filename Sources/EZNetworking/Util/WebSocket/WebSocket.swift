@@ -14,7 +14,7 @@ public actor WebSocketEngine: WebSocketClient {
     private var webSocketTask: WebSocketTaskProtocol? // URLSessionWebSocketTask protocol
 
     // AsyncStream Continuation
-    private var continuation: AsyncStream<URLSessionWebSocketTask.Message>.Continuation?
+    private var messageContinuation: AsyncStream<URLSessionWebSocketTask.Message>.Continuation?
 
     // State
     private var connectionState: WebSocketConnectionState = .disconnected
@@ -55,7 +55,7 @@ public actor WebSocketEngine: WebSocketClient {
     deinit {
         connectionState = .disconnected
         webSocketTask?.cancel(with: .normalClosure, reason: nil)
-        continuation?.finish()
+        messageContinuation?.finish()
     }
     
     // MARK: Connection
@@ -134,14 +134,14 @@ public actor WebSocketEngine: WebSocketClient {
     public func disconnect(with closeCode: URLSessionWebSocketTask.CloseCode = .normalClosure, reason: Data? = nil) async {
         connectionState = .disconnected
         webSocketTask?.cancel(with: closeCode, reason: reason)
-        continuation?.finish()
+        messageContinuation?.finish()
     }
     
     /// connection is lost. Internal
     private func handleConnectionLoss(error: WebSocketError) async {
         connectionState = .connectionLost(reason: error)
         webSocketTask?.cancel(with: .goingAway, reason: nil)
-        continuation?.finish()
+        messageContinuation?.finish()
     }
     
     // MARK: - Ping loop
