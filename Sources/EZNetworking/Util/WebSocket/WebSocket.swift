@@ -59,20 +59,23 @@ public actor WebSocketEngine: WebSocketClient {
     // MARK: Connection
     
     public func connect(with url: URL, protocols: [String] = []) async throws {
-        guard !isConnected else { return }
+        guard !isConnected else {
+            throw WebSocketError.alreadyConnected
+        }
         
         webSocketTask = urlSession.webSocketTaskInspectable(with: url, protocols: protocols)
+        
+        // TODO: add logic to validate connection is established before we resume the task
+        
         webSocketTask?.resume()
         isConnected = true
         
-        // TODO: start ping loop
         startPingLoop(intervalSeconds: 30)
     }
 
     // MARK: Disconnect
     
     public func disconnect(with closeCode: URLSessionWebSocketTask.CloseCode = .normalClosure, reason: Data? = nil) async {
-        // TODO: implement
         isConnected = false
         webSocketTask?.cancel(with: closeCode, reason: reason)
         continuation?.finish()
@@ -106,24 +109,34 @@ public actor WebSocketEngine: WebSocketClient {
     /// Sends a single ping and waits for a pong response.
     private func sendPing() async throws {
         guard let task = webSocketTask else {
-            // TODO: create new WebSocket error type
-            throw NetworkingError.internalError(.couldNotParse) // WebSocketError.notConnected
+            throw WebSocketError.taskNotInitialized
         }
         
-        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-            task.sendPing { error in
-                if let error {
-                    continuation.resume(throwing: error)
-                } else {
-                    continuation.resume()
+        do {
+            try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+                task.sendPing { error in
+                    if let error {
+                        continuation.resume(throwing: error)
+                    } else {
+                        continuation.resume()
+                    }
                 }
             }
+        } catch {
+            throw WebSocketError.pingFailed(underlying: error)
         }
     }
     
     // MARK: Sending messages
     public func send(_ message: OutboundMessage) async throws {
         // TODO: implement
+        guard isConnected else {
+            throw WebSocketError.notConnected
+        }
+        
+        guard let task = webSocketTask else {
+            throw WebSocketError.taskNotInitialized
+        }
     }
     
     // MARK: - Receiving messages
