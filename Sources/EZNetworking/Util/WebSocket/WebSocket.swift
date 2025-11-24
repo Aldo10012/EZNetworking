@@ -14,7 +14,7 @@ public actor WebSocketEngine: WebSocketClient {
     private var webSocketTask: WebSocketTaskProtocol? // URLSessionWebSocketTask protocol
 
     // AsyncStream Continuation
-    private var messageContinuation: AsyncStream<URLSessionWebSocketTask.Message>.Continuation?
+    private var messageContinuation: AsyncStream<InboundMessage>.Continuation?
 
     // State
     private var connectionState: WebSocketConnectionState = .disconnected
