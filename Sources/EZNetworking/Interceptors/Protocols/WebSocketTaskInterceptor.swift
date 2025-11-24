@@ -2,7 +2,7 @@ import Foundation
 
 /// Protocol for intercepting WebSocket tasks specifically.
 public protocol WebSocketTaskInterceptor: AnyObject {
-    var onEvent: (WebSocketTaskEvent) -> Void { get set }
+    var onEvent: ((WebSocketTaskEvent) -> Void)? { get set }
 
     /// Intercepts when a WebSocket task opens with a protocol.
     func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didOpenWithProtocol protocol: String?)
