@@ -175,22 +175,27 @@ public actor WebSocketEngine: WebSocketClient {
     // MARK: Connection
     
     public func connect(with url: URL, protocols: [String] = []) async throws {
+        // Step 1: Check if already connected to web socket
         if case .connected(protocol: _) = connectionState {
             throw WebSocketError.alreadyConnected
         }
         
-        // Set up the event handler ONCE during initialization
+        // Step 2: Set up open/close event listener
         setupWebSocketEventHandler()
         
+        // Step 3: Set connection state to .connecting
         updateConnectionState(.connecting)
         
+        // Step 4: Create URLWebSocketTask
         webSocketTask = urlSession.webSocketTaskInspectable(with: url, protocols: protocols)
         
-        // Wait for initial connection to establish
+        // Step 5: Wait for initial connection to establish, throw error if connection error
         let proto = try await waitForConnection()
+        
+        // Step 6: update connection state to .connected
         updateConnectionState(.connected(protocol: proto))
         
-        // Start ping-pong keep-alive
+        // Step 7: set up ping-pong to keep connection alive
         startPingLoop(intervalSeconds: 30)
     }
     
