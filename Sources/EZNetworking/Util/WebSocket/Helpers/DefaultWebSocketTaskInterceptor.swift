@@ -11,6 +11,10 @@ internal class DefaultWebSocketTaskInterceptor: WebSocketTaskInterceptor {
         onEvent(.didOpen(protocol: `protocol`))
     }
     
+    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: any Error) {
+        onEvent(.didCompleteWithError(err: error))
+    }
+    
     func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didCloseWith closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?) {
         onEvent(.didClose(code: closeCode, reason: reason))
     }

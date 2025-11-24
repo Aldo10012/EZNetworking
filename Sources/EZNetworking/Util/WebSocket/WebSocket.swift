@@ -103,11 +103,16 @@ public actor WebSocketEngine: WebSocketClient {
                     switch event {
                     case .didOpen(let proto):
                         continuation.resume(returning: proto)
-                        
+                    
+                    case .didCompleteWithError(err: let err):
+                        let err = WebSocketError.connectionFailed(underlying: err)
+                        continuation.resume(throwing: err)
+                    
                     case .didClose(let code, let reason):
                         let reasonStr = reason.flatMap { String(data: $0, encoding: .utf8) }
                         let err = WebSocketError.unexpectedDisconnection(code: code, reason: reasonStr)
                         continuation.resume(throwing: err)
+                    
                     }
                 }
 
