@@ -205,7 +205,9 @@ public actor WebSocketEngine: WebSocketClient {
     
     // MARK: - Ping loop
     private func startPingLoop(intervalSeconds: UInt64) {
-        Task {
+        Task { [weak self] in
+            guard let self else { return }
+            
             var consecutiveFailures = 0
             let maxFailures = 3
             
