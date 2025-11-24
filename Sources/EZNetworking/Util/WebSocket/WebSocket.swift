@@ -68,6 +68,8 @@ public actor WebSocketEngine: WebSocketClient {
         // TODO: start ping loop
         startPingLoop(intervalSeconds: 30)
     }
+
+    // MARK: Disconnect
     
     public func disconnect(with closeCode: URLSessionWebSocketTask.CloseCode = .normalClosure, reason: Data? = nil) async {
         // TODO: implement
@@ -75,13 +77,6 @@ public actor WebSocketEngine: WebSocketClient {
         webSocketTask?.cancel(with: closeCode, reason: reason)
         continuation?.finish()
     }
-    
-    // MARK: Sending messages
-    public func send(_ message: OutboundMessage) async throws {
-        // TODO: implement
-    }
-    
-    // MARK: - Receiving messages
     
     // MARK: - Ping loop
     private func startPingLoop(intervalSeconds: UInt64) {
@@ -125,4 +120,12 @@ public actor WebSocketEngine: WebSocketClient {
             }
         }
     }
+    
+    // MARK: Sending messages
+    public func send(_ message: OutboundMessage) async throws {
+        // TODO: implement
+    }
+    
+    // MARK: - Receiving messages
+
 }
