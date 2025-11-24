@@ -63,4 +63,28 @@ final class DefaultWebSocketTaskInterceptorTests {
 		interceptor.urlSession(session, webSocketTask: task, didOpenWithProtocol: nil)
 		#expect(called == true)
 	}
+
+	@Test("calls onEvent when task:didCompleteWithError is invoked")
+	func testDidCompleteWithErrorCallsOnEvent() {
+		let url = URL(string: "wss://example.com/socket")!
+		let session = URLSession(configuration: .default)
+		let task = session.webSocketTask(with: url)
+
+		var received: WebSocketTaskEvent? = nil
+		let interceptor = DefaultWebSocketTaskInterceptor { event in
+			received = event
+		}
+
+		let error = URLError(.timedOut)
+		interceptor.urlSession(session, task: task, didCompleteWithError: error)
+
+		guard case let .didCompleteWithError(err) = received else {
+			#expect(Bool(false))
+			return
+		}
+		let receivedNSError = err as NSError
+		let expectedNSError = error as NSError
+		#expect(receivedNSError.domain == expectedNSError.domain)
+		#expect(receivedNSError.code == expectedNSError.code)
+	}
 }
