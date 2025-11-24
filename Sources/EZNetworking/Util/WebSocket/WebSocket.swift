@@ -99,17 +99,8 @@ public actor WebSocketEngine: WebSocketClient {
         }
         
         // Step 1: Wait for initial connection to establish
-        do {
-            let proto = try await waitForConnection()
-            updateConnectionState(.connected(protocol: proto))
-        } catch let wsError as WebSocketError {
-            updateConnectionState(.failed(error: wsError))
-            throw wsError
-        } catch {
-            let wsError = WebSocketError.connectionFailed(underlying: error)
-            updateConnectionState(.failed(error: wsError))
-            throw WebSocketError.connectionFailed(underlying: error)
-        }
+        let proto = try await waitForConnection()
+        updateConnectionState(.connected(protocol: proto))
 
         // Step 2: Now monitor for disconnections during the connection lifetime
         observeWebSocketConnectionChanges()
