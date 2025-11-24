@@ -15,7 +15,7 @@ public protocol WebSocketTaskInterceptor: AnyObject {
 }
 
 public enum WebSocketTaskEvent {
-    case didOpen(`protocol`: String?)
-    case didCompleteWithError(err: Error)
+    case didOpenWithProtocol(protocolStr: String?)
+    case didOpenWithError(error: Error)
     case didClose(code: URLSessionWebSocketTask.CloseCode, reason: Data?)
 }

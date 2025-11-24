@@ -18,7 +18,7 @@ final class DefaultWebSocketTaskInterceptorTests {
 
 		interceptor.urlSession(session, webSocketTask: task, didOpenWithProtocol: "chat")
 
-		guard case let .didOpen(proto) = received else {
+		guard case let .didOpenWithProtocol(proto) = received else {
 			#expect(Bool(false))
 			return
 		}
@@ -78,7 +78,7 @@ final class DefaultWebSocketTaskInterceptorTests {
 		let error = URLError(.timedOut)
 		interceptor.urlSession(session, task: task, didCompleteWithError: error)
 
-		guard case let .didCompleteWithError(err) = received else {
+		guard case let .didOpenWithError(err) = received else {
 			#expect(Bool(false))
 			return
 		}

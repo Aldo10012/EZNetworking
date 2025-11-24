@@ -101,12 +101,12 @@ public actor WebSocketEngine: WebSocketClient {
                     guard !resumed else { return }
                     resumed = true
                     switch event {
-                    case .didOpen(let proto):
+                    case .didOpenWithProtocol(let proto):
                         continuation.resume(returning: proto)
                     
-                    case .didCompleteWithError(err: let err):
-                        let err = WebSocketError.connectionFailed(underlying: err)
-                        continuation.resume(throwing: err)
+                    case .didOpenWithError(let err):
+                        let error = WebSocketError.connectionFailed(underlying: err)
+                        continuation.resume(throwing: error)
                     
                     case .didClose(let code, let reason):
                         let reasonStr = reason.flatMap { String(data: $0, encoding: .utf8) }
