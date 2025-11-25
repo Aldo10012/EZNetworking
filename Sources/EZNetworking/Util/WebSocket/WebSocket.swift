@@ -85,13 +85,10 @@ public actor WebSocketEngine: WebSocketClient {
     }
     
     // MARK: Event Handler Setup (Called ONCE)
-    
-    private var eventHandlerSetup = false  // Track if handler is set up
-    
+        
     /// Sets up the WebSocket event handler that handles ALL events throughout the lifecycle
     private func setupWebSocketEventHandler() {
-        guard !eventHandlerSetup else { return }
-        eventHandlerSetup = true
+        guard sessionDelegate.webSocketTaskInterceptor?.onEvent == nil else { return }
         
         if sessionDelegate.webSocketTaskInterceptor == nil {
             sessionDelegate.webSocketTaskInterceptor = fallbackWebSocketTaskInterceptor
@@ -105,63 +102,43 @@ public actor WebSocketEngine: WebSocketClient {
     }
     
     /// Central event handler for ALL WebSocket events
-    /// Routes events based on current connection state
     private func handleWebSocketEvent(_ event: WebSocketTaskEvent) async {
-        switch connectionState {
-        case .idle:
-            // No connection attempt in progress, ignore events
+        switch (connectionState, event) {
+        // Ignore events when not actively connecting/connected
+        case (.idle, _), (.disconnected, _), (.connectionLost, _), (.failed, _):
             break
             
-        case .connecting:
-            // Initial connection phase - handle connection establishment or failure
-            await handleInitialConnectionEvent(event)
+        // Initial connection phase
+        case (.connecting, .didOpenWithProtocol(let proto)):
+            resumeConnection(with: proto)
             
-        case .connected:
-            // Connection is active - handle disconnection events
-            await handleOngoingConnectionEvent(event)
+        case (.connecting, .didOpenWithError(let err)):
+            resumeConnection(throwing: .connectionFailed(underlying: err))
             
-        case .disconnected, .connectionLost, .failed:
-            // Already disconnected, ignore further events
-            break
+        case (.connecting, .didClose(let code, let reason)):
+            resumeConnection(throwing: .unexpectedDisconnection(code: code, reason: parseReason(reason)))
+            
+        // Active connection phase
+        case (.connected, .didClose(let code, let reason)):
+            await handleConnectionLoss(error: .unexpectedDisconnection(code: code, reason: parseReason(reason)))
+            
+        case (.connected, _):
+            break // Ignore redundant open events when already connected
         }
     }
-    
-    /// Handles events during initial connection phase
-    private func handleInitialConnectionEvent(_ event: WebSocketTaskEvent) async {
-        guard let continuation = connectionContinuation else { return }
-        
-        // Clear the continuation so we only handle the first event
+
+    private func resumeConnection(with protocol: String?) {
+        connectionContinuation?.resume(returning: `protocol`)
         connectionContinuation = nil
-        
-        switch event {
-        case .didOpenWithProtocol(let proto):
-            continuation.resume(returning: proto)
-            
-        case .didOpenWithError(let err):
-            let error = WebSocketError.connectionFailed(underlying: err)
-            continuation.resume(throwing: error)
-            
-        case .didClose(let code, let reason):
-            let reasonStr = reason.flatMap { String(data: $0, encoding: .utf8) }
-            let error = WebSocketError.unexpectedDisconnection(code: code, reason: reasonStr)
-            continuation.resume(throwing: error)
-        }
     }
-    
-    /// Handles events after connection is established
-    private func handleOngoingConnectionEvent(_ event: WebSocketTaskEvent) async {
-        switch event {
-        case .didOpenWithProtocol, .didOpenWithError:
-            // Shouldn't happen when already connected, but ignore
-            break
-            
-        case .didClose(let code, let reason):
-            // Server explicitly closed or OS detected closure
-            let reasonStr = reason.flatMap { String(data: $0, encoding: .utf8) }
-            let error = WebSocketError.unexpectedDisconnection(code: code, reason: reasonStr)
-            
-            await handleConnectionLoss(error: error)
-        }
+
+    private func resumeConnection(throwing error: WebSocketError) {
+        connectionContinuation?.resume(throwing: error)
+        connectionContinuation = nil
+    }
+
+    private func parseReason(_ reason: Data?) -> String? {
+        reason.flatMap { String(data: $0, encoding: .utf8) }
     }
     
     // MARK: Connection
