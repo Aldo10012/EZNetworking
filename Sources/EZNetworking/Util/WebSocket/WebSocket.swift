@@ -313,8 +313,37 @@ public actor WebSocketEngine: WebSocketClient {
     }
     
     // MARK: - Receiving messages
-    public func messages() throws -> AsyncStream<InboundMessage> {
-        
+    nonisolated public func receiveMessage() -> AsyncStream<InboundMessage> {
+        AsyncStream { continuation in
+            Task { [weak self] in
+                guard let self else {
+                    continuation.finish()
+                    return
+                }
+                await self.startReceivingMessages(continuation)
+            }
+        }
+    }
+
+    private func startReceivingMessages(_ continuation: AsyncStream<InboundMessage>.Continuation) async {
+        guard let task = webSocketTask else {
+            continuation.finish()
+            return
+        }
+        self.messageContinuation = continuation
+
+        while await isConnectedState() {
+            do {
+                let message = try await task.receive()
+                continuation.yield(message)
+            } catch {
+                continuation.finish()
+                await handleConnectionLoss(error: .receiveFailed(underlying: error))
+                return
+            }
+        }
+
+        continuation.finish()
     }
 }
 
