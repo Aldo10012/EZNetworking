@@ -42,6 +42,9 @@ class MockFileUploaderURLSession: URLSessionTaskProtocol {
     func uploadTask(with request: URLRequest, from bodyData: Data?, completionHandler: @escaping @Sendable (Data?, URLResponse?, (any Error)?) -> Void) -> URLSessionUploadTask {
         URLSessionUploadTask()
     }
+    func webSocketTaskInspectable(with: URL, protocols: [String]) -> WebSocketTaskProtocol {
+        MockURLSessionWebSocketTask()
+    }
 }
 
 extension MockFileUploaderURLSession {
