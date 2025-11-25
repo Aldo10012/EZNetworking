@@ -262,6 +262,8 @@ public actor WebSocketEngine: WebSocketClient {
             let maxFailures = 3
             
             while await self.isConnectedState() {
+                try Task.checkCancellation()
+                
                 do {
                     try await self.sendPing()
                     consecutiveFailures = 0
@@ -276,6 +278,7 @@ public actor WebSocketEngine: WebSocketClient {
                 }
                 
                 try? await Task.sleep(nanoseconds: intervalSeconds * 1_000_000_000)
+                try Task.checkCancellation()
             }
         }
     }
