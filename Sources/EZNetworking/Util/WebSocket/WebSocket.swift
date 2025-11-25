@@ -174,7 +174,11 @@ public actor WebSocketEngine: WebSocketClient {
     
     // MARK: Connection
     
-    public func connect(with url: URL, protocols: [String] = []) async throws {
+    public func connect(with url: URL) async throws {
+        try await connect(with: url, protocols: [])
+    }
+    
+    public func connect(with url: URL, protocols: [String]) async throws {
         // Step 1: Check if already connected to web socket
         if case .connected(protocol: _) = connectionState {
             throw WebSocketError.alreadyConnected
@@ -223,8 +227,12 @@ public actor WebSocketEngine: WebSocketClient {
     
     // MARK: Disconnect
     
+    public func disconnect() async {
+        await disconnect(with: .normalClosure, reason: nil)
+    }
+    
     /// user disconnects web socket connection
-    public func disconnect(with closeCode: URLSessionWebSocketTask.CloseCode = .normalClosure, reason: Data? = nil) async {
+    public func disconnect(with closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?) async {
         updateConnectionState(.disconnected)
         webSocketTask?.cancel(with: closeCode, reason: reason)
         messageContinuation?.finish()
@@ -305,7 +313,9 @@ public actor WebSocketEngine: WebSocketClient {
     }
     
     // MARK: - Receiving messages
-
+    public func messages() throws -> AsyncStream<InboundMessage> {
+        
+    }
 }
 
 extension WebSocketEngine {
