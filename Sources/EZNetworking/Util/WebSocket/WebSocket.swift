@@ -14,7 +14,7 @@ public actor WebSocketEngine: WebSocketClient {
     private var webSocketTask: WebSocketTaskProtocol? // URLSessionWebSocketTask protocol
     
     // AsyncStream Continuations
-    private var messageContinuation: AsyncStream<InboundMessage>.Continuation?
+    private var messageContinuation: AsyncThrowingStream<InboundMessage, Error>.Continuation?
     private var connectionStateContinuation: AsyncStream<WebSocketConnectionState>.Continuation?
     
     // Connection handling
@@ -22,6 +22,7 @@ public actor WebSocketEngine: WebSocketClient {
     
     // State
     private var connectionState: WebSocketConnectionState = .idle
+    private var messageStreamCreated = false
     
     // Connection state stream
     public private(set) lazy var connectionStateStream: AsyncStream<WebSocketConnectionState> = {
@@ -235,16 +236,24 @@ public actor WebSocketEngine: WebSocketClient {
     public func disconnect(with closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?) async {
         updateConnectionState(.disconnected)
         webSocketTask?.cancel(with: closeCode, reason: reason)
-        messageContinuation?.finish()
+        
         connectionContinuation = nil
+
+        messageContinuation?.finish()
+        messageContinuation = nil
+        messageStreamCreated = false
     }
     
     /// connection is lost. Internal
     private func handleConnectionLoss(error: WebSocketError) async {
         updateConnectionState(.connectionLost(reason: error))
         webSocketTask?.cancel(with: .goingAway, reason: nil)
-        messageContinuation?.finish()
+        
         connectionContinuation = nil
+        
+        messageContinuation?.finish()
+        messageContinuation = nil
+        messageStreamCreated = false
     }
     
     // MARK: - Ping loop
@@ -313,38 +322,105 @@ public actor WebSocketEngine: WebSocketClient {
     }
     
     // MARK: - Receiving messages
-    nonisolated public func receiveMessage() -> AsyncStream<InboundMessage> {
-        AsyncStream { continuation in
-            Task { [weak self] in
+    
+    nonisolated public func receiveMessages() -> AsyncThrowingStream<InboundMessage, Error> {
+        return AsyncThrowingStream<InboundMessage, Error> { continuation in
+            let task = Task { [weak self] in
                 guard let self else {
                     continuation.finish()
                     return
                 }
+                await self.setMessageContinuation(continuation)
                 await self.startReceivingMessages(continuation)
+            }
+            continuation.onTermination = { @Sendable _ in
+                task.cancel()
             }
         }
     }
-
-    private func startReceivingMessages(_ continuation: AsyncStream<InboundMessage>.Continuation) async {
-        guard let task = webSocketTask else {
-            continuation.finish()
+    
+    // Helper to set continuation on actor
+    private func setMessageContinuation(
+        _ continuation: AsyncThrowingStream<InboundMessage, Error>.Continuation
+    ) {
+        guard case .connected = connectionState else {
+            continuation.finish(throwing: WebSocketError.notConnected)
             return
         }
+        guard !messageStreamCreated else {
+            continuation.finish(throwing: WebSocketError.streamAlreadyCreated)
+            return
+        }
+        
         self.messageContinuation = continuation
+        messageStreamCreated = true
 
+    }
+    
+    private func startReceivingMessages(
+        _ continuation: AsyncThrowingStream<InboundMessage, Error>.Continuation
+    ) async {
+        guard let task = webSocketTask else {
+            continuation.finish(throwing: WebSocketError.notConnected)
+            return
+        }
+        
         while await isConnectedState() {
             do {
                 let message = try await task.receive()
                 continuation.yield(message)
             } catch {
-                continuation.finish()
-                await handleConnectionLoss(error: .receiveFailed(underlying: error))
+                let wsError = WebSocketError.receiveFailed(underlying: error)
+                
+                print("Receive failed: \(wsError)")
+                
+                // Notify the engine that the connection is no longer valid
+                await handleConnectionLoss(error: wsError)
+                
+                // IMPORTANT: finish WITH an error
+                continuation.finish(throwing: wsError)
                 return
             }
         }
-
+        
+        // If loop exits, connection state changed
         continuation.finish()
     }
+
+    
+    
+//    nonisolated public func receiveMessage() -> AsyncStream<InboundMessage> {
+//        AsyncStream { continuation in
+//            Task { [weak self] in
+//                guard let self else {
+//                    continuation.finish()
+//                    return
+//                }
+//                await self.startReceivingMessages(continuation)
+//            }
+//        }
+//    }
+//
+//    private func startReceivingMessages(_ continuation: AsyncStream<InboundMessage>.Continuation) async {
+//        guard let task = webSocketTask else {
+//            continuation.finish()
+//            return
+//        }
+//        self.messageContinuation = continuation
+//
+//        while await isConnectedState() {
+//            do {
+//                let message = try await task.receive()
+//                continuation.yield(message)
+//            } catch {
+//                continuation.finish()
+//                await handleConnectionLoss(error: .receiveFailed(underlying: error))
+//                return
+//            }
+//        }
+//
+//        continuation.finish()
+//    }
 }
 
 extension WebSocketEngine {

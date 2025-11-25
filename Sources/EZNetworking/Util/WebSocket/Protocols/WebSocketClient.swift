@@ -24,7 +24,7 @@ public protocol WebSocketClient {
     func send(_ message: OutboundMessage) async throws
     
     /// Stream of incoming messages
-    func receiveMessage() throws -> AsyncStream<InboundMessage>
+    func receiveMessages() -> AsyncThrowingStream<InboundMessage, Error>
     
     // MARK: - State Observation
     
