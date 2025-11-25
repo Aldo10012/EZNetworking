@@ -70,9 +70,6 @@ public actor WebSocketEngine: WebSocketClient {
         }
         self.validator = validator
         self.requestDecoder = requestDecoder
-        
-//        // Set up the event handler ONCE during initialization
-//        setupWebSocketEventHandler()
     }
     
     deinit {
