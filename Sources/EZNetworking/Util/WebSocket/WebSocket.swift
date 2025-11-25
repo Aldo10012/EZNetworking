@@ -342,7 +342,7 @@ public actor WebSocketEngine: WebSocketClient {
     // Helper to set continuation on actor
     private func setMessageContinuation(
         _ continuation: AsyncThrowingStream<InboundMessage, Error>.Continuation
-    ) {
+    ) async {
         guard case .connected = connectionState else {
             continuation.finish(throwing: WebSocketError.notConnected)
             return
