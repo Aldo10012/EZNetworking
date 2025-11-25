@@ -296,6 +296,12 @@ public actor WebSocketEngine: WebSocketClient {
         guard let task = webSocketTask else {
             throw WebSocketError.taskNotInitialized
         }
+        
+        do {
+            try await task.send(message)
+        } catch {
+            throw WebSocketError.sendFailed(underlying: error)
+        }
     }
     
     // MARK: - Receiving messages
