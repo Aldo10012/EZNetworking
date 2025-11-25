@@ -251,34 +251,45 @@ public actor WebSocketEngine: WebSocketClient {
         messageContinuation?.finish()
         messageContinuation = nil
         messageStreamCreated = false
+        
+        pingTask?.cancel()
     }
     
     // MARK: - Ping loop
+    
+    private var pingTask: Task<Void, Never>?
+    
     private func startPingLoop(intervalSeconds: UInt64) {
-        Task { [weak self] in
+        pingTask?.cancel() // just in case — avoid duplicates
+        
+        pingTask = Task { [weak self] in
             guard let self else { return }
             
-            var consecutiveFailures = 0
-            let maxFailures = 3
-            
-            while await self.isConnectedState() {
-                try Task.checkCancellation()
+            do {
+                var consecutiveFailures = 0
+                let maxFailures = 3
                 
-                do {
-                    try await self.sendPing()
-                    consecutiveFailures = 0
-                } catch {
-                    consecutiveFailures += 1
+                while await self.isConnectedState() {
+                    try Task.checkCancellation()
+
+                    do {
+                        try await self.sendPing()
+                        consecutiveFailures = 0
+                    } catch {
+                        consecutiveFailures += 1
+                    }
+                    
+                    if consecutiveFailures >= maxFailures {
+                        let error = WebSocketError.keepAliveFailure(consecutiveFailures: consecutiveFailures)
+                        await self.handleConnectionLoss(error: error)
+                        break
+                    }
+
+                    try Task.checkCancellation()
+                    try await Task.sleep(nanoseconds: intervalSeconds * 1_000_000_000)
                 }
-                
-                if consecutiveFailures >= maxFailures {
-                    let error = WebSocketError.keepAliveFailure(consecutiveFailures: consecutiveFailures)
-                    await self.handleConnectionLoss(error: error)
-                    break
-                }
-                
-                try? await Task.sleep(nanoseconds: intervalSeconds * 1_000_000_000)
-                try Task.checkCancellation()
+            } catch {
+                // Task was cancelled — nothing to do
             }
         }
     }
