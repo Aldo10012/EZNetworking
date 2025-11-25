@@ -3,8 +3,6 @@ import Foundation
 public actor WebSocketEngine: WebSocketClient {
     // Dependencies
     private let urlSession: URLSessionTaskProtocol
-    private let validator: ResponseValidator
-    private let requestDecoder: RequestDecodable
     
     // Delegate & Interceptors
     private var sessionDelegate: SessionDelegate
@@ -43,8 +41,6 @@ public actor WebSocketEngine: WebSocketClient {
     
     public init(
         urlSession: URLSessionTaskProtocol = URLSession.shared,
-        validator: ResponseValidator = ResponseValidatorImpl(),
-        requestDecoder: RequestDecodable = RequestDecoder(),
         sessionDelegate: SessionDelegate? = nil // Now optional!
     ) {
         if let urlSession = urlSession as? URLSession {
@@ -68,8 +64,6 @@ public actor WebSocketEngine: WebSocketClient {
             self.sessionDelegate = sessionDelegate ?? SessionDelegate()
             self.urlSession = urlSession
         }
-        self.validator = validator
-        self.requestDecoder = requestDecoder
     }
     
     deinit {
