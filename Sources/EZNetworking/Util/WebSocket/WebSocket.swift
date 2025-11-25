@@ -234,23 +234,23 @@ public actor WebSocketEngine: WebSocketClient {
     
     /// user disconnects web socket connection
     public func disconnect(with closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?) async {
-        updateConnectionState(.disconnected)
-        webSocketTask?.cancel(with: closeCode, reason: reason)
-        
-        connectionContinuation = nil
-
-        messageContinuation?.finish()
-        messageContinuation = nil
-        messageStreamCreated = false
+        await _disconnect(with: closeCode, newConnectionState: .disconnected, reason: reason)
     }
     
     /// connection is lost. Internal
     private func handleConnectionLoss(error: WebSocketError) async {
-        updateConnectionState(.connectionLost(reason: error))
-        webSocketTask?.cancel(with: .goingAway, reason: nil)
+        await _disconnect(with: .goingAway, newConnectionState: .connectionLost(reason: error), reason: nil)
+    }
+    
+    /// handle updating cancellation state and cancelling continuations
+    public func _disconnect(with closeCode: URLSessionWebSocketTask.CloseCode,
+                            newConnectionState: WebSocketConnectionState,
+                            reason: Data?) async {
+        updateConnectionState(newConnectionState)
+        webSocketTask?.cancel(with: closeCode, reason: reason)
         
         connectionContinuation = nil
-        
+
         messageContinuation?.finish()
         messageContinuation = nil
         messageStreamCreated = false
