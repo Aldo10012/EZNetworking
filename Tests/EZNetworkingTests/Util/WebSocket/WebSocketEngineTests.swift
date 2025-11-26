@@ -30,12 +30,39 @@ final class WebSocketEngineTests_connect {
         }
     }
     
+    @Test("test calling .connect() does call WebSocketTask.resume()")
+    func testCallingConnectDoesCallWebSocketTaskResume() async throws {
+        let wsTask = MockURLSessionWebSocketTask()
+        let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
+        let sut = WebSocketEngine(urlSession: urlSession, sessionDelegate: nil)
+        
+        // first time connect succeeds
+        try await sut.connect(with: webSocketUrl, protocols: [])
+        
+        #expect(wsTask.didCallResume == true)
+    }
+    
 }
 
 // MARK: Test .disconnect()
 
 @Suite("Test WebSocketEngine .disconnect()")
 final class WebSocketEngineTests_disconnect {
+    
+    @Test("test calling .disconnect() does call WebSocketTask.resume()")
+    func testCallingDisconnectDoesCallWebSocketTaskResume() async throws {
+        let wsTask = MockURLSessionWebSocketTask()
+        let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
+        let sut = WebSocketEngine(urlSession: urlSession, sessionDelegate: nil)
+        
+        // first time connect succeeds
+        try await sut.connect(with: webSocketUrl, protocols: [])
+        await sut.disconnect(with: .goingAway, reason: nil)
+        
+        #expect(wsTask.didCallCancel == true)
+        #expect(wsTask.didCancelWithCloseCode == .goingAway)
+        #expect(wsTask.didCancelWithReason == nil)
+    }
     
 }
 
@@ -50,11 +77,6 @@ final class WebSocketEngineTests_connectionStateStream {
         let sut = WebSocketEngine(urlSession: urlSession, sessionDelegate: nil)
 
         var receivedConnectionState = [WebSocketConnectionState]()
-        let expected: [WebSocketConnectionState] = [
-            .connecting,
-            .connected(protocol: "test"),
-            .disconnected
-        ]
 
         // Start listening to the stream concurrently
         let streamTask = Task {
@@ -68,7 +90,11 @@ final class WebSocketEngineTests_connectionStateStream {
         
         _ = await streamTask.value
         
-        #expect(receivedConnectionState == expected)
+        #expect(receivedConnectionState == [
+            .connecting,
+            .connected(protocol: "test"),
+            .disconnected
+        ])
     }
 }
 

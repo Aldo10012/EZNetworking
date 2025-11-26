@@ -10,11 +10,20 @@ class MockURLSessionWebSocketTask: WebSocketTaskProtocol {
     // MARK: resume()
     
     var resumeClosure: () -> Void
+    var didCallResume = false
     func resume() {
+        didCallResume = true
         resumeClosure()
     }
 
-    func cancel(with closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?) {}
+    var didCallCancel = false
+    var didCancelWithCloseCode: URLSessionWebSocketTask.CloseCode?
+    var didCancelWithReason: Data?
+    func cancel(with closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?) {
+        didCallCancel = true
+        didCancelWithCloseCode = closeCode
+        didCancelWithReason = reason
+    }
 
     func send(_ message: URLSessionWebSocketTask.Message, completionHandler: @escaping @Sendable ((any Error)?) -> Void) { }
 

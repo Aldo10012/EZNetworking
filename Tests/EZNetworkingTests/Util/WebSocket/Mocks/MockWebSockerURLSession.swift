@@ -2,14 +2,18 @@ import Foundation
 import EZNetworking
 
 class MockWebSockerURLSession: URLSessionTaskProtocol {
+    private let webSocketTask: MockURLSessionWebSocketTask
+    
     var didCallWebSocketTaskInspectable = false
 
-    init() {}
+    init(webSocketTask: MockURLSessionWebSocketTask = MockURLSessionWebSocketTask()) {
+        self.webSocketTask = webSocketTask
+    }
     
     func webSocketTaskInspectable(with: URL, protocols: [String]) -> WebSocketTaskProtocol {
         didCallWebSocketTaskInspectable = true
         
-        return MockURLSessionWebSocketTask()
+        return webSocketTask
     }
 }
 
