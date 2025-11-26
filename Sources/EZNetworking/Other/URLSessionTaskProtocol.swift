@@ -10,7 +10,7 @@ public protocol URLSessionTaskProtocol {
 
     func uploadTask(with request: URLRequest, fromFile fileURL: URL, completionHandler: @escaping @Sendable (Data?, URLResponse?, (any Error)?) -> Void) -> URLSessionUploadTask
 
-    func webSocketTaskInspectable(with url: URL, protocols: [String]) -> WebSocketTaskProtocol // URLSessionWebSocketTask protocol
+    func webSocketTaskInspectable(with url: URL, protocols: [String]) -> WebSocketTaskProtocol
 }
 
 extension URLSession: URLSessionTaskProtocol {
@@ -19,18 +19,3 @@ extension URLSession: URLSessionTaskProtocol {
         return task as WebSocketTaskProtocol
     }
 }
-
-// protocol to allow unit testing and mocking for URLSessionWebSocketTask
-public protocol WebSocketTaskProtocol {
-    func resume()
-    func cancel(with closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?)
-    func sendPing(pongReceiveHandler: @escaping @Sendable ((any Error)?) -> Void)
-    
-    func send(_ message: URLSessionWebSocketTask.Message) async throws
-    func send(_ message: URLSessionWebSocketTask.Message, completionHandler: @escaping @Sendable (Error?) -> Void)
-    
-    func receive() async throws -> URLSessionWebSocketTask.Message
-    func receive(completionHandler: @escaping @Sendable (Result<URLSessionWebSocketTask.Message, Error>) -> Void)
-}
-
-extension URLSessionWebSocketTask: WebSocketTaskProtocol {}
