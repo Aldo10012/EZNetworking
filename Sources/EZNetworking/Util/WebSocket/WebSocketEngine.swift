@@ -22,9 +22,9 @@ public actor WebSocketEngine: WebSocketClient {
             }
         }
     }
-    private let _connectionStateStream: AsyncStream<WebSocketConnectionState>
+    private nonisolated(unsafe) let _connectionStateStream: AsyncStream<WebSocketConnectionState>
     private let connectionStateContinuation: AsyncStream<WebSocketConnectionState>.Continuation
-    public var connectionStateStream: AsyncStream<WebSocketConnectionState> {
+    public nonisolated var connectionStateStream: AsyncStream<WebSocketConnectionState> {
         _connectionStateStream
     }
     
