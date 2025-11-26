@@ -9,35 +9,25 @@ public actor WebSocketEngine: WebSocketClient {
     // MARK: Connection State
     private var connectionState: WebSocketConnectionState = .idle {
         didSet {
-            connectionStateContinuation?.yield(connectionState)
+            connectionStateContinuation.yield(connectionState)
         }
     }
-    private var connectionStateContinuation: AsyncStream<WebSocketConnectionState>.Continuation?
-    
-    public private(set) lazy var connectionStateStream: AsyncStream<WebSocketConnectionState> = {
-        AsyncStream { [weak self] continuation in
-            guard let self else {
-                continuation.finish()
-                return
-            }
-            Task {
-                await self.setConnectionStateContinuation(continuation)
-                let currentState = await self.connectionState
-                continuation.yield(currentState)
-            }
-        }
-    }()
-    private func setConnectionStateContinuation(_ continuation: AsyncStream<WebSocketConnectionState>.Continuation) {
-        self.connectionStateContinuation = continuation
+    private let _connectionStateStream: AsyncStream<WebSocketConnectionState>
+    private let connectionStateContinuation: AsyncStream<WebSocketConnectionState>.Continuation
+    public var connectionStateStream: AsyncStream<WebSocketConnectionState> {
+        _connectionStateStream
     }
 
-    
     // MARK: - init
     
     public init(
         urlSession: URLSessionTaskProtocol = URLSession.shared,
         sessionDelegate: SessionDelegate? = nil
     ) {
+        let (stream, continuation) = AsyncStream<WebSocketConnectionState>.makeStream()
+        self._connectionStateStream = stream
+        self.connectionStateContinuation = continuation
+        
         if let urlSession = urlSession as? URLSession {
             if let existingDelegate = urlSession.delegate as? SessionDelegate {
                 self.sessionDelegate = existingDelegate
@@ -93,6 +83,13 @@ public actor WebSocketEngine: WebSocketClient {
     }
     
     // MARK: - Disconnect
+    
+    public func disconnect(with closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?) async {
+        webSocketTask?.cancel(with: closeCode, reason: reason)
+        webSocketTask = nil
+        connectionState = .disconnected
+        connectionStateContinuation.finish()
+    }
     
     // TODO: Implement
 
