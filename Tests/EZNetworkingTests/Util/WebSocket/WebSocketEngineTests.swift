@@ -2,11 +2,11 @@
 import Foundation
 import Testing
 
-@Suite("Test WebSocketEngine")
-final class WebSocketEngineTests {
-    
-    // MARK: Test connection
-    
+// MARK: Test .connect()
+
+@Suite("Test WebSocketEngine .connect()")
+final class WebSocketEngineTests_connect {
+        
     @Test("test calling .connect() calls .didCallWebSocketTaskInspectable")
     func testCallingConnectcallsDidCallWebSocketTaskInterceptable() async throws {
         let urlSession = MockWebSockerURLSession()
@@ -17,7 +17,7 @@ final class WebSocketEngineTests {
     }
     
     @Test("test calling .connect() a second time throws WebSocketError.alreadyConnected")
-    func fooCallingConnectTwiceThrowsAlreadyConnected() async throws {
+    func testCallingConnectTwiceThrowsAlreadyConnected() async throws {
         let urlSession = MockWebSockerURLSession()
         let sut = WebSocketEngine(urlSession: urlSession, sessionDelegate: nil)
         
@@ -30,6 +30,19 @@ final class WebSocketEngineTests {
         }
     }
     
+}
+
+// MARK: Test .disconnect()
+
+@Suite("Test WebSocketEngine .disconnect()")
+final class WebSocketEngineTests_disconnect {
+    
+}
+
+// MARK: Test .connectionStateStream
+
+@Suite("Test WebSocketEngine .connectionStateStream")
+final class WebSocketEngineTests_connectionStateStream {
     
     @Test("connectionStateStream yields expected states")
     func testConnectionStateStreamYieldsExpectedStates() async throws {
