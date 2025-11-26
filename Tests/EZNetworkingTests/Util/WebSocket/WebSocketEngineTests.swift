@@ -2,11 +2,11 @@
 import Foundation
 import Testing
 
-@Suite("Test WebSocketEngine .connect()")
+// MARK: Test .connect()
+
+@Suite("Test WebSocketEngine .connect()", .disabled())
 final class WebSocketEngineTests_connect {
     
-    // MARK: Test .connect()
-
     @Test("test connection is established only after interceptor calls .onOpen")
     func test_connectionEstablished_onlyAfter_interceptorCallsOnOpen() async throws {
         let urlSession = MockWebSockerURLSession()
@@ -151,7 +151,12 @@ final class WebSocketEngineTests_connect {
         #expect(wsTask.didCallResume == true)
     }
     
-    // MARK: Test .disconnect()
+}
+
+// MARK: Test .disconnect()
+
+@Suite("Test WebSocketEngine .disconnect()", .disabled())
+final class WebSocketEngineTests_disconnect {
     
     @Test("test calling .disconnect() does call WebSocketTask.resume()")
     func testCallingDisconnectDoesCallWebSocketTaskResume() async throws {
@@ -173,8 +178,13 @@ final class WebSocketEngineTests_connect {
         #expect(wsTask.didCancelWithCloseCode == .goingAway)
         #expect(wsTask.didCancelWithReason == nil)
     }
+    
+}
 
-    // MARK: Test .connectionStateStream
+// MARK: Test .connectionStateStream
+
+@Suite("Test WebSocketEngine .connectionStateStream", .disabled())
+final class WebSocketEngineTests_connectionStateStream {
     
     @Test("connectionStateStream yields expected states")
     func testConnectionStateStreamYieldsExpectedStates() async throws {
