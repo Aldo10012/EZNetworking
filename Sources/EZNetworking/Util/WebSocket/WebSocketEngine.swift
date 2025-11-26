@@ -30,4 +30,21 @@ public actor WebSocketEngine: WebSocketClient {
             self.urlSession = urlSession
         }
     }
+    
+    // MARK: - Connect
+    
+    // TODO: Implement
+    
+    // MARK: - Disconnect
+    
+    // TODO: Implement
+
+    // MARK: - Send message
+    
+    // TODO: Implement
+
+    // MARK: - Receive message
+    
+    // TODO: Implement
+
 }
