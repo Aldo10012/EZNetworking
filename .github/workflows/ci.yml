@@ -1,0 +1,56 @@
+name: EZNetworking CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+
+  # 1) Build + Test (Matrix)
+  build-and-test:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: swift-actions/setup-swift@v2
+        with:
+          swift-version: "5.10"
+      - name: Build
+        run: swift build --build-tests
+      - name: Run Tests
+        run: swift test --enable-code-coverage
+
+  # 2) Code Coverage Check
+  coverage-check:
+    runs-on: macos-latest
+    needs: build-and-test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: swift-actions/setup-swift@v2
+        with:
+          swift-version: "5.10"
+      - name: Run tests with coverage
+        run: swift test --enable-code-coverage
+      - name: Check Coverage Threshold (e.g. >= 80%)
+        run: |
+          COVERAGE=$(xcrun llvm-cov report \
+              .build/debug/EZNetworkingPackageTests.xctest \
+              --instr-profile=.build/debug/codecov/default.profdata | \
+              awk '/TOTAL/ { print substr($3, 1, length($3)-1) }')
+
+          echo "Total Coverage: ${COVERAGE}%"
+          
+          if (( $(echo "$COVERAGE < 80" | bc -l) )); then
+            echo "::error ::Code coverage ($COVERAGE%) is below required 80%"
+            exit 1
+          fi
+
+  # 3) Linting
+  lint:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install SwiftLint
+        run: brew install swiftlint
+      - name: Run SwiftLint
+        run: swiftlint --strict
