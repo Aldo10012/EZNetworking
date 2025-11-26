@@ -6,6 +6,10 @@ public actor WebSocketEngine: WebSocketClient {
     private let sessionDelegate: SessionDelegate?
     private var webSocketTask: WebSocketTaskProtocol?
     
+    // Connectino State
+    private var connectionState: WebSocketConnectionState = .idle
+
+    
     // MARK: - init
     
     public init(
@@ -35,15 +39,34 @@ public actor WebSocketEngine: WebSocketClient {
     // MARK: - Connect
     
     public func connect(with url: URL, protocols: [String]) async throws {
-        guard webSocketTask == nil else {
+        if case .connecting = connectionState {
+            throw WebSocketError.stillConnecting
+        }
+        if case .connected(protocol: _) = connectionState {
             throw WebSocketError.alreadyConnected
         }
         
         webSocketTask = urlSession.webSocketTaskInspectable(with: url, protocols: protocols)
         webSocketTask?.resume()
         
-        // TODO: listen for open event from the delegate
+        connectionState = .connecting
         
+        try await waitForConnection()
+        
+        connectionState = .connected(protocol: "") // add protocol
+        
+        startPingLoop(intervalSeconds: 30)
+    }
+    
+    // MARK: wait for connection
+    
+    private func waitForConnection() async throws {
+        // TODO: listen for open event from the delegate
+    }
+    
+    // MARK: ping loop
+    
+    private func startPingLoop(intervalSeconds: UInt64) {
         // TODO: set up ping-pong
     }
     
