@@ -33,4 +33,7 @@ class MockRequestPerformerURLSession: URLSessionTaskProtocol {
     func uploadTask(with request: URLRequest, fromFile fileURL: URL, completionHandler: @escaping @Sendable (Data?, URLResponse?, (any Error)?) -> Void) -> URLSessionUploadTask {
         URLSessionUploadTask()
     }
+    func webSocketTaskInspectable(with: URL, protocols: [String]) -> WebSocketTaskProtocol {
+        MockURLSessionWebSocketTask()
+    }
 }
