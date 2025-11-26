@@ -48,6 +48,18 @@ public actor WebSocketEngine: WebSocketClient {
         }
     }
     
+    // MARK: deinit
+    
+    deinit {
+        // update state
+        connectionState = .disconnected
+        // finish all continuations
+        connectionStateContinuation.finish()
+        // messageContinuation?.finish() TODO: for future
+        // cancel task
+        webSocketTask?.cancel(with: .normalClosure, reason: nil)
+    }
+    
     // MARK: - Connect
     
     public func connect(with url: URL, protocols: [String]) async throws {
