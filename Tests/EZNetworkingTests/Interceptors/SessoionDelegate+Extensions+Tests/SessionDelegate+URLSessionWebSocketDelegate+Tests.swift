@@ -33,22 +33,44 @@ final class SessionDelegateURLSessionWebSocketDelegateTests {
         #expect(webSocketInterceptor.receivedCloseCode == closeCode)
         #expect(webSocketInterceptor.receivedReason == reasonData)
     }
+    
+    @Test("test SessionDelegate WebSocket didCompleteWithError")
+    func testSessionDelegateWebSocketDidCompleteWithError() {
+        let webSocketInterceptor = MockWebSocketTaskInterceptor()
+        let delegate = SessionDelegate()
+        delegate.webSocketTaskInterceptor = webSocketInterceptor
+        
+        
+        let error = NSError(domain: "test", code: 0)
+        delegate.urlSession(.shared, task: .init(), didCompleteWithError: error)
+        
+        #expect(webSocketInterceptor.didCompleteWithError)
+        #expect(webSocketInterceptor.receivedError as? NSError == error)
+    }
 }
 
 // MARK: mock class
 
 private class MockWebSocketTaskInterceptor: WebSocketTaskInterceptor {
-    var didOpenWithProtocol = false
-    var didCloseWithCodeAndReason = false
-    var receivedProtocol: String?
-    var receivedCloseCode: URLSessionWebSocketTask.CloseCode?
-    var receivedReason: Data?
+    var onEvent: ((WebSocketTaskEvent) -> Void)? = { _ in }
     
+    var didOpenWithProtocol = false
+    var receivedProtocol: String?
     func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didOpenWithProtocol protocol: String?) {
         didOpenWithProtocol = true
         receivedProtocol = `protocol`
     }
     
+    var didCompleteWithError = false
+    var receivedError: Error?
+    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: any Error) {
+        didCompleteWithError = true
+        receivedError = error
+    }
+    
+    var didCloseWithCodeAndReason = false
+    var receivedCloseCode: URLSessionWebSocketTask.CloseCode?
+    var receivedReason: Data?
     func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didCloseWith closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?) {
         didCloseWithCodeAndReason = true
         receivedCloseCode = closeCode
@@ -61,4 +83,3 @@ private class MockWebSocketTaskInterceptor: WebSocketTaskInterceptor {
 private var mockURLSessionWebSocketTask: URLSessionWebSocketTask {
     URLSession.shared.webSocketTask(with: URL(string: "wss://www.example.com")!)
 }
-

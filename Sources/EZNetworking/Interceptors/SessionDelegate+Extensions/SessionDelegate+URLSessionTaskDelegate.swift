@@ -28,6 +28,10 @@ extension SessionDelegate: URLSessionTaskDelegate {
                           task: URLSessionTask,
                           didCompleteWithError error: Error?) {
         taskLifecycleInterceptor?.urlSession(session, task: task, didCompleteWithError: error)
+        
+        if let error = error {
+            webSocketTaskInterceptor?.urlSession(session, task: task, didCompleteWithError: error)
+        }
     }
 
     public func urlSession(_ session: URLSession,
