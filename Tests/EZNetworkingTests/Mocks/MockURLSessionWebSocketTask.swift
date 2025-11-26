@@ -2,9 +2,17 @@ import Foundation
 import EZNetworking
 
 class MockURLSessionWebSocketTask: WebSocketTaskProtocol {
-    init() {}
 
-    func resume() {}
+    init(resumeClosure: @escaping (() -> Void) = {}) {
+        self.resumeClosure = resumeClosure
+    }
+    
+    // MARK: resume()
+    
+    var resumeClosure: () -> Void
+    func resume() {
+        resumeClosure()
+    }
 
     func cancel(with closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?) {}
 
