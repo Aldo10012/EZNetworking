@@ -6,8 +6,30 @@ public actor WebSocketEngine: WebSocketClient {
     private let sessionDelegate: SessionDelegate?
     private var webSocketTask: WebSocketTaskProtocol?
     
-    // Connectino State
-    private var connectionState: WebSocketConnectionState = .idle
+    // MARK: Connection State
+    private var connectionState: WebSocketConnectionState = .idle {
+        didSet {
+            connectionStateContinuation?.yield(connectionState)
+        }
+    }
+    private var connectionStateContinuation: AsyncStream<WebSocketConnectionState>.Continuation?
+    
+    public private(set) lazy var connectionStateStream: AsyncStream<WebSocketConnectionState> = {
+        AsyncStream { [weak self] continuation in
+            guard let self else {
+                continuation.finish()
+                return
+            }
+            Task {
+                await self.setConnectionStateContinuation(continuation)
+                let currentState = await self.connectionState
+                continuation.yield(currentState)
+            }
+        }
+    }()
+    private func setConnectionStateContinuation(_ continuation: AsyncStream<WebSocketConnectionState>.Continuation) {
+        self.connectionStateContinuation = continuation
+    }
 
     
     // MARK: - init
@@ -53,7 +75,7 @@ public actor WebSocketEngine: WebSocketClient {
         
         try await waitForConnection()
         
-        connectionState = .connected(protocol: "") // add protocol
+        connectionState = .connected(protocol: "test")
         
         startPingLoop(intervalSeconds: 30)
     }

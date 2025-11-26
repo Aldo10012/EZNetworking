@@ -29,6 +29,35 @@ final class WebSocketEngineTests {
             try await sut.connect(with: webSocketUrl, protocols: [])
         }
     }
+    
+    
+    @Test("connectionStateStream yields expected states",
+        .disabled("keeps getting stuck in observing conneciton state stream") // TODO: fix
+    )
+    func testConnectionStateStreamYieldsExpectedStates() async throws {
+        let urlSession = MockWebSockerURLSession()
+        let sut = WebSocketEngine(urlSession: urlSession, sessionDelegate: nil)
+
+        var receivedConnectionState = [WebSocketConnectionState]()
+        let expected: [WebSocketConnectionState] = [
+            .connecting,
+            .connected(protocol: "test")
+        ]
+
+        let streamTask = Task {
+            var iterator = await sut.connectionStateStream.makeAsyncIterator()
+            while let state = await iterator.next(), receivedConnectionState.count < expected.count {
+                receivedConnectionState.append(state)
+            }
+        }
+
+        try await sut.connect(with: webSocketUrl, protocols: [])
+
+        // Wait for the stream to yield the expected number of states
+        _ = try await streamTask.value
+
+        #expect(expected == receivedConnectionState)
+    }
 }
 
 private let webSocketUrl = URL(string: "ws://127.0.0.1:8080/example")!
