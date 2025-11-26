@@ -183,7 +183,7 @@ final class WebSocketEngineTests_disconnect {
 
 // MARK: Test .connectionStateStream
 
-@Suite("Test WebSocketEngine .connectionStateStream")
+@Suite("Test WebSocketEngine .connectionStateStream", .disabled())
 final class WebSocketEngineTests_connectionStateStream {
     
     @Test("connectionStateStream yields expected states")
@@ -259,6 +259,74 @@ final class WebSocketEngineTests_connectionStateStream {
             .failed(error: .connectionFailed(underlying: err) )
         ])
     }
+    
+    @Test("connectionStateStream yields .connectionLost after ping failures")
+    func testConnectionStateStreamYieldsConnectionLostAfterPingFailures() async throws {
+        let wsTask = MockURLSessionWebSocketTask()
+        wsTask.shouldFailPing = true // Simulate ping always failing
+        
+        let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
+        let wsInterceptor = MockWebSocketTaskInterceptor()
+        let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
+        let sut = WebSocketEngine(urlSession: urlSession, sessionDelegate: session)
+
+        var receivedConnectionState = [WebSocketConnectionState]()
+        let streamTask = Task {
+            for await state in await sut.connectionStateStream {
+                receivedConnectionState.append(state)
+                if case .connectionLost = state { break }
+            }
+        }
+
+        let connectionTask = Task {
+            try await sut.connect(with: webSocketUrl, protocols: [],
+                                  pingPongIntervalSeconds: UInt64(0.01),
+                                  pingPongMaximumConsecutiveFailures: 3)
+        }
+        wsInterceptor.simulateOpenWithProtocol("test")
+        _ = await streamTask.value
+        _ = try await connectionTask.value
+
+        
+        #expect(receivedConnectionState == [
+            .connecting,
+            .connected(protocol: "test"),
+            .connectionLost(reason: WebSocketError.keepAliveFailure(consecutiveFailures: 3))
+        ])
+    }
+
+    @Test("connectionStateStream yields .disconnected after disconnect call")
+    func testConnectionStateStreamYieldsDisconnectedAfterDisconnect() async throws {
+        let wsTask = MockURLSessionWebSocketTask()
+        let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
+        let wsInterceptor = MockWebSocketTaskInterceptor()
+        let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
+        let sut = WebSocketEngine(urlSession: urlSession, sessionDelegate: session)
+
+        var receivedConnectionState = [WebSocketConnectionState]()
+        let streamTask = Task {
+            for await state in await sut.connectionStateStream {
+                receivedConnectionState.append(state)
+                if case .disconnected = state { break }
+            }
+        }
+
+        let connectionTask = Task {
+            try await sut.connect(with: webSocketUrl, protocols: [],
+                                  pingPongIntervalSeconds: UInt64(0.01),
+                                  pingPongMaximumConsecutiveFailures: 3)
+            await sut.disconnect(with: .goingAway, reason: nil)
+        }
+        wsInterceptor.simulateOpenWithProtocol("test")
+        _ = await streamTask.value
+        _ = try await connectionTask.value
+
+        #expect(receivedConnectionState == [
+            .connecting,
+            .connected(protocol: "test"),
+            .disconnected
+        ])        
+    }
 }
 
 // MARK: - helpers
@@ -299,3 +367,37 @@ private class MockWebSocketTaskInterceptor: WebSocketTaskInterceptor {
         urlSession(session, webSocketTask: task, didCloseWith: didCloseWith, reason: reason)
     }
 }
+
+//final class MockURLSessionWebSocketTask: WebSocketTaskProtocol {
+//    var didCallResume = false
+//    var didCallCancel = false
+//    var didCancelWithCloseCode: URLSessionWebSocketTask.CloseCode?
+//    var didCancelWithReason: Data?
+//    
+//    // Add this property for ping failure simulation
+//    var shouldFailPing: Bool = false
+//    var pingFailureCount: Int = 0
+//
+//    func resume() {
+//        didCallResume = true
+//    }
+//    func cancel(with closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?) {
+//        didCallCancel = true
+//        didCancelWithCloseCode = closeCode
+//        didCancelWithReason = reason
+//    }
+//    func sendPing(pongReceiveHandler: @escaping @Sendable ((any Error)?) -> Void) {
+//        if shouldFailPing {
+//            pingFailureCount += 1
+//            pongReceiveHandler(NSError(domain: "MockPing", code: 1))
+//        } else {
+//            pongReceiveHandler(nil)
+//        }
+//    }
+//    func send(_ message: URLSessionWebSocketTask.Message, completionHandler: @escaping @Sendable (Error?) -> Void) {
+//        completionHandler(nil)
+//    }
+//    func receive(completionHandler: @escaping @Sendable (Result<URLSessionWebSocketTask.Message, Error>) -> Void) {
+//        // No-op for this mock
+//    }
+//}

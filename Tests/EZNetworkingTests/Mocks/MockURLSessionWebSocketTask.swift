@@ -33,5 +33,16 @@ class MockURLSessionWebSocketTask: WebSocketTaskProtocol {
 
     func receive() async throws -> URLSessionWebSocketTask.Message { .string("") }
 
-    func sendPing(pongReceiveHandler: @escaping @Sendable ((any Error)?) -> Void) { }
+    // MARK: sendPing
+    
+    var shouldFailPing: Bool = false
+    var pingFailureCount: Int = 0
+    func sendPing(pongReceiveHandler: @escaping @Sendable ((any Error)?) -> Void) {
+        if shouldFailPing {
+            pingFailureCount += 1
+            pongReceiveHandler(NSError(domain: "MockPingError", code: 1))
+        } else {
+            pongReceiveHandler(nil)
+        }
+    }
 }

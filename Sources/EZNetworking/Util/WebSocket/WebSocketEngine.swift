@@ -79,7 +79,10 @@ public actor WebSocketEngine: WebSocketClient {
     
     // MARK: - Connect
     
-    public func connect(with url: URL, protocols: [String]) async throws {
+    public func connect(with url: URL,
+                        protocols: [String],
+                        pingPongIntervalSeconds: UInt64 = 30,
+                        pingPongMaximumConsecutiveFailures: Int = 3) async throws {
         if case .connecting = connectionState {
             throw WebSocketError.stillConnecting
         }
@@ -96,7 +99,8 @@ public actor WebSocketEngine: WebSocketClient {
         
         connectionState = .connected(protocol: connectedProtocol)
         
-        startPingLoop(intervalSeconds: 30)
+        startPingLoop(intervalSeconds: pingPongIntervalSeconds,
+                      maximumConsecutiveFailures: pingPongMaximumConsecutiveFailures)
     }
     
     // MARK: wait for connection
@@ -147,7 +151,7 @@ public actor WebSocketEngine: WebSocketClient {
 
 extension WebSocketEngine {
 
-    // MARK: - manage observing delegate
+    // MARK: - observe delegate
     
     private func setupWebSocketEventHandler() {
         if sessionDelegate.webSocketTaskInterceptor == nil {
@@ -207,10 +211,62 @@ extension WebSocketEngine {
         reason.flatMap { String(data: $0, encoding: .utf8) }
     }
     
-    // MARK: - manage ping pong
+    // MARK: - ping pong
     
-    private func startPingLoop(intervalSeconds: UInt64) {
-        // TODO: set up ping-pong
+    private func startPingLoop(intervalSeconds: UInt64 = 30,
+                               maximumConsecutiveFailures: Int = 3) {
+        Task { [weak self] in
+            guard let self else { return }
+            
+            var consecutiveFailures = 0
+            let maxFailures = maximumConsecutiveFailures
+            
+            while await self.isConnectedState() {
+                do {
+                    try await self.sendPing()
+                    consecutiveFailures = 0
+                } catch {
+                    consecutiveFailures += 1
+                    print("Ping failed (\(consecutiveFailures)/\(maxFailures)): \(error)")
+                }
+                
+                if consecutiveFailures >= maxFailures {
+                    let error = WebSocketError.keepAliveFailure(consecutiveFailures: consecutiveFailures)
+                    print("Ping loop detected connection loss")
+                    await self.handleConnectionLoss(error: error)
+                    break
+                }
+                
+                try? await Task.sleep(nanoseconds: intervalSeconds * 1_000_000_000)
+            }
+        }
     }
     
+    private func sendPing() async throws {
+        guard let task = webSocketTask else {
+            throw WebSocketError.taskNotInitialized
+        }
+        
+        do {
+            try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+                task.sendPing { error in
+                    if let error {
+                        continuation.resume(throwing: error)
+                    } else {
+                        continuation.resume()
+                    }
+                }
+            }
+        } catch {
+            throw WebSocketError.pingFailed(underlying: error)
+        }
+    }
+    
+}
+
+extension WebSocketEngine {
+    private func isConnectedState() async -> Bool {
+        if case .connected = connectionState { return true }
+        return false
+    }
 }
