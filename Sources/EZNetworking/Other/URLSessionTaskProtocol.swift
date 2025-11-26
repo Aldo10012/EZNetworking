@@ -9,6 +9,8 @@ public protocol URLSessionTaskProtocol {
     func uploadTask(with request: URLRequest, from bodyData: Data?, completionHandler: @escaping @Sendable (Data?, URLResponse?, (any Error)?) -> Void) -> URLSessionUploadTask
 
     func uploadTask(with request: URLRequest, fromFile fileURL: URL, completionHandler: @escaping @Sendable (Data?, URLResponse?, (any Error)?) -> Void) -> URLSessionUploadTask
+
+    func webSocketTask(with url: URL, protocols: [String]) -> URLSessionWebSocketTask
 }
 
 extension URLSession: URLSessionTaskProtocol {}
