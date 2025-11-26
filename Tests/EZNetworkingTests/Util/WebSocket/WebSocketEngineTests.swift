@@ -183,7 +183,7 @@ final class WebSocketEngineTests_disconnect {
 
 // MARK: Test .connectionStateStream
 
-@Suite("Test WebSocketEngine .connectionStateStream", .disabled())
+@Suite("Test WebSocketEngine .connectionStateStream")
 final class WebSocketEngineTests_connectionStateStream {
     
     @Test("connectionStateStream yields expected states")
@@ -217,6 +217,46 @@ final class WebSocketEngineTests_connectionStateStream {
             .connecting,
             .connected(protocol: "test"),
             .disconnected
+        ])
+    }
+    
+    @Test("connectionStateStream yields expected states when didCompleteWithError")
+    func testConnectionStateStreamYieldsExpectedStatesWhenDidCompleteWithError() async throws {
+        let wsTask = MockURLSessionWebSocketTask()
+        let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
+        let wsInterceptor = MockWebSocketTaskInterceptor()
+        let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
+        let sut = WebSocketEngine(urlSession: urlSession, sessionDelegate: session)
+
+        var receivedConnectionState = [WebSocketConnectionState]()
+
+        // Start listening to the stream concurrently
+        let streamTask = Task {
+            for await state in await sut.connectionStateStream {
+                receivedConnectionState.append(state)
+            }
+        }
+
+        var errorThrown: WebSocketError?
+        let connectionTask = Task {
+            do {
+                try await sut.connect(with: webSocketUrl, protocols: [])
+                Issue.record("Expected to throw")
+            } catch let wsError as WebSocketError {
+                errorThrown = wsError
+            }
+        }
+        
+        let err = NSError(domain: "test", code: 0)
+        wsInterceptor.simulateDidCompleteWithError(error: err)
+        
+        _ = await streamTask.value
+        _ = try await connectionTask.value
+
+        #expect(errorThrown == .connectionFailed(underlying: err))
+        #expect(receivedConnectionState == [
+            .connecting,
+            .failed(error: .connectionFailed(underlying: err) )
         ])
     }
 }
