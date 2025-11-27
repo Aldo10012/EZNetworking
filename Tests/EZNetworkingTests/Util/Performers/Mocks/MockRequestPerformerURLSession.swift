@@ -2,8 +2,6 @@ import Foundation
 import EZNetworking
 
 class MockRequestPerformerURLSession: URLSessionTaskProtocol {
-    
-    
     var data: Data?
     var urlResponse: URLResponse?
     var error: Error?
@@ -22,18 +20,21 @@ class MockRequestPerformerURLSession: URLSessionTaskProtocol {
             completionHandler(self.data, self.urlResponse, self.error)
         }
     }
-    
-    // MARK: unused methods
+}
+
+// MARK: unused methods
+
+extension MockRequestPerformerURLSession {
     func downloadTask(with url: URL, completionHandler: @escaping @Sendable (URL?, URLResponse?, Error?) -> Void) -> URLSessionDownloadTask {
-        MockURLSessionDownloadTask { completionHandler(nil, nil, nil) }
+        fatalError("Should not be using in this mock")
     }
     func uploadTask(with request: URLRequest, from bodyData: Data?, completionHandler: @escaping @Sendable (Data?, URLResponse?, (any Error)?) -> Void) -> URLSessionUploadTask {
-        URLSessionUploadTask()
+        fatalError("Should not be using in this mock")
     }
     func uploadTask(with request: URLRequest, fromFile fileURL: URL, completionHandler: @escaping @Sendable (Data?, URLResponse?, (any Error)?) -> Void) -> URLSessionUploadTask {
-        URLSessionUploadTask()
+        fatalError("Should not be using in this mock")
     }
     func webSocketTaskInspectable(with: URL, protocols: [String]) -> WebSocketTaskProtocol {
-        MockURLSessionWebSocketTask()
+        fatalError("Should not be using in this mock")
     }
 }

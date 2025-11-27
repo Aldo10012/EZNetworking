@@ -21,29 +21,16 @@ class MockDataUploaderURLSession: URLSessionTaskProtocol {
     
     func uploadTask(with request: URLRequest, from bodyData: Data?, completionHandler: @escaping @Sendable (Data?, URLResponse?, (any Error)?) -> Void) -> URLSessionUploadTask {
         self.completionHandler = completionHandler
-
+        
         simulateDownloadProgress(for: .init())
-
+        
         return MockURLSessionUploadTask {
             completionHandler(self.data, self.urlResponse, self.error)
         }
     }
-    
-    // MARK: unused methods
-    
-    func dataTask(with request: URLRequest, completionHandler: @escaping @Sendable (Data?, URLResponse?, (any Error)?) -> Void) -> URLSessionDataTask {
-        URLSessionDataTask()
-    }
-    func downloadTask(with url: URL, completionHandler: @escaping @Sendable (URL?, URLResponse?, (any Error)?) -> Void) -> URLSessionDownloadTask {
-        URLSessionDownloadTask()
-    }
-    func uploadTask(with request: URLRequest, fromFile fileURL: URL, completionHandler: @escaping @Sendable (Data?, URLResponse?, (any Error)?) -> Void) -> URLSessionUploadTask {
-        URLSessionUploadTask()
-    }
-    func webSocketTaskInspectable(with: URL, protocols: [String]) -> WebSocketTaskProtocol {
-        MockURLSessionWebSocketTask()
-    }
 }
+
+// MARK: Helpers
 
 extension MockDataUploaderURLSession {
     enum UploadProgress {
@@ -76,5 +63,22 @@ extension MockDataUploaderURLSession {
                 )
             }
         }
+    }
+}
+
+// MARK: unused methods
+
+extension MockDataUploaderURLSession {
+    func dataTask(with request: URLRequest, completionHandler: @escaping @Sendable (Data?, URLResponse?, (any Error)?) -> Void) -> URLSessionDataTask {
+        fatalError("Should not be using in this mock")
+    }
+    func downloadTask(with url: URL, completionHandler: @escaping @Sendable (URL?, URLResponse?, (any Error)?) -> Void) -> URLSessionDownloadTask {
+        fatalError("Should not be using in this mock")
+    }
+    func uploadTask(with request: URLRequest, fromFile fileURL: URL, completionHandler: @escaping @Sendable (Data?, URLResponse?, (any Error)?) -> Void) -> URLSessionUploadTask {
+        fatalError("Should not be using in this mock")
+    }
+    func webSocketTaskInspectable(with: URL, protocols: [String]) -> WebSocketTaskProtocol {
+        fatalError("Should not be using in this mock")
     }
 }
