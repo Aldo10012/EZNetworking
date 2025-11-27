@@ -181,6 +181,90 @@ final class WebSocketEngineTests_disconnect {
     
 }
 
+// MARK: Test .send
+
+@Suite("Test WebSocketEngine .send", .disabled())
+final class WebSocketEngineTests_send {
+
+    @Test("test string message successfully send after connection is made")
+    func testSendingMessageSuccessfullyIfSentAfterConnect() async throws {
+        let wsTask = MockURLSessionWebSocketTask()
+        let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
+        let wsInterceptor = MockWebSocketTaskInterceptor()
+        let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
+        let sut = WebSocketEngine(urlSession: urlSession, sessionDelegate: session)
+        
+        var didSend = false
+        let task = Task {
+            do {
+                try await sut.connect(with: webSocketUrl, protocols: [])
+                try await sut.send(.string("test send"))
+                didSend = true
+            } catch {
+                Issue.record("Unexpected error: \(error)")
+            }
+        }
+        
+        wsInterceptor.simulateOpenWithProtocol("test")
+        
+        _ = await task.value
+        #expect(didSend == true)
+    }
+    
+    @Test("test string message fails if send without connecting first")
+    func testSendingMessageFailsIfSentWithoutConnectingFirst() async throws {
+        let wsTask = MockURLSessionWebSocketTask()
+        let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
+        let wsInterceptor = MockWebSocketTaskInterceptor()
+        let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
+        let sut = WebSocketEngine(urlSession: urlSession, sessionDelegate: session)
+        
+        var capturedError: WebSocketError?
+        let task = Task {
+            do {
+                try await sut.send(.string("test send"))
+                Issue.record("Should no tbe able to send without calling .connect() first")
+            } catch let wsError as WebSocketError {
+                capturedError = wsError
+            } catch {
+                Issue.record("Expected WebSocketError")
+            }
+        }
+        
+        wsInterceptor.simulateOpenWithProtocol("test")
+        
+        _ = await task.value
+        #expect(capturedError == .notConnected)
+    }
+    
+    @Test("test string message fails if send() throws error")
+    func testSendingMessageFailsIfSendThrowsError() async throws {
+        let wsTask = MockURLSessionWebSocketTask(sendThrowsError: true)
+        let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
+        let wsInterceptor = MockWebSocketTaskInterceptor()
+        let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
+        let sut = WebSocketEngine(urlSession: urlSession, sessionDelegate: session)
+        
+        var capturedError: WebSocketError?
+        let task = Task {
+            do {
+                try await sut.connect(with: webSocketUrl, protocols: [])
+                try await sut.send(.string("test send"))
+                Issue.record("Should no tbe able to send without calling .connect() first")
+            }  catch let wsError as WebSocketError {
+                capturedError = wsError
+            } catch {
+                Issue.record("Expected WebSocketError")
+            }
+        }
+        
+        wsInterceptor.simulateOpenWithProtocol("test")
+        
+        _ = await task.value
+        #expect(capturedError == .sendFailed(underlying: NSError(domain: "MockURLSessionWebSocketTask.send error", code: 0)))
+    }
+}
+
 // MARK: Test .connectionStateStream
 
 @Suite("Test WebSocketEngine .connectionStateStream", .disabled())

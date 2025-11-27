@@ -3,8 +3,10 @@ import EZNetworking
 
 class MockURLSessionWebSocketTask: WebSocketTaskProtocol {
 
-    init(resumeClosure: @escaping (() -> Void) = {}) {
+    init(resumeClosure: @escaping (() -> Void) = {},
+         sendThrowsError: Bool = false) {
         self.resumeClosure = resumeClosure
+        self.sendThrowsError = sendThrowsError
     }
     
     // MARK: resume()
@@ -16,6 +18,8 @@ class MockURLSessionWebSocketTask: WebSocketTaskProtocol {
         resumeClosure()
     }
 
+    // MARK: cancel()
+    
     var didCallCancel = false
     var didCancelWithCloseCode: URLSessionWebSocketTask.CloseCode?
     var didCancelWithReason: Data?
@@ -25,10 +29,23 @@ class MockURLSessionWebSocketTask: WebSocketTaskProtocol {
         didCancelWithReason = reason
     }
 
-    func send(_ message: URLSessionWebSocketTask.Message, completionHandler: @escaping @Sendable ((any Error)?) -> Void) { }
+    // MARK: send()
+    
+    var sendThrowsError: Bool
+    func send(_ message: URLSessionWebSocketTask.Message, completionHandler: @escaping @Sendable ((any Error)?) -> Void) {
+        if sendThrowsError {
+            completionHandler(NSError(domain: "MockURLSessionWebSocketTask.send error", code: 0))
+        }
+    }
 
-    func send(_ message: URLSessionWebSocketTask.Message) async throws {}
+    func send(_ message: URLSessionWebSocketTask.Message) async throws {
+        if sendThrowsError {
+            throw NSError(domain: "MockURLSessionWebSocketTask.send error", code: 0)
+        }
+    }
 
+    // MARK: receive()
+    
     func receive(completionHandler: @escaping @Sendable (Result<URLSessionWebSocketTask.Message, any Error>) -> Void) { }
 
     func receive() async throws -> URLSessionWebSocketTask.Message { .string("") }

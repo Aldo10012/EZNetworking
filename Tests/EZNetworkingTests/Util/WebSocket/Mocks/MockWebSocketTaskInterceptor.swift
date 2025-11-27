@@ -3,7 +3,7 @@ import EZNetworking
 
 let webSocketUrl = URL(string: "ws://127.0.0.1:8080/example")!
 
-private class MockWebSocketTaskInterceptor: WebSocketTaskInterceptor {
+class MockWebSocketTaskInterceptor: WebSocketTaskInterceptor {
     private let session = URLSession.shared
     private lazy var task: URLSessionWebSocketTask = {
         session.webSocketTask(with: webSocketUrl, protocols: [])
