@@ -214,7 +214,7 @@ final class FileUploader_Callbacks_Tests {
         
         var didTrackProgressFromInterceptor = false
 
-        let uploadInterceptor = DataUploader_MockUploadTaskInterceptor { _ in
+        let uploadInterceptor = MockUploadTaskInterceptor { _ in
             didTrackProgressFromInterceptor = true
         }
         let delegate = SessionDelegate(

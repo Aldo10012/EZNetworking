@@ -194,7 +194,7 @@ final class DataUploader_asyncAwait_Tests {
         
         var didTrackProgressFromInterceptor = false
 
-        let uploadInterceptor = DataUploader_MockUploadTaskInterceptor(progress: { _ in
+        let uploadInterceptor = MockUploadTaskInterceptor(progress: { _ in
             didTrackProgressFromInterceptor = true
         })
         let delegate = SessionDelegate(

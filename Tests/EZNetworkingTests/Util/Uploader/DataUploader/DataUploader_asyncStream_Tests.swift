@@ -213,7 +213,7 @@ final class DataUploader_AsyncStream_Tests {
 
         var didTrackProgressStreamEvent = false
         var didTrackProgressFromInterceptorClosure = false
-        let uploadInterceptor = DataUploader_MockUploadTaskInterceptor(progress: { _ in
+        let uploadInterceptor = MockUploadTaskInterceptor(progress: { _ in
             didTrackProgressFromInterceptorClosure = true
         })
         let delegate = SessionDelegate(
