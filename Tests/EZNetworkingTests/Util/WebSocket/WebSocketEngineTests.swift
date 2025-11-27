@@ -367,37 +367,3 @@ private class MockWebSocketTaskInterceptor: WebSocketTaskInterceptor {
         urlSession(session, webSocketTask: task, didCloseWith: didCloseWith, reason: reason)
     }
 }
-
-//final class MockURLSessionWebSocketTask: WebSocketTaskProtocol {
-//    var didCallResume = false
-//    var didCallCancel = false
-//    var didCancelWithCloseCode: URLSessionWebSocketTask.CloseCode?
-//    var didCancelWithReason: Data?
-//    
-//    // Add this property for ping failure simulation
-//    var shouldFailPing: Bool = false
-//    var pingFailureCount: Int = 0
-//
-//    func resume() {
-//        didCallResume = true
-//    }
-//    func cancel(with closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?) {
-//        didCallCancel = true
-//        didCancelWithCloseCode = closeCode
-//        didCancelWithReason = reason
-//    }
-//    func sendPing(pongReceiveHandler: @escaping @Sendable ((any Error)?) -> Void) {
-//        if shouldFailPing {
-//            pingFailureCount += 1
-//            pongReceiveHandler(NSError(domain: "MockPing", code: 1))
-//        } else {
-//            pongReceiveHandler(nil)
-//        }
-//    }
-//    func send(_ message: URLSessionWebSocketTask.Message, completionHandler: @escaping @Sendable (Error?) -> Void) {
-//        completionHandler(nil)
-//    }
-//    func receive(completionHandler: @escaping @Sendable (Result<URLSessionWebSocketTask.Message, Error>) -> Void) {
-//        // No-op for this mock
-//    }
-//}
