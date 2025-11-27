@@ -3,6 +3,7 @@ import Foundation
 public enum WebSocketError: Error {
     // Connection errors
     case notConnected
+    case stillConnecting
     case alreadyConnected
     case connectionFailed(underlying: Error)
     case connectionTimeout
@@ -41,6 +42,8 @@ extension WebSocketError: LocalizedError {
         switch self {
         case .notConnected:
             return "WebSocket is not connected"
+        case .stillConnecting:
+            return "WebSocket is still connecting"
         case .alreadyConnected:
             return "WebSocket is already connected"
         case .connectionFailed(let error):
@@ -103,6 +106,7 @@ extension WebSocketError: Equatable {
     public static func == (lhs: WebSocketError, rhs: WebSocketError) -> Bool {
         switch (lhs, rhs) {
         case (.notConnected, .notConnected),
+             (.stillConnecting, .stillConnecting),
              (.alreadyConnected, .alreadyConnected),
              (.connectionTimeout, .connectionTimeout),
              (.invalidURL, .invalidURL),

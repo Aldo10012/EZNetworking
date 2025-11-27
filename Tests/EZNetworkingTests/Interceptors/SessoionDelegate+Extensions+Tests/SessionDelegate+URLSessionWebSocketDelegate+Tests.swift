@@ -7,7 +7,7 @@ final class SessionDelegateURLSessionWebSocketDelegateTests {
     
     @Test("test SessionDelegate WebSocket DidOpenWithProtocol")
     func testSessionDelegateWebSocketDidOpenWithProtocol() {
-        let webSocketInterceptor = MockWebSocketTaskInterceptor()
+        let webSocketInterceptor = FakeWebSocketTaskInterceptor()
         let delegate = SessionDelegate()
         delegate.webSocketTaskInterceptor = webSocketInterceptor
         
@@ -21,7 +21,7 @@ final class SessionDelegateURLSessionWebSocketDelegateTests {
     
     @Test("test SessionDelegate WebSocket DidCloseWithCodeAndReason")
     func testSessionDelegateWebSocketDidCloseWithCodeAndReason() {
-        let webSocketInterceptor = MockWebSocketTaskInterceptor()
+        let webSocketInterceptor = FakeWebSocketTaskInterceptor()
         let delegate = SessionDelegate()
         delegate.webSocketTaskInterceptor = webSocketInterceptor
         
@@ -36,7 +36,7 @@ final class SessionDelegateURLSessionWebSocketDelegateTests {
     
     @Test("test SessionDelegate WebSocket didCompleteWithError")
     func testSessionDelegateWebSocketDidCompleteWithError() {
-        let webSocketInterceptor = MockWebSocketTaskInterceptor()
+        let webSocketInterceptor = FakeWebSocketTaskInterceptor()
         let delegate = SessionDelegate()
         delegate.webSocketTaskInterceptor = webSocketInterceptor
         
@@ -51,7 +51,7 @@ final class SessionDelegateURLSessionWebSocketDelegateTests {
 
 // MARK: mock class
 
-private class MockWebSocketTaskInterceptor: WebSocketTaskInterceptor {
+private class FakeWebSocketTaskInterceptor: WebSocketTaskInterceptor {
     var onEvent: ((WebSocketTaskEvent) -> Void)? = { _ in }
     
     var didOpenWithProtocol = false
