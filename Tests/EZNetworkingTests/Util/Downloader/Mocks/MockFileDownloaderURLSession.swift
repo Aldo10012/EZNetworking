@@ -75,7 +75,7 @@ extension MockFileDownloaderURLSession {
     func uploadTask(with request: URLRequest, fromFile fileURL: URL, completionHandler: @escaping @Sendable (Data?, URLResponse?, (any Error)?) -> Void) -> URLSessionUploadTask {
         fatalError("Should not be using in this mock")
     }
-    func webSocketTaskInspectable(with: URL, protocols: [String]) -> WebSocketTaskProtocol {
+    func webSocketTaskInspectable(with request: URLRequest) -> WebSocketTaskProtocol {
         fatalError("Should not be using in this mock")
     }
 }
