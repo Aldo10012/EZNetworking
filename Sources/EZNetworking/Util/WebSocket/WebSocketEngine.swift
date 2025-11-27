@@ -8,6 +8,10 @@ public actor WebSocketEngine: WebSocketClient {
     
     private var fallbackWebSocketTaskInterceptor = DefaultWebSocketTaskInterceptor()
     
+    // MARK: Receive message
+    private var messageContinuation: AsyncThrowingStream<InboundMessage, Error>.Continuation?
+    private var messageStreamCreated = false
+
     // MARK: Connection State
     private var connectionState: WebSocketConnectionState = .idle {
         didSet {
@@ -71,7 +75,7 @@ public actor WebSocketEngine: WebSocketClient {
         
         // Finish all continuations
         connectionStateContinuation.finish()
-        // messageContinuation?.finish() TODO: for future
+        messageContinuation?.finish()
         
         // Cancel task
         webSocketTask?.cancel(with: .normalClosure, reason: nil)
@@ -122,17 +126,36 @@ public actor WebSocketEngine: WebSocketClient {
         connectionContinuation?.resume(throwing: WebSocketError.forcedDisconnection)
         connectionContinuation = nil
         
+        // Finish all continuations
+        messageContinuation?.finish()
+        messageContinuation = nil
+        messageStreamCreated = false
+        
+        // Cancel webSocketTask
         webSocketTask?.cancel(with: closeCode, reason: reason)
         webSocketTask = nil
+        
+        // update state
         connectionState = .disconnected
     }
     
     /// Handle unexpected connection loss while connected
     private func handleConnectionLoss(error: WebSocketError) async {
-        connectionState = .connectionLost(reason: error)
+        // Cancel any pending connection
+        connectionContinuation?.resume(throwing: WebSocketError.forcedDisconnection)
+        connectionContinuation = nil
+        
+        // Finish all continuations
+        messageContinuation?.finish()
+        messageContinuation = nil
+        messageStreamCreated = false
+        
+        // Cancel webSocketTask
         webSocketTask?.cancel(with: .goingAway, reason: nil)
         webSocketTask = nil
-        connectionState = .disconnected
+        
+        // update state
+        connectionState = .connectionLost(reason: error)
     }
     
     // MARK: - Send message
@@ -154,8 +177,64 @@ public actor WebSocketEngine: WebSocketClient {
     }
 
     // MARK: - Receive message
+
+    nonisolated public func receiveMessages() -> AsyncThrowingStream<InboundMessage, Error> {
+        return AsyncThrowingStream<InboundMessage, Error> { continuation in
+            let task = Task { [weak self] in
+                guard let self else {
+                    continuation.finish()
+                    return
+                }
+                await self.setMessageContinuation(continuation)
+                await self.startReceivingMessages(continuation)
+            }
+            continuation.onTermination = { @Sendable _ in
+                task.cancel()
+            }
+        }
+    }
     
-    // TODO: Implement
+    // Helper to set continuation on actor
+    private func setMessageContinuation(_ continuation: AsyncThrowingStream<InboundMessage, Error>.Continuation) async {
+        guard case .connected = connectionState else {
+            continuation.finish(throwing: WebSocketError.notConnected)
+            return
+        }
+        guard !messageStreamCreated else {
+            continuation.finish(throwing: WebSocketError.streamAlreadyCreated)
+            return
+        }
+        
+        self.messageContinuation = continuation
+        messageStreamCreated = true
+        
+    }
+    
+    private func startReceivingMessages(_ continuation: AsyncThrowingStream<InboundMessage, Error>.Continuation) async {
+        guard let task = webSocketTask else {
+            continuation.finish(throwing: WebSocketError.notConnected)
+            return
+        }
+        
+        while await isConnectedState() {
+            do {
+                let message = try await task.receive()
+                continuation.yield(message)
+            } catch {
+                let wsError = WebSocketError.receiveFailed(underlying: error)
+                                
+                // Notify the engine that the connection is no longer valid
+                await handleConnectionLoss(error: wsError)
+                
+                // IMPORTANT: finish WITH an error
+                continuation.finish(throwing: wsError)
+                return
+            }
+        }
+        
+        // If loop exits, connection state changed
+        continuation.finish()
+    }
 
 }
 

@@ -1,6 +1,7 @@
 import Foundation
 
 public typealias OutboundMessage = URLSessionWebSocketTask.Message
+public typealias InboundMessage = URLSessionWebSocketTask.Message
 
 public protocol WebSocketClient {
     func connect(with url: URL,
@@ -11,6 +12,8 @@ public protocol WebSocketClient {
     func disconnect(with closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?) async
     
     func send(_ message: OutboundMessage) async throws
+    
+    func receiveMessages() -> AsyncThrowingStream<InboundMessage, Error>
 
     var connectionStateStream: AsyncStream<WebSocketConnectionState> { get }
 }
