@@ -109,6 +109,7 @@ final class WebSocketErrorTests {
 
     private static let WebSocketErrorList: [WebSocketError] = [
         .notConnected,
+        .stillConnecting,
         .alreadyConnected,
         .connectionTimeout,
         .invalidURL,
