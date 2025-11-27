@@ -181,12 +181,7 @@ public actor WebSocketEngine: WebSocketClient {
     nonisolated public func receiveMessages() -> AsyncThrowingStream<InboundMessage, Error> {
         return AsyncThrowingStream<InboundMessage, Error> { continuation in
             let task = Task { [weak self] in
-                guard let self else {
-                    continuation.finish()
-                    return
-                }
-                await self.setMessageContinuation(continuation)
-                await self.startReceivingMessages(continuation)
+                await self?.actorReceiveMessages(continuation)
             }
             continuation.onTermination = { @Sendable _ in
                 task.cancel()
@@ -194,27 +189,22 @@ public actor WebSocketEngine: WebSocketClient {
         }
     }
     
-    // Helper to set continuation on actor
-    private func setMessageContinuation(_ continuation: AsyncThrowingStream<InboundMessage, Error>.Continuation) async {
+    private func actorReceiveMessages(_ continuation: AsyncThrowingStream<InboundMessage, Error>.Continuation) async {
+        guard let task = webSocketTask else {
+            continuation.finish(throwing: WebSocketError.taskNotInitialized)
+            return
+        }
         guard case .connected = connectionState else {
             continuation.finish(throwing: WebSocketError.notConnected)
             return
         }
-        guard !messageStreamCreated else {
+        if messageStreamCreated {
             continuation.finish(throwing: WebSocketError.streamAlreadyCreated)
             return
         }
         
-        self.messageContinuation = continuation
         messageStreamCreated = true
-        
-    }
-    
-    private func startReceivingMessages(_ continuation: AsyncThrowingStream<InboundMessage, Error>.Continuation) async {
-        guard let task = webSocketTask else {
-            continuation.finish(throwing: WebSocketError.notConnected)
-            return
-        }
+        messageContinuation = continuation
         
         while await isConnectedState() {
             do {
