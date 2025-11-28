@@ -25,5 +25,5 @@ public protocol WebSocketClient: Sendable {
     func send(_ message: OutboundMessage) async throws
     
     /// Returns a stream of messages received from the WebSocket server.
-    func messages() -> AsyncThrowingStream<InboundMessage, WebSocketError>
+    func messages() -> AsyncThrowingStream<InboundMessage, Error>
 }
