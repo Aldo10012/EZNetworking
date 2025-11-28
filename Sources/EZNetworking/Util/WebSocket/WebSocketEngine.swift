@@ -13,7 +13,7 @@ public actor WebSocketEngine: WebSocketClient {
     
     // Default web socket interceptor
     
-    private let fallbackDownloadTaskInterceptor: WebSocketTaskInterceptor = DefaultWebSocketTaskInterceptor()
+    private let defaultWebSocketTaskInterceptor: WebSocketTaskInterceptor = DefaultWebSocketTaskInterceptor()
     
     // WebSocket Task
     
