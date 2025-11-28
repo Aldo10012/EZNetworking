@@ -8,7 +8,7 @@ public actor WebSocketEngine: WebSocketClient {
     
     private let urlSession: URLSessionTaskProtocol
     private var sessionDelegate: SessionDelegate
-    private let urlRequest: URLRequest
+    private let webSocketRequest: URLRequest
     private let pingConfic: PingConfig
     
     // Default web socket interceptor
@@ -19,6 +19,10 @@ public actor WebSocketEngine: WebSocketClient {
     
     private var webSocketTask: WebSocketTaskProtocol?
     
+    // State related
+    
+    private var connectionState: WebSocketConnectionState = .idle
+    
     // MARK: - init
     
     public init(
@@ -27,7 +31,7 @@ public actor WebSocketEngine: WebSocketClient {
         urlSession: URLSessionTaskProtocol = URLSession.shared,
         sessionDelegate: SessionDelegate? = nil
     ) {
-        self.urlRequest = urlRequest
+        self.webSocketRequest = urlRequest
         self.pingConfic = pingConfic
         if let urlSession = urlSession as? URLSession {
             // If the session already has a delegate, use it (if it's a SessionDelegate)
@@ -52,6 +56,12 @@ public actor WebSocketEngine: WebSocketClient {
         }
     }
     
+    // MARK: - deinit
+    
+    deinit {
+        
+    }
+    
     // MARK: - state change observation
     
     public nonisolated var stateChanges: AsyncStream<WebSocketConnectionState> {
@@ -62,7 +72,22 @@ public actor WebSocketEngine: WebSocketClient {
     // MARK: - connect
     
     public func connect() async throws {
-        // TODO: implement
+        // Validate current state
+        if case .connecting = connectionState {
+            throw WebSocketError.stillConnecting
+        }
+        if case .connected(protocol: _) = connectionState {
+            throw WebSocketError.alreadyConnected
+        }
+        
+        // Create and resume WebSocket task
+        webSocketTask = urlSession.webSocketTaskInspectable(with: webSocketRequest)
+        webSocketTask?.resume()
+        
+        connectionState = .connecting
+        
+        // TODO: add wait for connection to be established
+        // TODO: start ping-long loop
     }
     
     // MARK: - disconnect
@@ -84,4 +109,13 @@ public actor WebSocketEngine: WebSocketClient {
         AsyncThrowingStream<InboundMessage, Error> { $0.finish() }
     }
     
+}
+
+private extension WebSocketEngine {
+    
+    // MARK: - handle open/close events
+    
+    
+    
+    // MARK: - handle ping-pong
 }
