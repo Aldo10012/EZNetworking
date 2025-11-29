@@ -7,7 +7,7 @@ public actor WebSocketEngine: WebSocketClient {
     private let urlSession: URLSessionTaskProtocol
     private var sessionDelegate: SessionDelegate
     private let webSocketRequest: URLRequest
-    private let pingConfic: PingConfig
+    private let pingConfig: PingConfig
     
     // MARK: - WS interceptor
     
@@ -39,12 +39,12 @@ public actor WebSocketEngine: WebSocketClient {
     
     public init(
         urlRequest: URLRequest,
-        pingConfic: PingConfig = PingConfig(),
+        pingConfig: PingConfig = PingConfig(),
         urlSession: URLSessionTaskProtocol = URLSession.shared,
         sessionDelegate: SessionDelegate? = nil
     ) {
         self.webSocketRequest = urlRequest
-        self.pingConfic = pingConfic
+        self.pingConfig = pingConfig
         if let urlSession = urlSession as? URLSession {
             // If the session already has a delegate, use it (if it's a SessionDelegate)
             if let existingDelegate = urlSession.delegate as? SessionDelegate {
