@@ -27,6 +27,14 @@ public actor WebSocketEngine: WebSocketClient {
     private nonisolated(unsafe) let _stateChanges: AsyncStream<WebSocketConnectionState>
     private let connectionStateContinuation: AsyncStream<WebSocketConnectionState>.Continuation
     
+    /// Used to suspend `connect()` until the delegate reports connection success/failure
+    private var connectionContinuation: CheckedContinuation<String?, Error>?
+    
+    // MARK: - Message Receiving
+        
+    private var messageContinuation: AsyncThrowingStream<InboundMessage, WebSocketError>.Continuation?
+    private var messageStreamCreated = false
+    
     // MARK: - init
     
     public init(
