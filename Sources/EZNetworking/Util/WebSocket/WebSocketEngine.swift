@@ -75,7 +75,16 @@ public actor WebSocketEngine: WebSocketClient {
     // MARK: - deinit
     
     deinit {
+        // Cancel any pending connection
+        connectionContinuation?.resume(throwing: WebSocketError.forcedDisconnection)
+        connectionContinuation = nil
         
+        // Finish all continuations
+        connectionStateContinuation.finish()
+        messageContinuation?.finish()
+        
+        // Cancel task
+        webSocketTask?.cancel(with: .normalClosure, reason: nil)
     }
     
     // MARK: - state change observation
@@ -107,8 +116,29 @@ public actor WebSocketEngine: WebSocketClient {
     
     // MARK: - disconnect
     
-    public func disconnect(closeCode: URLSessionWebSocketTask.CloseCode?, reason: Data?) async {
-        // TODO: implement
+    public func disconnect(closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?) async {
+        cleanup(closeCode: closeCode, reason: reason, newState: .disconnected, error: .forcedDisconnection)
+    }
+    
+    private func handleConnectionLoss(error: WebSocketError) async {
+        cleanup(closeCode: .goingAway, reason: nil, newState: .connectionLost(reason: error), error: error)
+    }
+    
+    private func cleanup(closeCode: URLSessionWebSocketTask.CloseCode,
+                         reason: Data?,
+                         newState: WebSocketConnectionState,
+                         error: WebSocketError) {
+        connectionContinuation?.resume(throwing: error)
+        connectionContinuation = nil
+        
+        messageContinuation?.finish()
+        messageContinuation = nil
+        messageStreamCreated = false
+        
+        webSocketTask?.cancel(with: closeCode, reason: reason)
+        webSocketTask = nil
+        
+        connectionState = newState
     }
     
     // MARK: - send

@@ -17,7 +17,7 @@ public protocol WebSocketClient: Sendable {
     func connect() async throws
     
     /// Disconnects from the WebSocket server.
-    func disconnect(closeCode: URLSessionWebSocketTask.CloseCode?, reason: Data?) async
+    func disconnect(closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?) async
     
     // MARK: - Messaging
     
