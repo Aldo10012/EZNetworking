@@ -2,26 +2,30 @@ import Foundation
 
 public actor WebSocketEngine: WebSocketClient {
     
-    // MARK: - variables
-    
-    // Dependencies
+    // MARK: - Dependencies
     
     private let urlSession: URLSessionTaskProtocol
     private var sessionDelegate: SessionDelegate
     private let webSocketRequest: URLRequest
     private let pingConfic: PingConfig
     
-    // Default web socket interceptor
+    // MARK: - WS interceptor
     
     private let defaultWebSocketTaskInterceptor: WebSocketTaskInterceptor = DefaultWebSocketTaskInterceptor()
     
-    // WebSocket Task
+    // MARK: - WebSocketTask
     
     private var webSocketTask: WebSocketTaskProtocol?
     
-    // State related
+    // MARK: - Connection State
     
-    private var connectionState: WebSocketConnectionState = .idle
+    private var connectionState: WebSocketConnectionState = .idle {
+        didSet {
+            connectionStateContinuation.yield(connectionState)
+        }
+    }
+    private nonisolated(unsafe) let _stateChanges: AsyncStream<WebSocketConnectionState>
+    private let connectionStateContinuation: AsyncStream<WebSocketConnectionState>.Continuation
     
     // MARK: - init
     
@@ -54,6 +58,10 @@ public actor WebSocketEngine: WebSocketClient {
             self.sessionDelegate = sessionDelegate ?? SessionDelegate()
             self.urlSession = urlSession
         }
+        
+        let (stream, continuation) = AsyncStream<WebSocketConnectionState>.makeStream()
+        self._stateChanges = stream
+        self.connectionStateContinuation = continuation
     }
     
     // MARK: - deinit
@@ -65,8 +73,7 @@ public actor WebSocketEngine: WebSocketClient {
     // MARK: - state change observation
     
     public nonisolated var stateChanges: AsyncStream<WebSocketConnectionState> {
-        // TODO: implement
-        AsyncStream<WebSocketConnectionState> { $0.finish() }
+        _stateChanges
     }
     
     // MARK: - connect
