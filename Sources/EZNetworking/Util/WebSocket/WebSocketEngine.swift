@@ -11,7 +11,7 @@ public actor WebSocketEngine: WebSocketClient {
     
     // MARK: - WS interceptor
     
-    private let defaultWebSocketTaskInterceptor: WebSocketTaskInterceptor = DefaultWebSocketTaskInterceptor()
+    private let fallbackWebSocketTaskInterceptor: WebSocketTaskInterceptor = DefaultWebSocketTaskInterceptor()
     
     // MARK: - WebSocketTask
     
@@ -108,9 +108,10 @@ public actor WebSocketEngine: WebSocketClient {
         webSocketTask = urlSession.webSocketTaskInspectable(with: webSocketRequest)
         webSocketTask?.resume()
         
-        connectionState = .connecting
+        setupWebSocketEventHandler()
         
         // TODO: add wait for connection to be established
+        
         // TODO: start ping-long loop
     }
     
@@ -159,6 +160,61 @@ public actor WebSocketEngine: WebSocketClient {
 private extension WebSocketEngine {
     
     // MARK: - handle open/close events
+
+    private func setupWebSocketEventHandler() {
+        if sessionDelegate.webSocketTaskInterceptor == nil {
+            sessionDelegate.webSocketTaskInterceptor = fallbackWebSocketTaskInterceptor
+        }
+        
+        guard sessionDelegate.webSocketTaskInterceptor?.onEvent == nil else { return }
+        
+        sessionDelegate.webSocketTaskInterceptor?.onEvent = { [weak self] event in
+            Task {
+                await self?.handleWebSocketEvent(event)
+            }
+        }
+    }
+    
+    private func handleWebSocketEvent(_ event: WebSocketTaskEvent) async {
+        switch (connectionState, event) {
+        case (.idle, _), (.disconnected, _), (.connectionLost, _), (.failed, _):
+            break
+            
+        case (.connecting, .didOpenWithProtocol(let proto)):
+            resumeConnection(with: proto)
+            
+        case (.connecting, .didOpenWithError(let err)):
+            resumeConnection(throwing: .connectionFailed(underlying: err))
+            
+        case (.connecting, .didClose(let code, let reason)):
+            resumeConnection(throwing: .unexpectedDisconnection(code: code, reason: parseReason(reason)))
+            
+        case (.connected, .didClose(let code, let reason)):
+            let error = WebSocketError.unexpectedDisconnection(code: code, reason: parseReason(reason))
+            print("Delegate detected closure: code=\(code.rawValue), reason=\(parseReason(reason) ?? "none")")
+            await handleConnectionLoss(error: error)
+            
+        case (.connected, _):
+            break
+        }
+    }
+    
+    private func resumeConnection(with protocolStr: String?) {
+        connectionContinuation?.resume(returning: protocolStr)
+        connectionContinuation = nil
+    }
+    
+    private func resumeConnection(throwing error: WebSocketError) {
+        connectionContinuation?.resume(throwing: error)
+        connectionContinuation = nil
+        connectionState = .failed(error: error)
+    }
+    
+    private func parseReason(_ reason: Data?) -> String? {
+        reason.flatMap { String(data: $0, encoding: .utf8) }
+    }
+    
+    // MARK: - wait for connection to be established
     
     
     
