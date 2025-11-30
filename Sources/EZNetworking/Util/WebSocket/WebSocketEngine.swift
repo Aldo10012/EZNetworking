@@ -146,7 +146,19 @@ public actor WebSocketEngine: WebSocketClient {
     // MARK: - send
     
     public func send(_ message: OutboundMessage) async throws {
-        // TODO: implement
+        guard case .connected = connectionState else {
+            throw WebSocketError.notConnected
+        }
+        
+        guard let task = webSocketTask else {
+            throw WebSocketError.taskNotInitialized
+        }
+        
+        do {
+            try await task.send(message)
+        } catch {
+            throw WebSocketError.sendFailed(underlying: error)
+        }
     }
     
     // MARK: - messages
