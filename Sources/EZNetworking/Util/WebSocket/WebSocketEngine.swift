@@ -32,7 +32,7 @@ public actor WebSocketEngine: WebSocketClient {
     
     // MARK: - Message Receiving
         
-    private var messageContinuation: AsyncThrowingStream<InboundMessage, WebSocketError>.Continuation?
+    private var messageContinuation: AsyncThrowingStream<InboundMessage, Error>.Continuation?
     private var messageStreamCreated = false
     
     // MARK: - init
@@ -163,9 +163,15 @@ public actor WebSocketEngine: WebSocketClient {
     
     // MARK: - messages
     
-    public nonisolated func messages() -> AsyncThrowingStream<InboundMessage, Error> {
-        // TODO: implement
-        AsyncThrowingStream<InboundMessage, Error> { $0.finish() }
+    nonisolated public func messages() -> AsyncThrowingStream<InboundMessage, Error> {
+        return AsyncThrowingStream<InboundMessage, Error> { continuation in
+            let task = Task { [weak self] in
+                await self?.receiveMessages(continuation)
+            }
+            continuation.onTermination = { @Sendable _ in
+                task.cancel()
+            }
+        }
     }
     
 }
@@ -293,6 +299,46 @@ private extension WebSocketEngine {
             throw WebSocketError.pingFailed(underlying: error)
         }
     }
+    
+    // MARK: - receive Messages
+    
+    private func receiveMessages(_ continuation: AsyncThrowingStream<InboundMessage, Error>.Continuation) async {
+        guard let task = webSocketTask else {
+            continuation.finish(throwing: WebSocketError.taskNotInitialized)
+            return
+        }
+        guard case .connected = connectionState else {
+            continuation.finish(throwing: WebSocketError.notConnected)
+            return
+        }
+        if messageStreamCreated {
+            continuation.finish(throwing: WebSocketError.streamAlreadyCreated)
+            return
+        }
+        
+        messageStreamCreated = true
+        messageContinuation = continuation
+        
+        while await isConnectedState() {
+            do {
+                let message = try await task.receive()
+                continuation.yield(message)
+            } catch {
+                let wsError = WebSocketError.receiveFailed(underlying: error)
+                
+                // Notify the engine that the connection is no longer valid
+                await handleConnectionLoss(error: wsError)
+                
+                // IMPORTANT: finish WITH an error
+                continuation.finish(throwing: wsError)
+                return
+            }
+        }
+        
+        // If loop exits, connection state changed
+        continuation.finish()
+    }
+    
 }
 
 extension WebSocketEngine {
