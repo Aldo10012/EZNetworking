@@ -158,9 +158,11 @@ final class WebSocketEngineTests_connect {
             }
         }
         
-        try await Task.sleep(nanoseconds: 1_000_000_000)
+        try await Task.sleep(nanoseconds: 100)
         wsInterceptor.simulateOpenWithProtocol(nil)
         await task.value
+        
+        try await Task.sleep(nanoseconds: 100)
         
         #expect(wsTask.didCallSendPing)
     }
@@ -374,6 +376,161 @@ final class WebSocketEngineTests_messages {
 @Suite("Test WebSocketEngine.stateChanges()")
 final class WebSocketEngineTests_stateChanges {
     
+    @Test("stateChanges emits .connecting and .connected when connect succeeds")
+    func testStateChangesEmitsConnectingAndConnectedWhenConnectSucceeds() async throws {
+        let pingConfig = PingConfig(pingInterval: 1, maxPingFailures: 1)
+        let wsTask = MockURLSessionWebSocketTask(receiveMessage: "mock message")
+        let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
+        let wsInterceptor = MockWebSocketTaskInterceptor()
+        let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
+        let sut = WebSocketEngine(urlRequest: webSocketRequest, pingConfig: pingConfig, urlSession: urlSession, sessionDelegate: session)
+        
+        var receivedState = [WebSocketConnectionState]()
+        let expectedStates: [WebSocketConnectionState] = [
+            .connecting,
+            .connected(protocol: "test")
+        ]
+        
+        // Start listening to the stream concurrently
+        let stateTask = Task {
+            for await state in sut.stateChanges.prefix(expectedStates.count) {
+                receivedState.append(state)
+            }
+        }
+        
+        let connectionTask = Task {
+            try await sut.connect()
+        }
+        
+        try await Task.sleep(nanoseconds: 100)
+        wsInterceptor.simulateOpenWithProtocol("test")
+        
+        _ = await stateTask.value
+        _ = try await connectionTask.value
+
+        #expect(receivedState == expectedStates)
+    }
+    
+    @Test("stateChanges emits .connecting and .failed when connect fails")
+    func testStateChangesEmitsConnectingAndFailedWhenConnectFails() async throws {
+        let pingConfig = PingConfig(pingInterval: 1, maxPingFailures: 1)
+        let wsTask = MockURLSessionWebSocketTask()
+        let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
+        let wsInterceptor = MockWebSocketTaskInterceptor()
+        let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
+        let sut = WebSocketEngine(urlRequest: webSocketRequest, pingConfig: pingConfig, urlSession: urlSession, sessionDelegate: session)
+        
+        var receivedStates = [WebSocketConnectionState]()
+        let expectedStates: [WebSocketConnectionState] = [
+            .connecting,
+            .failed(error: .connectionFailed(underlying: DummyError.error))
+        ]
+        
+        let stateTask = Task {
+            for await state in sut.stateChanges.prefix(expectedStates.count) {
+                receivedStates.append(state)
+            }
+        }
+        
+        let connectTask = Task {
+            do {
+                try await sut.connect()
+                Issue.record("Expected connection to fail")
+            } catch {
+                // Expected to fail
+            }
+        }
+        
+        try await Task.sleep(nanoseconds: 100_000_000)
+        wsInterceptor.simulateDidCompleteWithError(error: DummyError.error)
+        
+        await connectTask.value
+        await stateTask.value
+        
+        #expect(receivedStates ==  expectedStates)
+    }
+    
+    @Test("stateChanges emits .connecting and .failed when connection closes during handshake")
+    func testStateChangesEmitsFailedWhenConnectionClosesEarly() async throws {
+        let pingConfig = PingConfig(pingInterval: 1, maxPingFailures: 1)
+        let wsTask = MockURLSessionWebSocketTask()
+        let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
+        let wsInterceptor = MockWebSocketTaskInterceptor()
+        let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
+        let sut = WebSocketEngine(urlRequest: webSocketRequest, pingConfig: pingConfig, urlSession: urlSession, sessionDelegate: session)
+
+        
+        var receivedStates = [WebSocketConnectionState]()
+        let expectedStates: [WebSocketConnectionState] = [
+            .connecting,
+            .failed(error: .unexpectedDisconnection(code: .abnormalClosure, reason: "Server rejected"))
+        ]
+        
+        let stateTask = Task {
+            for await state in sut.stateChanges.prefix(expectedStates.count) {
+                receivedStates.append(state)
+            }
+        }
+        let connectTask = Task {
+            do {
+                try await sut.connect()
+                Issue.record("Expected connection to fail")
+            } catch {
+                // Expected to fail
+            }
+        }
+        
+        try await Task.sleep(nanoseconds: 100_000_000)
+        
+        wsInterceptor.simulateDidCloseWithCloseCode(
+            didCloseWith: .abnormalClosure,
+            reason: "Server rejected".data(using: .utf8)
+        )
+        
+        await connectTask.value
+        await stateTask.value
+        
+        // Assert
+        #expect(receivedStates == expectedStates)
+        
+    }
+    
+    @Test("stateChanges emits .connecting and .connected and .disconnected when connecting then disconnecting")
+    func testStateChangesEmitsConnectingAndConnectedWhenConnectedThenDisconnected() async throws {
+        let pingConfig = PingConfig(pingInterval: 1, maxPingFailures: 1)
+        let wsTask = MockURLSessionWebSocketTask(receiveMessage: "mock message")
+        let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
+        let wsInterceptor = MockWebSocketTaskInterceptor()
+        let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
+        let sut = WebSocketEngine(urlRequest: webSocketRequest, pingConfig: pingConfig, urlSession: urlSession, sessionDelegate: session)
+        
+        var receivedState = [WebSocketConnectionState]()
+        let expectedStates: [WebSocketConnectionState] = [
+            .connecting,
+            .connected(protocol: "test"),
+            .disconnected
+        ]
+        
+        // Start listening to the stream concurrently
+        let stateTask = Task {
+            for await state in sut.stateChanges.prefix(expectedStates.count) {
+                receivedState.append(state)
+            }
+        }
+        
+        let connectionTask = Task {
+            try await sut.connect()
+            await sut.disconnect(closeCode: .goingAway, reason: nil)
+        }
+        
+        try await Task.sleep(nanoseconds: 100)
+        wsInterceptor.simulateOpenWithProtocol("test")
+        
+        _ = try await connectionTask.value
+        _ = await stateTask.value
+        
+        #expect(receivedState == expectedStates)
+    }
 }
 
 private enum DummyError: Error {
