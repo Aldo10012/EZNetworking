@@ -112,7 +112,8 @@ public actor WebSocketEngine: WebSocketClient {
         
         try await waitForConnection()
         
-        // TODO: start ping-long loop
+        startPingLoop(intervalSeconds: pingConfig.pingInterval,
+                      maximumConsecutiveFailures: pingConfig.maxPingFailures)
     }
     
     // MARK: - disconnect
@@ -235,4 +236,56 @@ private extension WebSocketEngine {
     }
     
     // MARK: - handle ping-pong
+    
+    private func startPingLoop(intervalSeconds: UInt64, maximumConsecutiveFailures: Int) {
+        Task { [weak self] in
+            guard let self else { return }
+            
+            var consecutiveFailures = 0
+            
+            while await self.isConnectedState() {
+                do {
+                    try await self.sendPing()
+                    consecutiveFailures = 0
+                } catch {
+                    consecutiveFailures += 1
+                }
+                
+                if consecutiveFailures >= maximumConsecutiveFailures {
+                    let error = WebSocketError.keepAliveFailure(consecutiveFailures: consecutiveFailures)
+                    await self.handleConnectionLoss(error: error)
+                    break
+                }
+                
+                try? await Task.sleep(nanoseconds: intervalSeconds * 1_000_000_000)
+            }
+        }
+    }
+    
+    private func sendPing() async throws {
+        guard let task = webSocketTask else {
+            throw WebSocketError.taskNotInitialized
+        }
+        
+        do {
+            try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+                task.sendPing { error in
+                    if let error {
+                        continuation.resume(throwing: error)
+                    } else {
+                        continuation.resume()
+                    }
+                }
+            }
+        } catch {
+            throw WebSocketError.pingFailed(underlying: error)
+        }
+    }
+}
+
+extension WebSocketEngine {
+    private func isConnectedState() async -> Bool {
+        if case .connected = connectionState { return true }
+        return false
+    }
 }

@@ -6,12 +6,14 @@ class MockURLSessionWebSocketTask: WebSocketTaskProtocol {
     init(resumeClosure: @escaping (() -> Void) = {},
          sendThrowsError: Bool = false,
          receiveMessage: String = "",
-         receiveThrowsError: Bool = false
+         receiveThrowsError: Bool = false,
+         pingThrowsError: Bool = false
     ) {
         self.resumeClosure = resumeClosure
         self.sendThrowsError = sendThrowsError
         self.receiveMessage = receiveMessage
         self.receiveThrowsError = receiveThrowsError
+        self.pingThrowsError = pingThrowsError
     }
 
     // MARK: resume()
@@ -70,10 +72,12 @@ class MockURLSessionWebSocketTask: WebSocketTaskProtocol {
 
     // MARK: sendPing
 
-    var shouldFailPing: Bool = false
+    var didCallSendPing: Bool = false
+    var pingThrowsError: Bool
     var pingFailureCount: Int = 0
     func sendPing(pongReceiveHandler: @escaping @Sendable ((any Error)?) -> Void) {
-        if shouldFailPing {
+        didCallSendPing = true
+        if pingThrowsError {
             pingFailureCount += 1
             pongReceiveHandler(MockURLSessionWebSocketTaskError.pingError)
         } else {

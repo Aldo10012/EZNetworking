@@ -91,11 +91,12 @@ final class WebSocketEngineTests_connect {
     
     @Test("test calling .connect does call .webSocketTaskInspectable()")
     func testCallingConnectDoesCallWebSocketTaskInspectable() async throws {
+        let pingConfig = PingConfig(pingInterval: 1, maxPingFailures: 1)
         let wsTask = MockURLSessionWebSocketTask()
         let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
         let wsInterceptor = MockWebSocketTaskInterceptor()
         let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
-        let sut = WebSocketEngine(urlRequest: webSocketRequest, urlSession: urlSession, sessionDelegate: session)
+        let sut = WebSocketEngine(urlRequest: webSocketRequest, pingConfig: pingConfig, urlSession: urlSession, sessionDelegate: session)
         
         let task = Task {
             do {
@@ -114,11 +115,12 @@ final class WebSocketEngineTests_connect {
     
     @Test("test calling .connect does call URLSessionWebSocketTask.resume()")
     func testCallingConnectDoesCallURLSessionWebSocketTaskResume() async throws {
+        let pingConfig = PingConfig(pingInterval: 1, maxPingFailures: 1)
         let wsTask = MockURLSessionWebSocketTask()
         let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
         let wsInterceptor = MockWebSocketTaskInterceptor()
         let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
-        let sut = WebSocketEngine(urlRequest: webSocketRequest, urlSession: urlSession, sessionDelegate: session)
+        let sut = WebSocketEngine(urlRequest: webSocketRequest, pingConfig: pingConfig, urlSession: urlSession, sessionDelegate: session)
         
         let task = Task {
             do {
@@ -133,6 +135,56 @@ final class WebSocketEngineTests_connect {
         await task.value
         
         #expect(wsTask.didCallResume)
+    }
+    
+    @Test("test calling .connect does call URLSessionWebSocketTask.sendPing()")
+    func testCallingConnectDoesCallURLSessionWebSocketTaskSendPing() async throws {
+        let pingConfig = PingConfig(pingInterval: 1, maxPingFailures: 0)
+        let wsTask = MockURLSessionWebSocketTask()
+        let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
+        let wsInterceptor = MockWebSocketTaskInterceptor()
+        let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
+        let sut = WebSocketEngine(urlRequest: webSocketRequest, pingConfig: pingConfig, urlSession: urlSession, sessionDelegate: session)
+        
+        let task = Task {
+            do {
+                try await sut.connect()
+            } catch {
+                Issue.record("Unexpected error: \(error)")
+            }
+        }
+        
+        try await Task.sleep(nanoseconds: 100)
+        wsInterceptor.simulateOpenWithProtocol(nil)
+        await task.value
+        
+        #expect(wsTask.didCallSendPing)
+    }
+    
+    @Test("test calling .connect does call URLSessionWebSocketTask.sendPing() and fails after 3 attempts")
+    func testCallingConnectDoesCallURLSessionWebSocketTaskSendPingAndFailsAfter3Atempts() async throws {
+        let pingConfig = PingConfig(pingInterval: UInt64(0.0000000001), maxPingFailures: 3)
+        let wsTask = MockURLSessionWebSocketTask(pingThrowsError: true)
+        let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
+        let wsInterceptor = MockWebSocketTaskInterceptor()
+        let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
+        let sut = WebSocketEngine(urlRequest: webSocketRequest, pingConfig: pingConfig, urlSession: urlSession, sessionDelegate: session)
+        
+        let task = Task {
+            do {
+                try await sut.connect()
+            } catch {
+                Issue.record("Unexpected error: \(error)")
+            }
+        }
+        
+        try await Task.sleep(nanoseconds: 100)
+        wsInterceptor.simulateOpenWithProtocol(nil)
+        await task.value
+        
+        try await Task.sleep(nanoseconds: 1_000_000_000)
+        
+        #expect(wsTask.pingFailureCount == 3)
     }
     
 }
