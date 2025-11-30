@@ -110,7 +110,7 @@ public actor WebSocketEngine: WebSocketClient {
         
         setupWebSocketEventHandler()
         
-        // TODO: add wait for connection to be established
+        try await waitForConnection()
         
         // TODO: start ping-long loop
     }
@@ -216,7 +216,23 @@ private extension WebSocketEngine {
     
     // MARK: - wait for connection to be established
     
-    
+    private func waitForConnection() async throws {
+        connectionState = .connecting
+
+        do {
+            let connectedProtocol = try await withCheckedThrowingContinuation { continuation in
+                self.connectionContinuation = continuation
+            }
+            connectionState = .connected(protocol: connectedProtocol)
+        } catch let wsError as WebSocketError {
+            connectionState = .failed(error: wsError)
+            throw wsError
+        } catch {
+            let wsError = WebSocketError.connectionFailed(underlying: error)
+            connectionState = .failed(error: wsError)
+            throw wsError
+        }
+    }
     
     // MARK: - handle ping-pong
 }
