@@ -196,6 +196,35 @@ final class WebSocketEngineTests_connect {
 @Suite("Test WebSocketEngine.disconnect()")
 final class WebSocketEngineTests_disconnect {
     
+    @Test("test calling .disconnect() does call WebSocketTask.resume()")
+    func testCallingDisconnectDoesCallWebSocketTaskResume() async throws {
+        let pingConfig = PingConfig(pingInterval: 1, maxPingFailures: 1)
+        let wsTask = MockURLSessionWebSocketTask()
+        let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
+        let wsInterceptor = MockWebSocketTaskInterceptor()
+        let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
+        let sut = WebSocketEngine(urlRequest: webSocketRequest, pingConfig: pingConfig, urlSession: urlSession, sessionDelegate: session)
+        
+        var didDisconnect = false
+        let task = Task {
+            do {
+                try await sut.connect()
+                await sut.disconnect(closeCode: .goingAway, reason: nil)
+                didDisconnect = true
+            } catch {
+                Issue.record("Unexpected error: \(error)")
+            }
+        }
+        
+        try await Task.sleep(nanoseconds: 100)
+        wsInterceptor.simulateOpenWithProtocol(nil)
+        await task.value
+        
+        #expect(didDisconnect)
+        #expect(wsTask.didCallCancel == true)
+        #expect(wsTask.didCancelWithCloseCode == .goingAway)
+        #expect(wsTask.didCancelWithReason == nil)
+    }
 }
 
 // MARK: .send()
