@@ -572,6 +572,58 @@ final class WebSocketEngineTests_stateChanges {
         
         #expect(receivedState == expectedStates)
     }
+    
+    @Test("test stateChanges emits .connectionLost when message fails to receive message")
+    func testStateChangesEmitsConnectionLostWhenMessagesFailsToReceiveMessage() async throws {
+        let pingConfig = PingConfig(pingInterval: 1, maxPingFailures: 1)
+        let wsTask = MockURLSessionWebSocketTask(receiveThrowsError: true)
+        let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
+        let wsInterceptor = MockWebSocketTaskInterceptor()
+        let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
+        let sut = WebSocketEngine(urlRequest: webSocketRequest, pingConfig: pingConfig, urlSession: urlSession, sessionDelegate: session)
+        
+        var receivedState = [WebSocketConnectionState]()
+        let expectedStates: [WebSocketConnectionState] = [
+            .connecting,
+            .connected(protocol: "test"),
+            .connectionLost(
+                reason: WebSocketError.receiveFailed(
+                    underlying: MockURLSessionWebSocketTaskError.failedToReceiveMessage
+                )
+            )
+        ]
+                
+        // Start listening to the stream concurrently
+        let stateTask = Task {
+            for await state in sut.stateChanges.prefix(expectedStates.count) {
+                receivedState.append(state)
+            }
+        }
+        
+        let connectionTask = Task {
+            try await sut.connect()
+        }
+        
+        try await Task.sleep(nanoseconds: 100)
+        wsInterceptor.simulateOpenWithProtocol("test")
+        
+        _ = try await connectionTask.value
+
+        let receiveMessagesTask = Task {
+            do {
+                for try await _ in sut.messages().prefix(1) {
+                    Issue.record("Expected message to fail")
+                }
+            } catch {
+                // expected to throw error
+            }
+        }
+        
+        _ = await receiveMessagesTask.value
+        _ = await stateTask.value
+        
+        #expect(receivedState == expectedStates)
+    }
 }
 
 private enum DummyError: Error {
