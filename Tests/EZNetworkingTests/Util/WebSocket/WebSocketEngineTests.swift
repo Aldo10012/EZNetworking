@@ -597,7 +597,6 @@ final class WebSocketEngineTests_stateChanges {
         // Start listening to the stream concurrently
         let stateTask = Task {
             for await state in sut.stateChanges.prefix(expectedStates.count) {
-                print("DEBUG: state = \(state)")
                 receivedState.append(state)
             }
         }
@@ -625,6 +624,47 @@ final class WebSocketEngineTests_stateChanges {
         _ = try await secondConnectTask.value
         
         _ = await stateTask.value
+        #expect(receivedState == expectedStates)
+    }
+    
+    @Test("stateChanges emits .connectinoLost state when ping fails")
+    func testStateChangesEmitsConnectionLostWhenPingFails() async throws {
+        let pingConfig = PingConfig(pingInterval: UInt64(0.0000000001), maxPingFailures: 3)
+        let wsTask = MockURLSessionWebSocketTask(pingThrowsError: true)
+        let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
+        let wsInterceptor = MockWebSocketTaskInterceptor()
+        let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
+        let sut = WebSocketEngine(urlRequest: webSocketRequest, pingConfig: pingConfig, urlSession: urlSession, sessionDelegate: session)
+        
+        var receivedState = [WebSocketConnectionState]()
+        let expectedStates: [WebSocketConnectionState] = [
+            .connecting,
+            .connected(protocol: "test"),
+            .connectionLost(reason: .keepAliveFailure(consecutiveFailures: 3))
+        ]
+        
+        let stateTask = Task {
+            for await state in sut.stateChanges.prefix(expectedStates.count) {
+                receivedState.append(state)
+            }
+        }
+        
+        let connectTask = Task {
+            do {
+                try await sut.connect()
+            } catch {
+                Issue.record("Unexpected error: \(error)")
+            }
+        }
+        
+        try await Task.sleep(nanoseconds: 100)
+        wsInterceptor.simulateOpenWithProtocol("test")
+        await connectTask.value
+        
+        try await Task.sleep(nanoseconds: 1_000_000_000)
+        
+        _ = await stateTask.value
+        #expect(wsTask.pingFailureCount == 3)
         #expect(receivedState == expectedStates)
     }
     
