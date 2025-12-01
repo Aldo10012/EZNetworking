@@ -82,9 +82,11 @@ public actor WebSocketEngine: WebSocketClient {
         // Finish all continuations
         connectionStateContinuation.finish()
         messageContinuation?.finish()
+        messageContinuation = nil
         
         // Cancel task
         webSocketTask?.cancel(with: .normalClosure, reason: nil)
+        webSocketTask = nil
     }
     
     // MARK: - state change observation
@@ -326,11 +328,12 @@ private extension WebSocketEngine {
             } catch {
                 let wsError = WebSocketError.receiveFailed(underlying: error)
                 
+                // IMPORTANT: finish WITH an error
+                continuation.finish(throwing: wsError)
+                
                 // Notify the engine that the connection is no longer valid
                 await handleConnectionLoss(error: wsError)
                 
-                // IMPORTANT: finish WITH an error
-                continuation.finish(throwing: wsError)
                 return
             }
         }
