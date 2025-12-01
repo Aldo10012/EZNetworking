@@ -573,6 +573,61 @@ final class WebSocketEngineTests_stateChanges {
         #expect(receivedState == expectedStates)
     }
     
+    @Test("stateChanges emits states for multiple connect-disconnect cycles")
+    func testStateChangesForMultipleConnectDisconnectCycles() async throws {
+        let pingConfig = PingConfig(pingInterval: 1, maxPingFailures: 1)
+        let wsTask = MockURLSessionWebSocketTask(receiveMessage: "mock message")
+        let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
+        let wsInterceptor = MockWebSocketTaskInterceptor()
+        let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
+        let sut = WebSocketEngine(urlRequest: webSocketRequest, pingConfig: pingConfig, urlSession: urlSession, sessionDelegate: session)
+        
+        var receivedState = [WebSocketConnectionState]()
+        let expectedStates: [WebSocketConnectionState] = [
+            // first connect-disconnect cycle
+            .connecting,
+            .connected(protocol: "test-1"),
+            .disconnected,
+            // second connect-disconnect cycle
+            .connecting,
+            .connected(protocol: "test-2"),
+            .disconnected
+        ]
+        
+        // Start listening to the stream concurrently
+        let stateTask = Task {
+            for await state in sut.stateChanges.prefix(expectedStates.count) {
+                print("DEBUG: state = \(state)")
+                receivedState.append(state)
+            }
+        }
+        
+        let firstConnectTask = Task {
+            try await sut.connect()
+            await sut.disconnect(closeCode: .goingAway, reason: nil)
+        }
+        
+        try await Task.sleep(nanoseconds: 100)
+        wsInterceptor.simulateOpenWithProtocol("test-1")
+        
+        _ = try await firstConnectTask.value
+        
+        // simulate reconnect
+        
+        let secondConnectTask = Task {
+            try await sut.connect()
+            await sut.disconnect(closeCode: .goingAway, reason: nil)
+        }
+        
+        try await Task.sleep(nanoseconds: 100)
+        wsInterceptor.simulateOpenWithProtocol("test-2")
+        
+        _ = try await secondConnectTask.value
+        
+        _ = await stateTask.value
+        #expect(receivedState == expectedStates)
+    }
+    
     @Test("test stateChanges emits .connectionLost when message fails to receive message")
     func testStateChangesEmitsConnectionLostWhenMessagesFailsToReceiveMessage() async throws {
         let pingConfig = PingConfig(pingInterval: 1, maxPingFailures: 1)
