@@ -6,10 +6,30 @@ public struct RequestPerformer: RequestPerformable {
     private let validator: ResponseValidator
     private let requestDecoder: RequestDecodable
     
-    public init(urlSession: URLSessionTaskProtocol = URLSession.shared,
-                validator: ResponseValidator = ResponseValidatorImpl(),
-                requestDecoder: RequestDecodable = RequestDecoder()) {
-        self.urlSession = urlSession
+    public init(
+        urlSession: URLSessionTaskProtocol = URLSession.shared,
+        validator: ResponseValidator = ResponseValidatorImpl(),
+        requestDecoder: RequestDecodable = RequestDecoder(),
+        sessionDelegate: SessionDelegate? = nil
+    ) {
+        if let urlSession = urlSession as? URLSession {
+            // If the session already has a delegate, use it (if it's a SessionDelegate)
+            if let _ = urlSession.delegate as? SessionDelegate {
+                self.urlSession = urlSession
+            } else {
+                // If no delegate or not a SessionDelegate, create one
+                let newDelegate = sessionDelegate ?? SessionDelegate()
+                let newSession = URLSession(
+                    configuration: urlSession.configuration,
+                    delegate: newDelegate,
+                    delegateQueue: urlSession.delegateQueue
+                )
+                self.urlSession = newSession
+            }
+        } else {
+            // For mocks or custom protocol types
+            self.urlSession = urlSession
+        }
         self.validator = validator
         self.requestDecoder = requestDecoder
     }
