@@ -394,17 +394,22 @@ final class WebSocketEngineTests_messages {
         var err: WebSocketError?
         let receiveMessagesTask = Task {
             do {
+                // The receive happens automatically after connect() via startReceivingMessages()
+                // When receive throws, the stream will finish with the error
                 for try await _ in sut.messages().prefix(1) {
                     Issue.record("Expected message to fail")
                 }
             } catch let wsError as WebSocketError {
                 err = wsError
             } catch {
-                Issue.record("Expected WebSocketError")
+                Issue.record("Expected WebSocketError, got: \(error)")
             }
         }
         
-        try await Task.sleep(nanoseconds: 100)
+        // Wait for the automatic receive attempt to execute and fail
+        // The receive happens in startReceivingMessages() which is called after connect()
+        try await Task.sleep(nanoseconds: 200_000_000) // 0.2 seconds
+        
         await receiveMessagesTask.value
 
         #expect(err == WebSocketError.receiveFailed(underlying: MockURLSessionWebSocketTaskError.failedToReceiveMessage))
@@ -704,20 +709,39 @@ final class WebSocketEngineTests_stateChanges {
         
         _ = try await connectionTask.value
 
+        // Start observing messages to trigger the receive attempt
+        // The receive happens automatically after connect() via startReceivingMessages()
+        // But we should also observe the stream to verify the behavior
+        var receivedError: Error?
         let receiveMessagesTask = Task {
             do {
                 for try await _ in sut.messages().prefix(1) {
-                    Issue.record("Expected message to fail")
+                    Issue.record("Expected message receive to fail")
                 }
             } catch {
-                // expected to throw error
+                receivedError = error
             }
         }
         
-        _ = await receiveMessagesTask.value
+        // Wait for the receive attempt to fail, which will:
+        // 1. Finish the stream with the error
+        // 2. Trigger handleConnectionLoss() which changes state to .connectionLost
+        try await Task.sleep(nanoseconds: 200_000_000) // 0.2 seconds
+        
+        // Wait for state task to collect all states
         _ = await stateTask.value
         
+        // Cancel the receive task since we're just testing state changes
+        receiveMessagesTask.cancel()
+        
+        // Verify the state changed correctly
         #expect(receivedState == expectedStates)
+        
+        // Also verify that the stream threw the expected error
+        #expect(receivedError != nil)
+        if let error = receivedError as? WebSocketError {
+            #expect(error == .receiveFailed(underlying: MockURLSessionWebSocketTaskError.failedToReceiveMessage))
+        }
     }
 }
 

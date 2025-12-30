@@ -33,9 +33,10 @@ public actor WebSocketEngine: WebSocketClient {
     private var connectionContinuation: CheckedContinuation<String?, Error>?
     
     // MARK: - Message Receiving
-        
-    private var messageContinuation: AsyncThrowingStream<InboundMessage, Error>.Continuation?
-    private var messageStreamCreated = false
+    
+    private nonisolated(unsafe) let _messages: AsyncThrowingStream<InboundMessage, Error>
+    private nonisolated(unsafe) let messageContinuation: AsyncThrowingStream<InboundMessage, Error>.Continuation
+    private var messageReceivingTask: Task<Void, Never>?
     
     // MARK: - init
     
@@ -72,6 +73,11 @@ public actor WebSocketEngine: WebSocketClient {
         let (stream, continuation) = AsyncStream<WebSocketConnectionState>.makeStream()
         self._stateChanges = stream
         self.connectionStateContinuation = continuation
+        
+        // Create the long-lived message stream
+        let (messageStream, messageContinuation) = AsyncThrowingStream<InboundMessage, Error>.makeStream()
+        self._messages = messageStream
+        self.messageContinuation = messageContinuation
     }
     
     // MARK: - deinit
@@ -81,17 +87,20 @@ public actor WebSocketEngine: WebSocketClient {
         connectionContinuation?.resume(throwing: WebSocketError.forcedDisconnection)
         connectionContinuation = nil
         
-        // Finish all continuations
+        // Finish all continuations to release any waiting iterators
         connectionStateContinuation.finish()
-        messageContinuation?.finish()
-        messageContinuation = nil
+        messageContinuation.finish()
         
-        // Cancel task
+        // Cancel all background tasks
+        pingTask?.cancel()
+        messageReceivingTask?.cancel()
+        
+        // Cancel webSocket task
         webSocketTask?.cancel(with: .normalClosure, reason: nil)
         webSocketTask = nil
         
-        pingTask?.cancel()
-        pingTask = nil
+        // Clear the event handler to prevent new tasks from being created after deallocation
+        sessionDelegate.webSocketTaskInterceptor?.onEvent = nil
     }
     
     // MARK: - state change observation
@@ -121,6 +130,9 @@ public actor WebSocketEngine: WebSocketClient {
         
         startPingLoop(intervalSeconds: pingConfig.pingInterval,
                       maximumConsecutiveFailures: pingConfig.maxPingFailures)
+        
+        // Start receiving messages when connected
+        await startReceivingMessages()
     }
     
     // MARK: - disconnect
@@ -140,9 +152,9 @@ public actor WebSocketEngine: WebSocketClient {
         connectionContinuation?.resume(throwing: error)
         connectionContinuation = nil
         
-        messageContinuation?.finish()
-        messageContinuation = nil
-        messageStreamCreated = false
+        // Stop receiving messages (but don't finish the stream - it's long-lived)
+        messageReceivingTask?.cancel()
+        messageReceivingTask = nil
         
         webSocketTask?.cancel(with: closeCode, reason: reason)
         webSocketTask = nil
@@ -151,6 +163,9 @@ public actor WebSocketEngine: WebSocketClient {
         
         pingTask?.cancel()
         pingTask = nil
+        
+        // Clear the event handler to prevent new tasks from being created
+        sessionDelegate.webSocketTaskInterceptor?.onEvent = nil
     }
     
     // MARK: - send
@@ -173,15 +188,10 @@ public actor WebSocketEngine: WebSocketClient {
     
     // MARK: - messages
     
+    /// Returns a long-lived stream of messages that persists across disconnections and reconnections.
+    /// The stream only finishes when the engine is deallocated or encounters a permanent error.
     nonisolated public func messages() -> AsyncThrowingStream<InboundMessage, Error> {
-        return AsyncThrowingStream<InboundMessage, Error> { continuation in
-            let task = Task { [weak self] in
-                await self?.receiveMessages(continuation)
-            }
-            continuation.onTermination = { @Sendable _ in
-                task.cancel()
-            }
-        }
+        return _messages
     }
     
 }
@@ -314,42 +324,41 @@ private extension WebSocketEngine {
     
     // MARK: - receive Messages
     
-    private func receiveMessages(_ continuation: AsyncThrowingStream<InboundMessage, Error>.Continuation) async {
-        guard let task = webSocketTask else {
-            continuation.finish(throwing: WebSocketError.taskNotInitialized)
-            return
-        }
-        guard case .connected = connectionState else {
-            continuation.finish(throwing: WebSocketError.notConnected)
-            return
-        }
-        if messageStreamCreated {
-            continuation.finish(throwing: WebSocketError.streamAlreadyCreated)
-            return
-        }
+    /// Starts receiving messages when connected. This task runs until cancelled or connection is lost.
+    /// When disconnected, the task exits and should be restarted via connect().
+    private func startReceivingMessages() async {
+        // Cancel any existing receiving task
+        messageReceivingTask?.cancel()
         
-        messageStreamCreated = true
-        messageContinuation = continuation
-        
-        while await isConnectedState() {
-            do {
-                let message = try await task.receive()
-                continuation.yield(message)
-            } catch {
-                let wsError = WebSocketError.receiveFailed(underlying: error)
-                
-                // IMPORTANT: finish WITH an error
-                continuation.finish(throwing: wsError)
-                
-                // Notify the engine that the connection is no longer valid
-                await handleConnectionLoss(error: wsError)
-                
+        messageReceivingTask = Task { [weak self] in
+            guard let self else { return }
+            
+            // Only receive while connected
+            guard await self.isConnectedState() else {
+                // Not connected, exit - will be restarted on next connect()
                 return
             }
+            
+            guard let task = await self.webSocketTask else {
+                // Task not available, exit
+                return
+            }
+            
+            // Receive messages while connected
+            while await self.isConnectedState() && !Task.isCancelled {
+                do {
+                    let message = try await task.receive()
+                    self.messageContinuation.yield(message)
+                } catch {
+                    // If receive fails, propagate the error through the stream
+                    // The stream will finish with the error, allowing the client to handle it
+                    let wsError = WebSocketError.receiveFailed(underlying: error)
+                    self.messageContinuation.finish(throwing: wsError)
+                    await self.handleConnectionLoss(error: wsError)
+                    break
+                }
+            }
         }
-        
-        // If loop exits, connection state changed
-        continuation.finish()
     }
     
 }
