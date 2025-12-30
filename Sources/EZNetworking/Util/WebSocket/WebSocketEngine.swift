@@ -9,6 +9,8 @@ public actor WebSocketEngine: WebSocketClient {
     private let webSocketRequest: URLRequest
     private let pingConfig: PingConfig
     
+    private var pingTask: Task<Void, Never>?
+    
     // MARK: - WS interceptor
     
     private let fallbackWebSocketTaskInterceptor: WebSocketTaskInterceptor = DefaultWebSocketTaskInterceptor()
@@ -87,6 +89,9 @@ public actor WebSocketEngine: WebSocketClient {
         // Cancel task
         webSocketTask?.cancel(with: .normalClosure, reason: nil)
         webSocketTask = nil
+        
+        pingTask?.cancel()
+        pingTask = nil
     }
     
     // MARK: - state change observation
@@ -143,6 +148,9 @@ public actor WebSocketEngine: WebSocketClient {
         webSocketTask = nil
         
         connectionState = newState
+        
+        pingTask?.cancel()
+        pingTask = nil
     }
     
     // MARK: - send
@@ -258,12 +266,12 @@ private extension WebSocketEngine {
     // MARK: - handle ping-pong
     
     private func startPingLoop(intervalSeconds: UInt64, maximumConsecutiveFailures: Int) {
-        Task { [weak self] in
-            guard let self else { return }
+        pingTask = Task { [weak self] in
+            guard !Task.isCancelled, let self else { return }
             
             var consecutiveFailures = 0
             
-            while await self.isConnectedState() {
+            while await self.isConnectedState() && !Task.isCancelled {
                 do {
                     try await self.sendPing()
                     consecutiveFailures = 0
@@ -276,6 +284,8 @@ private extension WebSocketEngine {
                     await self.handleConnectionLoss(error: error)
                     break
                 }
+                
+                guard !Task.isCancelled else { return }
                 
                 try? await Task.sleep(nanoseconds: intervalSeconds * 1_000_000_000)
             }
