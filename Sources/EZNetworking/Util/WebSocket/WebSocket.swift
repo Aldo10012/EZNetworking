@@ -7,8 +7,11 @@ public actor WebSocket: WebSocketClient {
     private let webSocketRequest: URLRequest
     
     private var webSocketTask: WebSocketTaskProtocol?
-    
+    private let fallbackWebSocketTaskInterceptor: WebSocketTaskInterceptor = DefaultWebSocketTaskInterceptor()
     private var connectionState: WebSocketConnectionState = .idle
+    
+    /// Used to suspend `connect()` until the delegate reports connection success/failure
+    private var initialConnectionContinuation: CheckedContinuation<String?, Error>?
     
     // MARK: Init
     
@@ -55,12 +58,111 @@ public actor WebSocket: WebSocketClient {
         // Create and resume WebSocket task
         webSocketTask = urlSession.webSocketTaskInspectable(with: webSocketRequest)
         webSocketTask?.resume()
+        
+        // set up delegate to observe connection success/failure
+        setupWebSocketEventHandler()
+        
+        // wait for connection to establish
+        try await waitForConnection()
+
+    }
+    
+    // handle open/close events
+    private func setupWebSocketEventHandler() {
+        if sessionDelegate.webSocketTaskInterceptor == nil {
+            sessionDelegate.webSocketTaskInterceptor = fallbackWebSocketTaskInterceptor
+        }
+        guard sessionDelegate.webSocketTaskInterceptor?.onEvent == nil else { return }
+        
+        sessionDelegate.webSocketTaskInterceptor?.onEvent = { [weak self] event in
+            Task {
+                await self?.handleWebSocketInterceptorEvent(event)
+            }
+        }
+    }
+    
+    private func handleWebSocketInterceptorEvent(_ event: WebSocketTaskEvent) async {
+        switch (connectionState, event) {
+        case (.idle, _), (.disconnected, _), (.connectionLost, _), (.failed, _):
+            break
+            
+        case (.connecting, .didOpenWithProtocol(let proto)):
+            handleConnect(with: proto)
+            
+        case (.connecting, .didOpenWithError(let err)):
+            handleConnectFail(throwing: .connectionFailed(underlying: err))
+            
+        case (.connecting, .didClose(let code, let reason)):
+            handleConnectFail(throwing: .unexpectedDisconnection(code: code, reason: parseReason(reason)))
+            
+        case (.connected, .didClose(let code, let reason)):
+            let error = WebSocketError.unexpectedDisconnection(code: code, reason: parseReason(reason))
+            handleConnectionLoss(error: error)
+            
+        case (.connected, _):
+            break
+        }
+    }
+    
+    private func handleConnect(with protocolStr: String?) {
+        initialConnectionContinuation?.resume(returning: protocolStr)
+        initialConnectionContinuation = nil
+    }
+    
+    private func handleConnectFail(throwing error: WebSocketError) {
+        initialConnectionContinuation?.resume(throwing: error)
+        initialConnectionContinuation = nil
+        connectionState = .failed(error: error)
+    }
+    
+    private func parseReason(_ reason: Data?) -> String? {
+        reason.flatMap { String(data: $0, encoding: .utf8) }
+    }
+    
+    private func waitForConnection() async throws {
+        connectionState = .connecting
+        
+        do {
+            let connectedProtocol = try await withCheckedThrowingContinuation { continuation in
+                self.initialConnectionContinuation = continuation
+            }
+            connectionState = .connected(protocol: connectedProtocol)
+        } catch let wsError as WebSocketError {
+            connectionState = .failed(error: wsError)
+            throw wsError
+        } catch {
+            let wsError = WebSocketError.connectionFailed(underlying: error)
+            connectionState = .failed(error: wsError)
+            throw wsError
+        }
     }
     
     // MARK: Disconnect
     
     public func disconnect(closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?) async {
         // TODO: implement
+    }
+    
+    private func handleConnectionLoss(error: WebSocketError) {
+        cleanup(closeCode: .goingAway, reason: nil, newState: .connectionLost(reason: error), error: error)
+    }
+    
+    private func cleanup(
+        closeCode: URLSessionWebSocketTask.CloseCode,
+        reason: Data?,
+        newState: WebSocketConnectionState,
+        error: WebSocketError
+    ) {
+        initialConnectionContinuation?.resume(throwing: error)
+        initialConnectionContinuation = nil
+        
+        webSocketTask?.cancel(with: closeCode, reason: reason)
+        webSocketTask = nil
+        
+        connectionState = newState
+        
+        // Clear the event handler to prevent new tasks from being created
+        sessionDelegate.webSocketTaskInterceptor?.onEvent = nil
     }
     
     // MARK: Send message
