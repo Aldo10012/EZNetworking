@@ -6,11 +6,6 @@ public typealias InboundMessage = URLSessionWebSocketTask.Message
 /// A client for managing WebSocket connections.
 public protocol WebSocketClient: Sendable {
 
-    // MARK: - State Observation
-
-    /// A stream of connection state changes.
-    var stateEvents: AsyncStream<WebSocketConnectionState> { get }
-
     // MARK: - Connection Management
 
     /// Establishes a connection to the WebSocket server.
@@ -26,4 +21,9 @@ public protocol WebSocketClient: Sendable {
 
     /// Returns a stream of messages received from the WebSocket server.
     var messages: AsyncThrowingStream<InboundMessage, Error> { get }
+    
+    // MARK: - State Observation
+
+    /// A stream of connection state changes.
+    var stateEvents: AsyncStream<WebSocketConnectionState> { get }
 }

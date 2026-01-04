@@ -37,25 +37,35 @@ public actor WebSocket: WebSocketClient {
         }
     }
     
-    public nonisolated var stateEvents: AsyncStream<WebSocketConnectionState> {
-        // TODO: implement
-        AsyncStream<WebSocketConnectionState> { $0.finish() }
-    }
+    // MARK: Connect
     
     public func connect() async throws {
         // TODO: implement
     }
     
+    // MARK: Disconnect
+    
     public func disconnect(closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?) async {
         // TODO: implement
     }
+    
+    // MARK: Send message
     
     public func send(_ message: OutboundMessage) async throws {
         // TODO: implement
     }
     
+    // MARK: Receive messages
+    
     public nonisolated var messages: AsyncThrowingStream<InboundMessage, any Error> {
         // TODO: implement
         AsyncThrowingStream<InboundMessage, Error> { $0.finish() }
+    }
+    
+    // MARK: State events
+    
+    public nonisolated var stateEvents: AsyncStream<WebSocketConnectionState> {
+        // TODO: implement
+        AsyncStream<WebSocketConnectionState> { $0.finish() }
     }
 }
