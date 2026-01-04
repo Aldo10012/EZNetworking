@@ -6,6 +6,8 @@ public actor WebSocket: WebSocketClient {
     private var sessionDelegate: SessionDelegate
     private let webSocketRequest: URLRequest
     
+    private var webSocketTask: WebSocketTaskProtocol?
+    
     // MARK: Init
     
     public init(
@@ -40,7 +42,9 @@ public actor WebSocket: WebSocketClient {
     // MARK: Connect
     
     public func connect() async throws {
-        // TODO: implement
+        // Create and resume WebSocket task
+        webSocketTask = urlSession.webSocketTaskInspectable(with: webSocketRequest)
+        webSocketTask?.resume()
     }
     
     // MARK: Disconnect
