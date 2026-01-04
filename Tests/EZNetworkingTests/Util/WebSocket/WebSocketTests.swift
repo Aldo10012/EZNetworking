@@ -136,6 +136,90 @@ final class WebSocketEngineTests_connect {
     }
 }
 
+// MARK: .connect() + ping pong
+
+@Suite("Test WebSocketEngine.connect()")
+final class WebSocketEngineTests_connect_pingPong {
+    
+    @Test("test calling .connect does call URLSessionWebSocketTask.sendPing()")
+    func testCallingConnectDoesCallURLSessionWebSocketTaskSendPing() async throws {
+        let pingConfig = PingConfig(pingInterval: .nanoseconds(1), maxPingFailures: 0)
+        let wsTask = MockURLSessionWebSocketTask()
+        let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
+        let wsInterceptor = MockWebSocketTaskInterceptor()
+        let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
+        let sut = WebSocket(urlRequest: webSocketRequest, pingConfig: pingConfig, urlSession: urlSession, sessionDelegate: session)
+        
+        let task = Task {
+            do {
+                try await sut.connect()
+            } catch {
+                Issue.record("Unexpected error: \(error)")
+            }
+        }
+        
+        try await Task.sleep(nanoseconds: 100)
+        wsInterceptor.simulateOpenWithProtocol(nil)
+        await task.value
+        
+        try await Task.sleep(nanoseconds: 100)
+        
+        #expect(wsTask.didCallSendPing)
+    }
+    
+    @Test("test calling .connect fails if ping does not receive pong after 3 failed attempts")
+    func testCallingConnectFailsIfPingDoesNotReceivePongAfter3FailedAttempts() async throws {
+        let pingConfig = PingConfig(pingInterval: .nanoseconds(1), maxPingFailures: 3)
+        let wsTask = MockURLSessionWebSocketTask(pingThrowsError: true)
+        let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
+        let wsInterceptor = MockWebSocketTaskInterceptor()
+        let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
+        let sut = WebSocket(urlRequest: webSocketRequest, pingConfig: pingConfig, urlSession: urlSession, sessionDelegate: session)
+        
+        let task = Task {
+            do {
+                try await sut.connect()
+            } catch {
+                Issue.record("Unexpected error: \(error)")
+            }
+        }
+        
+        try await Task.sleep(nanoseconds: 100)
+        wsInterceptor.simulateOpenWithProtocol(nil)
+        await task.value
+        
+        try await Task.sleep(nanoseconds: 1_000_000_000)
+        
+        #expect(wsTask.pingFailureCount == 3)
+    }
+    
+    @Test("test captured error from calling .connect if ping does not receive pong")
+    func testCapturedErrorFromCallingConnectIfPingDoesNotReceivePong() async throws {
+        let pingConfig = PingConfig(pingInterval: .nanoseconds(1), maxPingFailures: 1)
+        let wsTask = MockURLSessionWebSocketTask(pingThrowsError: true)
+        let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
+        let wsInterceptor = MockWebSocketTaskInterceptor()
+        let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
+        let sut = WebSocket(urlRequest: webSocketRequest, pingConfig: pingConfig, urlSession: urlSession, sessionDelegate: session)
+        
+        let task = Task {
+            do {
+                try await sut.connect()
+            } catch {
+                Issue.record("Unexpected error: \(error)")
+            }
+        }
+        
+        try await Task.sleep(nanoseconds: 100)
+        wsInterceptor.simulateOpenWithProtocol(nil)
+        await task.value
+        
+        try await Task.sleep(nanoseconds: 1_000_000_000)
+        
+        #expect(wsTask.pingError as? MockURLSessionWebSocketTaskError == MockURLSessionWebSocketTaskError.pingError)
+    }
+}
+
 // MARK: .disconnect()
 
 @Suite("Test WebSocketEngine.disconnect()")

@@ -13,14 +13,19 @@ public actor WebSocket: WebSocketClient {
     /// Used to suspend `connect()` until the delegate reports connection success/failure
     private var initialConnectionContinuation: CheckedContinuation<String?, Error>?
     
+    private let pingConfig: PingConfig
+    private var pingTask: Task<Void, Never>?
+    
     // MARK: Init
     
     public init(
         urlRequest: URLRequest,
+        pingConfig: PingConfig = PingConfig(),
         urlSession: URLSessionTaskProtocol = URLSession.shared,
         sessionDelegate: SessionDelegate? = nil
     ) {
         self.webSocketRequest = urlRequest
+        self.pingConfig = pingConfig
         if let urlSession = urlSession as? URLSession {
             // If the session already has a delegate, use it (if it's a SessionDelegate)
             if let existingDelegate = urlSession.delegate as? SessionDelegate {
@@ -44,7 +49,7 @@ public actor WebSocket: WebSocketClient {
         }
     }
     
-    // MARK: Connect
+    // MARK: - Connect
     
     public func connect() async throws {
         // Validate current state
@@ -65,9 +70,11 @@ public actor WebSocket: WebSocketClient {
         // wait for connection to establish
         try await waitForConnection()
 
+        // start ping-ping loop
+        startPingLoop()
     }
     
-    // handle open/close events
+    // MARK: Handle delegate events
     private func setupWebSocketEventHandler() {
         if sessionDelegate.webSocketTaskInterceptor == nil {
             sessionDelegate.webSocketTaskInterceptor = fallbackWebSocketTaskInterceptor
@@ -119,6 +126,7 @@ public actor WebSocket: WebSocketClient {
         reason.flatMap { String(data: $0, encoding: .utf8) }
     }
     
+    // MARK: Wait for connection
     private func waitForConnection() async throws {
         connectionState = .connecting
         
@@ -137,7 +145,52 @@ public actor WebSocket: WebSocketClient {
         }
     }
     
-    // MARK: Disconnect
+    // MARK: Ping-pong loop
+    
+    private func startPingLoop(consecutiveFailures: Int = 0, lastError: WebSocketError? = nil) {
+        pingTask = Task {
+            guard !Task.isCancelled else { return }
+            guard await isConnectedState() else { return }
+            
+            // check if ping failed too many times in a row
+            guard consecutiveFailures < pingConfig.maxPingFailures else {
+                self.handleConnectionLoss(error: lastError!)
+                return
+            }
+            
+            // send ping
+            var totalConsecutiveFailures = consecutiveFailures
+            var pingError: WebSocketError? = nil
+            do {
+                try await sendPing()
+                totalConsecutiveFailures = 0
+            } catch {
+                totalConsecutiveFailures += 1
+                pingError = WebSocketError.pingFailed(underlying: error)
+            }
+            
+            await pingConfig.waitForPingInterval()
+            startPingLoop(consecutiveFailures: totalConsecutiveFailures, lastError: pingError)
+        }
+    }
+    
+    private func sendPing() async throws {
+        guard let task = webSocketTask else {
+            throw WebSocketError.taskNotInitialized
+        }
+        
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            task.sendPing { error in
+                if let error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume()
+                }
+            }
+        }
+    }
+    
+    // MARK: - Disconnect
     
     public func disconnect(closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?) async {
         // TODO: implement
@@ -161,27 +214,57 @@ public actor WebSocket: WebSocketClient {
         
         connectionState = newState
         
+        pingTask?.cancel()
+        pingTask = nil
+        
         // Clear the event handler to prevent new tasks from being created
         sessionDelegate.webSocketTaskInterceptor?.onEvent = nil
     }
     
-    // MARK: Send message
+    // MARK: - Send message
     
     public func send(_ message: OutboundMessage) async throws {
         // TODO: implement
     }
     
-    // MARK: Receive messages
+    // MARK: - Receive messages
     
     public nonisolated var messages: AsyncThrowingStream<InboundMessage, any Error> {
         // TODO: implement
         AsyncThrowingStream<InboundMessage, Error> { $0.finish() }
     }
     
-    // MARK: State events
+    // MARK: - State events
     
     public nonisolated var stateEvents: AsyncStream<WebSocketConnectionState> {
         // TODO: implement
         AsyncStream<WebSocketConnectionState> { $0.finish() }
+    }
+}
+
+extension WebSocket {
+    private func isConnectedState() async -> Bool {
+        if case .connected = connectionState { return true }
+        return false
+    }
+}
+
+// TODO: move to another file
+public struct PingConfig {
+    public let pingInterval: Duration
+    public let maxPingFailures: UInt
+    
+    public init(pingInterval: Duration = Duration.seconds(30), maxPingFailures: UInt = 3) {
+        self.pingInterval = pingInterval
+        
+        if maxPingFailures == 0 {
+            self.maxPingFailures = 1
+        } else {
+            self.maxPingFailures = maxPingFailures
+        }
+    }
+    
+    internal func waitForPingInterval() async {
+        try? await Task.sleep(for: pingInterval)
     }
 }
