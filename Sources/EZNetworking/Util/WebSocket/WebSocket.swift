@@ -37,7 +37,7 @@ public actor WebSocket: WebSocketClient {
         }
     }
     
-    public nonisolated var stateChanges: AsyncStream<WebSocketConnectionState> {
+    public nonisolated var stateEvents: AsyncStream<WebSocketConnectionState> {
         // TODO: implement
         AsyncStream<WebSocketConnectionState> { $0.finish() }
     }

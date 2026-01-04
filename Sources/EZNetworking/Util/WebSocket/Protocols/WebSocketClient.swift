@@ -9,7 +9,7 @@ public protocol WebSocketClient: Sendable {
     // MARK: - State Observation
 
     /// A stream of connection state changes.
-    var stateChanges: AsyncStream<WebSocketConnectionState> { get }
+    var stateEvents: AsyncStream<WebSocketConnectionState> { get }
 
     // MARK: - Connection Management
 
