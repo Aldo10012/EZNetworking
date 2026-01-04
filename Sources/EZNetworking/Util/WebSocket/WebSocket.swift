@@ -8,6 +8,8 @@ public actor WebSocket: WebSocketClient {
     
     private var webSocketTask: WebSocketTaskProtocol?
     
+    private var connectionState: WebSocketConnectionState = .idle
+    
     // MARK: Init
     
     public init(
@@ -42,6 +44,14 @@ public actor WebSocket: WebSocketClient {
     // MARK: Connect
     
     public func connect() async throws {
+        // Validate current state
+        if case .connecting = connectionState {
+            throw WebSocketError.stillConnecting
+        }
+        if case .connected(protocol: _) = connectionState {
+            throw WebSocketError.alreadyConnected
+        }
+        
         // Create and resume WebSocket task
         webSocketTask = urlSession.webSocketTaskInspectable(with: webSocketRequest)
         webSocketTask?.resume()
