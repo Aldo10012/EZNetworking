@@ -54,7 +54,7 @@ public actor WebSocket: WebSocketClient {
         // TODO: implement
     }
     
-    public nonisolated func messages() -> AsyncThrowingStream<InboundMessage, any Error> {
+    public nonisolated var messages: AsyncThrowingStream<InboundMessage, any Error> {
         // TODO: implement
         AsyncThrowingStream<InboundMessage, Error> { $0.finish() }
     }
