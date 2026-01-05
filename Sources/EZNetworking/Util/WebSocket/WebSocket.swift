@@ -16,6 +16,9 @@ public actor WebSocket: WebSocketClient {
     private let pingConfig: PingConfig
     private var pingTask: Task<Void, Never>?
     
+    private nonisolated(unsafe) var messagesStream: AsyncThrowingStream<InboundMessage, any Error>
+    private let messagesContinuation: AsyncThrowingStream<InboundMessage, Error>.Continuation
+    
     // MARK: Init
     
     public init(
@@ -256,9 +259,6 @@ public actor WebSocket: WebSocketClient {
     }
     
     // MARK: - Receive messages
-    
-    private nonisolated(unsafe) var messagesStream: AsyncThrowingStream<InboundMessage, any Error>
-    private let messagesContinuation: AsyncThrowingStream<InboundMessage, Error>.Continuation
 
     public nonisolated var messages: AsyncThrowingStream<InboundMessage, any Error> {
         return messagesStream
