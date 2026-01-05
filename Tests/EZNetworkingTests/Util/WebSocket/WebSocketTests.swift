@@ -541,10 +541,11 @@ final class WebSocketEngineTests_stateChanges {
         try await Task.sleep(nanoseconds: 100)
         wsInterceptor.simulateOpenWithProtocol("test")
         
-        _ = await stateTask.value
         _ = try await connectionTask.value
+        _ = await stateTask.value
         
         #expect(receivedState == expectedStates)
+        try await sut.disconnect() // just to finish streams
     }
     
     @Test("test stateEvents when connecting fails due to error")
@@ -582,8 +583,8 @@ final class WebSocketEngineTests_stateChanges {
         try await Task.sleep(nanoseconds: 100)
         wsInterceptor.simulateDidCompleteWithError(error: DummyError.error)
         
-        _ = await stateTask.value
         _ = await connectTask.value
+        _ = await stateTask.value
         
         #expect(receivedState == expectedStates)
     }
@@ -658,11 +659,10 @@ final class WebSocketEngineTests_stateChanges {
         try await Task.sleep(nanoseconds: 100)
         wsInterceptor.simulateOpenWithProtocol("test")
         
-        _ = await stateTask.value
         _ = try await connectionTask.value
-        
         try await sut.disconnect()
-        
+
+        _ = await stateTask.value
         #expect(receivedState == expectedStates)
     }
     
@@ -702,7 +702,6 @@ final class WebSocketEngineTests_stateChanges {
         try await Task.sleep(nanoseconds: 100)
         
         _ = await stateTask.value
-        
         #expect(receivedState == expectedStates)
     }
     
@@ -742,7 +741,6 @@ final class WebSocketEngineTests_stateChanges {
         wsTask.simulateReceiveMessageError()
         
         _ = await stateTask.value
-        
         #expect(receivedState == expectedStates)
     }
 }
