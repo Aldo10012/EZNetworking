@@ -6,9 +6,9 @@ import Testing
 final class WebSocketConnectionStateTests {
     @Test("basic equality for simple states")
     func testBasicEquality() {
-        #expect(WebSocketConnectionState.disconnected == .disconnected)
+        #expect(WebSocketConnectionState.notConnected == .notConnected)
         #expect(WebSocketConnectionState.connecting == .connecting)
-        #expect(WebSocketConnectionState.idle == .idle)
+        #expect(WebSocketConnectionState.connecting == .connecting)
     }
 
     @Test("connected state equality with protocol values")
@@ -18,25 +18,26 @@ final class WebSocketConnectionStateTests {
         #expect(WebSocketConnectionState.connected(protocol: "chat") != .connected(protocol: "video"))
         #expect(WebSocketConnectionState.connected(protocol: nil) != .connected(protocol: "chat"))
     }
+    
+    @Test("disconnected state equality with protocol values")
+    func testDisconnectEquality() {
+        let manuallyDisconnected = WebSocketConnectionState.disconnected(.manuallyDisconnected)
+        let connectionLostA = WebSocketConnectionState.disconnected(.connectionLost(error: .alreadyConnected))
+        let connectionLostB = WebSocketConnectionState.disconnected(.connectionLost(error: .connectionTimeout))
+        let failedToConnectA = WebSocketConnectionState.disconnected(.failedToConnect(error: .alreadyConnected))
+        let failedToConnectB = WebSocketConnectionState.disconnected(.failedToConnect(error: .connectionTimeout))
 
-    @Test("connectionLost and failed equality by underlying WebSocketError")
-    func testErrorAssociatedEquality() {
-        let err1 = WebSocketError.connectionFailed(underlying: URLError(.notConnectedToInternet))
-        let err2 = WebSocketError.connectionFailed(underlying: URLError(.notConnectedToInternet))
-        let other = WebSocketError.connectionFailed(underlying: NSError(domain: "x", code: 1))
+        #expect(manuallyDisconnected == manuallyDisconnected)
+        #expect(connectionLostA == connectionLostA)
+        #expect(connectionLostB == connectionLostB)
+        #expect(failedToConnectA == failedToConnectA)
+        #expect(failedToConnectB == failedToConnectB)
+        
+        #expect(connectionLostA != connectionLostB)
+        #expect(failedToConnectA != failedToConnectB)
 
-        #expect(WebSocketConnectionState.connectionLost(reason: err1) == .connectionLost(reason: err2))
-        #expect(WebSocketConnectionState.connectionLost(reason: err1) != .connectionLost(reason: other))
-
-        #expect(WebSocketConnectionState.failed(error: err1) == .failed(error: err2))
-        #expect(WebSocketConnectionState.failed(error: err1) != .failed(error: other))
-    }
-
-    @Test("different enum cases are not equal")
-    func testDifferentCasesNotEqual() {
-        #expect(WebSocketConnectionState.disconnected != .connecting)
-        #expect(WebSocketConnectionState.disconnected != .connected(protocol: nil))
-        #expect(WebSocketConnectionState.connecting != .connected(protocol: "p"))
-        #expect(WebSocketConnectionState.connectionLost(reason: WebSocketError.taskCancelled) != .failed(error: WebSocketError.taskCancelled))
+        #expect(manuallyDisconnected != connectionLostA)
+        #expect(connectionLostA != failedToConnectA)
+        #expect(failedToConnectA != manuallyDisconnected)
     }
 }

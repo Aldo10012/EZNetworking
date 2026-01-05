@@ -9,7 +9,7 @@ public actor WebSocket: WebSocketClient {
     private var webSocketTask: WebSocketTaskProtocol?
     private let fallbackWebSocketTaskInterceptor: WebSocketTaskInterceptor = DefaultWebSocketTaskInterceptor()
     
-    private var connectionState: WebSocketConnectionState = .idle {
+    private var connectionState: WebSocketConnectionState = .notConnected {
         didSet {
             stateEventContinuation.yield(connectionState)
         }
@@ -114,7 +114,7 @@ public actor WebSocket: WebSocketClient {
     
     private func handleWebSocketInterceptorEvent(_ event: WebSocketTaskEvent) async {
         switch (connectionState, event) {
-        case (.idle, _), (.disconnected, _), (.connectionLost, _), (.failed, _):
+        case (.notConnected, _), (.disconnected, _):
             break
             
         case (.connecting, .didOpenWithProtocol(let proto)):
@@ -143,7 +143,7 @@ public actor WebSocket: WebSocketClient {
     private func handleConnectFail(throwing error: WebSocketError) {
         initialConnectionContinuation?.resume(throwing: error)
         initialConnectionContinuation = nil
-        connectionState = .failed(error: error)
+        connectionState = .disconnected(.failedToConnect(error: error))
     }
     
     private func parseReason(_ reason: Data?) -> String? {
@@ -160,11 +160,11 @@ public actor WebSocket: WebSocketClient {
             }
             connectionState = .connected(protocol: connectedProtocol)
         } catch let wsError as WebSocketError {
-            connectionState = .failed(error: wsError)
+            connectionState = .disconnected(.failedToConnect(error: wsError))
             throw wsError
         } catch {
             let wsError = WebSocketError.connectionFailed(underlying: error)
-            connectionState = .failed(error: wsError)
+            connectionState = .disconnected(.failedToConnect(error: wsError))
             throw wsError
         }
     }
@@ -221,13 +221,19 @@ public actor WebSocket: WebSocketClient {
             throw WebSocketError.notConnected
         }
         
-        cleanup(closeCode: .goingAway, reason: nil, newState: .disconnected, error: .forcedDisconnection)
+        cleanup(closeCode: .goingAway,
+                reason: nil,
+                newState: .disconnected(.manuallyDisconnected),
+                error: .forcedDisconnection)
     }
     
     private func handleConnectionLoss(error: WebSocketError) {
         let closeCode = webSocketTask?.closeCode ?? .goingAway
         let reason = webSocketTask?.closeReason ?? nil
-        cleanup(closeCode: closeCode, reason: reason, newState: .connectionLost(reason: error), error: error)
+        cleanup(closeCode: closeCode,
+                reason: reason,
+                newState: .disconnected(.connectionLost(error: error)),
+                error: error)
     }
     
     private func cleanup(
