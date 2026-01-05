@@ -516,8 +516,8 @@ final class WebSocketEngineTests_messages {
 @Suite("Test WebSocketEngine.stateChanges()")
 final class WebSocketEngineTests_stateChanges {
     
-    @Test("stateChanges emits .connecting and .connected when connect succeeds")
-    func testStateChangesEmitsConnectingAndConnectedWhenConnectSucceeds() async throws {
+    @Test("test stateEvents when connecting")
+    func testStateEventsWhenConnecting() async throws {
         let pingConfig = PingConfig(pingInterval: .seconds(1), maxPingFailures: 1)
         let wsTask = MockURLSessionWebSocketTask()
         let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
@@ -550,8 +550,8 @@ final class WebSocketEngineTests_stateChanges {
         #expect(receivedState == expectedStates)
     }
     
-    @Test("stateChanges emits .connecting and .disconnected when connect succeeds")
-    func testStateChangesEmitsConnectingAndDisconnectWhenConnectSucceeds() async throws {
+    @Test("test stateEvents when connecting fails due to error")
+    func testStateEventsWhenConnectingFailsDueToError() async throws {
         let pingConfig = PingConfig(pingInterval: .seconds(1), maxPingFailures: 1)
         let wsTask = MockURLSessionWebSocketTask()
         let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
@@ -591,8 +591,8 @@ final class WebSocketEngineTests_stateChanges {
         #expect(receivedState == expectedStates)
     }
     
-    @Test("stateChanges emits .connecting .connected & .disconnected when connect succeeds then delegate closes")
-    func testStateChangesEmitsConnectingConnectedAndDisconnectedWhenConnectSucceedsThenDelegateCloses() async throws {
+    @Test("test stateEvents when connecting then later connection is lost")
+    func testStateEventsWhenConnectingThenLaterConnectionIsLost() async throws {
         let pingConfig = PingConfig(pingInterval: .seconds(1), maxPingFailures: 1)
         let wsTask = MockURLSessionWebSocketTask()
         let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
@@ -632,8 +632,45 @@ final class WebSocketEngineTests_stateChanges {
         #expect(receivedState == expectedStates)
     }
     
-    @Test("stateChanges emits .connecting .connected & .disconnected when connect succeeds then pings fail")
-    func testStateChangesEmitsConnectingConnectedAndDisconnectedWhenConnectSucceedsThenPingFail() async throws {
+    @Test("test stateEvents when connecting then disconnect")
+    func testStateEventsWhenConnectingThenDisconnecting() async throws {
+        let pingConfig = PingConfig(pingInterval: .seconds(1), maxPingFailures: 1)
+        let wsTask = MockURLSessionWebSocketTask()
+        let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
+        let wsInterceptor = MockWebSocketTaskInterceptor()
+        let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
+        let sut = WebSocket(urlRequest: webSocketRequest, pingConfig: pingConfig, urlSession: urlSession, sessionDelegate: session)
+        
+        var receivedState = [WebSocketConnectionState]()
+        let expectedStates: [WebSocketConnectionState] = [
+            .connecting,
+            .connected(protocol: "test"),
+            .disconnected(.manuallyDisconnected)
+        ]
+        
+        let stateTask = Task {
+            for await state in sut.stateEvents.prefix(expectedStates.count) {
+                receivedState.append(state)
+            }
+        }
+        
+        let connectionTask = Task {
+            try await sut.connect()
+        }
+        
+        try await Task.sleep(nanoseconds: 100)
+        wsInterceptor.simulateOpenWithProtocol("test")
+        
+        _ = await stateTask.value
+        _ = try await connectionTask.value
+        
+        try await sut.disconnect()
+        
+        #expect(receivedState == expectedStates)
+    }
+    
+    @Test("test stateEvents when connecting and ping-pong fails")
+    func testStateEventsWhenConnectingThenPingPongError() async throws {
         let pingConfig = PingConfig(pingInterval: .nanoseconds(1), maxPingFailures: 3)
         let wsTask = MockURLSessionWebSocketTask(pingThrowsError: true)
         let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
@@ -672,8 +709,8 @@ final class WebSocketEngineTests_stateChanges {
         #expect(receivedState == expectedStates)
     }
     
-    @Test("stateChanges emits .connecting .connected and .disconnected when connect succeeds then receive fails")
-    func testStateChangesEmitsConnectingConnectedAndDisconnectedWhenConnectSucceedsThenReceiveFails() async throws {
+    @Test("test stateEvents when connecting and receive message fails")
+    func testStateEventsWhenConnectingReceiveMessageFails() async throws {
         let pingConfig = PingConfig(pingInterval: .seconds(1), maxPingFailures: 1)
         let wsTask = MockURLSessionWebSocketTask()
         let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
