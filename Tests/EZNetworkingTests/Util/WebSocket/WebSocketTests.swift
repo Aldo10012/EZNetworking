@@ -370,6 +370,144 @@ final class WebSocketEngineTests_send {
 
 @Suite("Test WebSocketEngine.messages()")
 final class WebSocketEngineTests_messages {
+
+    @Test("test receiveing messagess")
+    func testReceivingMessages() async throws {
+        let pingConfig = PingConfig(pingInterval: .seconds(1), maxPingFailures: 1)
+        let wsTask = MockURLSessionWebSocketTask()
+        let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
+        let wsInterceptor = MockWebSocketTaskInterceptor()
+        let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
+        let sut = WebSocket(urlRequest: webSocketRequest, pingConfig: pingConfig, urlSession: urlSession, sessionDelegate: session)
+                
+        let connectTask = Task {
+            do {
+                try await sut.connect()
+            } catch {
+                Issue.record("Unexpected error: \(error)")
+            }
+        }
+        
+        try await Task.sleep(nanoseconds: 100)
+        wsInterceptor.simulateOpenWithProtocol(nil)
+        
+        await connectTask.value
+        
+        var receivedMessages = [String]()
+        let receiveMessagesTask = Task {
+            do {
+                for try await message in sut.messages.prefix(1) {
+                    switch message {
+                    case .string(let msg):
+                        receivedMessages.append(msg)
+                    default:
+                        Issue.record("Expected string message")
+                    }
+                }
+            } catch {
+                Issue.record(".messages() unexpectedly threw error: \(error)")
+            }
+        }
+        
+        try await Task.sleep(for: .nanoseconds(100_000))
+
+        wsTask.simulateReceiveMessage(.string("mock message"))
+        
+        await receiveMessagesTask.value
+
+        #expect(receivedMessages == ["mock message"])
+        try await sut.disconnect()
+    }
+    
+    @Test("test receiveing multiple messagess")
+    func testReceivingMultipleMessages() async throws {
+        let pingConfig = PingConfig(pingInterval: .seconds(1), maxPingFailures: 1)
+        let wsTask = MockURLSessionWebSocketTask()
+        let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
+        let wsInterceptor = MockWebSocketTaskInterceptor()
+        let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
+        let sut = WebSocket(urlRequest: webSocketRequest, pingConfig: pingConfig, urlSession: urlSession, sessionDelegate: session)
+                
+        let connectTask = Task {
+            do {
+                try await sut.connect()
+            } catch {
+                Issue.record("Unexpected error: \(error)")
+            }
+        }
+        
+        try await Task.sleep(nanoseconds: 100)
+        wsInterceptor.simulateOpenWithProtocol(nil)
+        
+        await connectTask.value
+        
+        var receivedMessages = [String]()
+        let receiveMessagesTask = Task {
+            do {
+                for try await message in sut.messages.prefix(2) {
+                    switch message {
+                    case .string(let msg):
+                        receivedMessages.append(msg)
+                    default:
+                        Issue.record("Expected string message")
+                    }
+                }
+            } catch {
+                Issue.record(".messages() unexpectedly threw error: \(error)")
+            }
+        }
+        
+        try await Task.sleep(for: .nanoseconds(100_000))
+        wsTask.simulateReceiveMessage(.string("mock message 1"))
+        
+        try await Task.sleep(for: .nanoseconds(100_000))
+        wsTask.simulateReceiveMessage(.string("mock message 2"))
+        
+        await receiveMessagesTask.value
+
+        #expect(receivedMessages == ["mock message 1", "mock message 2"])
+        try await sut.disconnect()
+    }
+    
+    @Test("test receive message failure")
+    func testReceiveMessageFailure() async throws {
+        let pingConfig = PingConfig(pingInterval: .seconds(1), maxPingFailures: 1)
+        let wsTask = MockURLSessionWebSocketTask()
+        let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
+        let wsInterceptor = MockWebSocketTaskInterceptor()
+        let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
+        let sut = WebSocket(urlRequest: webSocketRequest, pingConfig: pingConfig, urlSession: urlSession, sessionDelegate: session)
+                
+        let connectTask = Task {
+            do {
+                try await sut.connect()
+            } catch {
+                Issue.record("Unexpected error: \(error)")
+            }
+        }
+        
+        try await Task.sleep(nanoseconds: 100)
+        wsInterceptor.simulateOpenWithProtocol(nil)
+        
+        await connectTask.value
+        
+        var messagesDidThrow = false
+        let receiveMessagesTask = Task {
+            do {
+                for try await _ in sut.messages.prefix(1) {
+                    Issue.record("Expected messages to throw")
+                }
+            } catch {
+                messagesDidThrow = true
+            }
+        }
+        
+        try await Task.sleep(for: .nanoseconds(100_000))
+        wsTask.simulateReceiveMessageError()
+        await receiveMessagesTask.value
+
+        #expect(messagesDidThrow)
+    }
     
 }
 

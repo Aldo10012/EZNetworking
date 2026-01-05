@@ -47,6 +47,13 @@ public actor WebSocket: WebSocketClient {
             self.sessionDelegate = sessionDelegate ?? SessionDelegate()
             self.urlSession = urlSession
         }
+        
+        let (messagesStream, messagesContinuation) = AsyncThrowingStream.makeStream(
+            of: InboundMessage.self,
+            throwing: Error.self
+        )
+        self.messagesStream = messagesStream
+        self.messagesContinuation = messagesContinuation
     }
     
     // MARK: - Connect
@@ -72,6 +79,9 @@ public actor WebSocket: WebSocketClient {
 
         // start ping-ping loop
         startPingLoop()
+        
+        // start messages loop
+        startReceiveMessagesLoop()
     }
     
     // MARK: Handle delegate events
@@ -223,6 +233,10 @@ public actor WebSocket: WebSocketClient {
         pingTask?.cancel()
         pingTask = nil
         
+        messagesContinuation.finish()
+        receiveMessagesTask?.cancel()
+        receiveMessagesTask = nil
+        
         // Clear the event handler to prevent new tasks from being created
         sessionDelegate.webSocketTaskInterceptor?.onEvent = nil
     }
@@ -243,9 +257,34 @@ public actor WebSocket: WebSocketClient {
     
     // MARK: - Receive messages
     
+    private nonisolated(unsafe) var messagesStream: AsyncThrowingStream<InboundMessage, any Error>
+    private let messagesContinuation: AsyncThrowingStream<InboundMessage, Error>.Continuation
+
     public nonisolated var messages: AsyncThrowingStream<InboundMessage, any Error> {
-        // TODO: implement
-        AsyncThrowingStream<InboundMessage, Error> { $0.finish() }
+        return messagesStream
+    }
+    
+    private var receiveMessagesTask: Task<Void, Never>?
+    private func startReceiveMessagesLoop() {
+        receiveMessagesTask = Task {
+            guard !Task.isCancelled,
+                  let task = webSocketTask,
+                  case .connected = connectionState else {
+                messagesContinuation.finish(throwing: WebSocketError.notConnected)
+                return
+            }
+            
+            do {
+                let message = try await task.receive()
+                messagesContinuation.yield(message)
+                startReceiveMessagesLoop()
+            } catch {
+                let wsError = WebSocketError.receiveFailed(underlying: error)
+                messagesContinuation.finish(throwing: wsError)
+                handleConnectionLoss(error: wsError)
+                return
+            }
+        }
     }
     
     // MARK: - State events
