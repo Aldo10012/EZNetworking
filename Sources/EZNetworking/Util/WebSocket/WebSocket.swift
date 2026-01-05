@@ -150,7 +150,7 @@ public actor WebSocket: WebSocketClient {
     private func startPingLoop(consecutiveFailures: Int = 0, lastError: WebSocketError? = nil) {
         pingTask = Task {
             guard !Task.isCancelled else { return }
-            guard await isConnectedState() else { return }
+            guard case .connected = connectionState else { return }
             
             // check if ping failed too many times in a row
             guard consecutiveFailures < pingConfig.maxPingFailures else {
@@ -193,7 +193,7 @@ public actor WebSocket: WebSocketClient {
     // MARK: - Disconnect
     
     public func disconnect() async throws {
-        guard await isConnectedState() else {
+        guard case .connected = connectionState else {
             throw WebSocketError.notConnected
         }
         
@@ -230,7 +230,15 @@ public actor WebSocket: WebSocketClient {
     // MARK: - Send message
     
     public func send(_ message: OutboundMessage) async throws {
-        // TODO: implement
+        guard let wsTask = webSocketTask, case .connected = connectionState else {
+            throw WebSocketError.notConnected
+        }
+        
+        do {
+            try await wsTask.send(message)
+        } catch {
+            throw WebSocketError.sendFailed(underlying: error)
+        }
     }
     
     // MARK: - Receive messages
@@ -245,12 +253,5 @@ public actor WebSocket: WebSocketClient {
     public nonisolated var stateEvents: AsyncStream<WebSocketConnectionState> {
         // TODO: implement
         AsyncStream<WebSocketConnectionState> { $0.finish() }
-    }
-}
-
-extension WebSocket {
-    private func isConnectedState() async -> Bool {
-        if case .connected = connectionState { return true }
-        return false
     }
 }
