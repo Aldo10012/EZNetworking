@@ -49,10 +49,6 @@ public actor WebSocket: WebSocketClient {
         }
     }
     
-    nonisolated deinit {
-        self.deinitDisconnect()
-    }
-    
     // MARK: - Connect
     
     public func connect() async throws {
@@ -196,7 +192,11 @@ public actor WebSocket: WebSocketClient {
     
     // MARK: - Disconnect
     
-    public func disconnect() async {
+    public func disconnect() async throws {
+        guard await isConnectedState() else {
+            throw WebSocketError.notConnected
+        }
+        
         cleanup(closeCode: .goingAway, reason: nil, newState: .disconnected, error: .forcedDisconnection)
     }
     
@@ -225,12 +225,6 @@ public actor WebSocket: WebSocketClient {
         
         // Clear the event handler to prevent new tasks from being created
         sessionDelegate.webSocketTaskInterceptor?.onEvent = nil
-    }
-    
-    nonisolated private func deinitDisconnect() {
-        Task { [weak self] in
-            self?.deinitDisconnect()
-        }
     }
     
     // MARK: - Send message

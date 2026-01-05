@@ -238,7 +238,7 @@ final class WebSocketEngineTests_disconnect {
         let task = Task {
             do {
                 try await sut.connect()
-                await sut.disconnect()
+                try await sut.disconnect()
                 didDisconnect = true
             } catch {
                 Issue.record("Unexpected error: \(error)")
@@ -253,6 +253,25 @@ final class WebSocketEngineTests_disconnect {
         #expect(wsTask.didCallCancel == true)
         #expect(wsTask.didCancelWithCloseCode == .goingAway)
         #expect(wsTask.didCancelWithReason == nil)
+    }
+    
+    @Test("test calling .disconnect() throws if did not call .connect() first")
+    func testCallingDisconnectFailsIfNotConnected() async throws {
+        let pingConfig = PingConfig(pingInterval: .seconds(1), maxPingFailures: 1)
+        let wsTask = MockURLSessionWebSocketTask()
+        let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
+        let wsInterceptor = MockWebSocketTaskInterceptor()
+        let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
+        let sut = WebSocket(urlRequest: webSocketRequest, pingConfig: pingConfig, urlSession: urlSession, sessionDelegate: session)
+     
+        var disconnectDidThrow = false
+        do {
+            try await sut.disconnect()
+            Issue.record("Unexpectedly disconnected without error")
+        } catch {
+            disconnectDidThrow = true
+        }
+        #expect(disconnectDidThrow)
     }
     
 }

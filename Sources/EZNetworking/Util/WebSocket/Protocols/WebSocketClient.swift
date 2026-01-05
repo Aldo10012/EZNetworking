@@ -12,7 +12,7 @@ public protocol WebSocketClient: Sendable {
     func connect() async throws
 
     /// Disconnects from the WebSocket server.
-    func disconnect() async
+    func disconnect() async throws
 
     // MARK: - Messaging
 
