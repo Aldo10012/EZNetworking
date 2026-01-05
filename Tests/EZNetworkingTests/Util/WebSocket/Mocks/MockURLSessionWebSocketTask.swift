@@ -2,6 +2,8 @@ import Foundation
 import EZNetworking
 
 class MockURLSessionWebSocketTask: WebSocketTaskProtocol {
+    var closeCode: URLSessionWebSocketTask.CloseCode = .goingAway
+    var closeReason: Data?
 
     init(resumeClosure: @escaping (() -> Void) = {},
          sendThrowsError: Bool = false,

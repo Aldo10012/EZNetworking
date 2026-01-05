@@ -192,12 +192,14 @@ public actor WebSocket: WebSocketClient {
     
     // MARK: - Disconnect
     
-    public func disconnect(closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?) async {
-        // TODO: implement
+    public func disconnect() async {
+        cleanup(closeCode: .goingAway, reason: nil, newState: .disconnected, error: .forcedDisconnection)
     }
     
     private func handleConnectionLoss(error: WebSocketError) {
-        cleanup(closeCode: .goingAway, reason: nil, newState: .connectionLost(reason: error), error: error)
+        let closeCode = webSocketTask?.closeCode ?? .goingAway
+        let reason = webSocketTask?.closeReason ?? nil
+        cleanup(closeCode: closeCode, reason: reason, newState: .connectionLost(reason: error), error: error)
     }
     
     private func cleanup(
