@@ -8,7 +8,14 @@ public actor WebSocket: WebSocketClient {
     
     private var webSocketTask: WebSocketTaskProtocol?
     private let fallbackWebSocketTaskInterceptor: WebSocketTaskInterceptor = DefaultWebSocketTaskInterceptor()
-    private var connectionState: WebSocketConnectionState = .idle
+    
+    private var connectionState: WebSocketConnectionState = .idle {
+        didSet {
+            stateEventContinuation.yield(connectionState)
+        }
+    }
+    private nonisolated(unsafe) let stateEventStream: AsyncStream<WebSocketConnectionState>
+    private let stateEventContinuation: AsyncStream<WebSocketConnectionState>.Continuation
     
     /// Used to suspend `connect()` until the delegate reports connection success/failure
     private var initialConnectionContinuation: CheckedContinuation<String?, Error>?
@@ -57,6 +64,10 @@ public actor WebSocket: WebSocketClient {
         )
         self.messagesStream = messagesStream
         self.messagesContinuation = messagesContinuation
+        
+        let (stream, continuation) = AsyncStream<WebSocketConnectionState>.makeStream()
+        self.stateEventStream = stream
+        self.stateEventContinuation = continuation
     }
     
     // MARK: - Connect
@@ -233,6 +244,8 @@ public actor WebSocket: WebSocketClient {
         
         connectionState = newState
         
+        stateEventContinuation.finish()
+        
         pingTask?.cancel()
         pingTask = nil
         
@@ -290,7 +303,6 @@ public actor WebSocket: WebSocketClient {
     // MARK: - State events
     
     public nonisolated var stateEvents: AsyncStream<WebSocketConnectionState> {
-        // TODO: implement
-        AsyncStream<WebSocketConnectionState> { $0.finish() }
+        return stateEventStream
     }
 }
