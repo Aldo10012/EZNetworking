@@ -2,16 +2,16 @@ import Foundation
 import EZNetworking
 
 class MockURLSessionWebSocketTask: WebSocketTaskProtocol {
+    var closeCode: URLSessionWebSocketTask.CloseCode = .goingAway
+    var closeReason: Data?
 
     init(resumeClosure: @escaping (() -> Void) = {},
          sendThrowsError: Bool = false,
-         receiveMessage: String = "",
-         receiveThrowsError: Bool = false
+         pingThrowsError: Bool = false
     ) {
         self.resumeClosure = resumeClosure
         self.sendThrowsError = sendThrowsError
-        self.receiveMessage = receiveMessage
-        self.receiveThrowsError = receiveThrowsError
+        self.pingThrowsError = pingThrowsError
     }
 
     // MARK: resume()
@@ -51,31 +51,43 @@ class MockURLSessionWebSocketTask: WebSocketTaskProtocol {
 
     // MARK: receive()
 
-    var receiveMessage: String
-    var receiveThrowsError: Bool
     func receive(completionHandler: @escaping @Sendable (Result<URLSessionWebSocketTask.Message, any Error>) -> Void) {
-        if receiveThrowsError {
-            completionHandler(.failure(MockURLSessionWebSocketTaskError.failedToReceiveMessage))
-        } else {
-            completionHandler(.success(.string(receiveMessage)))
-        }
     }
 
     func receive() async throws -> URLSessionWebSocketTask.Message {
-        if receiveThrowsError {
-            throw MockURLSessionWebSocketTaskError.failedToReceiveMessage
+        return try await withCheckedThrowingContinuation { continuation in
+            self.pendingContinuation = continuation
         }
-        return .string(receiveMessage)
+    }
+    
+    private var pendingContinuation: CheckedContinuation<InboundMessage, Error>?
+    func simulateReceiveMessage(_ message: InboundMessage) {
+        guard let continuation = pendingContinuation else {
+            return
+        }
+        pendingContinuation = nil
+        continuation.resume(returning: message)
+    }
+    func simulateReceiveMessageError() {
+        guard let continuation = pendingContinuation else {
+            return
+        }
+        pendingContinuation = nil
+        continuation.resume(throwing: MockURLSessionWebSocketTaskError.failedToReceiveMessage)
     }
 
     // MARK: sendPing
 
-    var shouldFailPing: Bool = false
+    var pingThrowsError: Bool
     var pingFailureCount: Int = 0
+    var didCallSendPing = false
+    var pingError: Error?
     func sendPing(pongReceiveHandler: @escaping @Sendable ((any Error)?) -> Void) {
-        if shouldFailPing {
+        didCallSendPing = true
+        if pingThrowsError {
             pingFailureCount += 1
-            pongReceiveHandler(MockURLSessionWebSocketTaskError.pingError)
+            pingError = MockURLSessionWebSocketTaskError.pingError
+            pongReceiveHandler(pingError)
         } else {
             pongReceiveHandler(nil)
         }
