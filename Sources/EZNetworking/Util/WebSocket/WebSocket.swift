@@ -49,6 +49,10 @@ public actor WebSocket: WebSocketClient {
         }
     }
     
+    nonisolated deinit {
+        self.deinitDisconnect()
+    }
+    
     // MARK: - Connect
     
     public func connect() async throws {
@@ -221,6 +225,12 @@ public actor WebSocket: WebSocketClient {
         
         // Clear the event handler to prevent new tasks from being created
         sessionDelegate.webSocketTaskInterceptor?.onEvent = nil
+    }
+    
+    nonisolated private func deinitDisconnect() {
+        Task { [weak self] in
+            self?.deinitDisconnect()
+        }
     }
     
     // MARK: - Send message
