@@ -68,7 +68,7 @@ final class WebSocketEngineTests_connect {
         let wsInterceptor = MockWebSocketTaskInterceptor()
         let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
         let sut = WebSocket(urlRequest: webSocketRequest, urlSession: urlSession, sessionDelegate: session)
-
+        
         var errorThrown: WebSocketError?
         
         let task = Task {
@@ -263,7 +263,7 @@ final class WebSocketEngineTests_disconnect {
         let wsInterceptor = MockWebSocketTaskInterceptor()
         let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
         let sut = WebSocket(urlRequest: webSocketRequest, pingConfig: pingConfig, urlSession: urlSession, sessionDelegate: session)
-     
+        
         var disconnectDidThrow = false
         do {
             try await sut.disconnect()
@@ -273,7 +273,6 @@ final class WebSocketEngineTests_disconnect {
         }
         #expect(disconnectDidThrow)
     }
-    
 }
 
 // MARK: .send()
@@ -363,14 +362,13 @@ final class WebSocketEngineTests_send {
         await task.value
         #expect(capturedError == .sendFailed(underlying: MockURLSessionWebSocketTaskError.failedToSendMessage))
     }
-    
 }
 
 // MARK: .messages()
 
 @Suite("Test WebSocketEngine.messages()")
 final class WebSocketEngineTests_messages {
-
+    
     @Test("test receiveing messagess")
     func testReceivingMessages() async throws {
         let pingConfig = PingConfig(pingInterval: .seconds(1), maxPingFailures: 1)
@@ -379,7 +377,7 @@ final class WebSocketEngineTests_messages {
         let wsInterceptor = MockWebSocketTaskInterceptor()
         let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
         let sut = WebSocket(urlRequest: webSocketRequest, pingConfig: pingConfig, urlSession: urlSession, sessionDelegate: session)
-                
+        
         let connectTask = Task {
             do {
                 try await sut.connect()
@@ -410,11 +408,11 @@ final class WebSocketEngineTests_messages {
         }
         
         try await Task.sleep(for: .nanoseconds(100_000))
-
+        
         wsTask.simulateReceiveMessage(.string("mock message"))
         
         await receiveMessagesTask.value
-
+        
         #expect(receivedMessages == ["mock message"])
         try await sut.disconnect()
     }
@@ -427,7 +425,7 @@ final class WebSocketEngineTests_messages {
         let wsInterceptor = MockWebSocketTaskInterceptor()
         let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
         let sut = WebSocket(urlRequest: webSocketRequest, pingConfig: pingConfig, urlSession: urlSession, sessionDelegate: session)
-                
+        
         let connectTask = Task {
             do {
                 try await sut.connect()
@@ -464,7 +462,7 @@ final class WebSocketEngineTests_messages {
         wsTask.simulateReceiveMessage(.string("mock message 2"))
         
         await receiveMessagesTask.value
-
+        
         #expect(receivedMessages == ["mock message 1", "mock message 2"])
         try await sut.disconnect()
     }
@@ -477,7 +475,7 @@ final class WebSocketEngineTests_messages {
         let wsInterceptor = MockWebSocketTaskInterceptor()
         let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
         let sut = WebSocket(urlRequest: webSocketRequest, pingConfig: pingConfig, urlSession: urlSession, sessionDelegate: session)
-                
+        
         let connectTask = Task {
             do {
                 try await sut.connect()
@@ -505,10 +503,9 @@ final class WebSocketEngineTests_messages {
         try await Task.sleep(for: .nanoseconds(100_000))
         wsTask.simulateReceiveMessageError()
         await receiveMessagesTask.value
-
+        
         #expect(messagesDidThrow)
     }
-    
 }
 
 // MARK: .stateChanges()
@@ -584,7 +581,7 @@ final class WebSocketEngineTests_stateChanges {
         
         try await Task.sleep(nanoseconds: 100)
         wsInterceptor.simulateDidCompleteWithError(error: DummyError.error)
-
+        
         _ = await stateTask.value
         _ = await connectTask.value
         
@@ -621,7 +618,7 @@ final class WebSocketEngineTests_stateChanges {
         
         try await Task.sleep(nanoseconds: 100)
         wsInterceptor.simulateOpenWithProtocol("test")
-
+        
         _ = try await connectionTask.value
         
         try await Task.sleep(nanoseconds: 100)
@@ -699,7 +696,7 @@ final class WebSocketEngineTests_stateChanges {
         
         try await Task.sleep(nanoseconds: 100)
         wsInterceptor.simulateOpenWithProtocol("test")
-
+        
         _ = try await connectionTask.value
         
         try await Task.sleep(nanoseconds: 100)
@@ -740,15 +737,14 @@ final class WebSocketEngineTests_stateChanges {
         try await Task.sleep(nanoseconds: 100)
         wsInterceptor.simulateOpenWithProtocol("test")
         _ = try await connectionTask.value
-
+        
         try await Task.sleep(nanoseconds: 1_000)
         wsTask.simulateReceiveMessageError()
-
+        
         _ = await stateTask.value
-
+        
         #expect(receivedState == expectedStates)
     }
-
 }
 
 private enum DummyError: Error {
