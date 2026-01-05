@@ -143,7 +143,6 @@ public actor WebSocket: WebSocketClient {
     private func handleConnectFail(throwing error: WebSocketError) {
         initialConnectionContinuation?.resume(throwing: error)
         initialConnectionContinuation = nil
-        connectionState = .disconnected(.failedToConnect(error: error))
     }
     
     private func parseReason(_ reason: Data?) -> String? {
