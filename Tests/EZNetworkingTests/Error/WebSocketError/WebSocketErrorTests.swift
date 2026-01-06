@@ -12,22 +12,7 @@ final class WebSocketErrorTests {
     @Test("test different basic cases are not equal")
     func testDifferentBasicCasesAreNotEqual() {
         #expect(WebSocketError.notConnected != WebSocketError.alreadyConnected)
-        #expect(WebSocketError.invalidURL != WebSocketError.invalidMessageFormat)
-    }
-
-    @Test("test unsupportedProtocol equality and inequality")
-    func testUnsupportedProtocolEquality() {
-        let a = WebSocketError.unsupportedProtocol("protoA")
-        let b = WebSocketError.unsupportedProtocol("protoA")
-        let c = WebSocketError.unsupportedProtocol("protoB")
-        #expect(a == b)
-        #expect(a != c)
-    }
-
-    @Test("test keepAliveFailure equality by count")
-    func testKeepAliveFailureEquality() {
-        #expect(WebSocketError.keepAliveFailure(consecutiveFailures: 3) == .keepAliveFailure(consecutiveFailures: 3))
-        #expect(WebSocketError.keepAliveFailure(consecutiveFailures: 2) != .keepAliveFailure(consecutiveFailures: 4))
+        #expect(WebSocketError.alreadyConnected != WebSocketError.stillConnecting)
     }
 
     @Test("test unexpectedDisconnection equality and description")
@@ -85,42 +70,26 @@ final class WebSocketErrorTests {
     @Test("test localized descriptions for a selection of cases")
     func testLocalizedDescriptions() {
         #expect(WebSocketError.notConnected.errorDescription == "WebSocket is not connected")
-        #expect(WebSocketError.invalidURL.errorDescription == "Invalid WebSocket URL")
-        #expect(WebSocketError.invalidMessageFormat.errorDescription == "Invalid WebSocket message format")
-        #expect(WebSocketError.messageEncodingFailed.errorDescription == "Failed to encode message for WebSocket")
-        #expect(WebSocketError.messageDecodingFailed.errorDescription == "Failed to decode WebSocket message")
     }
     
     @Test("LocalizedError - dynamic descriptions")
     func testLocalizedErrorDynamicDescriptions() {
         let err = NSError(domain: "Test", code: -1)
         let msg = err.localizedDescription
-        let protocolString = "bad-protocol"
-        let count = 3
 
         #expect(WebSocketError.connectionFailed(underlying: err).errorDescription == "WebSocket connection failed: \(msg)")
         #expect(WebSocketError.sendFailed(underlying: err).errorDescription == "Failed to send WebSocket message: \(msg)")
         #expect(WebSocketError.receiveFailed(underlying: err).errorDescription == "Failed to receive WebSocket message: \(msg)")
         #expect(WebSocketError.pingFailed(underlying: err).errorDescription == "WebSocket ping failed: \(msg)")
-
-        #expect(WebSocketError.unsupportedProtocol(protocolString).errorDescription == "Unsupported WebSocket protocol: \(protocolString)")
-        #expect(WebSocketError.keepAliveFailure(consecutiveFailures: count).errorDescription == "WebSocket keep-alive failed after \(count) consecutive attempts")
     }
 
     private static let WebSocketErrorList: [WebSocketError] = [
         .notConnected,
         .stillConnecting,
         .alreadyConnected,
-        .connectionTimeout,
-        .invalidURL,
-        .invalidMessageFormat,
-        .messageEncodingFailed,
-        .messageDecodingFailed,
         .pongTimeout,
         .forcedDisconnection,
         .taskNotInitialized,
-        .taskCancelled,
-        .streamAlreadyCreated,
-        .streamNotAvailable,
+        .taskCancelled
     ]
 }
