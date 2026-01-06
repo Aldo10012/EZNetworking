@@ -12,7 +12,7 @@ final class WebSocketErrorTests {
     @Test("test different basic cases are not equal")
     func testDifferentBasicCasesAreNotEqual() {
         #expect(WebSocketError.notConnected != WebSocketError.alreadyConnected)
-        #expect(WebSocketError.invalidURL != WebSocketError.invalidMessageFormat)
+        #expect(WebSocketError.invalidURL != WebSocketError.stillConnecting)
     }
 
     @Test("test unsupportedProtocol equality and inequality")
@@ -86,7 +86,6 @@ final class WebSocketErrorTests {
     func testLocalizedDescriptions() {
         #expect(WebSocketError.notConnected.errorDescription == "WebSocket is not connected")
         #expect(WebSocketError.invalidURL.errorDescription == "Invalid WebSocket URL")
-        #expect(WebSocketError.invalidMessageFormat.errorDescription == "Invalid WebSocket message format")
         #expect(WebSocketError.messageEncodingFailed.errorDescription == "Failed to encode message for WebSocket")
         #expect(WebSocketError.messageDecodingFailed.errorDescription == "Failed to decode WebSocket message")
     }
@@ -113,7 +112,6 @@ final class WebSocketErrorTests {
         .alreadyConnected,
         .connectionTimeout,
         .invalidURL,
-        .invalidMessageFormat,
         .messageEncodingFailed,
         .messageDecodingFailed,
         .pongTimeout,
