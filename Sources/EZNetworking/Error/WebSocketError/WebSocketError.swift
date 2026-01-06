@@ -18,9 +18,6 @@ public enum WebSocketError: Error {
     // Disconnection errors
     case unexpectedDisconnection(code: URLSessionWebSocketTask.CloseCode, reason: String?)
     case forcedDisconnection
-    
-    // Task errors
-    case taskCancelled
 }
 
 // MARK: - LocalizedError conformance for better error messages
@@ -51,9 +48,6 @@ extension WebSocketError: LocalizedError {
             return "WebSocket disconnected unexpectedly with code \(code.rawValue): \(reasonText)"
         case .forcedDisconnection:
             return "WebSocket was forcefully disconnected"
-            
-        case .taskCancelled:
-            return "WebSocket task was cancelled"
         }
     }
 }
@@ -75,8 +69,7 @@ extension WebSocketError: Equatable {
              (.stillConnecting, .stillConnecting),
              (.alreadyConnected, .alreadyConnected),
              (.pongTimeout, .pongTimeout),
-             (.forcedDisconnection, .forcedDisconnection),
-             (.taskCancelled, .taskCancelled):
+             (.forcedDisconnection, .forcedDisconnection):
             return true
             
         case (.unexpectedDisconnection(let lhsCode, let lhsReason),

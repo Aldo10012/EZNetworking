@@ -88,7 +88,6 @@ final class WebSocketErrorTests {
         .stillConnecting,
         .alreadyConnected,
         .pongTimeout,
-        .forcedDisconnection,
-        .taskCancelled
+        .forcedDisconnection
     ]
 }
