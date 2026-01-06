@@ -25,6 +25,7 @@ public actor WebSocket: WebSocketClient {
     
     private nonisolated(unsafe) var messagesStream: AsyncThrowingStream<InboundMessage, any Error>
     private let messagesContinuation: AsyncThrowingStream<InboundMessage, Error>.Continuation
+    private var receiveMessagesTask: Task<Void, Never>?
     
     // MARK: Init
     
@@ -267,7 +268,6 @@ public actor WebSocket: WebSocketClient {
         return messagesStream
     }
     
-    private var receiveMessagesTask: Task<Void, Never>?
     private func startReceiveMessagesLoop() {
         receiveMessagesTask = Task {
             guard !Task.isCancelled,
