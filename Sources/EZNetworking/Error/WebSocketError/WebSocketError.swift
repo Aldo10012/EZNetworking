@@ -25,7 +25,6 @@ public enum WebSocketError: Error {
     
     // Stream errors
     case streamAlreadyCreated
-    case streamNotAvailable
 }
 
 // MARK: - LocalizedError conformance for better error messages
@@ -64,8 +63,6 @@ extension WebSocketError: LocalizedError {
             
         case .streamAlreadyCreated:
             return "WebSocket message stream has already been created"
-        case .streamNotAvailable:
-            return "WebSocket message stream is not available"
         }
     }
 }
@@ -90,8 +87,7 @@ extension WebSocketError: Equatable {
              (.forcedDisconnection, .forcedDisconnection),
              (.taskNotInitialized, .taskNotInitialized),
              (.taskCancelled, .taskCancelled),
-             (.streamAlreadyCreated, .streamAlreadyCreated),
-             (.streamNotAvailable, .streamNotAvailable):
+             (.streamAlreadyCreated, .streamAlreadyCreated):
             return true
             
         case (.unexpectedDisconnection(let lhsCode, let lhsReason),

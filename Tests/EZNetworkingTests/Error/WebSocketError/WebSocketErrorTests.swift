@@ -91,7 +91,6 @@ final class WebSocketErrorTests {
         .forcedDisconnection,
         .taskNotInitialized,
         .taskCancelled,
-        .streamAlreadyCreated,
-        .streamNotAvailable,
+        .streamAlreadyCreated
     ]
 }
