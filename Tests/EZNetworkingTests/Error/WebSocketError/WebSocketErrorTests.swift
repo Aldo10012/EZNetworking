@@ -15,15 +15,6 @@ final class WebSocketErrorTests {
         #expect(WebSocketError.invalidURL != WebSocketError.stillConnecting)
     }
 
-    @Test("test unsupportedProtocol equality and inequality")
-    func testUnsupportedProtocolEquality() {
-        let a = WebSocketError.unsupportedProtocol("protoA")
-        let b = WebSocketError.unsupportedProtocol("protoA")
-        let c = WebSocketError.unsupportedProtocol("protoB")
-        #expect(a == b)
-        #expect(a != c)
-    }
-
     @Test("test unexpectedDisconnection equality and description")
     func testUnexpectedDisconnectionEqualityAndDescription() {
         let lhs = WebSocketError.unexpectedDisconnection(code: .normalClosure, reason: "bye")
@@ -93,8 +84,6 @@ final class WebSocketErrorTests {
         #expect(WebSocketError.sendFailed(underlying: err).errorDescription == "Failed to send WebSocket message: \(msg)")
         #expect(WebSocketError.receiveFailed(underlying: err).errorDescription == "Failed to receive WebSocket message: \(msg)")
         #expect(WebSocketError.pingFailed(underlying: err).errorDescription == "WebSocket ping failed: \(msg)")
-
-        #expect(WebSocketError.unsupportedProtocol(protocolString).errorDescription == "Unsupported WebSocket protocol: \(protocolString)")
     }
 
     private static let WebSocketErrorList: [WebSocketError] = [

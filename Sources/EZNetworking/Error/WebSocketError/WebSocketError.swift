@@ -7,7 +7,6 @@ public enum WebSocketError: Error {
     case alreadyConnected
     case connectionFailed(underlying: Error)
     case invalidURL
-    case unsupportedProtocol(String)
     
     // Communication errors
     case sendFailed(underlying: Error)
@@ -45,8 +44,6 @@ extension WebSocketError: LocalizedError {
             return "WebSocket connection failed: \(error.localizedDescription)"
         case .invalidURL:
             return "Invalid WebSocket URL"
-        case .unsupportedProtocol(let protocolString):
-            return "Unsupported WebSocket protocol: \(protocolString)"
             
         case .sendFailed(let error):
             return "Failed to send WebSocket message: \(error.localizedDescription)"
@@ -100,9 +97,6 @@ extension WebSocketError: Equatable {
              (.streamAlreadyCreated, .streamAlreadyCreated),
              (.streamNotAvailable, .streamNotAvailable):
             return true
-            
-        case (.unsupportedProtocol(let lhsProto), .unsupportedProtocol(let rhsProto)):
-            return lhsProto == rhsProto
             
         case (.unexpectedDisconnection(let lhsCode, let lhsReason),
               .unexpectedDisconnection(let rhsCode, let rhsReason)):
