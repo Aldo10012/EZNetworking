@@ -90,7 +90,6 @@ final class WebSocketErrorTests {
         .pongTimeout,
         .forcedDisconnection,
         .taskNotInitialized,
-        .taskCancelled,
-        .streamAlreadyCreated
+        .taskCancelled
     ]
 }

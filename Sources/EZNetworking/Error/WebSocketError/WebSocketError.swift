@@ -22,9 +22,6 @@ public enum WebSocketError: Error {
     // Task errors
     case taskNotInitialized
     case taskCancelled
-    
-    // Stream errors
-    case streamAlreadyCreated
 }
 
 // MARK: - LocalizedError conformance for better error messages
@@ -60,9 +57,6 @@ extension WebSocketError: LocalizedError {
             return "WebSocket task is not initialized"
         case .taskCancelled:
             return "WebSocket task was cancelled"
-            
-        case .streamAlreadyCreated:
-            return "WebSocket message stream has already been created"
         }
     }
 }
@@ -86,8 +80,7 @@ extension WebSocketError: Equatable {
              (.pongTimeout, .pongTimeout),
              (.forcedDisconnection, .forcedDisconnection),
              (.taskNotInitialized, .taskNotInitialized),
-             (.taskCancelled, .taskCancelled),
-             (.streamAlreadyCreated, .streamAlreadyCreated):
+             (.taskCancelled, .taskCancelled):
             return true
             
         case (.unexpectedDisconnection(let lhsCode, let lhsReason),
