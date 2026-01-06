@@ -92,6 +92,16 @@ class MockURLSessionWebSocketTask: WebSocketTaskProtocol {
             pongReceiveHandler(nil)
         }
     }
+    
+    func sendPing() async throws {
+        didCallSendPing = true
+        if pingThrowsError {
+            pingFailureCount += 1
+            let err = MockURLSessionWebSocketTaskError.pingError
+            pingError = err
+            throw err
+        }
+    }
 }
 
 enum MockURLSessionWebSocketTaskError: Error {
