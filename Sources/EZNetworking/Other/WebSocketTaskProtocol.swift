@@ -4,6 +4,8 @@ import Foundation
 public protocol WebSocketTaskProtocol {
     func resume()
     func cancel(with closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?)
+
+    func sendPing() async throws
     func sendPing(pongReceiveHandler: @escaping @Sendable ((any Error)?) -> Void)
     
     func send(_ message: URLSessionWebSocketTask.Message) async throws
@@ -14,6 +16,20 @@ public protocol WebSocketTaskProtocol {
     
     var closeCode: URLSessionWebSocketTask.CloseCode { get }
     var closeReason: Data? { get }
+}
+
+public extension WebSocketTaskProtocol {
+    func sendPing() async throws {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            sendPing { error in
+                if let error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume()
+                }
+            }
+        }
+    }
 }
 
 extension URLSessionWebSocketTask: WebSocketTaskProtocol {}

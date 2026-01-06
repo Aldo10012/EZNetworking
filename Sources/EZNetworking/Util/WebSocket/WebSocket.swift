@@ -174,11 +174,11 @@ public actor WebSocket: WebSocketClient {
         pingTask = Task {
             guard !Task.isCancelled else { return }
             guard case .connected = connectionState else { return }
+            guard let webSocketTask = webSocketTask else { return }
             
             // check if ping failed too many times in a row
             guard consecutiveFailures < pingConfig.maxPingFailures else {
-                let err = lastError ?? WebSocketError.pongTimeout
-                self.handleConnectionLoss(error: err)
+                self.handleConnectionLoss(error: lastError ?? WebSocketError.pongTimeout)
                 return
             }
             
@@ -186,7 +186,7 @@ public actor WebSocket: WebSocketClient {
             var totalConsecutiveFailures = consecutiveFailures
             var pingError: WebSocketError? = nil
             do {
-                try await sendPing()
+                try await webSocketTask.sendPing()
                 totalConsecutiveFailures = 0
             } catch {
                 totalConsecutiveFailures += 1
@@ -195,22 +195,6 @@ public actor WebSocket: WebSocketClient {
             
             await pingConfig.waitForPingInterval()
             startPingLoop(consecutiveFailures: totalConsecutiveFailures, lastError: pingError)
-        }
-    }
-    
-    private func sendPing() async throws {
-        guard let task = webSocketTask else {
-            throw WebSocketError.taskNotInitialized
-        }
-        
-        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-            task.sendPing { error in
-                if let error {
-                    continuation.resume(throwing: error)
-                } else {
-                    continuation.resume()
-                }
-            }
         }
     }
     

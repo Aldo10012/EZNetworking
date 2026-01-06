@@ -37,28 +37,22 @@ class MockURLSessionWebSocketTask: WebSocketTaskProtocol {
     // MARK: send()
 
     var sendThrowsError: Bool
-    func send(_ message: URLSessionWebSocketTask.Message, completionHandler: @escaping @Sendable ((any Error)?) -> Void) {
-        if sendThrowsError {
-            completionHandler(MockURLSessionWebSocketTaskError.failedToSendMessage)
-        }
-    }
 
     func send(_ message: URLSessionWebSocketTask.Message) async throws {
         if sendThrowsError {
             throw MockURLSessionWebSocketTaskError.failedToSendMessage
         }
     }
+    func send(_ message: URLSessionWebSocketTask.Message, completionHandler: @escaping @Sendable ((any Error)?) -> Void) { }
 
     // MARK: receive()
-
-    func receive(completionHandler: @escaping @Sendable (Result<URLSessionWebSocketTask.Message, any Error>) -> Void) {
-    }
 
     func receive() async throws -> URLSessionWebSocketTask.Message {
         return try await withCheckedThrowingContinuation { continuation in
             self.pendingContinuation = continuation
         }
     }
+    func receive(completionHandler: @escaping @Sendable (Result<URLSessionWebSocketTask.Message, any Error>) -> Void) { }
     
     private var pendingContinuation: CheckedContinuation<InboundMessage, Error>?
     func simulateReceiveMessage(_ message: InboundMessage) {
@@ -82,16 +76,17 @@ class MockURLSessionWebSocketTask: WebSocketTaskProtocol {
     var pingFailureCount: Int = 0
     var didCallSendPing = false
     var pingError: Error?
-    func sendPing(pongReceiveHandler: @escaping @Sendable ((any Error)?) -> Void) {
+    
+    func sendPing() async throws {
         didCallSendPing = true
         if pingThrowsError {
             pingFailureCount += 1
-            pingError = MockURLSessionWebSocketTaskError.pingError
-            pongReceiveHandler(pingError)
-        } else {
-            pongReceiveHandler(nil)
+            let err = MockURLSessionWebSocketTaskError.pingError
+            pingError = err
+            throw err
         }
     }
+    func sendPing(pongReceiveHandler: @escaping @Sendable ((any Error)?) -> Void) { }
 }
 
 enum MockURLSessionWebSocketTaskError: Error {
