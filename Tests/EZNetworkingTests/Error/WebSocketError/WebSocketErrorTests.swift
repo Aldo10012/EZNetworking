@@ -76,8 +76,6 @@ final class WebSocketErrorTests {
     func testLocalizedErrorDynamicDescriptions() {
         let err = NSError(domain: "Test", code: -1)
         let msg = err.localizedDescription
-        let protocolString = "bad-protocol"
-        let count = 3
 
         #expect(WebSocketError.connectionFailed(underlying: err).errorDescription == "WebSocket connection failed: \(msg)")
         #expect(WebSocketError.sendFailed(underlying: err).errorDescription == "Failed to send WebSocket message: \(msg)")
