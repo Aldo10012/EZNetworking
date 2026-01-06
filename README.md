@@ -56,6 +56,7 @@ EZNetworking is a powerful, lightweight Swift networking library that simplifies
     - [Stream Task Interceptor](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#stream-task-interceptor)
     - [WebSocket Task Interceptor](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#websocket-task-interceptor)
   - [Session Management](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#session-management)
+  - [Web Socket]()
 - [Error Handling](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#error-handling-)
 - [Contributing](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#contributing-)
 - [License](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#license-)
@@ -859,6 +860,15 @@ class CustomWebSocketInterceptor: WebSocketTaskInterceptor {
     ) {
         // Handle WebSocket close
     }
+
+    func urlSession(
+        _ session: URLSession,
+        task: URLSessionTask,
+        didCompleteWithError error: Error
+    ) {
+        // Handle WebSocket fail to connect
+    }
+
 }
 
 let delegate = SessionDelegate()
@@ -882,6 +892,77 @@ let performer = RequestPerformer(sessionDelegate: delegate)
 // Use performer for requests
 performer.performTask(request: request) { result in
     // Handle result
+}
+```
+
+### Web Socket
+
+WebSockets are used to establish bi-directional, real-time communication between a client and server.
+
+#### How to initialize
+
+```swift
+/// set target url request for web socket connection
+let wsRequest = URLRequest(url: URL(string: "ws://127.0.0.1:8080/example")!)
+
+/// set ping-pong configurations
+/// - pingInterval - how often ping message gets sent to server (to keep connection alive)
+/// - maxPingFailures - max number of times ping-pong fail before disconnecting
+let pingConfig = PingConfig(pingInterval: .seconds(30), maxPingFailures: 3)
+
+/// create WebSocket instance
+let ws = WebSocket(urlRequest: wsRequest, pingConfig: pingConfig)
+```
+
+#### How to connect
+
+```swift
+try await ws.connect()
+```
+
+#### How to disconnect
+
+```swift
+try await ws.disconnect()
+```
+
+#### How to send messages
+
+```swift
+/// sending string message
+try await ws.send(.string("some string message"))
+
+/// sending data message
+try await ws.send("some data message".data(using: .utf8))
+```
+
+#### How to receive messages
+
+```swift
+for try await message in sut.messages {
+    switch message {
+    case .string(let msg):
+        // handle string messages
+    case .data(let msg):
+        // handle data messages
+    }        
+}
+```
+
+#### How to observe state
+
+```swift
+for await state in sut.stateEvents {
+    switch state {
+        case .notConnected:
+            // handle notConnected state (initial idle state before connecting to socket)
+        case .connecting:
+            // handle connecting state (socket is in process of connecting)
+        case .connected(protocol: _):
+            // handle connected state (socket successfully connected)
+        case .disconnected(_):
+            // handle disconnected state (socket lost connection. Due to user manual disconnect or server connection lost)
+    }
 }
 ```
 
