@@ -12,7 +12,7 @@ final class WebSocketErrorTests {
     @Test("test different basic cases are not equal")
     func testDifferentBasicCasesAreNotEqual() {
         #expect(WebSocketError.notConnected != WebSocketError.alreadyConnected)
-        #expect(WebSocketError.invalidURL != WebSocketError.stillConnecting)
+        #expect(WebSocketError.alreadyConnected != WebSocketError.stillConnecting)
     }
 
     @Test("test unexpectedDisconnection equality and description")
@@ -70,7 +70,6 @@ final class WebSocketErrorTests {
     @Test("test localized descriptions for a selection of cases")
     func testLocalizedDescriptions() {
         #expect(WebSocketError.notConnected.errorDescription == "WebSocket is not connected")
-        #expect(WebSocketError.invalidURL.errorDescription == "Invalid WebSocket URL")
     }
     
     @Test("LocalizedError - dynamic descriptions")
@@ -90,7 +89,6 @@ final class WebSocketErrorTests {
         .notConnected,
         .stillConnecting,
         .alreadyConnected,
-        .invalidURL,
         .pongTimeout,
         .forcedDisconnection,
         .taskNotInitialized,
