@@ -489,14 +489,16 @@ final class WebSocketEngineTests_messages {
         
         await connectTask.value
         
-        var messagesDidThrow = false
+        var capturedError: WebSocketError?
         let receiveMessagesTask = Task {
             do {
                 for try await _ in sut.messages.prefix(1) {
                     Issue.record("Expected messages to throw")
                 }
             } catch {
-                messagesDidThrow = true
+                if let wsError = error as? WebSocketError {
+                    capturedError = wsError
+                }
             }
         }
         
@@ -504,7 +506,7 @@ final class WebSocketEngineTests_messages {
         wsTask.simulateReceiveMessageError()
         await receiveMessagesTask.value
         
-        #expect(messagesDidThrow)
+        #expect(capturedError == WebSocketError.receiveFailed(underlying: MockURLSessionWebSocketTaskError.failedToReceiveMessage))
     }
 }
 
