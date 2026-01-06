@@ -20,7 +20,6 @@ public enum WebSocketError: Error {
     case forcedDisconnection
     
     // Task errors
-    case taskNotInitialized
     case taskCancelled
 }
 
@@ -53,8 +52,6 @@ extension WebSocketError: LocalizedError {
         case .forcedDisconnection:
             return "WebSocket was forcefully disconnected"
             
-        case .taskNotInitialized:
-            return "WebSocket task is not initialized"
         case .taskCancelled:
             return "WebSocket task was cancelled"
         }
@@ -79,7 +76,6 @@ extension WebSocketError: Equatable {
              (.alreadyConnected, .alreadyConnected),
              (.pongTimeout, .pongTimeout),
              (.forcedDisconnection, .forcedDisconnection),
-             (.taskNotInitialized, .taskNotInitialized),
              (.taskCancelled, .taskCancelled):
             return true
             
