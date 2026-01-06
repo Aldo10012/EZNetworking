@@ -206,7 +206,7 @@ public actor WebSocket: WebSocketClient {
             throw WebSocketError.notConnected
         }
         
-        cleanup(closeCode: .goingAway,
+        cleanup(closeCode: .normalClosure,
                 reason: nil,
                 newState: .disconnected(.manuallyDisconnected),
                 error: .forcedDisconnection)

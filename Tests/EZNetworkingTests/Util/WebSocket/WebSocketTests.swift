@@ -251,7 +251,7 @@ final class WebSocketEngineTests_disconnect {
         
         #expect(didDisconnect)
         #expect(wsTask.didCallCancel == true)
-        #expect(wsTask.didCancelWithCloseCode == .goingAway)
+        #expect(wsTask.didCancelWithCloseCode == .normalClosure)
         #expect(wsTask.didCancelWithReason == nil)
     }
     
