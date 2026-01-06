@@ -24,12 +24,6 @@ final class WebSocketErrorTests {
         #expect(a != c)
     }
 
-    @Test("test keepAliveFailure equality by count")
-    func testKeepAliveFailureEquality() {
-        #expect(WebSocketError.keepAliveFailure(consecutiveFailures: 3) == .keepAliveFailure(consecutiveFailures: 3))
-        #expect(WebSocketError.keepAliveFailure(consecutiveFailures: 2) != .keepAliveFailure(consecutiveFailures: 4))
-    }
-
     @Test("test unexpectedDisconnection equality and description")
     func testUnexpectedDisconnectionEqualityAndDescription() {
         let lhs = WebSocketError.unexpectedDisconnection(code: .normalClosure, reason: "bye")
@@ -101,7 +95,6 @@ final class WebSocketErrorTests {
         #expect(WebSocketError.pingFailed(underlying: err).errorDescription == "WebSocket ping failed: \(msg)")
 
         #expect(WebSocketError.unsupportedProtocol(protocolString).errorDescription == "Unsupported WebSocket protocol: \(protocolString)")
-        #expect(WebSocketError.keepAliveFailure(consecutiveFailures: count).errorDescription == "WebSocket keep-alive failed after \(count) consecutive attempts")
     }
 
     private static let WebSocketErrorList: [WebSocketError] = [

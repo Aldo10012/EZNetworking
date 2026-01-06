@@ -17,7 +17,6 @@ public enum WebSocketError: Error {
     // Ping/pong errors
     case pingFailed(underlying: Error)
     case pongTimeout
-    case keepAliveFailure(consecutiveFailures: Int)
     
     // Disconnection errors
     case unexpectedDisconnection(code: URLSessionWebSocketTask.CloseCode, reason: String?)
@@ -60,8 +59,6 @@ extension WebSocketError: LocalizedError {
             return "WebSocket ping failed: \(error.localizedDescription)"
         case .pongTimeout:
             return "WebSocket pong response timed out"
-        case .keepAliveFailure(let count):
-            return "WebSocket keep-alive failed after \(count) consecutive attempts"
             
         case .unexpectedDisconnection(let code, let reason):
             let reasonText = reason ?? "No reason provided"
@@ -110,9 +107,6 @@ extension WebSocketError: Equatable {
             
         case (.unsupportedProtocol(let lhsProto), .unsupportedProtocol(let rhsProto)):
             return lhsProto == rhsProto
-            
-        case (.keepAliveFailure(let lhsCount), .keepAliveFailure(let rhsCount)):
-            return lhsCount == rhsCount
             
         case (.unexpectedDisconnection(let lhsCode, let lhsReason),
               .unexpectedDisconnection(let rhsCode, let rhsReason)):
