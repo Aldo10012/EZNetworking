@@ -86,7 +86,6 @@ final class WebSocketErrorTests {
     func testLocalizedDescriptions() {
         #expect(WebSocketError.notConnected.errorDescription == "WebSocket is not connected")
         #expect(WebSocketError.invalidURL.errorDescription == "Invalid WebSocket URL")
-        #expect(WebSocketError.messageEncodingFailed.errorDescription == "Failed to encode message for WebSocket")
         #expect(WebSocketError.messageDecodingFailed.errorDescription == "Failed to decode WebSocket message")
     }
     
@@ -112,7 +111,6 @@ final class WebSocketErrorTests {
         .alreadyConnected,
         .connectionTimeout,
         .invalidURL,
-        .messageEncodingFailed,
         .messageDecodingFailed,
         .pongTimeout,
         .forcedDisconnection,
