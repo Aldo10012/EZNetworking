@@ -101,7 +101,6 @@ final class WebSocketErrorTests {
         .notConnected,
         .stillConnecting,
         .alreadyConnected,
-        .connectionTimeout,
         .invalidURL,
         .pongTimeout,
         .forcedDisconnection,

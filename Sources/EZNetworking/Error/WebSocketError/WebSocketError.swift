@@ -6,7 +6,6 @@ public enum WebSocketError: Error {
     case stillConnecting
     case alreadyConnected
     case connectionFailed(underlying: Error)
-    case connectionTimeout
     case invalidURL
     case unsupportedProtocol(String)
     
@@ -44,8 +43,6 @@ extension WebSocketError: LocalizedError {
             return "WebSocket is already connected"
         case .connectionFailed(let error):
             return "WebSocket connection failed: \(error.localizedDescription)"
-        case .connectionTimeout:
-            return "WebSocket connection timed out"
         case .invalidURL:
             return "Invalid WebSocket URL"
         case .unsupportedProtocol(let protocolString):
@@ -95,7 +92,6 @@ extension WebSocketError: Equatable {
         case (.notConnected, .notConnected),
              (.stillConnecting, .stillConnecting),
              (.alreadyConnected, .alreadyConnected),
-             (.connectionTimeout, .connectionTimeout),
              (.invalidURL, .invalidURL),
              (.pongTimeout, .pongTimeout),
              (.forcedDisconnection, .forcedDisconnection),
