@@ -13,7 +13,6 @@ public enum WebSocketError: Error {
     // Communication errors
     case sendFailed(underlying: Error)
     case receiveFailed(underlying: Error)
-    case messageDecodingFailed
     
     // Ping/pong errors
     case pingFailed(underlying: Error)
@@ -57,9 +56,6 @@ extension WebSocketError: LocalizedError {
             return "Failed to send WebSocket message: \(error.localizedDescription)"
         case .receiveFailed(let error):
             return "Failed to receive WebSocket message: \(error.localizedDescription)"
-        case .messageDecodingFailed:
-            return "Failed to decode WebSocket message"
-            
         case .pingFailed(let error):
             return "WebSocket ping failed: \(error.localizedDescription)"
         case .pongTimeout:
@@ -104,7 +100,6 @@ extension WebSocketError: Equatable {
              (.alreadyConnected, .alreadyConnected),
              (.connectionTimeout, .connectionTimeout),
              (.invalidURL, .invalidURL),
-             (.messageDecodingFailed, .messageDecodingFailed),
              (.pongTimeout, .pongTimeout),
              (.forcedDisconnection, .forcedDisconnection),
              (.taskNotInitialized, .taskNotInitialized),

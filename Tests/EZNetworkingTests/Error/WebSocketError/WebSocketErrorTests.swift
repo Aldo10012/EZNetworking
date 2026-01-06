@@ -86,7 +86,6 @@ final class WebSocketErrorTests {
     func testLocalizedDescriptions() {
         #expect(WebSocketError.notConnected.errorDescription == "WebSocket is not connected")
         #expect(WebSocketError.invalidURL.errorDescription == "Invalid WebSocket URL")
-        #expect(WebSocketError.messageDecodingFailed.errorDescription == "Failed to decode WebSocket message")
     }
     
     @Test("LocalizedError - dynamic descriptions")
@@ -111,7 +110,6 @@ final class WebSocketErrorTests {
         .alreadyConnected,
         .connectionTimeout,
         .invalidURL,
-        .messageDecodingFailed,
         .pongTimeout,
         .forcedDisconnection,
         .taskNotInitialized,
