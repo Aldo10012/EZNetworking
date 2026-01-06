@@ -178,8 +178,7 @@ public actor WebSocket: WebSocketClient {
             
             // check if ping failed too many times in a row
             guard consecutiveFailures < pingConfig.maxPingFailures else {
-                let err = lastError ?? WebSocketError.pongTimeout
-                self.handleConnectionLoss(error: err)
+                self.handleConnectionLoss(error: lastError ?? WebSocketError.pongTimeout)
                 return
             }
             
