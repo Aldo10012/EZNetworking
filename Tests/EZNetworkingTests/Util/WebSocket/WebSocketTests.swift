@@ -884,7 +884,7 @@ final class WebSocketEngineTests_stateChanges {
         let sut = WebSocket(urlRequest: webSocketRequest, pingConfig: pingConfig, urlSession: urlSession, sessionDelegate: session)
         
         var stateEventStreamEnded = false
-        Task { [weak self] in
+        Task {
             for await _ in sut.stateEvents {
                 // no need to handle state received for this test
             }
