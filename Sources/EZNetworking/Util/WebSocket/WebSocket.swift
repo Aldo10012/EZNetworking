@@ -68,6 +68,31 @@ public actor WebSocket: WebSocketClient {
         self.stateEventContinuation = continuation
     }
     
+    // MARK: deinit
+    
+    /// deinit does the same as terminate(). It cleans up all resources AND finishes stateEventContinuation and messagesContinuation
+    deinit {
+        initialConnectionContinuation?.resume(throwing: WebSocketError.forcedDisconnection)
+        initialConnectionContinuation = nil
+        
+        webSocketTask?.cancel(with: .normalClosure, reason: nil)
+        webSocketTask = nil
+        
+        connectionState = .disconnected(.manuallyDisconnected)
+        
+        pingTask?.cancel()
+        pingTask = nil
+                
+        receiveMessagesTask?.cancel()
+        receiveMessagesTask = nil
+        
+        // Clear the event handler to prevent new tasks from being created
+        sessionDelegate.webSocketTaskInterceptor?.onEvent = nil
+        
+        stateEventContinuation.finish()
+        messagesContinuation.finish()
+    }
+    
     // MARK: - Connect
     
     public func connect() async throws {
@@ -254,29 +279,6 @@ public actor WebSocket: WebSocketClient {
         cleanup(closeCode: .normalClosure, reason: nil,
                 newState: .disconnected(.manuallyDisconnected),
                 error: .forcedDisconnection)
-        stateEventContinuation.finish()
-        messagesContinuation.finish()
-    }
-    
-    /// deinit terminates the WebSocket
-    deinit {
-        initialConnectionContinuation?.resume(throwing: WebSocketError.forcedDisconnection)
-        initialConnectionContinuation = nil
-        
-        webSocketTask?.cancel(with: .normalClosure, reason: nil)
-        webSocketTask = nil
-        
-        connectionState = .disconnected(.manuallyDisconnected)
-        
-        pingTask?.cancel()
-        pingTask = nil
-                
-        receiveMessagesTask?.cancel()
-        receiveMessagesTask = nil
-        
-        // Clear the event handler to prevent new tasks from being created
-        sessionDelegate.webSocketTaskInterceptor?.onEvent = nil
-        
         stateEventContinuation.finish()
         messagesContinuation.finish()
     }
