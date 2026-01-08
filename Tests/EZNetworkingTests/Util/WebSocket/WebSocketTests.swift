@@ -554,19 +554,19 @@ final class WebSocketEngineTests_messages {
         #expect(messagesReceived == ["message 1", "message 2"])
     }
     
-    @Test("test messages stream ends on WebSocket.deinit()")
-    func testMessagessStreamEndsOnWebSocketDeinit() async throws {
+    @Test("test messages stream ends on WebSocket.terminate()")
+    func testMessagessStreamEndsOnWebSocketTerminate() async throws {
         let pingConfig = PingConfig(pingInterval: .seconds(1), maxPingFailures: 1)
         let wsTask = MockURLSessionWebSocketTask()
         let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
         let wsInterceptor = MockWebSocketTaskInterceptor()
         let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
-        var sut: WebSocket? = WebSocket(urlRequest: webSocketRequest, pingConfig: pingConfig, urlSession: urlSession, sessionDelegate: session)
+        let sut = WebSocket(urlRequest: webSocketRequest, pingConfig: pingConfig, urlSession: urlSession, sessionDelegate: session)
         
         // connect
         let connectTask = Task {
             do {
-                try await sut?.connect()
+                try await sut.connect()
             } catch {
                 Issue.record("Unexpected error: \(error)")
             }
@@ -579,17 +579,14 @@ final class WebSocketEngineTests_messages {
         var messagesStreamEnded = false
 
         Task(priority: .high) {
-            print("DEBUG: A")
-            for await _ in sut!.messages {
-                print("DEBUG: B")
+            for await _ in sut.messages {
                 // no need to handle messages received for this test
             }
-            print("DEBUG: C")
             messagesStreamEnded = true
         }
         
         try await Task.sleep(nanoseconds: 100_000)        
-        sut = nil
+        await sut.terminate()
 
         #expect(messagesStreamEnded)
     }
@@ -876,31 +873,34 @@ final class WebSocketEngineTests_stateChanges {
         #expect(receivedState == expectedStates)
     }
     
-    @Test("test stateEvents stream ends on WebSocket.deinit()")
-    func testStateEventsEndsOnWebSocketDeinit() async throws {
+    @Test("test stateEvents stream ends on WebSocket.terminate()")
+    func testStateEventsEndsOnWebSocketTerminate() async throws {
         let pingConfig = PingConfig(pingInterval: .seconds(1), maxPingFailures: 1)
         let wsTask = MockURLSessionWebSocketTask()
         let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
         let wsInterceptor = MockWebSocketTaskInterceptor()
         let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
-        var sut: WebSocket? = WebSocket(urlRequest: webSocketRequest, pingConfig: pingConfig, urlSession: urlSession, sessionDelegate: session)
+        let sut = WebSocket(urlRequest: webSocketRequest, pingConfig: pingConfig, urlSession: urlSession, sessionDelegate: session)
         
         var stateEventStreamEnded = false
-        Task {
-            for await _ in sut!.stateEvents {
+        Task { [weak self] in
+            for await _ in sut.stateEvents {
                 // no need to handle state received for this test
             }
             stateEventStreamEnded = true
         }
         
         let connectionTask = Task {
-            try await sut?.connect()
+            try await sut.connect()
         }
         try await Task.sleep(nanoseconds: 100)
         wsInterceptor.simulateOpenWithProtocol("test")
         _ = try await connectionTask.value
         
-        sut = nil
+        await sut.terminate()
+        
+        try await Task.sleep(nanoseconds: 1_000_000)
+        
         #expect(stateEventStreamEnded == true)
     }
 }

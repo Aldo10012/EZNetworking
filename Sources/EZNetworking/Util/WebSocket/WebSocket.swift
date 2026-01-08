@@ -244,7 +244,8 @@ public actor WebSocket: WebSocketClient {
         sessionDelegate.webSocketTaskInterceptor?.onEvent = nil
     }
     
-    deinit {
+    // MARK: Terminate
+    func terminate() {
         webSocketTask?.cancel(with: .normalClosure, reason: nil)
         webSocketTask = nil
         
