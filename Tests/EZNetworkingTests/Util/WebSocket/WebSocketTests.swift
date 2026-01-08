@@ -393,17 +393,13 @@ final class WebSocketEngineTests_messages {
         
         var receivedMessages = [String]()
         let receiveMessagesTask = Task {
-            do {
-                for try await message in sut.messages.prefix(1) {
-                    switch message {
-                    case .string(let msg):
-                        receivedMessages.append(msg)
-                    default:
-                        Issue.record("Expected string message")
-                    }
+            for await message in sut.messages.prefix(1) {
+                switch message {
+                case .string(let msg):
+                    receivedMessages.append(msg)
+                default:
+                    Issue.record("Expected string message")
                 }
-            } catch {
-                Issue.record(".messages() unexpectedly threw error: \(error)")
             }
         }
         
@@ -441,17 +437,13 @@ final class WebSocketEngineTests_messages {
         
         var receivedMessages = [String]()
         let receiveMessagesTask = Task {
-            do {
-                for try await message in sut.messages.prefix(2) {
-                    switch message {
-                    case .string(let msg):
-                        receivedMessages.append(msg)
-                    default:
-                        Issue.record("Expected string message")
-                    }
+            for await message in sut.messages.prefix(2) {
+                switch message {
+                case .string(let msg):
+                    receivedMessages.append(msg)
+                default:
+                    Issue.record("Expected string message")
                 }
-            } catch {
-                Issue.record(".messages() unexpectedly threw error: \(error)")
             }
         }
         
@@ -486,27 +478,120 @@ final class WebSocketEngineTests_messages {
         
         try await Task.sleep(nanoseconds: 100)
         wsInterceptor.simulateOpenWithProtocol(nil)
-        
         await connectTask.value
         
-        var capturedError: WebSocketError?
-        let receiveMessagesTask = Task {
-            do {
-                for try await _ in sut.messages.prefix(1) {
-                    Issue.record("Expected messages to throw")
-                }
-            } catch {
-                if let wsError = error as? WebSocketError {
-                    capturedError = wsError
-                }
+        var messageReceived = false
+        Task {
+            for await _ in sut.messages {
+                messageReceived = true
             }
         }
         
         try await Task.sleep(for: .nanoseconds(100_000))
         wsTask.simulateReceiveMessageError()
-        await receiveMessagesTask.value
         
-        #expect(capturedError == WebSocketError.receiveFailed(underlying: MockURLSessionWebSocketTaskError.failedToReceiveMessage))
+        #expect(!messageReceived)
+    }
+    
+    @Test("test messages stream persists after disconnect then reconnect")
+    func testMessagesStreamPersistsAfterDisconnectThenReconnect() async throws {
+        let pingConfig = PingConfig(pingInterval: .seconds(1), maxPingFailures: 1)
+        let wsTask = MockURLSessionWebSocketTask()
+        let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
+        let wsInterceptor = MockWebSocketTaskInterceptor()
+        let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
+        let sut = WebSocket(urlRequest: webSocketRequest, pingConfig: pingConfig, urlSession: urlSession, sessionDelegate: session)
+        
+        // connect
+        let connectTask = Task {
+            do {
+                try await sut.connect()
+            } catch {
+                Issue.record("Unexpected error: \(error)")
+            }
+        }
+        try await Task.sleep(nanoseconds: 1_000)
+        wsInterceptor.simulateOpenWithProtocol(nil)
+        await connectTask.value
+        
+        // listen to messages
+        var messagesReceived = [String]()
+        let receiveMessagesTask = Task {
+            for await message in sut.messages.prefix(2) {
+                switch message {
+                case .string(let msg):
+                    messagesReceived.append(msg)
+                default:
+                    Issue.record("Expected string message")
+                }
+            }
+        }
+        
+        // send first message
+        try await Task.sleep(for: .nanoseconds(100_000))
+        wsTask.simulateReceiveMessage(.string("message 1"))
+        
+        // disconnect
+        try await sut.disconnect()
+        
+        // reconnect
+        let reconnectTask = Task {
+            do {
+                try await sut.connect()
+            } catch {
+                Issue.record("Unexpected error: \(error)")
+            }
+        }
+        try await Task.sleep(nanoseconds: 1_000)
+        wsInterceptor.simulateOpenWithProtocol(nil)
+        await reconnectTask.value
+        
+        // send second message
+        try await Task.sleep(for: .nanoseconds(100_000))
+        wsTask.simulateReceiveMessage(.string("message 2"))
+        
+        await receiveMessagesTask.value
+        #expect(messagesReceived == ["message 1", "message 2"])
+    }
+    
+    @Test("test messages stream ends on WebSocket.deinit()")
+    func testMessagessStreamEndsOnWebSocketDeinit() async throws {
+        let pingConfig = PingConfig(pingInterval: .seconds(1), maxPingFailures: 1)
+        let wsTask = MockURLSessionWebSocketTask()
+        let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
+        let wsInterceptor = MockWebSocketTaskInterceptor()
+        let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
+        var sut: WebSocket? = WebSocket(urlRequest: webSocketRequest, pingConfig: pingConfig, urlSession: urlSession, sessionDelegate: session)
+        
+        // connect
+        let connectTask = Task {
+            do {
+                try await sut?.connect()
+            } catch {
+                Issue.record("Unexpected error: \(error)")
+            }
+        }
+        try await Task.sleep(nanoseconds: 1_000)
+        wsInterceptor.simulateOpenWithProtocol(nil)
+        await connectTask.value
+        
+        // listen to messages
+        var messagesStreamEnded = false
+
+        Task(priority: .high) {
+            print("DEBUG: A")
+            for await _ in sut!.messages {
+                print("DEBUG: B")
+                // no need to handle messages received for this test
+            }
+            print("DEBUG: C")
+            messagesStreamEnded = true
+        }
+        
+        try await Task.sleep(nanoseconds: 100_000)        
+        sut = nil
+
+        #expect(messagesStreamEnded)
     }
 }
 
@@ -801,7 +886,6 @@ final class WebSocketEngineTests_stateChanges {
         var sut: WebSocket? = WebSocket(urlRequest: webSocketRequest, pingConfig: pingConfig, urlSession: urlSession, sessionDelegate: session)
         
         var stateEventStreamEnded = false
-        
         Task {
             for await _ in sut!.stateEvents {
                 // no need to handle state received for this test
@@ -817,7 +901,7 @@ final class WebSocketEngineTests_stateChanges {
         _ = try await connectionTask.value
         
         sut = nil
-        #expect(stateEventStreamEnded == false)
+        #expect(stateEventStreamEnded == true)
     }
 }
 

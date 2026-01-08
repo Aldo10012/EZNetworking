@@ -23,8 +23,8 @@ public actor WebSocket: WebSocketClient {
     private let pingConfig: PingConfig
     private var pingTask: Task<Void, Never>?
     
-    private nonisolated(unsafe) var messagesStream: AsyncThrowingStream<InboundMessage, any Error>
-    private let messagesContinuation: AsyncThrowingStream<InboundMessage, Error>.Continuation
+    private nonisolated(unsafe) var messagesStream: AsyncStream<InboundMessage>
+    private let messagesContinuation: AsyncStream<InboundMessage>.Continuation
     private var receiveMessagesTask: Task<Void, Never>?
     
     // MARK: Init
@@ -59,10 +59,7 @@ public actor WebSocket: WebSocketClient {
             self.urlSession = urlSession
         }
         
-        let (messagesStream, messagesContinuation) = AsyncThrowingStream.makeStream(
-            of: InboundMessage.self,
-            throwing: Error.self
-        )
+        let (messagesStream, messagesContinuation) = AsyncStream<InboundMessage>.makeStream()
         self.messagesStream = messagesStream
         self.messagesContinuation = messagesContinuation
         
@@ -239,9 +236,7 @@ public actor WebSocket: WebSocketClient {
         
         pingTask?.cancel()
         pingTask = nil
-        
-        messagesContinuation.finish()
-        
+                
         receiveMessagesTask?.cancel()
         receiveMessagesTask = nil
         
@@ -283,14 +278,13 @@ public actor WebSocket: WebSocketClient {
     
     // MARK: - Receive messages
 
-    public nonisolated var messages: AsyncThrowingStream<InboundMessage, any Error> {
+    public nonisolated var messages: AsyncStream<InboundMessage> {
         return messagesStream
     }
     
     private func startReceiveMessagesLoop() {
         receiveMessagesTask = Task {
             guard !Task.isCancelled, let wsTask = webSocketTask, case .connected = connectionState else {
-                messagesContinuation.finish(throwing: WebSocketError.notConnected)
                 return
             }
             
@@ -300,7 +294,6 @@ public actor WebSocket: WebSocketClient {
                 startReceiveMessagesLoop()
             } catch {
                 let wsError = WebSocketError.receiveFailed(underlying: error)
-                messagesContinuation.finish(throwing: wsError)
                 handleConnectionLoss(error: wsError)
                 return
             }
