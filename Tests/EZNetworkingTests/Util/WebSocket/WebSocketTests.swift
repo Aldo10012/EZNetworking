@@ -587,6 +587,7 @@ final class WebSocketEngineTests_messages {
         
         try await Task.sleep(nanoseconds: 100_000)        
         await sut.terminate()
+        try await Task.sleep(nanoseconds: 100_000)
 
         #expect(messagesStreamEnded)
     }

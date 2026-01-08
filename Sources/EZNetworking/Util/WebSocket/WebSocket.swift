@@ -220,6 +220,9 @@ public actor WebSocket: WebSocketClient {
                 error: error)
     }
     
+    /// cleanup() is meant to clean up tasks and continuations, marking the WebSocket as disconnected.
+    /// cleanup() does NOT finish stateEventContinuation or messagesContinuation.
+    /// This allows the streams to persist after disconnect and reconnect
     private func cleanup(
         closeCode: URLSessionWebSocketTask.CloseCode,
         reason: Data?,
@@ -245,22 +248,37 @@ public actor WebSocket: WebSocketClient {
     }
     
     // MARK: Terminate
+    
+    /// terminate() does the same as cleanup(), but ALSO finishes stateEventContinuation and messagesContinuation
     func terminate() {
+        cleanup(closeCode: .normalClosure, reason: nil,
+                newState: .disconnected(.manuallyDisconnected),
+                error: .forcedDisconnection)
+        stateEventContinuation.finish()
+        messagesContinuation.finish()
+    }
+    
+    /// deinit terminates the WebSocket
+    deinit {
+        initialConnectionContinuation?.resume(throwing: WebSocketError.forcedDisconnection)
+        initialConnectionContinuation = nil
+        
         webSocketTask?.cancel(with: .normalClosure, reason: nil)
         webSocketTask = nil
         
-        initialConnectionContinuation = nil
-        
-        stateEventContinuation.finish()
-        messagesContinuation.finish()
+        connectionState = .disconnected(.manuallyDisconnected)
         
         pingTask?.cancel()
         pingTask = nil
-        
+                
         receiveMessagesTask?.cancel()
         receiveMessagesTask = nil
         
+        // Clear the event handler to prevent new tasks from being created
         sessionDelegate.webSocketTaskInterceptor?.onEvent = nil
+        
+        stateEventContinuation.finish()
+        messagesContinuation.finish()
     }
     
     // MARK: - Send message
