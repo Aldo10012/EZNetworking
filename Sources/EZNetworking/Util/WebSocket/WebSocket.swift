@@ -104,7 +104,9 @@ public actor WebSocket: WebSocketClient {
         if sessionDelegate.webSocketTaskInterceptor == nil {
             sessionDelegate.webSocketTaskInterceptor = fallbackWebSocketTaskInterceptor
         }
-        guard sessionDelegate.webSocketTaskInterceptor?.onEvent == nil else { return }
+        guard sessionDelegate.webSocketTaskInterceptor?.onEvent == nil else {
+            return
+        }
         
         sessionDelegate.webSocketTaskInterceptor?.onEvent = { [weak self] event in
             Task {
@@ -235,16 +237,33 @@ public actor WebSocket: WebSocketClient {
         
         connectionState = newState
         
-        stateEventContinuation.finish()
-        
         pingTask?.cancel()
         pingTask = nil
         
         messagesContinuation.finish()
+        
         receiveMessagesTask?.cancel()
         receiveMessagesTask = nil
         
         // Clear the event handler to prevent new tasks from being created
+        sessionDelegate.webSocketTaskInterceptor?.onEvent = nil
+    }
+    
+    deinit {
+        webSocketTask?.cancel(with: .normalClosure, reason: nil)
+        webSocketTask = nil
+        
+        initialConnectionContinuation = nil
+        
+        stateEventContinuation.finish()
+        messagesContinuation.finish()
+        
+        pingTask?.cancel()
+        pingTask = nil
+        
+        receiveMessagesTask?.cancel()
+        receiveMessagesTask = nil
+        
         sessionDelegate.webSocketTaskInterceptor?.onEvent = nil
     }
     
