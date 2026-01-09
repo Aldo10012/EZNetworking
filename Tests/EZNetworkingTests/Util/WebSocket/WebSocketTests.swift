@@ -456,7 +456,6 @@ final class WebSocketEngineTests_messages {
         await receiveMessagesTask.value
         
         #expect(receivedMessages == ["mock message 1", "mock message 2"])
-        try await sut.disconnect()
     }
     
     @Test("test receive message failure")
@@ -510,7 +509,7 @@ final class WebSocketEngineTests_messages {
                 Issue.record("Unexpected error: \(error)")
             }
         }
-        try await Task.sleep(nanoseconds: 1_000)
+        try await Task.sleep(nanoseconds: 10_000)
         wsInterceptor.simulateOpenWithProtocol(nil)
         await connectTask.value
         
@@ -542,7 +541,7 @@ final class WebSocketEngineTests_messages {
                 Issue.record("Unexpected error: \(error)")
             }
         }
-        try await Task.sleep(nanoseconds: 1_000)
+        try await Task.sleep(nanoseconds: 10_000)
         wsInterceptor.simulateOpenWithProtocol(nil)
         await reconnectTask.value
         
@@ -578,7 +577,7 @@ final class WebSocketEngineTests_messages {
         // listen to messages
         var messagesStreamEnded = false
 
-        Task(priority: .high) {
+        let messageTask = Task {
             for await _ in sut.messages {
                 // no need to handle messages received for this test
             }
@@ -587,8 +586,8 @@ final class WebSocketEngineTests_messages {
         
         try await Task.sleep(nanoseconds: 100_000)        
         await sut.terminate()
-        try await Task.sleep(nanoseconds: 100_000)
-
+        
+        _ = await messageTask.value
         #expect(messagesStreamEnded)
     }
 }

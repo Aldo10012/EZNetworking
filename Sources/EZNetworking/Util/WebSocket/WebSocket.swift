@@ -196,7 +196,7 @@ public actor WebSocket: WebSocketClient {
     // MARK: Ping-pong loop
     
     private func startPingLoop(consecutiveFailures: Int = 0, lastError: WebSocketError? = nil) {
-        pingTask = Task {
+        pingTask = Task(priority: .high) {
             guard !Task.isCancelled, let wsTask = webSocketTask, case .connected = connectionState else {
                 return
             }
@@ -304,7 +304,7 @@ public actor WebSocket: WebSocketClient {
     }
     
     private func startReceiveMessagesLoop() {
-        receiveMessagesTask = Task {
+        receiveMessagesTask = Task(priority: .high) {
             guard !Task.isCancelled, let wsTask = webSocketTask, case .connected = connectionState else {
                 return
             }
