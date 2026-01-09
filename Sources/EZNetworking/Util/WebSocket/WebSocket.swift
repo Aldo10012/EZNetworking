@@ -305,18 +305,16 @@ public actor WebSocket: WebSocketClient {
     
     private func startReceiveMessagesLoop() {
         receiveMessagesTask = Task(priority: .high) {
-            guard !Task.isCancelled, let wsTask = webSocketTask, case .connected = connectionState else {
-                return
-            }
-            
-            do {
-                let message = try await wsTask.receive()
-                messagesContinuation.yield(message)
-                startReceiveMessagesLoop()
-            } catch {
-                let wsError = WebSocketError.receiveFailed(underlying: error)
-                handleConnectionLoss(error: wsError)
-                return
+            guard let wsTask = webSocketTask else { return }
+            while !Task.isCancelled, case .connected = connectionState {
+                do {
+                    let message = try await wsTask.receive()
+                    messagesContinuation.yield(message)
+                } catch {
+                    let wsError = WebSocketError.receiveFailed(underlying: error)
+                    handleConnectionLoss(error: wsError)
+                    break
+                }
             }
         }
     }
