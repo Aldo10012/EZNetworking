@@ -32,10 +32,12 @@ public enum WebSocketConnectionState: Equatable {
         case failedToConnect(error: WebSocketError)
         /// socket abruptly lost connection (server connection lost)
         case connectionLost(error: WebSocketError)
+        /// socket was terminated
+        case terminated
         
         public static func == (lhs: DisconnectReason, rhs: DisconnectReason) -> Bool {
             switch (lhs, rhs) {
-            case (.manuallyDisconnected, .manuallyDisconnected):
+            case (.manuallyDisconnected, .manuallyDisconnected), (.terminated, .terminated):
                 return true
             case (.failedToConnect(let lhsError), .failedToConnect(let rhsError)):
                 return lhsError == rhsError

@@ -23,8 +23,8 @@ public actor WebSocket: WebSocketClient {
     private let pingConfig: PingConfig
     private var pingTask: Task<Void, Never>?
     
-    private nonisolated(unsafe) var messagesStream: AsyncThrowingStream<InboundMessage, any Error>
-    private let messagesContinuation: AsyncThrowingStream<InboundMessage, Error>.Continuation
+    private nonisolated(unsafe) var messagesStream: AsyncStream<InboundMessage>
+    private let messagesContinuation: AsyncStream<InboundMessage>.Continuation
     private var receiveMessagesTask: Task<Void, Never>?
     
     // MARK: Init
@@ -59,16 +59,38 @@ public actor WebSocket: WebSocketClient {
             self.urlSession = urlSession
         }
         
-        let (messagesStream, messagesContinuation) = AsyncThrowingStream.makeStream(
-            of: InboundMessage.self,
-            throwing: Error.self
-        )
+        let (messagesStream, messagesContinuation) = AsyncStream<InboundMessage>.makeStream()
         self.messagesStream = messagesStream
         self.messagesContinuation = messagesContinuation
         
         let (stream, continuation) = AsyncStream<WebSocketConnectionState>.makeStream()
         self.stateEventStream = stream
         self.stateEventContinuation = continuation
+    }
+    
+    // MARK: deinit
+    
+    /// deinit does the same as terminate(). It cleans up all resources AND finishes stateEventContinuation and messagesContinuation
+    deinit {
+        initialConnectionContinuation?.resume(throwing: WebSocketError.forcedDisconnection)
+        initialConnectionContinuation = nil
+        
+        webSocketTask?.cancel(with: .normalClosure, reason: nil)
+        webSocketTask = nil
+        
+        connectionState = .disconnected(.manuallyDisconnected)
+        
+        pingTask?.cancel()
+        pingTask = nil
+                
+        receiveMessagesTask?.cancel()
+        receiveMessagesTask = nil
+        
+        // Clear the event handler to prevent new tasks from being created
+        sessionDelegate.webSocketTaskInterceptor?.onEvent = nil
+        
+        stateEventContinuation.finish()
+        messagesContinuation.finish()
     }
     
     // MARK: - Connect
@@ -104,7 +126,9 @@ public actor WebSocket: WebSocketClient {
         if sessionDelegate.webSocketTaskInterceptor == nil {
             sessionDelegate.webSocketTaskInterceptor = fallbackWebSocketTaskInterceptor
         }
-        guard sessionDelegate.webSocketTaskInterceptor?.onEvent == nil else { return }
+        guard sessionDelegate.webSocketTaskInterceptor?.onEvent == nil else {
+            return
+        }
         
         sessionDelegate.webSocketTaskInterceptor?.onEvent = { [weak self] event in
             Task {
@@ -172,7 +196,7 @@ public actor WebSocket: WebSocketClient {
     // MARK: Ping-pong loop
     
     private func startPingLoop(consecutiveFailures: Int = 0, lastError: WebSocketError? = nil) {
-        pingTask = Task {
+        pingTask = Task(priority: .high) {
             guard !Task.isCancelled, let wsTask = webSocketTask, case .connected = connectionState else {
                 return
             }
@@ -221,6 +245,9 @@ public actor WebSocket: WebSocketClient {
                 error: error)
     }
     
+    /// cleanup() is meant to clean up tasks and continuations, marking the WebSocket as disconnected.
+    /// cleanup() does NOT finish stateEventContinuation or messagesContinuation.
+    /// This allows the streams to persist after disconnect and reconnect
     private func cleanup(
         closeCode: URLSessionWebSocketTask.CloseCode,
         reason: Data?,
@@ -235,17 +262,25 @@ public actor WebSocket: WebSocketClient {
         
         connectionState = newState
         
-        stateEventContinuation.finish()
-        
         pingTask?.cancel()
         pingTask = nil
-        
-        messagesContinuation.finish()
+                
         receiveMessagesTask?.cancel()
         receiveMessagesTask = nil
         
         // Clear the event handler to prevent new tasks from being created
         sessionDelegate.webSocketTaskInterceptor?.onEvent = nil
+    }
+    
+    // MARK: Terminate
+    
+    /// terminate() does the same as cleanup(), but ALSO finishes stateEventContinuation and messagesContinuation
+    public func terminate() async {
+        cleanup(closeCode: .normalClosure, reason: nil,
+                newState: .disconnected(.terminated),
+                error: .forcedDisconnection)
+        stateEventContinuation.finish()
+        messagesContinuation.finish()
     }
     
     // MARK: - Send message
@@ -264,14 +299,13 @@ public actor WebSocket: WebSocketClient {
     
     // MARK: - Receive messages
 
-    public nonisolated var messages: AsyncThrowingStream<InboundMessage, any Error> {
+    public nonisolated var messages: AsyncStream<InboundMessage> {
         return messagesStream
     }
     
     private func startReceiveMessagesLoop() {
-        receiveMessagesTask = Task {
+        receiveMessagesTask = Task(priority: .high) {
             guard !Task.isCancelled, let wsTask = webSocketTask, case .connected = connectionState else {
-                messagesContinuation.finish(throwing: WebSocketError.notConnected)
                 return
             }
             
@@ -281,7 +315,6 @@ public actor WebSocket: WebSocketClient {
                 startReceiveMessagesLoop()
             } catch {
                 let wsError = WebSocketError.receiveFailed(underlying: error)
-                messagesContinuation.finish(throwing: wsError)
                 handleConnectionLoss(error: wsError)
                 return
             }

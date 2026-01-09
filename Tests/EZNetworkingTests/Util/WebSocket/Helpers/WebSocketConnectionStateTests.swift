@@ -26,12 +26,14 @@ final class WebSocketConnectionStateTests {
         let connectionLostB = WebSocketConnectionState.disconnected(.connectionLost(error: .stillConnecting))
         let failedToConnectA = WebSocketConnectionState.disconnected(.failedToConnect(error: .alreadyConnected))
         let failedToConnectB = WebSocketConnectionState.disconnected(.failedToConnect(error: .stillConnecting))
+        let terminated = WebSocketConnectionState.disconnected(.terminated)
 
         #expect(manuallyDisconnected == manuallyDisconnected)
         #expect(connectionLostA == connectionLostA)
         #expect(connectionLostB == connectionLostB)
         #expect(failedToConnectA == failedToConnectA)
         #expect(failedToConnectB == failedToConnectB)
+        #expect(terminated == terminated)
         
         #expect(connectionLostA != connectionLostB)
         #expect(failedToConnectA != failedToConnectB)
