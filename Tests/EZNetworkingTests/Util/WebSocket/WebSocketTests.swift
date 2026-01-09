@@ -883,10 +883,16 @@ final class WebSocketEngineTests_stateChanges {
         let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
         let sut = WebSocket(urlRequest: webSocketRequest, pingConfig: pingConfig, urlSession: urlSession, sessionDelegate: session)
         
+        var receivedStates = [WebSocketConnectionState]()
+        let expectedStates: [WebSocketConnectionState] = [
+            .connecting,
+            .connected(protocol: "test"),
+            .disconnected(.terminated)
+        ]
         var stateEventStreamEnded = false
-        Task {
-            for await _ in sut.stateEvents {
-                // no need to handle state received for this test
+        let stateTask = Task {
+            for await state in sut.stateEvents {
+                receivedStates.append(state)
             }
             stateEventStreamEnded = true
         }
@@ -900,8 +906,9 @@ final class WebSocketEngineTests_stateChanges {
         
         await sut.terminate()
         
-        try await Task.sleep(nanoseconds: 1_000_000)
+        _ = await stateTask.result
         
+        #expect(receivedStates == expectedStates)
         #expect(stateEventStreamEnded == true)
     }
 }

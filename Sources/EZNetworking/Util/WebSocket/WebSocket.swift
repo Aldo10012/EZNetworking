@@ -277,7 +277,7 @@ public actor WebSocket: WebSocketClient {
     /// terminate() does the same as cleanup(), but ALSO finishes stateEventContinuation and messagesContinuation
     public func terminate() async {
         cleanup(closeCode: .normalClosure, reason: nil,
-                newState: .disconnected(.manuallyDisconnected),
+                newState: .disconnected(.terminated),
                 error: .forcedDisconnection)
         stateEventContinuation.finish()
         messagesContinuation.finish()
