@@ -195,31 +195,26 @@ public actor WebSocket: WebSocketClient {
     
     // MARK: Ping-pong loop
     
-    private func startPingLoop(consecutiveFailures: Int = 0, lastError: WebSocketError? = nil) {
+    private func startPingLoop() {
         pingTask = Task(priority: .high) {
-            guard !Task.isCancelled, let wsTask = webSocketTask, case .connected = connectionState else {
-                return
+            var consecutiveFailures = 0
+            var lastError: WebSocketError? = nil
+            while !Task.isCancelled, let wsTask = webSocketTask, case .connected = connectionState {
+                // Check if ping failed too many times in a row
+                if consecutiveFailures >= pingConfig.maxPingFailures {
+                    self.handleConnectionLoss(error: lastError ?? WebSocketError.pongTimeout)
+                    break
+                }
+                do {
+                    try await wsTask.sendPing()
+                    consecutiveFailures = 0
+                    lastError = nil
+                } catch {
+                    consecutiveFailures += 1
+                    lastError = WebSocketError.pingFailed(underlying: error)
+                }
+                await pingConfig.waitForPingInterval()
             }
-            
-            // check if ping failed too many times in a row
-            guard consecutiveFailures < pingConfig.maxPingFailures else {
-                self.handleConnectionLoss(error: lastError ?? WebSocketError.pongTimeout)
-                return
-            }
-            
-            // send ping
-            var totalConsecutiveFailures = consecutiveFailures
-            var pingError: WebSocketError? = nil
-            do {
-                try await wsTask.sendPing()
-                totalConsecutiveFailures = 0
-            } catch {
-                totalConsecutiveFailures += 1
-                pingError = WebSocketError.pingFailed(underlying: error)
-            }
-            
-            await pingConfig.waitForPingInterval()
-            startPingLoop(consecutiveFailures: totalConsecutiveFailures, lastError: pingError)
         }
     }
     
@@ -305,18 +300,15 @@ public actor WebSocket: WebSocketClient {
     
     private func startReceiveMessagesLoop() {
         receiveMessagesTask = Task(priority: .high) {
-            guard !Task.isCancelled, let wsTask = webSocketTask, case .connected = connectionState else {
-                return
-            }
-            
-            do {
-                let message = try await wsTask.receive()
-                messagesContinuation.yield(message)
-                startReceiveMessagesLoop()
-            } catch {
-                let wsError = WebSocketError.receiveFailed(underlying: error)
-                handleConnectionLoss(error: wsError)
-                return
+            while !Task.isCancelled, let wsTask = webSocketTask, case .connected = connectionState {
+                do {
+                    let message = try await wsTask.receive()
+                    messagesContinuation.yield(message)
+                } catch {
+                    let wsError = WebSocketError.receiveFailed(underlying: error)
+                    handleConnectionLoss(error: wsError)
+                    break
+                }
             }
         }
     }

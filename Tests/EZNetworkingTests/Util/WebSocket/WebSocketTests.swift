@@ -403,7 +403,7 @@ final class WebSocketEngineTests_messages {
             }
         }
         
-        try await Task.sleep(for: .nanoseconds(100_000))
+        try await Task.sleep(nanoseconds: 100_000)
         
         wsTask.simulateReceiveMessage(.string("mock message"))
         
@@ -447,10 +447,10 @@ final class WebSocketEngineTests_messages {
             }
         }
         
-        try await Task.sleep(for: .nanoseconds(100_000))
+        try await Task.sleep(nanoseconds: 100_000)
         wsTask.simulateReceiveMessage(.string("mock message 1"))
         
-        try await Task.sleep(for: .nanoseconds(100_000))
+        try await Task.sleep(nanoseconds: 100_000)
         wsTask.simulateReceiveMessage(.string("mock message 2"))
         
         await receiveMessagesTask.value
@@ -486,7 +486,7 @@ final class WebSocketEngineTests_messages {
             }
         }
         
-        try await Task.sleep(for: .nanoseconds(100_000))
+        try await Task.sleep(nanoseconds: 100_000)
         wsTask.simulateReceiveMessageError()
         
         #expect(!messageReceived)
@@ -527,7 +527,7 @@ final class WebSocketEngineTests_messages {
         }
         
         // send first message
-        try await Task.sleep(for: .nanoseconds(100_000))
+        try await Task.sleep(nanoseconds: 100_000)
         wsTask.simulateReceiveMessage(.string("message 1"))
         
         // disconnect
@@ -546,7 +546,7 @@ final class WebSocketEngineTests_messages {
         await reconnectTask.value
         
         // send second message
-        try await Task.sleep(for: .nanoseconds(100_000))
+        try await Task.sleep(nanoseconds: 100_000)
         wsTask.simulateReceiveMessage(.string("message 2"))
         
         await receiveMessagesTask.value
@@ -629,7 +629,6 @@ final class WebSocketEngineTests_stateChanges {
         _ = await stateTask.value
         
         #expect(receivedState == expectedStates)
-        try await sut.disconnect() // just to finish streams
     }
     
     @Test("test stateEvents when connecting fails due to error")
