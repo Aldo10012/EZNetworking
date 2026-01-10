@@ -125,15 +125,38 @@ public actor WebSocket: WebSocketClient {
             break
             
         case (.connecting, .didOpenWithProtocol(let proto)):
+            /// state is .connecting, meaning wsTask.resume() was called and we are attempting to establish websocket handshare
+            /// .urlSession(_ session: , webSocketTask: , didOpenWithProtocol protocol: ) was invoked
+            ///
+            /// This means that web socket handshake was successful
             handleConnect(with: proto)
             
         case (.connecting, .didOpenWithError(let err)):
+            /// state is .connecting, meaning wsTask.resume() was called and we are attempting to establish websocket handshake
+            /// .urlSession(_ session: , task: , didCompleteWithError error: ) was invoked
+            ///
+            /// This means the initial HTTP connection or upgrade request failed.
+            /// Examples: DNS failure, connection refused, HTTP error response (404, 500), TLS error, network unreachable
             handleConnectFail(throwing: .connectionFailed(underlying: err))
             
         case (.connecting, .didClose(let code, let reason)):
+            /// state is .connecting, meaning wsTask.resume() was called and we are attempting to establish websocket handshake
+            /// urlSession(_ session: , webSocketTask: , didCloseWith closeCode: , reason: ) was invoked
+            ///
+            /// This means the WebSocket handshake succeeded, but the server immediately sent a close frame.
+            /// Examples: Server rejecting connection after handshake, server shutting down, auth failure after upgrade
             handleConnectFail(throwing: .unexpectedDisconnection(code: code, reason: parseReason(reason)))
             
         case (.connected, .didClose(let code, let reason)):
+            /// state is .connected, meaning handshake was already established
+            /// urlSession(_ session: , webSocketTask: , didCloseWith closeCode: , reason: ) was invoked
+            ///
+            /// This means the server sent a close frame, or responded to our close frame.
+            /// This is typically an unexpected disconnection since:
+            /// - If we called disconnect(), state would already be .disconnected(.manuallyDisconnected)
+            /// - This guard in handleConnectionLoss prevents state corruption in that case
+            ///
+            /// Examples: Server crashed, server gracefully shutting down, network dropped without TCP FIN
             let error = WebSocketError.unexpectedDisconnection(code: code, reason: parseReason(reason))
             handleConnectionLoss(error: error)
             
