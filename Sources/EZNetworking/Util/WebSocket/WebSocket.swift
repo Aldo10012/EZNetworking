@@ -14,7 +14,7 @@ public actor WebSocket: WebSocketClient {
             stateEventContinuation.yield(connectionState)
         }
     }
-    private nonisolated(unsafe) let stateEventStream: AsyncStream<WebSocketConnectionState>
+    private let stateEventStream: AsyncStream<WebSocketConnectionState>
     private let stateEventContinuation: AsyncStream<WebSocketConnectionState>.Continuation
     
     /// Used to suspend `connect()` until the delegate reports connection success/failure
@@ -23,7 +23,7 @@ public actor WebSocket: WebSocketClient {
     private let pingConfig: PingConfig
     private var pingTask: Task<Void, Never>?
     
-    private nonisolated(unsafe) var messagesStream: AsyncStream<InboundMessage>
+    private var messagesStream: AsyncStream<InboundMessage>
     private let messagesContinuation: AsyncStream<InboundMessage>.Continuation
     private var receiveMessagesTask: Task<Void, Never>?
     
@@ -294,7 +294,7 @@ public actor WebSocket: WebSocketClient {
     
     // MARK: - Receive messages
 
-    public nonisolated var messages: AsyncStream<InboundMessage> {
+    public var messages: AsyncStream<InboundMessage> {
         return messagesStream
     }
     
@@ -315,7 +315,7 @@ public actor WebSocket: WebSocketClient {
     
     // MARK: - State events
     
-    public nonisolated var stateEvents: AsyncStream<WebSocketConnectionState> {
+    public var stateEvents: AsyncStream<WebSocketConnectionState> {
         return stateEventStream
     }
 }
