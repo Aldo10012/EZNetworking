@@ -629,7 +629,6 @@ final class WebSocketEngineTests_stateChanges {
         _ = await stateTask.value
         
         #expect(receivedState == expectedStates)
-        try await sut.disconnect() // just to finish streams
     }
     
     @Test("test stateEvents when connecting fails due to error")
