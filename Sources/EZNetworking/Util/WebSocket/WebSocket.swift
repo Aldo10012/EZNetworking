@@ -3,11 +3,11 @@ import Foundation
 public actor WebSocket: WebSocketClient {
     
     private let urlSession: URLSessionTaskProtocol
-    private var sessionDelegate: SessionDelegate
+    private nonisolated let sessionDelegate: SessionDelegate
     private let webSocketRequest: URLRequest
     
     private var webSocketTask: WebSocketTaskProtocol?
-    private let fallbackWebSocketTaskInterceptor: WebSocketTaskInterceptor = DefaultWebSocketTaskInterceptor()
+    private nonisolated let fallbackWebSocketTaskInterceptor: WebSocketTaskInterceptor = DefaultWebSocketTaskInterceptor()
     
     private var connectionState: WebSocketConnectionState = .notConnected {
         didSet {
@@ -66,6 +66,8 @@ public actor WebSocket: WebSocketClient {
         let (stream, continuation) = AsyncStream<WebSocketConnectionState>.makeStream()
         self.stateEventStream = stream
         self.stateEventContinuation = continuation
+        
+        setupWebSocketEventHandler()
     }
     
     // MARK: deinit
@@ -108,9 +110,6 @@ public actor WebSocket: WebSocketClient {
         webSocketTask = urlSession.webSocketTaskInspectable(with: webSocketRequest)
         webSocketTask?.resume()
         
-        // set up delegate to observe connection success/failure
-        setupWebSocketEventHandler()
-        
         // wait for connection to establish
         try await waitForConnection()
 
@@ -122,7 +121,7 @@ public actor WebSocket: WebSocketClient {
     }
     
     // MARK: Handle delegate events
-    private func setupWebSocketEventHandler() {
+    private nonisolated func setupWebSocketEventHandler() {
         if sessionDelegate.webSocketTaskInterceptor == nil {
             sessionDelegate.webSocketTaskInterceptor = fallbackWebSocketTaskInterceptor
         }
@@ -265,9 +264,6 @@ public actor WebSocket: WebSocketClient {
                 
         receiveMessagesTask?.cancel()
         receiveMessagesTask = nil
-        
-        // Clear the event handler to prevent new tasks from being created
-        sessionDelegate.webSocketTaskInterceptor?.onEvent = nil
     }
     
     // MARK: Terminate
