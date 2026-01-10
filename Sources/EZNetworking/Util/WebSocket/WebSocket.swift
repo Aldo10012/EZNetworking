@@ -300,8 +300,7 @@ public actor WebSocket: WebSocketClient {
     
     private func startReceiveMessagesLoop() {
         receiveMessagesTask = Task(priority: .high) {
-            guard let wsTask = webSocketTask else { return }
-            while !Task.isCancelled, case .connected = connectionState {
+            while !Task.isCancelled, let wsTask = webSocketTask, case .connected = connectionState {
                 do {
                     let message = try await wsTask.receive()
                     messagesContinuation.yield(message)
