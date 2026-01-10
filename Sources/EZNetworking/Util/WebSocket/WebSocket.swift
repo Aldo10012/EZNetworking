@@ -3,18 +3,18 @@ import Foundation
 public actor WebSocket: WebSocketClient {
     
     private let urlSession: URLSessionTaskProtocol
-    private var sessionDelegate: SessionDelegate
+    private nonisolated let sessionDelegate: SessionDelegate
     private let webSocketRequest: URLRequest
     
     private var webSocketTask: WebSocketTaskProtocol?
-    private let fallbackWebSocketTaskInterceptor: WebSocketTaskInterceptor = DefaultWebSocketTaskInterceptor()
+    private nonisolated let fallbackWebSocketTaskInterceptor: WebSocketTaskInterceptor = DefaultWebSocketTaskInterceptor()
     
     private var connectionState: WebSocketConnectionState = .notConnected {
         didSet {
             stateEventContinuation.yield(connectionState)
         }
     }
-    private nonisolated(unsafe) let stateEventStream: AsyncStream<WebSocketConnectionState>
+    private let stateEventStream: AsyncStream<WebSocketConnectionState>
     private let stateEventContinuation: AsyncStream<WebSocketConnectionState>.Continuation
     
     /// Used to suspend `connect()` until the delegate reports connection success/failure
@@ -23,7 +23,7 @@ public actor WebSocket: WebSocketClient {
     private let pingConfig: PingConfig
     private var pingTask: Task<Void, Never>?
     
-    private nonisolated(unsafe) var messagesStream: AsyncStream<InboundMessage>
+    private var messagesStream: AsyncStream<InboundMessage>
     private let messagesContinuation: AsyncStream<InboundMessage>.Continuation
     private var receiveMessagesTask: Task<Void, Never>?
     
@@ -66,29 +66,14 @@ public actor WebSocket: WebSocketClient {
         let (stream, continuation) = AsyncStream<WebSocketConnectionState>.makeStream()
         self.stateEventStream = stream
         self.stateEventContinuation = continuation
+        
+        setupWebSocketEventHandler()
     }
     
     // MARK: deinit
     
-    /// deinit does the same as terminate(). It cleans up all resources AND finishes stateEventContinuation and messagesContinuation
     deinit {
-        initialConnectionContinuation?.resume(throwing: WebSocketError.forcedDisconnection)
-        initialConnectionContinuation = nil
-        
-        webSocketTask?.cancel(with: .normalClosure, reason: nil)
-        webSocketTask = nil
-        
-        connectionState = .disconnected(.manuallyDisconnected)
-        
-        pingTask?.cancel()
-        pingTask = nil
-                
-        receiveMessagesTask?.cancel()
-        receiveMessagesTask = nil
-        
-        // Clear the event handler to prevent new tasks from being created
         sessionDelegate.webSocketTaskInterceptor?.onEvent = nil
-        
         stateEventContinuation.finish()
         messagesContinuation.finish()
     }
@@ -108,9 +93,6 @@ public actor WebSocket: WebSocketClient {
         webSocketTask = urlSession.webSocketTaskInspectable(with: webSocketRequest)
         webSocketTask?.resume()
         
-        // set up delegate to observe connection success/failure
-        setupWebSocketEventHandler()
-        
         // wait for connection to establish
         try await waitForConnection()
 
@@ -122,7 +104,7 @@ public actor WebSocket: WebSocketClient {
     }
     
     // MARK: Handle delegate events
-    private func setupWebSocketEventHandler() {
+    private nonisolated func setupWebSocketEventHandler() {
         if sessionDelegate.webSocketTaskInterceptor == nil {
             sessionDelegate.webSocketTaskInterceptor = fallbackWebSocketTaskInterceptor
         }
@@ -210,6 +192,7 @@ public actor WebSocket: WebSocketClient {
                     consecutiveFailures = 0
                     lastError = nil
                 } catch {
+                    guard !Task.isCancelled else { break }
                     consecutiveFailures += 1
                     lastError = WebSocketError.pingFailed(underlying: error)
                 }
@@ -232,6 +215,8 @@ public actor WebSocket: WebSocketClient {
     }
     
     private func handleConnectionLoss(error: WebSocketError) {
+        guard case .connected = connectionState else { return }
+        
         let closeCode = webSocketTask?.closeCode ?? .goingAway
         let reason = webSocketTask?.closeReason ?? nil
         cleanup(closeCode: closeCode,
@@ -262,9 +247,6 @@ public actor WebSocket: WebSocketClient {
                 
         receiveMessagesTask?.cancel()
         receiveMessagesTask = nil
-        
-        // Clear the event handler to prevent new tasks from being created
-        sessionDelegate.webSocketTaskInterceptor?.onEvent = nil
     }
     
     // MARK: Terminate
@@ -274,6 +256,7 @@ public actor WebSocket: WebSocketClient {
         cleanup(closeCode: .normalClosure, reason: nil,
                 newState: .disconnected(.terminated),
                 error: .forcedDisconnection)
+        sessionDelegate.webSocketTaskInterceptor?.onEvent = nil
         stateEventContinuation.finish()
         messagesContinuation.finish()
     }
@@ -294,7 +277,7 @@ public actor WebSocket: WebSocketClient {
     
     // MARK: - Receive messages
 
-    public nonisolated var messages: AsyncStream<InboundMessage> {
+    public var messages: AsyncStream<InboundMessage> {
         return messagesStream
     }
     
@@ -305,6 +288,7 @@ public actor WebSocket: WebSocketClient {
                     let message = try await wsTask.receive()
                     messagesContinuation.yield(message)
                 } catch {
+                    guard !Task.isCancelled else { break }
                     let wsError = WebSocketError.receiveFailed(underlying: error)
                     handleConnectionLoss(error: wsError)
                     break
@@ -315,7 +299,7 @@ public actor WebSocket: WebSocketClient {
     
     // MARK: - State events
     
-    public nonisolated var stateEvents: AsyncStream<WebSocketConnectionState> {
+    public var stateEvents: AsyncStream<WebSocketConnectionState> {
         return stateEventStream
     }
 }

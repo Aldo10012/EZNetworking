@@ -1,6 +1,6 @@
 import Foundation
 
-public enum WebSocketConnectionState: Equatable {
+public enum WebSocketConnectionState: Equatable, Sendable {
     ///  The socket is initialized and ready to connect
     case notConnected
     /// The socket is in the process of connecting
@@ -25,7 +25,7 @@ public enum WebSocketConnectionState: Equatable {
         }
     }
     
-    public enum DisconnectReason: Equatable {
+    public enum DisconnectReason: Equatable, Sendable {
         /// socket was manually disconnected by user
         case manuallyDisconnected
         /// socket failed to establish connection

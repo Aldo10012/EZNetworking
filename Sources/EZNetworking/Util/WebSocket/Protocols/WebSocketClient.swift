@@ -4,7 +4,7 @@ public typealias OutboundMessage = URLSessionWebSocketTask.Message
 public typealias InboundMessage = URLSessionWebSocketTask.Message
 
 /// A client for managing WebSocket connections.
-public protocol WebSocketClient: Sendable {
+public protocol WebSocketClient: Actor {
 
     /// Establishes a connection to the WebSocket server.
     func connect() async throws

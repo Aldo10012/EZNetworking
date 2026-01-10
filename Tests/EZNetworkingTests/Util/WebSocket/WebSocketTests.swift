@@ -393,7 +393,7 @@ final class WebSocketEngineTests_messages {
         
         var receivedMessages = [String]()
         let receiveMessagesTask = Task {
-            for await message in sut.messages.prefix(1) {
+            for await message in await sut.messages.prefix(1) {
                 switch message {
                 case .string(let msg):
                     receivedMessages.append(msg)
@@ -437,7 +437,7 @@ final class WebSocketEngineTests_messages {
         
         var receivedMessages = [String]()
         let receiveMessagesTask = Task {
-            for await message in sut.messages.prefix(2) {
+            for await message in await sut.messages.prefix(2) {
                 switch message {
                 case .string(let msg):
                     receivedMessages.append(msg)
@@ -481,7 +481,7 @@ final class WebSocketEngineTests_messages {
         
         var messageReceived = false
         Task {
-            for await _ in sut.messages {
+            for await _ in await sut.messages {
                 messageReceived = true
             }
         }
@@ -516,7 +516,7 @@ final class WebSocketEngineTests_messages {
         // listen to messages
         var messagesReceived = [String]()
         let receiveMessagesTask = Task {
-            for await message in sut.messages.prefix(2) {
+            for await message in await sut.messages.prefix(2) {
                 switch message {
                 case .string(let msg):
                     messagesReceived.append(msg)
@@ -578,7 +578,7 @@ final class WebSocketEngineTests_messages {
         var messagesStreamEnded = false
 
         let messageTask = Task {
-            for await _ in sut.messages {
+            for await _ in await sut.messages {
                 // no need to handle messages received for this test
             }
             messagesStreamEnded = true
@@ -613,7 +613,7 @@ final class WebSocketEngineTests_stateChanges {
         ]
         
         let stateTask = Task {
-            for await state in sut.stateEvents.prefix(expectedStates.count) {
+            for await state in await sut.stateEvents.prefix(expectedStates.count) {
                 receivedState.append(state)
             }
         }
@@ -649,7 +649,7 @@ final class WebSocketEngineTests_stateChanges {
         ]
         
         let stateTask = Task {
-            for await state in sut.stateEvents.prefix(expectedStates.count) {
+            for await state in await sut.stateEvents.prefix(expectedStates.count) {
                 receivedState.append(state)
             }
         }
@@ -691,7 +691,7 @@ final class WebSocketEngineTests_stateChanges {
         ]
         
         let stateTask = Task {
-            for await state in sut.stateEvents.prefix(expectedStates.count) {
+            for await state in await sut.stateEvents.prefix(expectedStates.count) {
                 receivedState.append(state)
             }
         }
@@ -730,7 +730,7 @@ final class WebSocketEngineTests_stateChanges {
         ]
         
         let stateTask = Task {
-            for await state in sut.stateEvents.prefix(expectedStates.count) {
+            for await state in await sut.stateEvents.prefix(expectedStates.count) {
                 receivedState.append(state)
             }
         }
@@ -768,7 +768,7 @@ final class WebSocketEngineTests_stateChanges {
         ]
         
         let stateTask = Task {
-            for await state in sut.stateEvents.prefix(expectedStates.count) {
+            for await state in await sut.stateEvents.prefix(expectedStates.count) {
                 receivedState.append(state)
             }
         }
@@ -807,7 +807,7 @@ final class WebSocketEngineTests_stateChanges {
         ]
         
         let stateTask = Task {
-            for await state in sut.stateEvents.prefix(expectedStates.count) {
+            for await state in await sut.stateEvents.prefix(expectedStates.count) {
                 receivedState.append(state)
             }
         }
@@ -846,7 +846,7 @@ final class WebSocketEngineTests_stateChanges {
         ]
         
         let stateTask = Task {
-            for await state in sut.stateEvents.prefix(expectedStates.count) {
+            for await state in await sut.stateEvents.prefix(expectedStates.count) {
                 receivedState.append(state)
             }
         }
@@ -889,7 +889,7 @@ final class WebSocketEngineTests_stateChanges {
         ]
         var stateEventStreamEnded = false
         let stateTask = Task {
-            for await state in sut.stateEvents {
+            for await state in await sut.stateEvents {
                 receivedStates.append(state)
             }
             stateEventStreamEnded = true
