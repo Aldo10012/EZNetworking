@@ -210,6 +210,7 @@ public actor WebSocket: WebSocketClient {
                     consecutiveFailures = 0
                     lastError = nil
                 } catch {
+                    guard !Task.isCancelled else { break }
                     consecutiveFailures += 1
                     lastError = WebSocketError.pingFailed(underlying: error)
                 }
@@ -232,6 +233,8 @@ public actor WebSocket: WebSocketClient {
     }
     
     private func handleConnectionLoss(error: WebSocketError) {
+        guard case .connected = connectionState else { return }
+        
         let closeCode = webSocketTask?.closeCode ?? .goingAway
         let reason = webSocketTask?.closeReason ?? nil
         cleanup(closeCode: closeCode,
@@ -305,6 +308,7 @@ public actor WebSocket: WebSocketClient {
                     let message = try await wsTask.receive()
                     messagesContinuation.yield(message)
                 } catch {
+                    guard !Task.isCancelled else { break }
                     let wsError = WebSocketError.receiveFailed(underlying: error)
                     handleConnectionLoss(error: wsError)
                     break
