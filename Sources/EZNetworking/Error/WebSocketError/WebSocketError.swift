@@ -1,6 +1,6 @@
 import Foundation
 
-public enum WebSocketError: Error {
+public enum WebSocketError: Error, @unchecked Sendable {
     // Connection errors
     case notConnected
     case stillConnecting
