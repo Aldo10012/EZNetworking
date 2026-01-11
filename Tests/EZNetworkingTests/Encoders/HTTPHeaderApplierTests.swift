@@ -10,11 +10,11 @@ final class HTTPHeaderApplierTests {
         let url = try #require(URL(string: "https://www.example.com"))
         var urlRequest = URLRequest(url: url)
         
-        HTTPHeaderApplier.encodeHeaders(for: &urlRequest, with: [
+        HTTPHeaderApplier.apply([
             .accept(.json),
             .contentType(.json),
             .authorization(.bearer("My_API_KEY"))
-        ])
+        ], to: &urlRequest)
         
         let expextedHeaders = [
             "Accept": "application/json",

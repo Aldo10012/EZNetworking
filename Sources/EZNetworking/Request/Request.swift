@@ -30,11 +30,11 @@ public extension Request {
         request.cachePolicy = cachePolicy
 
         if let parameters = parameters {
-            try? HTTPParameterApplier.encodeParameters(for: &request, with: parameters)
+            try? HTTPParameterApplier.apply(parameters, to: &request)
         }
 
         if let headers = headers {
-            HTTPHeaderApplier.encodeHeaders(for: &request, with: headers)
+            HTTPHeaderApplier.apply(headers, to: &request)
         }
 
         return request

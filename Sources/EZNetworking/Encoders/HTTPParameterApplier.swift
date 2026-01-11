@@ -3,7 +3,7 @@ import Foundation
 struct HTTPParameterApplier {
     private init() {}
     
-    static func encodeParameters(for urlRequest: inout URLRequest, with parameters: [HTTPParameter]) throws {
+    static func apply(_ parameters: [HTTPParameter], to urlRequest: inout URLRequest) throws {
         guard let url = urlRequest.url else {
             throw NetworkingError.internalError(.noURL)
         }
