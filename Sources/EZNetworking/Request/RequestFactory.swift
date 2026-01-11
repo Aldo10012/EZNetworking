@@ -11,14 +11,8 @@ public protocol RequestFactory {
 }
 
 public class RequestFactoryImpl: RequestFactory {
-    private let headerEncoder: HTTPHeaderEncoder
-    private let paramEncoder: HTTPParameterEncoder
 
-    public init(headerEncoder: HTTPHeaderEncoder = HTTPHeaderEncoderImpl(),
-         paramEncoder: HTTPParameterEncoder = HTTPParameterEncoderImpl()) {
-        self.headerEncoder = headerEncoder
-        self.paramEncoder = paramEncoder
-    }
+    public init() { }
 
     public func build(httpMethod: HTTPMethod,
                baseUrlString: String,

@@ -20,14 +20,7 @@ public class RequestBuilderImpl: RequestBuilder {
     private var timeoutInterval: TimeInterval?
     private var cachePolicy: URLRequest.CachePolicy = .useProtocolCachePolicy
 
-    private let headerEncoder: HTTPHeaderEncoder
-    private let paramEncoder: HTTPParameterEncoder
-
-    public init(headerEncoder: HTTPHeaderEncoder = HTTPHeaderEncoderImpl(),
-                paramEncoder: HTTPParameterEncoder = HTTPParameterEncoderImpl()) {
-        self.headerEncoder = headerEncoder
-        self.paramEncoder = paramEncoder
-    }
+    public init() { }
 
     public func setHttpMethod(_ method: HTTPMethod) -> RequestBuilder {
         self.httpMethod = method
