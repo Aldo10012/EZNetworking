@@ -44,6 +44,14 @@ EZNetworking is a powerful, lightweight Swift networking library that simplifies
   - [Date Upload](https://github.com/Aldo10012/EZNetworking/?tab=readme-ov-file#uploading-raw-data)
   - [File Upload](https://github.com/Aldo10012/EZNetworking/blob/main/README.md#uploading-file)
   - [Multipart-form Upload](https://github.com/Aldo10012/EZNetworking/blob/main/README.md#uploading-multipart-form-data)
+- [Web Socket](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#web-socket)
+    - [How to initialize](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#how-to-initialize)
+    - [How to connect](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#how-to-connect)
+    - [How to disconnect](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#how-to-disconnect)
+    - [How to terminate](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#how-to-terminate)
+    - [How to send a message](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#how-to-send-messages)
+    - [How to receive messages](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#how-to-receive-messages)
+    - [How to observe state](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#how-to-observe-state)
 - [Advanced Features](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#advanced-features-)
   - [Interceptors](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#interceptors)
     - [Cache Interceptor](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#cache-interceptor)
@@ -57,14 +65,6 @@ EZNetworking is a powerful, lightweight Swift networking library that simplifies
     - [Stream Task Interceptor](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#stream-task-interceptor)
     - [WebSocket Task Interceptor](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#websocket-task-interceptor)
   - [Session Management](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#session-management)
-  - [Web Socket](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#web-socket)
-    - [How to initialize](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#how-to-initialize)
-    - [How to connect](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#how-to-connect)
-    - [How to disconnect](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#how-to-disconnect)
-    - [How to send a message](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#how-to-send-messages)
-    - [How to receive messages](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#how-to-receive-messages)
-    - [How to observe state](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#how-to-observe-state)
-
 - [Error Handling](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#error-handling-)
 - [Contributing](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#contributing-)
 - [License](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#license-)
@@ -622,6 +622,131 @@ for await event in DataUploader().uploadDataStream(multippartFormData.toData()!,
 
 ```
 
+## Web Socket
+
+WebSockets are used to establish bi-directional, real-time communication between a client and server.
+
+### How to initialize
+
+**Using URL**
+
+You can initialize WebSocket using a plain url string
+
+```swift
+let ws = WebSocket(url: "ws://127.0.0.1:8080/example")
+```
+
+**Using WebSocketRequest**
+
+`WebSocketRequest` is an implementation of the `Request` protocol that is specifically designed for connecting to WebSockets. 
+It takes the following as init arguments:
+
+- `url: String` - Required - the string of the web socket url you are trying to connect to.
+- `protocols: [String]?` - Optional - list of strings that will be used for the `Sec-WebSocket-Protocol` header
+- `additionalHeaders: [HTTPHeader]?` - Optional - any additional header you need for your web socket request
+
+Example:
+
+```swift
+let request = WebSocketRequest(
+    url: "ws://127.0.0.1:8080/example"
+    protocols: ["chat"],
+    additionalheaders: [
+        .contentType(.json)
+        .authentication(.bearer("token"))
+    ]
+)
+let ws = WebSocket(request: request)
+```
+
+**Adding PingConfig**
+
+Both init methods of `WebSocket` also takes a `PingConfig`, which is used to control ping-pong logic.
+It takes the following as init arguments:
+- `pingInterval: IntervalDuration` - how often ping message gets sent to server (to keep connection alive)
+- `maxPingFailures: UInt` - max number of times ping-pong fail before disconnecting
+
+```swift
+let congif = PingConfig(pingInterval: .seconds(30), maxPingFailures: 3)
+
+let ws1 = WebSocket(url:_, pingConfig: pingConfig)
+let ws2 = WebSocket(request:_, pingConfig: pingConfig)
+```
+
+### How to connect
+
+The `.connect()` method is used to establish websocket handshake
+
+```swift
+try await ws.connect()
+```
+
+### How to disconnect
+
+The `.disconnect()` method sends a close-frame, ending websocket handshake. This DOES NOT end messages or stateEvent streams.
+
+Use this method if you want to be able to reconnect to the web socket by calling `.connect()` again.
+
+```swift
+try await ws.disconnect()
+```
+
+### How to terminate
+
+The `.terminate()` method sends a close-frame, ending websocket handshake. This DOES end messages or stateEvent streams.
+
+Use this method when you are officially done using WebSocket and do not plan on reconnecting
+
+```swift
+try await ws.terminate()
+```
+
+### How to send messages
+
+The `.send(_)` method allows you to send a message to the websocket
+
+```swift
+/// sending string message
+try await ws.send(.string("some string message"))
+
+/// sending data message
+try await ws.send(.data("some data message".data(using: .utf8)))
+```
+
+### How to receive messages
+
+The `.messages` stream allows you to observe incoming messages from the websocket
+
+```swift
+for await message in await sut.messages {
+    switch message {
+    case .string(let msg):
+        // handle string messages
+    case .data(let msg):
+        // handle data messages
+    }        
+}
+```
+
+### How to observe state
+
+The `.stateEvents` stream allows you to observe state changes
+
+```swift
+for await state in await sut.stateEvents {
+    switch state {
+        case .notConnected:
+            // handle notConnected state (initial idle state before connecting to socket)
+        case .connecting:
+            // handle connecting state (socket is in process of connecting)
+        case .connected(protocol: _):
+            // handle connected state (socket successfully connected)
+        case .disconnected(_):
+            // handle disconnected state (socket lost connection. Due to user manual disconnect or server connection lost)
+    }
+}
+```
+
 ## Advanced Features 🔧
 
 ### Interceptors
@@ -900,77 +1025,6 @@ let performer = RequestPerformer(sessionDelegate: delegate)
 // Use performer for requests
 performer.performTask(request: request) { result in
     // Handle result
-}
-```
-
-### Web Socket
-
-WebSockets are used to establish bi-directional, real-time communication between a client and server.
-
-#### How to initialize
-
-```swift
-/// set target url request for web socket connection
-let wsRequest = URLRequest(url: URL(string: "ws://127.0.0.1:8080/example")!)
-
-/// set ping-pong configurations
-/// - pingInterval - how often ping message gets sent to server (to keep connection alive)
-/// - maxPingFailures - max number of times ping-pong fail before disconnecting
-let pingConfig = PingConfig(pingInterval: .seconds(30), maxPingFailures: 3)
-
-/// create WebSocket instance
-let ws = WebSocket(urlRequest: wsRequest, pingConfig: pingConfig)
-```
-
-#### How to connect
-
-```swift
-try await ws.connect()
-```
-
-#### How to disconnect
-
-```swift
-try await ws.disconnect()
-```
-
-#### How to send messages
-
-```swift
-/// sending string message
-try await ws.send(.string("some string message"))
-
-/// sending data message
-try await ws.send("some data message".data(using: .utf8))
-```
-
-#### How to receive messages
-
-```swift
-for try await message in sut.messages {
-    switch message {
-    case .string(let msg):
-        // handle string messages
-    case .data(let msg):
-        // handle data messages
-    }        
-}
-```
-
-#### How to observe state
-
-```swift
-for await state in sut.stateEvents {
-    switch state {
-        case .notConnected:
-            // handle notConnected state (initial idle state before connecting to socket)
-        case .connecting:
-            // handle connecting state (socket is in process of connecting)
-        case .connected(protocol: _):
-            // handle connected state (socket successfully connected)
-        case .disconnected(_):
-            // handle disconnected state (socket lost connection. Due to user manual disconnect or server connection lost)
-    }
 }
 ```
 
