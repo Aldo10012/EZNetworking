@@ -4,7 +4,7 @@ public actor WebSocket: WebSocketClient {
     
     private let urlSession: URLSessionTaskProtocol
     private nonisolated let sessionDelegate: SessionDelegate
-    private let webSocketRequest: URLRequest
+    private let webSocketRequest: WebSocketRequest
     
     private var webSocketTask: WebSocketTaskProtocol?
     private nonisolated let fallbackWebSocketTaskInterceptor: WebSocketTaskInterceptor = DefaultWebSocketTaskInterceptor()
@@ -28,14 +28,26 @@ public actor WebSocket: WebSocketClient {
     private var receiveMessagesTask: Task<Void, Never>?
     
     // MARK: Init
-    
     public init(
-        urlRequest: URLRequest,
+        url: String,
+        protocols: [String]? = nil,
+        additionalheaders: [HTTPHeader]? = nil,
         pingConfig: PingConfig = PingConfig(),
         urlSession: URLSessionTaskProtocol = URLSession.shared,
         sessionDelegate: SessionDelegate? = nil
     ) {
-        self.webSocketRequest = urlRequest
+        self.init(request: WebSocketRequest(url: url, protocols: protocols, additionalheaders: additionalheaders),
+                  pingConfig: pingConfig,
+                  urlSession: urlSession,
+                  sessionDelegate: sessionDelegate)
+    }
+    public init(
+        request: WebSocketRequest,
+        pingConfig: PingConfig = PingConfig(),
+        urlSession: URLSessionTaskProtocol = URLSession.shared,
+        sessionDelegate: SessionDelegate? = nil
+    ) {
+        self.webSocketRequest = request
         self.pingConfig = pingConfig
         if let urlSession = urlSession as? URLSession {
             // If the session already has a delegate, use it (if it's a SessionDelegate)
@@ -81,6 +93,9 @@ public actor WebSocket: WebSocketClient {
     // MARK: - Connect
     
     public func connect() async throws {
+        guard let urlRequest = webSocketRequest.urlRequest else {
+            throw WebSocketError.invalidWebSocketURLRequest
+        }
         // Validate current state
         if case .connecting = connectionState {
             throw WebSocketError.stillConnecting
@@ -90,7 +105,7 @@ public actor WebSocket: WebSocketClient {
         }
         
         // Create and resume WebSocket task
-        webSocketTask = urlSession.webSocketTaskInspectable(with: webSocketRequest)
+        webSocketTask = urlSession.webSocketTaskInspectable(with: urlRequest)
         webSocketTask?.resume()
         
         // wait for connection to establish

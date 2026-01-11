@@ -16,6 +16,7 @@ public enum HTTPHeader: Equatable {
     case origin(String)
     case referer(String)
     case userAgent(String)
+    case secWebSocketProtocol([String])
     case custom(key: String, value: String)
 
     var key: String {
@@ -35,6 +36,7 @@ public enum HTTPHeader: Equatable {
         case .origin: return "Origin"
         case .referer: return "Referer"
         case .userAgent: return "User-Agent"
+        case .secWebSocketProtocol: return "Sec-WebSocket-Protocol"
         case .custom(let key, _): return key
         }
     }
@@ -56,6 +58,7 @@ public enum HTTPHeader: Equatable {
         case .origin(let value): return value
         case .referer(let value): return value
         case .userAgent(let value): return value
+        case .secWebSocketProtocol(let protocols): return protocols.joined(separator: ", ")
         case .custom(_, let value): return value
         }
     }

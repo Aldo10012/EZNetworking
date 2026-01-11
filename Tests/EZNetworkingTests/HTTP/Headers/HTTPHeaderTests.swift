@@ -32,6 +32,9 @@ final class HTTPHeaderTests {
         (header: HTTPHeader.origin("https://example.com"), key: "Origin", value: "https://example.com"),
         (header: HTTPHeader.referer("https://example.com/previous-page"), key: "Referer", value: "https://example.com/previous-page"),
         (header: HTTPHeader.userAgent(sampleUserAgent), key: "User-Agent", value: sampleUserAgent),
+        (header: HTTPHeader.secWebSocketProtocol([]), key: "Sec-WebSocket-Protocol", value: ""),
+        (header: HTTPHeader.secWebSocketProtocol(["graphql-ws"]), key: "Sec-WebSocket-Protocol", value: "graphql-ws"),
+        (header: HTTPHeader.secWebSocketProtocol(["graphql-ws","json"]), key: "Sec-WebSocket-Protocol", value: "graphql-ws, json"),
         (header: HTTPHeader.custom(key: "X-Custom-Header", value: "custom-value"), key: "X-Custom-Header", value: "custom-value")
     ]
 
