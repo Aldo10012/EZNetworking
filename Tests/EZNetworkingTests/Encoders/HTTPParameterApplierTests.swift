@@ -10,7 +10,7 @@ final class HTTPParameterApplierTests {
         let url = try #require(URL(string: "https://www.example.com"))
         var urlRequest = URLRequest(url: url)
         
-        try HTTPParameterApplier.apply([
+        HTTPParameterApplier.apply([
             HTTPParameter(key: "key_1", value: "value_1"),
             HTTPParameter(key: "key_2", value: "value_2"),
             HTTPParameter(key: "key_3", value: "value_3")

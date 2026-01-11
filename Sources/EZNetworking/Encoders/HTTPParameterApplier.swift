@@ -3,14 +3,14 @@ import Foundation
 struct HTTPParameterApplier {
     private init() {}
     
-    static func apply(_ parameters: [HTTPParameter], to urlRequest: inout URLRequest) throws {
-        guard let url = urlRequest.url else {
-            throw NetworkingError.internalError(.noURL)
+    static func apply(_ parameters: [HTTPParameter], to urlRequest: inout URLRequest) {
+        guard !parameters.isEmpty,
+              let url = urlRequest.url,
+              var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
+            return
         }
 
-        if var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false), !parameters.isEmpty {
-            urlComponents.queryItems = parameters.map { URLQueryItem(name: $0.key, value: $0.value) }
-            urlRequest.url = urlComponents.url
-        }
+        urlComponents.queryItems = parameters.map { URLQueryItem(name: $0.key, value: $0.value) }
+        urlRequest.url = urlComponents.url
     }
 }
