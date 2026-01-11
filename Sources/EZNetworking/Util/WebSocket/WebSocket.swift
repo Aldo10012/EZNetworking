@@ -28,7 +28,19 @@ public actor WebSocket: WebSocketClient {
     private var receiveMessagesTask: Task<Void, Never>?
     
     // MARK: Init
-    
+    public init(
+        url: String,
+        protocols: [String]? = nil,
+        additionalheaders: [HTTPHeader]? = nil,
+        pingConfig: PingConfig = PingConfig(),
+        urlSession: URLSessionTaskProtocol = URLSession.shared,
+        sessionDelegate: SessionDelegate? = nil
+    ) {
+        self.init(request: WebSocketRequest(url: url, protocols: protocols, additionalheaders: additionalheaders),
+                  pingConfig: pingConfig,
+                  urlSession: urlSession,
+                  sessionDelegate: sessionDelegate)
+    }
     public init(
         request: WebSocketRequest,
         pingConfig: PingConfig = PingConfig(),
