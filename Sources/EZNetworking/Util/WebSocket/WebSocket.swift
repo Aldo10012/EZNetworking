@@ -4,7 +4,7 @@ public actor WebSocket: WebSocketClient {
     
     private let urlSession: URLSessionTaskProtocol
     private nonisolated let sessionDelegate: SessionDelegate
-    private let webSocketRequest: URLRequest
+    private let webSocketRequest: WebSocketRequest
     
     private var webSocketTask: WebSocketTaskProtocol?
     private nonisolated let fallbackWebSocketTaskInterceptor: WebSocketTaskInterceptor = DefaultWebSocketTaskInterceptor()
@@ -30,7 +30,7 @@ public actor WebSocket: WebSocketClient {
     // MARK: Init
     
     public init(
-        urlRequest: URLRequest,
+        urlRequest: WebSocketRequest,
         pingConfig: PingConfig = PingConfig(),
         urlSession: URLSessionTaskProtocol = URLSession.shared,
         sessionDelegate: SessionDelegate? = nil
@@ -81,6 +81,9 @@ public actor WebSocket: WebSocketClient {
     // MARK: - Connect
     
     public func connect() async throws {
+        guard let urlRequest = webSocketRequest.urlRequest else {
+            throw WebSocketError.invalidWebSocketURLRequest
+        }
         // Validate current state
         if case .connecting = connectionState {
             throw WebSocketError.stillConnecting
@@ -90,7 +93,7 @@ public actor WebSocket: WebSocketClient {
         }
         
         // Create and resume WebSocket task
-        webSocketTask = urlSession.webSocketTaskInspectable(with: webSocketRequest)
+        webSocketTask = urlSession.webSocketTaskInspectable(with: urlRequest)
         webSocketTask?.resume()
         
         // wait for connection to establish

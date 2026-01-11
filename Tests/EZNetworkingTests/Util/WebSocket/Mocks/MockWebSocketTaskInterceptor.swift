@@ -2,7 +2,7 @@ import Foundation
 import EZNetworking
 
 let webSocketUrl = URL(string: "ws://127.0.0.1:8080/example")!
-var webSocketRequest: URLRequest { URLRequest(url: webSocketUrl) }
+var webSocketRequest: WebSocketRequest { WSRequest(url: webSocketUrl.absoluteString) }
 
 class MockWebSocketTaskInterceptor: WebSocketTaskInterceptor {
     private let session = URLSession.shared
