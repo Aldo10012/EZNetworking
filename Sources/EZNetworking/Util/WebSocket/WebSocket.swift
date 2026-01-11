@@ -30,12 +30,12 @@ public actor WebSocket: WebSocketClient {
     // MARK: Init
     
     public init(
-        urlRequest: WebSocketRequest,
+        request: WebSocketRequest,
         pingConfig: PingConfig = PingConfig(),
         urlSession: URLSessionTaskProtocol = URLSession.shared,
         sessionDelegate: SessionDelegate? = nil
     ) {
-        self.webSocketRequest = urlRequest
+        self.webSocketRequest = request
         self.pingConfig = pingConfig
         if let urlSession = urlSession as? URLSession {
             // If the session already has a delegate, use it (if it's a SessionDelegate)
