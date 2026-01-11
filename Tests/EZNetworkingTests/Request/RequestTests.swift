@@ -61,7 +61,7 @@ final class RequestTests {
     @Test("test Request .urlRequest")
     func testRequestBuildMethod() throws {
         let request = MockRequest()
-        let sut = try #require(request.urlRequest)
+        let sut = try #require(request.getURLRequest())
         
         #expect(sut.url?.absoluteString == "https://www.example.com?key_1=value_1&key_2=value_2&key_3=value_3")
         #expect(sut.httpMethod == "GET")
@@ -74,7 +74,7 @@ final class RequestTests {
     @Test("test Request .cachePolicy")
     func testRequestCachePolicy() throws {
         let request = MockRequest(cachePolicy: .returnCacheDataElseLoad)
-        let sut = try #require(request.urlRequest)
+        let sut = try #require(request.getURLRequest())
         #expect(sut.cachePolicy == .returnCacheDataElseLoad)
     }
     

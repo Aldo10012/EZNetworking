@@ -18,7 +18,7 @@ public extension Request {
 
 // additions
 public extension Request {
-    var urlRequest: URLRequest? {
+    func getURLRequest() -> URLRequest? {
         guard let url = URL(string: baseUrl) else {
             return nil
         }

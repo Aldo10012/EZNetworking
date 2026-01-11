@@ -98,7 +98,7 @@ public class DataUploader: DataUploadable {
         let request = request
         configureProgressTracking(progress: progress)
         
-        guard let urlRequest = request.urlRequest else {
+        guard let urlRequest = request.getURLRequest() else {
             completion(.failure(.internalError(.noRequest)))
             return nil
         }
