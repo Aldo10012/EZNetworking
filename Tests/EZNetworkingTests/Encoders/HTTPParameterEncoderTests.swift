@@ -4,14 +4,13 @@ import Testing
 
 @Suite("Test HTTPParameterEncoderImpl")
 final class HTTPParameterEncoderTests {
-    private let sut = HTTPParameterEncoder()
 
     @Test("test URL Query Parameters Are Added")
     func testURLQueryParametersAreAdded() throws {
         let url = try #require(URL(string: "https://www.example.com"))
         var urlRequest = URLRequest(url: url)
         
-        try sut.encodeParameters(for: &urlRequest, with: [
+        try HTTPParameterEncoder.encodeParameters(for: &urlRequest, with: [
             HTTPParameter(key: "key_1", value: "value_1"),
             HTTPParameter(key: "key_2", value: "value_2"),
             HTTPParameter(key: "key_3", value: "value_3")

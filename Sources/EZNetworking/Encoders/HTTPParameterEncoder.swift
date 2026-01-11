@@ -1,7 +1,9 @@
 import Foundation
 
 struct HTTPParameterEncoder {
-    func encodeParameters(for urlRequest: inout URLRequest, with parameters: [HTTPParameter]) throws {
+    private init() {}
+    
+    static func encodeParameters(for urlRequest: inout URLRequest, with parameters: [HTTPParameter]) throws {
         guard let url = urlRequest.url else {
             throw NetworkingError.internalError(.noURL)
         }
