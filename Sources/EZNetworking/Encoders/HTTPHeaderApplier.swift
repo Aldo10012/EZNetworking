@@ -1,6 +1,6 @@
 import Foundation
 
-struct HTTPHeaderEncoder {
+struct HTTPHeaderApplier {
     private init() {}
 
     static func encodeHeaders(for urlRequest: inout URLRequest, with headers: [HTTPHeader]) {

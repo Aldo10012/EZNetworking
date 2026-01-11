@@ -1,6 +1,6 @@
 import Foundation
 
-struct HTTPParameterEncoder {
+struct HTTPParameterApplier {
     private init() {}
     
     static func encodeParameters(for urlRequest: inout URLRequest, with parameters: [HTTPParameter]) throws {

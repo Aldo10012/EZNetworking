@@ -2,15 +2,15 @@
 import Foundation
 import Testing
 
-@Suite("Test HTTPHeaderEncoderImpl")
-final class HTTPHeaderEncoderTests {
+@Suite("Test HTTPHeaderApplier")
+final class HTTPHeaderApplierTests {
     
     @Test("test allHTTPHeaderFields is set to injected headers")
     func testAllHTTPHeaderFieldsIsSetToInjectedHeaders() throws {
         let url = try #require(URL(string: "https://www.example.com"))
         var urlRequest = URLRequest(url: url)
         
-        HTTPHeaderEncoder.encodeHeaders(for: &urlRequest, with: [
+        HTTPHeaderApplier.encodeHeaders(for: &urlRequest, with: [
             .accept(.json),
             .contentType(.json),
             .authorization(.bearer("My_API_KEY"))
