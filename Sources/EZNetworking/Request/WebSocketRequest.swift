@@ -1,29 +1,6 @@
 import Foundation
 
-public protocol WebSocketRequest: Request {
-    var protocols: [String]? { get }
-    var additionalheaders: [HTTPHeader]? { get }
-}
-
-public extension WebSocketRequest {
-    var httpMethod: HTTPMethod { .GET }
-    var parameters: [HTTPParameter]? { nil }
-    var body: (any HTTPBody)? { nil }
-    var cachePolicy: URLRequest.CachePolicy { .reloadIgnoringLocalCacheData }
-    
-    var headers: [HTTPHeader]? {
-        var headers = [HTTPHeader]()
-        if let protocols = protocols {
-            headers.append(.secWebSocketProtocol(protocols))
-        }
-        if let additionalheaders = additionalheaders {
-            headers += additionalheaders
-        }
-        return !headers.isEmpty ? headers :  nil
-    }
-}
-
-public struct WSRequest: WebSocketRequest {
+public struct WebSocketRequest: Request {
     public var baseUrlString: String
     public var protocols: [String]?
     public var additionalheaders: [HTTPHeader]?
@@ -33,4 +10,20 @@ public struct WSRequest: WebSocketRequest {
         self.protocols = protocols
         self.additionalheaders = additionalheaders
     }
+    
+    public var headers: [HTTPHeader]? {
+        var headers = [HTTPHeader]()
+        if let protocols = protocols {
+            headers.append(.secWebSocketProtocol(protocols))
+        }
+        if let additionalheaders = additionalheaders {
+            headers += additionalheaders
+        }
+        return !headers.isEmpty ? headers :  nil
+    }
+    
+    public var httpMethod: HTTPMethod { .GET }
+    public var parameters: [HTTPParameter]? { nil }
+    public var body: (any HTTPBody)? { nil }
+    public var cachePolicy: URLRequest.CachePolicy { .reloadIgnoringLocalCacheData }
 }

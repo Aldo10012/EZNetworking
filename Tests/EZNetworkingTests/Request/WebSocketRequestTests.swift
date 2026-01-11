@@ -2,13 +2,13 @@
 import Foundation
 import Testing
 
-@Suite("Test WSRequest")
-final class WSRequestTests {
+@Suite("Test WebSocketRequest")
+final class WebSocketRequestTests {
     private let wsURL = "ws://127.0.0.1:8080"
     
     @Test("test WebSocketRequest default values")
     func testWebSocketRequestDefaultValues() {
-        let sut = WSRequest(url: wsURL)
+        let sut = WebSocketRequest(url: wsURL)
         #expect(sut.httpMethod == .GET)
         #expect(sut.baseUrlString == wsURL)
         #expect(sut.parameters == nil)
@@ -21,7 +21,7 @@ final class WSRequestTests {
     
     @Test("test WebSocketRequest protocols")
     func testWebSocketRequestProtocols() {
-        let sut = WSRequest(
+        let sut = WebSocketRequest(
             url: wsURL,
             protocols: ["chat", "superchat"]
         )
@@ -31,7 +31,7 @@ final class WSRequestTests {
     
     @Test("test WebSocketRequest additional headers")
     func testWebSocketRequestAdditionalHeaders() {
-        let sut = WSRequest(
+        let sut = WebSocketRequest(
             url: wsURL,
             additionalheaders: [.contentType(.json)]
         )
@@ -41,7 +41,7 @@ final class WSRequestTests {
     
     @Test("test WebSocketRequest protocols and additional headers")
     func testWebSocketRequestProtoclsAndAdditionalHeaders() {
-        let sut = WSRequest(
+        let sut = WebSocketRequest(
             url: wsURL,
             protocols: ["chat", "superchat"],
             additionalheaders: [.contentType(.json)]
