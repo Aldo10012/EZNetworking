@@ -1,12 +1,12 @@
 import Foundation
 
 public struct WebSocketRequest: Request {
-    public var baseUrlString: String
+    public var baseUrl: String
     public var protocols: [String]?
     public var additionalheaders: [HTTPHeader]?
     
     public init(url: String, protocols: [String]? = nil, additionalheaders: [HTTPHeader]? = nil) {
-        self.baseUrlString = url
+        self.baseUrl = url
         self.protocols = protocols
         self.additionalheaders = additionalheaders
     }

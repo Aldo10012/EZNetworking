@@ -10,7 +10,7 @@ final class WebSocketRequestTests {
     func testWebSocketRequestDefaultValues() {
         let sut = WebSocketRequest(url: wsURL)
         #expect(sut.httpMethod == .GET)
-        #expect(sut.baseUrlString == wsURL)
+        #expect(sut.baseUrl == wsURL)
         #expect(sut.parameters == nil)
         #expect(sut.body == nil)
         #expect(sut.headers == nil)

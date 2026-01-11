@@ -2,7 +2,7 @@ import Foundation
 
 public protocol Request {
     var httpMethod: HTTPMethod { get }
-    var baseUrlString: String { get }
+    var baseUrl: String { get }
     var parameters: [HTTPParameter]? { get }
     var headers: [HTTPHeader]? { get }
     var body: HTTPBody? { get }
@@ -19,7 +19,7 @@ public extension Request {
 // additions
 public extension Request {
     var urlRequest: URLRequest? {
-        guard let url = URL(string: baseUrlString) else {
+        guard let url = URL(string: baseUrl) else {
             return nil
         }
 
@@ -43,7 +43,7 @@ public extension Request {
 
 internal struct EZRequest: Request {
     var httpMethod: HTTPMethod
-    var baseUrlString: String
+    var baseUrl: String
     var parameters: [HTTPParameter]?
     var headers: [HTTPHeader]?
     var body: HTTPBody?

@@ -28,6 +28,6 @@ public class RequestFactoryImpl: RequestFactory {
                timeoutInterval: TimeInterval = 60,
                cachePolicy: URLRequest.CachePolicy = .useProtocolCachePolicy
     ) -> Request {
-        return EZRequest(httpMethod: httpMethod, baseUrlString: baseUrlString, parameters: parameters, headers: headers, body: body, timeoutInterval: timeoutInterval, cachePolicy: cachePolicy)
+        return EZRequest(httpMethod: httpMethod, baseUrl: baseUrlString, parameters: parameters, headers: headers, body: body, timeoutInterval: timeoutInterval, cachePolicy: cachePolicy)
     }
 }

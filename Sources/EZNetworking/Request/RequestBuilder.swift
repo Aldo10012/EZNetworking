@@ -66,6 +66,6 @@ public class RequestBuilderImpl: RequestBuilder {
 
     public func build() -> Request? {
         guard let httpMethod, let baseUrlString else { return nil }
-        return EZRequest(httpMethod: httpMethod, baseUrlString: baseUrlString, parameters: parameters, headers: headers, body: body, timeoutInterval: timeoutInterval ?? 60, cachePolicy: cachePolicy)
+        return EZRequest(httpMethod: httpMethod, baseUrl: baseUrlString, parameters: parameters, headers: headers, body: body, timeoutInterval: timeoutInterval ?? 60, cachePolicy: cachePolicy)
     }
 }

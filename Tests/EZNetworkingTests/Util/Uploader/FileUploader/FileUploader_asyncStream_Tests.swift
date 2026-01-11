@@ -267,7 +267,7 @@ private func buildResponse(statusCode: Int) -> HTTPURLResponse {
 
 private struct MockRequest: Request {
     var httpMethod: HTTPMethod { .GET }
-    var baseUrlString: String { "https://www.example.com" }
+    var baseUrl: String { "https://www.example.com" }
     var parameters: [HTTPParameter]? { nil }
     var headers: [HTTPHeader]? { nil }
     var body: HTTPBody? { nil }

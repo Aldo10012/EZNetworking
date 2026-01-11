@@ -12,7 +12,7 @@ final class RequestTests {
     
     @Test("test Request .baseUrlString")
     func testRequestBaseUrlString() {
-        #expect(MockRequest().baseUrlString == "https://www.example.com")
+        #expect(MockRequest().baseUrl == "https://www.example.com")
     }
     
     @Test("test Request .parameters")
@@ -83,7 +83,7 @@ final class RequestTests {
 private struct MockRequest: Request {
     var httpMethod: HTTPMethod { .GET }
     
-    var baseUrlString: String { "https://www.example.com" }
+    var baseUrl: String { "https://www.example.com" }
     
     var parameters: [HTTPParameter]? {
         [
