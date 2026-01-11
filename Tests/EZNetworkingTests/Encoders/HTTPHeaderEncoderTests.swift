@@ -4,7 +4,7 @@ import Testing
 
 @Suite("Test HTTPHeaderEncoderImpl")
 final class HTTPHeaderEncoderTests {
-    private let sut = HTTPHeaderEncoderImpl()
+    private let sut = HTTPHeaderEncoder()
     
     @Test("test allHTTPHeaderFields is set to injected headers")
     func testAllHTTPHeaderFieldsIsSetToInjectedHeaders() throws {

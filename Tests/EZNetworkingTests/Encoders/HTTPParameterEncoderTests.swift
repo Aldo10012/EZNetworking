@@ -4,7 +4,7 @@ import Testing
 
 @Suite("Test HTTPParameterEncoderImpl")
 final class HTTPParameterEncoderTests {
-    private let sut = HTTPParameterEncoderImpl()
+    private let sut = HTTPParameterEncoder()
 
     @Test("test URL Query Parameters Are Added")
     func testURLQueryParametersAreAdded() throws {
