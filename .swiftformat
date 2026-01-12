@@ -5,3 +5,4 @@
 --linebreaks lf
 --elseposition same-line
 --guardelse same-line
+--braces same-line
