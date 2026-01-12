@@ -1,0 +1,16 @@
+disabled_rules:
+  - trailing_whitespace
+  - line_length
+
+opt_in_rules:
+  - explicit_init
+  - redundant_nil_coalescing
+  - sorted_imports
+
+included:
+  - Sources
+  - Tests
+
+excluded:
+  - .build
+  - Package.swift
