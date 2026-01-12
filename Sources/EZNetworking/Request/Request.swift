@@ -18,9 +18,9 @@ public extension Request {
 
 // additions
 public extension Request {
-    func getURLRequest() -> URLRequest? {
+    func getURLRequest() throws -> URLRequest {
         guard let url = URL(string: baseUrl) else {
-            return nil
+            throw NetworkingError.internalError(.noURL)
         }
 
         var request = URLRequest(url: url)

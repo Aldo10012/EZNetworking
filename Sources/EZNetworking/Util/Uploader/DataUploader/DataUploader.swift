@@ -98,7 +98,7 @@ public class DataUploader: DataUploadable {
         let request = request
         configureProgressTracking(progress: progress)
         
-        guard let urlRequest = request.getURLRequest() else {
+        guard let urlRequest = getURLRequest(from: request) else {
             completion(.failure(.internalError(.noRequest)))
             return nil
         }
@@ -135,5 +135,9 @@ public class DataUploader: DataUploadable {
             fallbackUploadTaskInterceptor.progress = progress
             sessionDelegate.uploadTaskInterceptor = fallbackUploadTaskInterceptor
         }
+    }
+    
+    private func getURLRequest(from request: Request) -> URLRequest? {
+        do { return try request.getURLRequest() } catch { return nil }
     }
 }
