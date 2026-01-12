@@ -56,7 +56,7 @@
 --enable trailingClosures
 --enable unusedArguments
 --disable wrapEnumCases
---enable wrapSwitchCases
+--disable wrapSwitchCases
 
 # Commas
 --trailingcommas never
