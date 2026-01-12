@@ -8,7 +8,7 @@ public class FileDownloader: FileDownloadable {
     private var sessionDelegate: SessionDelegate
 
     private let fallbackDownloadTaskInterceptor: DownloadTaskInterceptor = DefaultDownloadTaskInterceptor()
-    
+
     // MARK: init
 
     public init(
@@ -41,7 +41,7 @@ public class FileDownloader: FileDownloadable {
         self.validator = validator
         self.requestDecoder = requestDecoder
     }
-    
+
     // MARK: Async Await
 
     public func downloadFile(from serverUrl: URL, progress: DownloadProgressHandler? = nil) async throws -> URL {
@@ -115,7 +115,7 @@ public class FileDownloader: FileDownloadable {
                 try self.validator.validateNoError(error)
                 try self.validator.validateStatus(from: response)
                 let localURL = try self.validator.validateUrl(localURL)
-                
+
                 completion(.success(localURL))
             } catch {
                 completion(.failure(mapError(error)))

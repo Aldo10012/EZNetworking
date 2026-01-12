@@ -39,6 +39,6 @@ final class HTTPClientErrorStatusTests {
         429: "Too Many Requests",
         431: "Request Header Fields Too Large",
         451: "Unavailable For Legal Reasons",
-         -1:  "Unknown Client Error"
+        -1:  "Unknown Client Error"
     ]
 }

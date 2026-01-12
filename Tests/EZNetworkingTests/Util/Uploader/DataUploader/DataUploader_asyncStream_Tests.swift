@@ -6,18 +6,18 @@ import Testing
 
 @Suite("Test DataUploadable async stream")
 final class DataUploader_AsyncStream_Tests {
-    
+
     // MARK: SUCCESS
-    
+
     @Test("test .uploadDataStream() Success")
     func test_uploadDataStream_streamSuccess() async throws {
         let sut = DataUploader(urlSession: createMockURLSession())
-        
+
         var events: [UploadStreamEvent] = []
         for await event in sut.uploadDataStream(mockData, with: mockRequest) {
             events.append(event)
         }
-        
+
         #expect(events.count == 1)
         switch events[0] {
         case .success:
@@ -26,7 +26,7 @@ final class DataUploader_AsyncStream_Tests {
             Issue.record()
         }
     }
-    
+
     // MARK: ERROR - status code
 
     @Test("test .uploadDataStream() Fails When StatusCode Is not 200")
@@ -40,7 +40,7 @@ final class DataUploader_AsyncStream_Tests {
         for await event in sut.uploadDataStream(mockData, with: mockRequest) {
             events.append(event)
         }
-        
+
         #expect(events.count == 1)
         switch events[0] {
         case .failure(let error):
@@ -49,9 +49,9 @@ final class DataUploader_AsyncStream_Tests {
             Issue.record()
         }
     }
-    
+
     // MARK: Error - url has error
-    
+
     @Test("test .uploadDataStream() Fails when URLSession has error")
     func test_uploadDataStream_whenURLSessionHasError_throwsError() async throws {
         let sut = DataUploader(
@@ -63,7 +63,7 @@ final class DataUploader_AsyncStream_Tests {
         for await event in sut.uploadDataStream(mockData, with: mockRequest) {
             events.append(event)
         }
-        
+
         #expect(events.count == 1)
         switch events[0] {
         case .failure(let error):
@@ -72,7 +72,7 @@ final class DataUploader_AsyncStream_Tests {
             Issue.record()
         }
     }
-    
+
     @Test("test .uploadDataStream() Fails when URLSession has URLError")
     func test_uploadDataStream_whenURLSessionHasURLError_throwsError() async throws {
         let sut = DataUploader(
@@ -84,7 +84,7 @@ final class DataUploader_AsyncStream_Tests {
         for await event in sut.uploadDataStream(mockData, with: mockRequest) {
             events.append(event)
         }
-        
+
         #expect(events.count == 1)
         switch events[0] {
         case .failure(let error):
@@ -93,19 +93,19 @@ final class DataUploader_AsyncStream_Tests {
             Issue.record()
         }
     }
-    
+
     // MARK: - Tracking
-    
+
     @Test("test .uploadDataStream() Upload Progress Can Be Tracked")
     func test_uploadDataStream_progressCanBeTracked() async throws {
         let urlSession = createMockURLSession()
         urlSession.progressToExecute = [
             .inProgress(percent: 50)
         ]
-        
+
         let sut = DataUploader(mockSession: urlSession)
         var didTrackProgress = false
-        
+
         for await event in sut.uploadDataStream(mockData, with: mockRequest) {
             switch event {
             case .progress:
@@ -116,18 +116,18 @@ final class DataUploader_AsyncStream_Tests {
         }
         #expect(didTrackProgress)
     }
-    
+
     @Test("test .uploadDataStream() Upload Progress Tracking Happens Before Final Result")
     func test_uploadDataStream_progressTrackingHappensBeforeFinalResult() async throws {
         let urlSession = createMockURLSession()
-        
+
         urlSession.progressToExecute = [
             .inProgress(percent: 50)
         ]
-        
+
         let sut = DataUploader(mockSession: urlSession)
         var progressAndReturnList = [String]()
-        
+
         for await event in sut.uploadDataStream(mockData, with: mockRequest) {
             switch event {
             case .progress:
@@ -138,27 +138,27 @@ final class DataUploader_AsyncStream_Tests {
                 Issue.record()
             }
         }
-        
+
         #expect(progressAndReturnList.count == 2)
         #expect(progressAndReturnList[0] == "did track progress")
         #expect(progressAndReturnList[1] == "did return")
     }
-    
+
     @Test("test .uploadDataStream() Upload Progress Tracking Order")
     func test_uploadDataStream_progressTrackingOrder() async throws {
         let urlSession = createMockURLSession()
-        
+
         urlSession.progressToExecute = [
             .inProgress(percent: 30),
             .inProgress(percent: 60),
             .inProgress(percent: 90),
             .complete
         ]
-        
+
         let sut = DataUploader(mockSession: urlSession)
         var progressValues: [Double] = []
         var didReceiveSuccess = false
-        
+
         for await event in sut.uploadDataStream(mockData, with: mockRequest) {
             switch event {
             case .progress(let value):
@@ -169,30 +169,30 @@ final class DataUploader_AsyncStream_Tests {
                 Issue.record()
             }
         }
-        
+
         #expect(progressValues == [0.3, 0.6, 0.9, 1.0])
         #expect(didReceiveSuccess)
     }
-    
+
     // MARK: Traching with delegate
-    
+
     @Test("test .uploadDataStream() Upload Progress Can Be Tracked when Injecting SessionDelegat")
     func test_uploadDataStream_progressCanBeTrackedWhenInjectingSessionDelegate() async throws {
         let urlSession = createMockURLSession()
-        
+
         let delegate = SessionDelegate()
         urlSession.sessionDelegate = delegate
         urlSession.progressToExecute = [
             .inProgress(percent: 50)
         ]
-        
+
         let sut = DataUploader(
             urlSession: urlSession,
             sessionDelegate: delegate
         )
-        
+
         var didTrackProgress = false
-        
+
         for await event in sut.uploadDataStream(mockData, with: mockRequest) {
             switch event {
             case .progress:
@@ -201,12 +201,12 @@ final class DataUploader_AsyncStream_Tests {
             case .failure: Issue.record()
             }
         }
-        
+
         #expect(didTrackProgress)
     }
-    
+
     // MARK: Traching with interceptor
-    
+
     @Test("test .uploadDataStream() Upload Progress Can Be Tracked when Injecting DownloadTaskInterceptor")
     func test_uploadDataStream_progressCanBeTrackedWhenInjectingDownloadTaskInterceptor() async throws {
         let urlSession = createMockURLSession()
@@ -223,13 +223,13 @@ final class DataUploader_AsyncStream_Tests {
         urlSession.progressToExecute = [
             .inProgress(percent: 50)
         ]
-        
+
         let sut = DataUploader(
             urlSession: urlSession,
             sessionDelegate: delegate
         )
-        
-        
+
+
         for await event in sut.uploadDataStream(mockData, with: mockRequest) {
             switch event {
             case .progress: didTrackProgressStreamEvent = true
@@ -237,7 +237,7 @@ final class DataUploader_AsyncStream_Tests {
             case .failure: Issue.record()
             }
         }
-        
+
         #expect(uploadInterceptor.didCallDidSendBodyData)
         #expect(didTrackProgressStreamEvent)
         #expect(didTrackProgressFromInterceptorClosure == false) // closure inside of interceptor gets overwritten

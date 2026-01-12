@@ -33,16 +33,16 @@ final class WebSocketErrorTests {
         #expect(lhs.errorDescription == expected)
         #expect(lhs.description == expected)
     }
-    
+
     @Test("test unexpectedDisconnection equality and description with no reason provided")
     func testUnexpectedDisconnectionEqualityAndDescriptionWithNoReasonProvided() {
         let err = WebSocketError.unexpectedDisconnection(code: .normalClosure, reason: nil)
-        
+
         guard case let .unexpectedDisconnection(code, _) = err else {
             #expect(Bool(false))
             return
         }
-        
+
         let expected = "WebSocket disconnected unexpectedly with code \(code.rawValue): No reason provided"
         #expect(err.errorDescription == expected)
         #expect(err.description == expected)
@@ -58,7 +58,7 @@ final class WebSocketErrorTests {
         #expect(WebSocketError.receiveFailed(underlying: urlErr1) == .receiveFailed(underlying: urlErr2))
         #expect(WebSocketError.pingFailed(underlying: urlErr1) == .pingFailed(underlying: urlErr2))
     }
-    
+
     @Test("test underlying error equality compares fails if underlying error difers")
     func testUnderlyingErrorEqualityByTypeFailsIfErrorDiffers() {
         let urlErr = URLError(.timedOut)
@@ -75,7 +75,7 @@ final class WebSocketErrorTests {
         #expect(WebSocketError.alreadyConnected.errorDescription == "WebSocket is already connected")
         #expect(WebSocketError.pongTimeout.errorDescription == "WebSocket pong response timed out")
     }
-    
+
     @Test("LocalizedError - dynamic descriptions")
     func testLocalizedErrorDynamicDescriptions() {
         let err = NSError(domain: "Test", code: -1)

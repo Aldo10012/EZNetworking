@@ -4,28 +4,28 @@ import Testing
 
 @Suite("Test WebSocketTaskProtocol")
 final class WebSocketTaskProtocolTest {
-    
+
     @Test("test calling sendPing() async/await method calls the callback method")
     func testSendPing() async throws {
         let sut = SpyWebSocketTaskProtocol(pingShouldThrow: false)
-        
+
         try await sut.sendPing()
         #expect(sut.didCallSendPing)
     }
-    
+
     @Test("test calling sendPing() async/await method when not throwing error")
     func testSendPingWhenNotThrowingError() async throws {
         let sut = SpyWebSocketTaskProtocol(pingShouldThrow: false)
-        
+
         await #expect(throws: Never.self) {
             try await sut.sendPing()
         }
     }
-    
+
     @Test("test calling sendPing() async/await method when throwing error")
     func testSendPingWhenThrowingError() async throws {
         let sut = SpyWebSocketTaskProtocol(pingShouldThrow: true)
-        
+
         await #expect(throws: DummyPingError.error) {
             try await sut.sendPing()
         }
@@ -42,12 +42,12 @@ private class SpyWebSocketTaskProtocol: WebSocketTaskProtocol {
     var didCallSendPing = false
     func sendPing(pongReceiveHandler: @escaping @Sendable ((any Error)?) -> Void) {
         didCallSendPing = true
-        
+
         pongReceiveHandler(pingShouldThrow ? DummyPingError.error : nil)
     }
-    
+
     // not relevant to unit test
-    
+
     var closeCode: URLSessionWebSocketTask.CloseCode = .goingAway
     var closeReason: Data?
     func resume() {}

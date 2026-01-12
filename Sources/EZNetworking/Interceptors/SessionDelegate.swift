@@ -11,7 +11,7 @@ public class SessionDelegate: NSObject {
     public weak var uploadTaskInterceptor: UploadTaskInterceptor? = nil
     public weak var streamTaskInterceptor: StreamTaskInterceptor? = nil
     public weak var webSocketTaskInterceptor: WebSocketTaskInterceptor? = nil
-    
+
     public init(cacheInterceptor: CacheInterceptor? = nil,
                 authenticationInterceptor: AuthenticationInterceptor? = nil,
                 redirectInterceptor: RedirectInterceptor? = nil,

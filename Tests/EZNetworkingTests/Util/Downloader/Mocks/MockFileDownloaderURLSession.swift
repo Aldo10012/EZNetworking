@@ -8,25 +8,25 @@ class MockFileDownloaderURLSession: URLSessionTaskProtocol {
     var error: Error?
     var completion: ((Data?, URLResponse?, Error?) -> Void)?
     var sessionDelegate: SessionDelegate? = nil
-    
+
     var progressToExecute: [DownloadProgress] = []
-    
+
     init(data: Data? = nil, url: URL? = nil, urlResponse: URLResponse? = nil, error: Error? = nil) {
         self.data = data
         self.url = url
         self.urlResponse = urlResponse
         self.error = error
     }
-    
+
     func downloadTask(with url: URL, completionHandler: @escaping @Sendable (URL?, URLResponse?, Error?) -> Void) -> URLSessionDownloadTask {
-        
+
         simulateDownloadProgress(for: .init())
-        
+
         return MockURLSessionDownloadTask {
             completionHandler(URL(fileURLWithPath: "/tmp/test.pdf"), self.urlResponse, self.error)
         }
     }
-    
+
 }
 
 // MARK: Helpers
@@ -38,7 +38,7 @@ extension MockFileDownloaderURLSession {
     }
 
     private func simulateDownloadProgress(for task: URLSessionDownloadTask) {
-        
+
         for progressToExecute in self.progressToExecute {
             switch progressToExecute {
             case .inProgress(let percent):
@@ -50,7 +50,7 @@ extension MockFileDownloaderURLSession {
                     totalBytesWritten: percent,
                     totalBytesExpectedToWrite: 100
                 )
-                
+
             case .complete:
                 // Simulate completion
                 sessionDelegate?.urlSession(

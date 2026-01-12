@@ -5,7 +5,7 @@ public struct RequestPerformer: RequestPerformable {
     private let urlSession: URLSessionTaskProtocol
     private let validator: ResponseValidator
     private let requestDecoder: RequestDecodable
-    
+
     public init(
         urlSession: URLSessionTaskProtocol = URLSession.shared,
         validator: ResponseValidator = ResponseValidatorImpl(),
@@ -78,7 +78,7 @@ public struct RequestPerformer: RequestPerformable {
                 try validator.validateNoError(error)
                 try validator.validateStatus(from: urlResponse)
                 let validData = try validator.validateData(data)
-                
+
                 let result = try requestDecoder.decode(decodableObject, from: validData)
                 completion(.success(result))
             } catch {
@@ -88,13 +88,13 @@ public struct RequestPerformer: RequestPerformable {
         task.resume()
         return task
     }
-    
+
     private func mapError(_ error: Error) -> NetworkingError {
         if let networkError = error as? NetworkingError { return networkError }
         if let urlError = error as? URLError { return .urlError(urlError) }
         return .internalError(.unknown)
     }
-    
+
     private func getURLRequest(from request: Request) -> URLRequest? {
         do { return try request.getURLRequest() } catch { return nil }
     }

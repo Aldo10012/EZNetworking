@@ -4,7 +4,7 @@ import EZNetworking
 class MockURLSessionUploadTask: URLSessionUploadTask {
     private let closure: () -> Void
     var didCancel: Bool = false
-
+    
     init(closure: @escaping () -> Void) {
         self.closure = closure
     }

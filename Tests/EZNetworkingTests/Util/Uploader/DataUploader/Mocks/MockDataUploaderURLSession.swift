@@ -6,10 +6,10 @@ class MockDataUploaderURLSession: URLSessionTaskProtocol {
     var urlResponse: URLResponse?
     var error: Error?
     var completionHandler: ((Data?, URLResponse?, (any Error)?) -> Void)?
-    
+
     var sessionDelegate: SessionDelegate? = nil
     var progressToExecute: [UploadProgress] = []
-    
+
     init(data: Data?,
          urlResponse: URLResponse? = nil,
          error: Error? = nil
@@ -18,12 +18,12 @@ class MockDataUploaderURLSession: URLSessionTaskProtocol {
         self.urlResponse = urlResponse
         self.error = error
     }
-    
+
     func uploadTask(with request: URLRequest, from bodyData: Data?, completionHandler: @escaping @Sendable (Data?, URLResponse?, (any Error)?) -> Void) -> URLSessionUploadTask {
         self.completionHandler = completionHandler
-        
+
         simulateDownloadProgress(for: .init())
-        
+
         return MockURLSessionUploadTask {
             completionHandler(self.data, self.urlResponse, self.error)
         }
@@ -37,9 +37,9 @@ extension MockDataUploaderURLSession {
         case inProgress(percent: Int64)
         case complete
     }
-    
+
     private func simulateDownloadProgress(for task: URLSessionDownloadTask) {
-        
+
         for progressToExecute in self.progressToExecute {
             switch progressToExecute {
             case .inProgress(let percent):
@@ -51,7 +51,7 @@ extension MockDataUploaderURLSession {
                     totalBytesSent: percent,
                     totalBytesExpectedToSend: 100
                 )
-                
+
             case .complete:
                 // Simulate completion
                 sessionDelegate?.urlSession(

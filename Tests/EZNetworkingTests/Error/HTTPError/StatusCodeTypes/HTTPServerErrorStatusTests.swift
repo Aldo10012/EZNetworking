@@ -21,6 +21,6 @@ final class HTTPServerErrorStatusTests {
         508: "Loop Detected",
         510: "Not Extended",
         511: "Network Authentication Required",
-         -1: "Unknown Server Error"
+        -1: "Unknown Server Error"
     ]
 }

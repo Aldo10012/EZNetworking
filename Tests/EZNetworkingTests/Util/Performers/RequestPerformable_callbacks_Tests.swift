@@ -45,7 +45,7 @@ final class RequestPerformable_callbacks_Tests {
     @Test("test performTask(request:_, decodeTo:_) .cancel() does cancel DataTask")
     func performTaskAndDecode_cancel_doesCancelDataTask() throws {
         let sut = createRequestPerformer()
-        
+
         let task = sut.performTask(request: MockRequest(), decodeTo: Person.self) { _ in }
         task?.cancel()
         let dataTask = try #require(task as? MockURLSessionDataTask)
@@ -60,7 +60,7 @@ final class RequestPerformable_callbacks_Tests {
         let dataTask = try #require(task as? MockURLSessionDataTask)
         #expect(dataTask.didCancel == true)
     }
-    
+
     // MARK: - ERROR RESPONSE
 
     @Test("test performTask(request:_) fails when status code is 3xx")
@@ -183,7 +183,7 @@ final class RequestPerformable_callbacks_Tests {
         let sut = createRequestPerformer(
             urlSession: createMockURLSession(data: MockData.invalidMockPersonJsonData)
         )
-        
+
         var didExecute = false
         sut.performTask(request: MockRequest(), decodeTo: Person.self) { result in
             defer { didExecute = true }

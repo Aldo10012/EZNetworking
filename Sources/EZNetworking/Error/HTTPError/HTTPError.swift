@@ -4,13 +4,13 @@ public struct HTTPError: Error {
     public let statusCode: Int
     public let headers: [AnyHashable: Any]
     public let category: HTTPErrorCategory
-    
+
     public init(statusCode: Int, headers: [AnyHashable: Any] = [:]) {
         self.statusCode = statusCode
         self.headers = headers
         self.category = HTTPErrorCategory.from(statusCode: statusCode)
     }
-    
+
     public var description: String {
         switch category {
         case .informational:
@@ -27,7 +27,7 @@ public struct HTTPError: Error {
             return "Unknown Status Code (\(statusCode))"
         }
     }
-    
+
     public enum HTTPErrorCategory {
         case informational  // 1xx
         case success        // 2xx
@@ -35,7 +35,7 @@ public struct HTTPError: Error {
         case clientError    // 4xx
         case serverError    // 5xx
         case unknown        // Other
-        
+
         static func from(statusCode: Int) -> HTTPErrorCategory {
             switch statusCode {
             case 100...199: return .informational

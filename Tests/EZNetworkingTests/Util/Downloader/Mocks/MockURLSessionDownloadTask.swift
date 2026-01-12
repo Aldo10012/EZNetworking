@@ -8,11 +8,11 @@ class MockURLSessionDownloadTask: URLSessionDownloadTask {
     init(closure: @escaping () -> Void) {
         self.closure = closure
     }
-    
+
     override func resume() {
         closure()
     }
-    
+
     override func cancel() {
         didCancel = true
     }

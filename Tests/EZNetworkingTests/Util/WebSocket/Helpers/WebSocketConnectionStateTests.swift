@@ -18,7 +18,7 @@ final class WebSocketConnectionStateTests {
         #expect(WebSocketConnectionState.connected(protocol: "chat") != .connected(protocol: "video"))
         #expect(WebSocketConnectionState.connected(protocol: nil) != .connected(protocol: "chat"))
     }
-    
+
     @Test("disconnected state equality with protocol values")
     func testDisconnectEquality() {
         let manuallyDisconnected = WebSocketConnectionState.disconnected(.manuallyDisconnected)
@@ -34,7 +34,7 @@ final class WebSocketConnectionStateTests {
         #expect(failedToConnectA == failedToConnectA)
         #expect(failedToConnectB == failedToConnectB)
         #expect(terminated == terminated)
-        
+
         #expect(connectionLostA != connectionLostB)
         #expect(failedToConnectA != failedToConnectB)
 

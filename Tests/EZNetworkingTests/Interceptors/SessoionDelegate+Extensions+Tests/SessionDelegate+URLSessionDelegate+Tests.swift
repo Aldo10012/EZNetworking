@@ -4,34 +4,34 @@ import Testing
 
 @Suite("Test SessionDelegateURLSessionDelegate")
 final class SessionDelegateURLSessionDelegateTests {
-    
+
     @Test("test SessionDelegate DidReceiveChallenge")
     func testSessionDelegateDidReceiveChallenge() async {
         let authenticationInterceptor = MockAuthenticationInterceptor()
         let delegate = SessionDelegate()
         delegate.authenticationInterceptor = authenticationInterceptor
-        
+
         let (disposition, credential) = await delegate.urlSession(.shared, didReceive: URLAuthenticationChallenge())
         #expect(disposition == .performDefaultHandling)
         #expect(credential == nil)
         #expect(authenticationInterceptor.didReceiveChallenge)
     }
-    
+
     @Test("test SessionDelegate DidReceiveChallenge with no interceptor")
     func testSessionDelegateDidReceiveChallengeWithNoInterceptor() async {
         let delegate = SessionDelegate()
-        
+
         let (disposition, credential) = await delegate.urlSession(.shared, didReceive: URLAuthenticationChallenge())
         #expect(disposition == .performDefaultHandling)
         #expect(credential == nil)
     }
-    
+
     @Test("test SessionDelegate DidCreateTask")
     func testSessionDelegateDidCreateTask() {
         let taskLifecycleInterceptor = MockTaskLifecycleInterceptor()
         let delegate = SessionDelegate()
         delegate.taskLifecycleInterceptor = taskLifecycleInterceptor
-        
+
         delegate.urlSession(.shared, didCreateTask: mockUrlSessionDataTask)
         #expect(taskLifecycleInterceptor.didCreateTask)
     }
@@ -45,7 +45,7 @@ private class MockAuthenticationInterceptor: AuthenticationInterceptor {
         didReceiveChallengeWithTask = true
         return (.performDefaultHandling, nil)
     }
-    
+
     var didReceiveChallenge = false
     func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge) async -> (URLSession.AuthChallengeDisposition, URLCredential?) {
         didReceiveChallenge = true
@@ -58,12 +58,12 @@ private class MockTaskLifecycleInterceptor: TaskLifecycleInterceptor {
     func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: (any Error)?) {
         didCompleteWithError = true
     }
-    
+
     var taskIsWaitingForConnectivity = false
     func urlSession(_ session: URLSession, taskIsWaitingForConnectivity task: URLSessionTask) {
         taskIsWaitingForConnectivity = true
     }
-    
+
     var didCreateTask = false
     func urlSession(_ session: URLSession, didCreateTask task: URLSessionTask) {
         didCreateTask = true

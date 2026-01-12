@@ -11,7 +11,7 @@ extension NetworkingError: Equatable {
         switch (lhs, rhs) {
         case let (.internalError(error1), .internalError(error2)):
             return error1 == error2
-        
+
         case let (.httpError(error1), .httpError(error2)):
             return error1.statusCode == error2.statusCode
 

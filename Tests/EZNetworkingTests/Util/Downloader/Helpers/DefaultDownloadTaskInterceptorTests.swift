@@ -6,7 +6,7 @@ import Testing
 
 @Suite("Test DefaultDownloadTaskInterceptor")
 final class DefaultDownloadTaskInterceptorTests {
-    
+
     @Test("test .urlSession(_, downloadTask:_, didFinishDownloadingTo:_) tracks progress 100%")
     func test_didFinishDownloadingTo_tracksProgress_completion() {
         var trackedProgress: Double = 0

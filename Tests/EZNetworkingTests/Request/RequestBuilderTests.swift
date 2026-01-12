@@ -4,7 +4,7 @@ import Testing
 
 @Suite("Test RequestBuilder")
 final class RequestBuilderTests {
-    
+
     @Test("test BuildURLRequest with valid parameters")
     func testBuildURLRequestWithValidParameters() {
         let builder = RequestBuilderImpl()
@@ -20,7 +20,7 @@ final class RequestBuilderTests {
         ]
         let body = Data(jsonString: "{\"name\": \"John\"}")!
         let timeoutInterval: TimeInterval = 30
-        
+
         let request = builder
             .setHttpMethod(httpMethod)
             .setBaseUrl(urlString)
@@ -29,7 +29,7 @@ final class RequestBuilderTests {
             .setBody(body)
             .setTimeoutInterval(timeoutInterval)
             .build()
-        
+
         #expect(request != nil)
         #expect(request?.baseUrl == "https://example.com/api")
         #expect(request?.httpMethod == httpMethod)
@@ -39,19 +39,19 @@ final class RequestBuilderTests {
         #expect(request?.headers == headers)
         #expect(request?.cachePolicy == .useProtocolCachePolicy)
     }
-    
+
     @Test("test BuildURLRequest with no parameters and headers")
     func testBuildURLRequestWithNoParametersAndHeaders() {
         let builder = RequestBuilderImpl()
         let urlString = "https://example.com/api"
         let httpMethod = HTTPMethod.PUT
-        
+
         let request = builder
             .setHttpMethod(httpMethod)
             .setBaseUrl(urlString)
             .setTimeoutInterval(60)
             .build()
-        
+
         #expect(request != nil)
         #expect(request?.baseUrl == "https://example.com/api")
         #expect(request?.httpMethod == httpMethod)

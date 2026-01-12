@@ -2,7 +2,7 @@ import Foundation
 
 struct HTTPParameterApplier {
     private init() {}
-    
+
     static func apply(_ parameters: [HTTPParameter], to urlRequest: inout URLRequest) {
         guard !parameters.isEmpty,
               let url = urlRequest.url,

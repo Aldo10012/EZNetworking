@@ -3,7 +3,7 @@ import Testing
 
 @Suite("Test InternalError")
 final class InternalErrorTests {
- 
+
     @Test("test InternalError Is Equatable", arguments: zip(InternalErrorList, InternalErrorList))
     func testCouldNotParseIsEquatable(inputA: InternalError, inputB: InternalError) {
         #expect(inputA == inputB)

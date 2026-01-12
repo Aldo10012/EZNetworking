@@ -51,7 +51,7 @@ public class RequestBuilderImpl: RequestBuilder {
         self.timeoutInterval = timeoutInterval
         return self
     }
-    
+
     public func setCachePolicy(_ cachePolicy: URLRequest.CachePolicy) -> RequestBuilder {
         self.cachePolicy = cachePolicy
         return self

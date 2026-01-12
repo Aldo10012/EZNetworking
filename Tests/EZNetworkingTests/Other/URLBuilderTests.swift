@@ -16,7 +16,7 @@ final class URLBuilderTests {
             _ = try wsURLBuilder.buildAndValidate("")
         }
     }
-    
+
     @Test("test URLBuilder with invalid url")
     func testURLBuilderWithInvalidURL() throws {
         #expect(throws: NetworkingError.internalError(.invalidScheme(nil))) {
@@ -26,7 +26,7 @@ final class URLBuilderTests {
             _ = try wsURLBuilder.buildAndValidate("not a url")
         }
     }
-    
+
     @Test("test URLBuilder with invalid scheme")
     func testURLBuilderWithInvalidScheme() throws {
         // test http url when expecting ws or wss scheme
@@ -46,7 +46,7 @@ final class URLBuilderTests {
             _ = try httpURLBuilder.buildAndValidate("wss://www.example.com")
         }
     }
-    
+
     @Test("test URLBuilder when url is missing host")
     func testURLBuilderWhenUrlIsMissingHost() throws {
         // test http url when expecting http or https scheme but host is missing
@@ -66,7 +66,7 @@ final class URLBuilderTests {
             _ = try wsURLBuilder.buildAndValidate("wss://")
         }
     }
-    
+
     @Test("test URLBuilder when url is valid")
     func testURLBuilderWhenUrlIsValid() throws {
         // test http url when expecting http or https scheme
@@ -86,18 +86,18 @@ final class URLBuilderTests {
             _ = try wsURLBuilder.buildAndValidate("wss://www.example.com")
         }
     }
-    
+
     @Test("test URLBuilder")
     func testURLBuilder() throws {
         let httpURL = try httpURLBuilder.buildAndValidate("http://www.example.com")
         #expect(httpURL.absoluteString == "http://www.example.com")
-        
+
         let httpsURL = try httpURLBuilder.buildAndValidate("https://www.example.com")
         #expect(httpsURL.absoluteString == "https://www.example.com")
-        
+
         let wsURL = try wsURLBuilder.buildAndValidate("ws://www.example.com")
         #expect(wsURL.absoluteString == "ws://www.example.com")
-        
+
         let wssURL = try wsURLBuilder.buildAndValidate("wss://www.example.com")
         #expect(wssURL.absoluteString == "wss://www.example.com")
     }
@@ -110,7 +110,7 @@ final class URLSchemePolicyTests {
     @Test("HTTP policy allows http and https")
     func httpPolicyValues() {
         let allowedSchemes = URLBuilder.URLSchemePolicy.http.values
-        
+
         #expect(allowedSchemes.count == 2)
         #expect(allowedSchemes.contains("http"))
         #expect(allowedSchemes.contains("https"))

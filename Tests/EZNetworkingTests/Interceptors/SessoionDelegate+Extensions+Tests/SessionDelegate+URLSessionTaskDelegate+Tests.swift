@@ -4,87 +4,87 @@ import Testing
 
 @Suite("Test SessionDelegateURLSessionTaskDelegate")
 final class SessionDelegateURLSessionTaskDelegateTests {
-    
+
     @Test("test SessionDelegate DidReceiveChallenge")
     func testSessionDelegateDidReceiveChallenge() async {
         let authenticationInterceptor = MockAuthenticationInterceptor()
         let delegate = SessionDelegate()
         delegate.authenticationInterceptor = authenticationInterceptor
-        
+
         let (disposition, credential) = await delegate.urlSession(.shared, task: mockURLSessionTask, didReceive: URLAuthenticationChallenge())
         #expect(disposition == .performDefaultHandling)
         #expect(credential == nil)
         #expect(authenticationInterceptor.didReceiveChallengeWithTask)
     }
-    
+
     @Test("test SessionDelegate DidReceiveChallenge with no interceptor")
     func testSessionDelegateDidReceiveChallengeWithNoInterceptor() async {
         let delegate = SessionDelegate()
-        
+
         let (disposition, credential) = await delegate.urlSession(.shared, task: mockURLSessionTask, didReceive: URLAuthenticationChallenge())
         #expect(disposition == .performDefaultHandling)
         #expect(credential == nil)
     }
-    
+
     @Test("test SessionDelegate WillPerformHTTPRedirection")
     func testSessionDelegateWillPerformHTTPRedirection() async {
         let redirectInterceptor = MockRedirectInterceptor()
         let delegate = SessionDelegate()
         delegate.redirectInterceptor = redirectInterceptor
-        
+
         let response = HTTPURLResponse(url: URL(string: "https://example.com")!, statusCode: 301, httpVersion: nil, headerFields: nil)!
         let request = URLRequest(url: URL(string: "https://redirected.com")!)
-        
+
         let newRequest = await delegate.urlSession(.shared, task: mockURLSessionTask, willPerformHTTPRedirection: response, newRequest: request)
         #expect(newRequest == request)
         #expect(redirectInterceptor.didRedirect)
     }
-    
+
     @Test("test SessionDelegate WillPerformHTTPRedirection with no interceptor")
     func testSessionDelegateWillPerformHTTPRedirectionWithNoInterceptor() async {
         let delegate = SessionDelegate()
-        
+
         let response = HTTPURLResponse(url: URL(string: "https://example.com")!, statusCode: 301, httpVersion: nil, headerFields: nil)!
         let request = URLRequest(url: URL(string: "https://redirected.com")!)
-        
+
         let newRequest = await delegate.urlSession(.shared, task: mockURLSessionTask, willPerformHTTPRedirection: response, newRequest: request)
         #expect(newRequest == request)
     }
-    
+
     @Test("test SessionDelegate DidFinishCollectingMetrics")
     func testSessionDelegateDidFinishCollectingMetrics() {
         let metricsInterceptor = MockMetricsInterceptor()
         let delegate = SessionDelegate()
         delegate.metricsInterceptor = metricsInterceptor
-        
+
         delegate.urlSession(.shared, task: mockURLSessionTask, didFinishCollecting: mockURLSessionTaskMetrics)
-        
+
         #expect(metricsInterceptor.didCollectMetrics)
     }
-    
+
     @Test("test SessionDelegate DidCompleteWithError")
     func testSessionDelegateDidCompleteWithError() {
         let taskLifecycleInterceptor = MockTaskLifecycleInterceptor()
         let delegate = SessionDelegate()
         delegate.taskLifecycleInterceptor = taskLifecycleInterceptor
-        
+
         let error = NSError(domain: "TestError", code: 1, userInfo: nil)
         delegate.urlSession(.shared, task: mockURLSessionTask, didCompleteWithError: error)
-        
+
         #expect(taskLifecycleInterceptor.didCompleteWithError)
     }
-    
+
     @Test("test SessionDelegateT askIsWaitingForConnectivity")
     func testSessionDelegateTaskIsWaitingForConnectivity() {
         let taskLifecycleInterceptor = MockTaskLifecycleInterceptor()
         let delegate = SessionDelegate()
         delegate.taskLifecycleInterceptor = taskLifecycleInterceptor
-        
+
         delegate.urlSession(.shared, taskIsWaitingForConnectivity: mockURLSessionTask)
-        
+
         #expect(taskLifecycleInterceptor.taskIsWaitingForConnectivity)
     }
-    
+
 }
 
 // MARK: Mock classes
@@ -95,7 +95,7 @@ private class MockAuthenticationInterceptor: AuthenticationInterceptor {
         didReceiveChallengeWithTask = true
         return (.performDefaultHandling, nil)
     }
-    
+
     var didReceiveChallenge = false
     func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge) async -> (URLSession.AuthChallengeDisposition, URLCredential?) {
         didReceiveChallenge = true
@@ -121,15 +121,15 @@ private class MockMetricsInterceptor: MetricsInterceptor {
 private class MockTaskLifecycleInterceptor: TaskLifecycleInterceptor {
     var didCompleteWithError = false
     var taskIsWaitingForConnectivity = false
-    
+
     func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
         didCompleteWithError = true
     }
-    
+
     func urlSession(_ session: URLSession, taskIsWaitingForConnectivity task: URLSessionTask) {
         taskIsWaitingForConnectivity = true
     }
-    
+
     func urlSession(_ session: URLSession, didCreateTask task: URLSessionTask) {}
 }
 

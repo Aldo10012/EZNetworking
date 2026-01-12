@@ -3,17 +3,17 @@ import Foundation
 public struct PingConfig {
     public let pingInterval: IntervalDuration
     public let maxPingFailures: UInt
-    
+
     public init(pingInterval: IntervalDuration = IntervalDuration.seconds(30), maxPingFailures: UInt = 3) {
         self.pingInterval = pingInterval
-        
+
         if maxPingFailures == 0 {
             self.maxPingFailures = 1
         } else {
             self.maxPingFailures = maxPingFailures
         }
     }
-    
+
     internal func waitForPingInterval() async {
         if #available(iOS 16.0, *) {
             switch pingInterval {
@@ -42,12 +42,12 @@ public enum IntervalDuration: Equatable {
     case nanoseconds(_ nanoseconds: UInt64)
     case milliseconds(_ milliseconds: UInt64)
     case seconds(_ seconds: UInt64)
-    
+
     public static func ==(lhs: IntervalDuration, rhs: IntervalDuration) -> Bool {
         switch (lhs, rhs) {
         case (.nanoseconds(let lT), .nanoseconds(let rT)),
-             (.milliseconds(let lT), .milliseconds(let rT)),
-             (.seconds(let lT), .seconds(let rT)):
+            (.milliseconds(let lT), .milliseconds(let rT)),
+            (.seconds(let lT), .seconds(let rT)):
             return lT == rT
         default:
             return false

@@ -24,7 +24,7 @@ public enum WebSocketConnectionState: Equatable, Sendable {
             return false
         }
     }
-    
+
     public enum DisconnectReason: Equatable, Sendable {
         /// socket was manually disconnected by user
         case manuallyDisconnected
@@ -34,7 +34,7 @@ public enum WebSocketConnectionState: Equatable, Sendable {
         case connectionLost(error: WebSocketError)
         /// socket was terminated
         case terminated
-        
+
         public static func == (lhs: DisconnectReason, rhs: DisconnectReason) -> Bool {
             switch (lhs, rhs) {
             case (.manuallyDisconnected, .manuallyDisconnected), (.terminated, .terminated):

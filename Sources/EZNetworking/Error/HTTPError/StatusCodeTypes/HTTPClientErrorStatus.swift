@@ -4,7 +4,7 @@ enum HTTPClientErrorStatus: Error {
     static func description(from statusCode: Int) -> String {
         HTTPClientErrorStatus.descriptions[statusCode] ?? "Unknown Client Error"
     }
-    
+
     private static let descriptions: [Int: String] = [
         400: "Bad Request",
         401: "Unauthorized",

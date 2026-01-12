@@ -9,9 +9,9 @@ public protocol WebSocketTaskInterceptor: AnyObject {
 
     /// Intercepts when a WebSocket task closes with a code and reason.
     func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didCloseWith closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?)
-    
+
     /// Intercepts when a task completes with  an error.
-       func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error)
+    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error)
 }
 
 public enum WebSocketTaskEvent {

@@ -4,9 +4,9 @@ import Testing
 
 @Suite("Test FileUploader async/await methods")
 final class FileUploader_asyncAwait_Tests {
-    
+
     // MARK: - SUCCESS RESPONSE
-    
+
     @Test("test .uploadFile() with all valid inputs does not throw error")
     func test_uploadFile_withValidInputs_doesNotThrowError() async throws {
         let sut = FileUploader(urlSession: createMockURLSession())
@@ -14,11 +14,11 @@ final class FileUploader_asyncAwait_Tests {
             try await sut.uploadFile(mockFileURL, with: mockRequest, progress: nil)
         }
     }
-    
+
     // MARK: - FAILURE RESPONSES
-    
-    
-    
+
+
+
     // MARK: http status code error
 
     @Test("test .uploadFile() throws when server responds with 3xx status code")
@@ -29,7 +29,7 @@ final class FileUploader_asyncAwait_Tests {
             try await sut.uploadFile(mockFileURL, with: mockRequest, progress: nil)
         }
     }
-    
+
     @Test("test .uploadFile() throws when server responds with 4xx status code")
     func test_uploadFile_withClientErrorStatusCode_throwsError() async throws {
         let session = createMockURLSession(urlResponse: buildResponse(statusCode: 400))
@@ -38,7 +38,7 @@ final class FileUploader_asyncAwait_Tests {
             try await sut.uploadFile(mockFileURL, with: mockRequest, progress: nil)
         }
     }
-    
+
     @Test("test .uploadFile() throws when server responds with 5xx status code")
     func test_uploadFile_withServerErrorStatusCode_throwsError() async throws {
         let session = createMockURLSession(urlResponse: buildResponse(statusCode: 500))
@@ -47,9 +47,9 @@ final class FileUploader_asyncAwait_Tests {
             try await sut.uploadFile(mockFileURL, with: mockRequest, progress: nil)
         }
     }
-    
+
     // MARK: URLSession has error
-    
+
     @Test("test .uploadFile() throws when URLSession returns a 300 error")
     func test_uploadFile_withHTTPError300_throwsError() async throws {
         let session = createMockURLSession(error: HTTPError(statusCode: 300))
@@ -76,7 +76,7 @@ final class FileUploader_asyncAwait_Tests {
             try await sut.uploadFile(mockFileURL, with: mockRequest, progress: nil)
         }
     }
-    
+
     @Test("test .uploadFile() throws when URLSession returns a url error")
     func test_uploadFile_withNetworkURLError_throwsError() async throws {
         let networkError = URLError(.notConnectedToInternet)
@@ -86,19 +86,19 @@ final class FileUploader_asyncAwait_Tests {
             try await sut.uploadFile(mockFileURL, with: mockRequest, progress: nil)
         }
     }
-    
+
     // MARK: - Tracking
-    
+
     @Test("test .uploadFile() Download Progress Can Be Tracked")
     func test_uploadFile_progress_canBeTracked() async throws {
         let urlSession = createMockURLSession()
         urlSession.progressToExecute = [
             .inProgress(percent: 50)
         ]
-        
+
         let sut = FileUploader(mockSession: urlSession)
         var didTrackProgress = false
-        
+
         do {
             _ = try await sut.uploadFile(mockFileURL, with: mockRequest, progress: { _ in
                 didTrackProgress = true
@@ -108,23 +108,23 @@ final class FileUploader_asyncAwait_Tests {
             Issue.record()
         }
     }
-    
+
     @Test("test .uploadFile() Progress Tracking Happens Before Return")
     func test_uploadFile_progressTrackingHappensBeforeReturn() async throws {
         let urlSession = createMockURLSession()
         urlSession.progressToExecute = [
             .inProgress(percent: 50)
         ]
-        
+
         let sut = FileUploader(mockSession: urlSession)
         var progressAndReturnList = [String]()
-        
+
         do {
             _ = try await sut.uploadFile(mockFileURL, with: mockRequest, progress: { _ in
                 progressAndReturnList.append("did track progress")
             })
             progressAndReturnList.append("did return")
-                        
+
             #expect(progressAndReturnList.count == 2)
             #expect(progressAndReturnList[0] == "did track progress")
             #expect(progressAndReturnList[1] == "did return")
@@ -132,7 +132,7 @@ final class FileUploader_asyncAwait_Tests {
             Issue.record()
         }
     }
-    
+
     @Test("test .uploadFile() Progress Tracking Order")
     func test_uploadFile_progressTrackingOrder() async throws {
         let urlSession = createMockURLSession()
@@ -142,10 +142,10 @@ final class FileUploader_asyncAwait_Tests {
             .inProgress(percent: 90),
             .complete
         ]
-        
+
         let sut = FileUploader(mockSession: urlSession)
         var capturedTracking = [Double]()
-        
+
         do {
             _ = try await sut.uploadFile(mockFileURL, with: mockRequest, progress: { value in
                 capturedTracking.append(value)

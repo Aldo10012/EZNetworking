@@ -20,6 +20,6 @@ final class HTTPSuccessStatusTests {
         207: "Multi-Status",
         208: "Already Reported",
         226: "IM Used",
-         -1: "Unknown Success Status"
+        -1: "Unknown Success Status"
     ]
 }

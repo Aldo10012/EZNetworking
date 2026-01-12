@@ -9,13 +9,13 @@ struct MockURLResponseValidator: ResponseValidator {
             throw throwError
         }
     }
-    
+
     func validateStatus(from urlResponse: URLResponse?) throws {
         if let throwError = throwError {
             throw throwError
         }
     }
-    
+
     func validateData(_ data: Data?) throws -> Data {
         if let throwError = throwError {
             throw throwError
@@ -25,7 +25,7 @@ struct MockURLResponseValidator: ResponseValidator {
         }
         return data
     }
-    
+
     func validateUrl(_ url: URL?) throws -> URL {
         if let throwError = throwError {
             throw throwError

@@ -7,13 +7,13 @@ class MockRequestPerformerURLSession: URLSessionTaskProtocol {
     var error: Error?
     var completion: ((Data?, URLResponse?, Error?) -> Void)?
     var sessionDelegate: SessionDelegate? = nil
-    
+
     init(data: Data? = nil, urlResponse: URLResponse? = nil, error: Error? = nil) {
         self.data = data
         self.urlResponse = urlResponse
         self.error = error
     }
-    
+
     func dataTask(with request: URLRequest, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTask {
         self.completion = completionHandler
         return MockURLSessionDataTask {

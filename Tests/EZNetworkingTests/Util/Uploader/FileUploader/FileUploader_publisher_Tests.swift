@@ -7,7 +7,7 @@ import Testing
 final class FileUploader_Publisher_Tests {
     
     private var cancellables = Set<AnyCancellable>()
-
+    
     // MARK: SUCCESS
     
     @Test("test .uploadFilePublisher() Success")
@@ -193,7 +193,7 @@ final class FileUploader_Publisher_Tests {
     }
     
     // MARK: Tracking with delegate
-
+    
     @Test("test .uploadFilePublisher() Download Progress Can Be Tracked when Injecting SessionDelegat")
     func test_uploadFilePublisher_ProgressCanBeTrackedWhenInjectingSessionDelegate() {
         let urlSession = createMockURLSession()
@@ -230,13 +230,13 @@ final class FileUploader_Publisher_Tests {
     }
     
     // MARK: Tracking with Interceptor
-
+    
     @Test("test .uploadFilePublisher() Download Progress Can Be Tracked when Injecting DownloadTaskInterceptor")
     func test_uploadFilePublisher_DownloadFilePublisherTaskDownloadProgressCanBeTrackedWhenInjectingDownloadTaskInterceptor() {
         let urlSession = createMockURLSession()
         
         var didTrackProgressFromInterceptor = false
-
+        
         let uploadInterceptor = MockUploadTaskInterceptor { _ in
             didTrackProgressFromInterceptor = true
         }

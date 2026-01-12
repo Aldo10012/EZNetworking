@@ -165,9 +165,9 @@ final class DataUploader_Callbacks_Tests {
         var capturedTracking = [Double]()
         
         _ = sut.uploadDataTask(mockData, with: mockRequest, progress: { progress in
-                capturedTracking.append(progress)
-            },
-            completion: { _ in }
+            capturedTracking.append(progress)
+        },
+                               completion: { _ in }
         )
         
         #expect(capturedTracking.count == 4)
@@ -213,7 +213,7 @@ final class DataUploader_Callbacks_Tests {
         let urlSession = createMockURLSession()
         
         var didTrackProgressFromInterceptor = false
-
+        
         let uploadInterceptor = MockUploadTaskInterceptor { _ in
             didTrackProgressFromInterceptor = true
         }

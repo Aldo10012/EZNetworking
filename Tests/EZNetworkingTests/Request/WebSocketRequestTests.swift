@@ -5,7 +5,7 @@ import Testing
 @Suite("Test WebSocketRequest")
 final class WebSocketRequestTests {
     private let wsURL = "ws://127.0.0.1:8080"
-    
+
     @Test("test WebSocketRequest default values")
     func testWebSocketRequestDefaultValues() {
         let sut = WebSocketRequest(url: wsURL)
@@ -18,7 +18,7 @@ final class WebSocketRequestTests {
         #expect(sut.cachePolicy == .reloadIgnoringLocalCacheData)
         #expect(sut.timeoutInterval == 60)
     }
-    
+
     @Test("test WebSocketRequest protocols")
     func testWebSocketRequestProtocols() {
         let sut = WebSocketRequest(
@@ -28,7 +28,7 @@ final class WebSocketRequestTests {
         #expect(sut.protocols == ["chat", "superchat"])
         #expect(sut.headers == [.secWebSocketProtocol(["chat", "superchat"])])
     }
-    
+
     @Test("test WebSocketRequest additional headers")
     func testWebSocketRequestAdditionalHeaders() {
         let sut = WebSocketRequest(
@@ -38,7 +38,7 @@ final class WebSocketRequestTests {
         #expect(sut.additionalheaders == [.contentType(.json)])
         #expect(sut.headers == [.contentType(.json)])
     }
-    
+
     @Test("test WebSocketRequest protocols and additional headers")
     func testWebSocketRequestProtoclsAndAdditionalHeaders() {
         let sut = WebSocketRequest(

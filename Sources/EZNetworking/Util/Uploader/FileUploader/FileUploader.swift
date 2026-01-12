@@ -5,11 +5,11 @@ public class FileUploader: FileUploadable {
     private let urlSession: URLSessionTaskProtocol
     private let validator: ResponseValidator
     private var sessionDelegate: SessionDelegate
-    
+
     private let fallbackUploadTaskInterceptor: DefaultUploadTaskInterceptor = DefaultUploadTaskInterceptor()
-    
+
     // MARK: init
-    
+
     public init(
         urlSession: URLSessionTaskProtocol = URLSession.shared,
         validator: ResponseValidator = ResponseValidatorImpl(),
@@ -35,9 +35,9 @@ public class FileUploader: FileUploadable {
         }
         self.validator = validator
     }
-    
+
     // MARK: Async Await
-    
+
     public func uploadFile(_ fileURL: URL, with request: any Request, progress: UploadProgressHandler?) async throws -> Data {
         try await withCheckedThrowingContinuation { continuation in
             self._uploadFileTask(fileURL, with: request, progress: progress) { result in
@@ -49,18 +49,18 @@ public class FileUploader: FileUploadable {
                 }
             }
         }
-        
+
     }
-    
+
     // MARK: Completion Handler
-    
+
     @discardableResult
     public func uploadFileTask(_ fileURL: URL, with request: any Request, progress: UploadProgressHandler?, completion: @escaping UploadCompletionHandler) -> URLSessionUploadTask? {
         return _uploadFileTask(fileURL, with: request, progress: progress, completion: completion)
     }
-    
+
     // MARK: Publisher
-    
+
     public func uploadFilePublisher(_ fileURL: URL, with request: any Request, progress: UploadProgressHandler?) -> AnyPublisher<Data, NetworkingError> {
         Future { promise in
             _ = self._uploadFileTask(fileURL, with: request, progress: progress) { result in
@@ -69,9 +69,9 @@ public class FileUploader: FileUploadable {
         }
         .eraseToAnyPublisher()
     }
-    
+
     // MARK: AsyncStream
-    
+
     public func uploadFileStream(_ fileURL: URL, with request: any Request) -> AsyncStream<UploadStreamEvent> {
         AsyncStream { continuation in
             let progressHandler: UploadProgressHandler = { progress in
@@ -91,18 +91,18 @@ public class FileUploader: FileUploadable {
             }
         }
     }
-    
+
     // MARK: - Core
-    
+
     private func _uploadFileTask(_ fileURL: URL, with request: Request, progress: UploadProgressHandler?, completion: @escaping (UploadCompletionHandler)) -> URLSessionUploadTask? {
         let request = request
         configureProgressTracking(progress: progress)
-        
+
         guard let urlRequest = getURLRequest(from: request) else {
             completion(.failure(.internalError(.noRequest)))
             return nil
         }
-        
+
         let task = urlSession.uploadTask(with: urlRequest, fromFile: fileURL) { [weak self] data, response, error in
             guard let self else {
                 completion(.failure(.internalError(.lostReferenceOfSelf)))
@@ -120,13 +120,13 @@ public class FileUploader: FileUploadable {
         task.resume()
         return task
     }
-    
+
     private func mapError(_ error: Error) -> NetworkingError {
         if let networkError = error as? NetworkingError { return networkError }
         if let urlError = error as? URLError { return .urlError(urlError) }
         return .internalError(.unknown)
     }
-    
+
     private func configureProgressTracking(progress: UploadProgressHandler?) {
         guard let progress else { return }
         if sessionDelegate.uploadTaskInterceptor != nil {
@@ -136,7 +136,7 @@ public class FileUploader: FileUploadable {
             sessionDelegate.uploadTaskInterceptor = fallbackUploadTaskInterceptor
         }
     }
-    
+
     private func getURLRequest(from request: Request) -> URLRequest? {
         do { return try request.getURLRequest() } catch { return nil }
     }

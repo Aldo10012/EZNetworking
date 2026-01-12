@@ -14,7 +14,7 @@ final class RequestPerformable_publisher_Tests {
     func performPublisher_withValidInputs_doesDecodePerson() {
         let sut = createRequestPerformer()
         var didDecodePerson = false
-        
+
         sut.performPublisher(request: MockRequest(), decodeTo: Person.self)
             .sink(receiveCompletion: { completion in
                 switch completion {
@@ -31,9 +31,9 @@ final class RequestPerformable_publisher_Tests {
     }
 
     // MARK: - ERROR RESPONSE
-    
-    
-    
+
+
+
     // MARK: http status code error tests
 
     @Test("test performPublisher(request:_, decodeTo:_) fails when status code is 3xx")
@@ -98,7 +98,7 @@ final class RequestPerformable_publisher_Tests {
             .store(in: &cancellables)
         #expect(didComplete == true)
     }
-    
+
     // MARK: URLSession has error
 
     @Test("test performPublisher(request:_, decodeTo:_) fails when urlsession throws URL error")

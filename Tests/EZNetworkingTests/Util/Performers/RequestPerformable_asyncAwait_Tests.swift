@@ -32,9 +32,9 @@ final class RequestPerformable_asyncAwait_Tests {
     }
 
     // MARK: - ERROR RESPONSE
-    
-    
-    
+
+
+
     // MARK: http status code error tests
 
     @Test("test perform(request:_) fails when status code is 3xx")
@@ -68,7 +68,7 @@ final class RequestPerformable_asyncAwait_Tests {
     }
 
     // MARK: URLSession has error
-    
+
     @Test("test perform(request:_) fails when URLSession throws HTTPClientError")
     func perform_throwsErrorWhen_urlSessionThrowsHTTPClientError() async throws {
         let sut = createRequestPerformer(
@@ -78,7 +78,7 @@ final class RequestPerformable_asyncAwait_Tests {
             try await sut.perform(request: MockRequest(), decodeTo: Person.self)
         }
     }
-    
+
     @Test("test perform(request:_) fails when URLSession throws HTTPServerError")
     func perform_throwsErrorWhen_urlSessionThrowsHTTPServerError() async throws {
         let sut = createRequestPerformer(
@@ -88,7 +88,7 @@ final class RequestPerformable_asyncAwait_Tests {
             try await sut.perform(request: MockRequest(), decodeTo: Person.self)
         }
     }
-    
+
     @Test("test perform(request:_) fails when URLSession throws URLError")
     func perform_throwsErrorWhen_urlSessionThrowsURLError() async throws {
         let sut = createRequestPerformer(

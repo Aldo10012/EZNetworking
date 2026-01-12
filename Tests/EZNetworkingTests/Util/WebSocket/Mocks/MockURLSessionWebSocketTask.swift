@@ -53,7 +53,7 @@ class MockURLSessionWebSocketTask: WebSocketTaskProtocol {
         }
     }
     func receive(completionHandler: @escaping @Sendable (Result<URLSessionWebSocketTask.Message, any Error>) -> Void) { }
-    
+
     private var pendingContinuation: CheckedContinuation<InboundMessage, Error>?
     func simulateReceiveMessage(_ message: InboundMessage) {
         guard let continuation = pendingContinuation else {
@@ -76,7 +76,7 @@ class MockURLSessionWebSocketTask: WebSocketTaskProtocol {
     var pingFailureCount: Int = 0
     var didCallSendPing = false
     var pingError: Error?
-    
+
     func sendPing() async throws {
         didCallSendPing = true
         if pingThrowsError {

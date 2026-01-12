@@ -13,6 +13,6 @@ final class HTTPInformationalStatusTests {
         100: "Continue",
         101: "Switching Protocols",
         102: "Processing",
-         -1: "Unknown Informational Status"
+        -1: "Unknown Informational Status"
     ]
 }

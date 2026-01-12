@@ -6,7 +6,7 @@ public enum InternalError: Error {
     case invalidURL
     case invalidScheme(String?)
     case missingHost
-    
+
     case couldNotParse
     case invalidError
     case noData
@@ -35,13 +35,13 @@ extension InternalError: Equatable {
             (.invalidImageData, .invalidImageData),
             (.lostReferenceOfSelf, .lostReferenceOfSelf):
             return true
-            
+
         case let (.requestFailed(lhsError), .requestFailed(rhsError)):
             return (lhsError as NSError) == (rhsError as NSError)
-        
+
         case let (.invalidScheme(lhsScheme), .invalidScheme(rhsScheme)):
             return lhsScheme == rhsScheme
-        
+
         default:
             return false
         }
