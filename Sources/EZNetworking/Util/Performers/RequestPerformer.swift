@@ -69,7 +69,7 @@ public struct RequestPerformer: RequestPerformable {
     @discardableResult
     private func performDataTask<T: Decodable>(request: Request, decodeTo decodableObject: T.Type, completion: @escaping ((Result<T, NetworkingError>) -> Void)) -> URLSessionDataTask? {
 
-        guard let urlRequest = request.urlRequest else {
+        guard let urlRequest = getURLRequest(from: request) else {
             completion(.failure(.internalError(.noRequest)))
             return nil
         }
@@ -93,5 +93,9 @@ public struct RequestPerformer: RequestPerformable {
         if let networkError = error as? NetworkingError { return networkError }
         if let urlError = error as? URLError { return .urlError(urlError) }
         return .internalError(.unknown)
+    }
+    
+    private func getURLRequest(from request: Request) -> URLRequest? {
+        do { return try request.getURLRequest() } catch { return nil }
     }
 }

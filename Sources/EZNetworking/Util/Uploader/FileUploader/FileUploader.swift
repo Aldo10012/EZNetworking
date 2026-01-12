@@ -98,7 +98,7 @@ public class FileUploader: FileUploadable {
         let request = request
         configureProgressTracking(progress: progress)
         
-        guard let urlRequest = request.urlRequest else {
+        guard let urlRequest = getURLRequest(from: request) else {
             completion(.failure(.internalError(.noRequest)))
             return nil
         }
@@ -135,5 +135,9 @@ public class FileUploader: FileUploadable {
             fallbackUploadTaskInterceptor.progress = progress
             sessionDelegate.uploadTaskInterceptor = fallbackUploadTaskInterceptor
         }
+    }
+    
+    private func getURLRequest(from request: Request) -> URLRequest? {
+        do { return try request.getURLRequest() } catch { return nil }
     }
 }

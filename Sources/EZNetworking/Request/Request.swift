@@ -18,10 +18,8 @@ public extension Request {
 
 // additions
 public extension Request {
-    var urlRequest: URLRequest? {
-        guard let url = URL(string: baseUrl) else {
-            return nil
-        }
+    func getURLRequest(allowedSchemes: URLBuilder.URLSchemePolicy = .http) throws -> URLRequest {
+        let url = try URLBuilder(allowedSchemes: allowedSchemes).buildAndValidate(baseUrl)
 
         var request = URLRequest(url: url)
         request.httpMethod = httpMethod.rawValue
@@ -30,11 +28,11 @@ public extension Request {
         request.cachePolicy = cachePolicy
 
         if let parameters = parameters {
-            try? HTTPParameterEncoderImpl().encodeParameters(for: &request, with: parameters)
+            HTTPParameterApplier.apply(parameters, to: &request)
         }
 
         if let headers = headers {
-            HTTPHeaderEncoderImpl().encodeHeaders(for: &request, with: headers)
+            HTTPHeaderApplier.apply(headers, to: &request)
         }
 
         return request

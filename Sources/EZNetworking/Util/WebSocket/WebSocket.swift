@@ -93,9 +93,8 @@ public actor WebSocket: WebSocketClient {
     // MARK: - Connect
     
     public func connect() async throws {
-        guard let urlRequest = webSocketRequest.urlRequest else {
-            throw WebSocketError.invalidWebSocketURLRequest
-        }
+        let urlRequest = try webSocketRequest.getURLRequest(allowedSchemes: .ws)
+        
         // Validate current state
         if case .connecting = connectionState {
             throw WebSocketError.stillConnecting

@@ -16,6 +16,9 @@ final class InternalErrorTests {
 
     private static let InternalErrorList: [InternalError] = [
         InternalError.noURL,
+        InternalError.invalidURL,
+        InternalError.missingHost,
+        InternalError.invalidScheme(""),
         InternalError.couldNotParse,
         InternalError.invalidError,
         InternalError.noData,
