@@ -33,8 +33,7 @@
 --stripunusedargs closure-only
 
 # Syntax preferences
---self insert
---selfrequired 
+--self remove
 --shortoptionals always
 --redundanttype inferred
 --emptybraces no-space
@@ -59,4 +58,5 @@
 --enable wrapEnumCases
 --enable wrapSwitchCases
 
---disable redundantSelf
+# Commas
+--trailingcommas inline
