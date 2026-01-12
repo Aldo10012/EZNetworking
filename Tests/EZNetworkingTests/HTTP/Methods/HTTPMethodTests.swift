@@ -1,60 +1,59 @@
-@testable import EZNetworking
 import Testing
+@testable import EZNetworking
 
 @Suite("Test HTTPMethod")
 final class HTTPMethodTests {
-
     // MARK: - Individual Method Tests
 
     @Test("test HTTPMethod.GET raw value")
-    func testHTTPMethodGetRawValue() {
+    func hTTPMethodGetRawValue() {
         #expect(HTTPMethod.GET.rawValue == "GET")
     }
 
     @Test("test HTTPMethod.POST raw value")
-    func testHTTPMethodPOSTRawValue() {
+    func hTTPMethodPOSTRawValue() {
         #expect(HTTPMethod.POST.rawValue == "POST")
     }
 
     @Test("test HTTPMethod.PUT raw value")
-    func testHTTPMethodPUTRawValue() {
+    func hTTPMethodPUTRawValue() {
         #expect(HTTPMethod.PUT.rawValue == "PUT")
     }
 
     @Test("test HTTPMethod.DELETE raw value")
-    func testHTTPMethodDELETERawValue() {
+    func hTTPMethodDELETERawValue() {
         #expect(HTTPMethod.DELETE.rawValue == "DELETE")
     }
 
     @Test("test HTTPMethod.PATCH raw value")
-    func testHTTPMethodPATCHRawValue() {
+    func hTTPMethodPATCHRawValue() {
         #expect(HTTPMethod.PATCH.rawValue == "PATCH")
     }
 
     @Test("test HTTPMethod.HEAD raw value")
-    func testHTTPMethodHEADRawValue() {
+    func hTTPMethodHEADRawValue() {
         #expect(HTTPMethod.HEAD.rawValue == "HEAD")
     }
 
     @Test("test HTTPMethod.OPTIONS raw value")
-    func testHTTPMethodOPTIONSRawValue() {
+    func hTTPMethodOPTIONSRawValue() {
         #expect(HTTPMethod.OPTIONS.rawValue == "OPTIONS")
     }
 
     @Test("test HTTPMethod.TRACE raw value")
-    func testHTTPMethodTRACERawValue() {
+    func hTTPMethodTRACERawValue() {
         #expect(HTTPMethod.TRACE.rawValue == "TRACE")
     }
 
     @Test("test HTTPMethod.CONNECT raw value")
-    func testHTTPMethodCONNECTRawValue() {
+    func hTTPMethodCONNECTRawValue() {
         #expect(HTTPMethod.CONNECT.rawValue == "CONNECT")
     }
 
     // MARK: - Comprehensive Tests
 
     @Test("test all HTTP methods have correct raw values")
-    func testAllHTTPMethodsHaveCorrectRawValues() {
+    func allHTTPMethodsHaveCorrectRawValues() {
         let expectedValues: [HTTPMethod: String] = [
             .GET: "GET",
             .POST: "POST",
@@ -73,22 +72,22 @@ final class HTTPMethodTests {
     }
 
     @Test("test all HTTP methods are uppercase")
-    func testAllHTTPMethodsAreUppercase() {
+    func allHTTPMethodsAreUppercase() {
         for method in HTTPMethod.allCases {
             #expect(method.rawValue == method.rawValue.uppercased(), "HTTPMethod.\(method) should be uppercase")
         }
     }
 
     @Test("test all HTTP methods are non-empty")
-    func testAllHTTPMethodsAreNonEmpty() {
+    func allHTTPMethodsAreNonEmpty() {
         for method in HTTPMethod.allCases {
             #expect(!method.rawValue.isEmpty, "HTTPMethod.\(method) should have non-empty raw value")
         }
     }
 
     @Test("test HTTP methods are unique")
-    func testHTTPMethodsAreUnique() {
-        let rawValues = HTTPMethod.allCases.map { $0.rawValue }
+    func hTTPMethodsAreUnique() {
+        let rawValues = HTTPMethod.allCases.map(\.rawValue)
         let uniqueValues = Set(rawValues)
 
         #expect(rawValues.count == uniqueValues.count, "All HTTP methods should have unique raw values")
@@ -97,7 +96,7 @@ final class HTTPMethodTests {
     // MARK: - CaseIterable Tests
 
     @Test("test CaseIterable conformance")
-    func testCaseIterableConformance() {
+    func caseIterableConformance() {
         let allMethods = HTTPMethod.allCases
         #expect(allMethods.count == 9, "Should have 9 HTTP methods")
 
@@ -111,7 +110,7 @@ final class HTTPMethodTests {
     // MARK: - HTTP Method Categories Tests
 
     @Test("test safe HTTP methods")
-    func testSafeHTTPMethods() {
+    func safeHTTPMethods() {
         let safeMethods: [HTTPMethod] = [.GET, .HEAD, .OPTIONS, .TRACE]
 
         for method in safeMethods {
@@ -120,7 +119,7 @@ final class HTTPMethodTests {
     }
 
     @Test("test idempotent HTTP methods")
-    func testIdempotentHTTPMethods() {
+    func idempotentHTTPMethods() {
         let idempotentMethods: [HTTPMethod] = [.GET, .PUT, .DELETE, .HEAD, .OPTIONS, .TRACE]
 
         for method in idempotentMethods {
@@ -129,7 +128,7 @@ final class HTTPMethodTests {
     }
 
     @Test("test methods that allow request body")
-    func testMethodsThatAllowRequestBody() {
+    func methodsThatAllowRequestBody() {
         let bodyAllowedMethods: [HTTPMethod] = [.POST, .PUT, .PATCH, .DELETE]
 
         for method in bodyAllowedMethods {
@@ -138,7 +137,7 @@ final class HTTPMethodTests {
     }
 
     @Test("test methods that typically don't allow request body")
-    func testMethodsThatDontAllowRequestBody() {
+    func methodsThatDontAllowRequestBody() {
         let noBodyMethods: [HTTPMethod] = [.GET, .HEAD, .OPTIONS, .TRACE, .CONNECT]
 
         for method in noBodyMethods {
@@ -151,27 +150,27 @@ final class HTTPMethodTests {
     private func isSafeMethod(_ method: HTTPMethod) -> Bool {
         switch method {
         case .GET, .HEAD, .OPTIONS, .TRACE:
-            return true
+            true
         case .POST, .PUT, .DELETE, .PATCH, .CONNECT:
-            return false
+            false
         }
     }
 
     private func isIdempotentMethod(_ method: HTTPMethod) -> Bool {
         switch method {
         case .GET, .PUT, .DELETE, .HEAD, .OPTIONS, .TRACE:
-            return true
+            true
         case .POST, .PATCH, .CONNECT:
-            return false
+            false
         }
     }
-    
+
     private func allowsRequestBody(_ method: HTTPMethod) -> Bool {
         switch method {
         case .POST, .PUT, .PATCH, .DELETE:
-            return true
+            true
         case .GET, .HEAD, .OPTIONS, .TRACE, .CONNECT:
-            return false
+            false
         }
     }
 }

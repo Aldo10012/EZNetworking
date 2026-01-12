@@ -1,10 +1,9 @@
-@testable import EZNetworking
 import Foundation
 import Testing
+@testable import EZNetworking
 
 @Suite("Test RequestPerformable callback methods")
 final class RequestPerformable_callbacks_Tests {
-
     // MARK: - SUCCESS RESPONSE
 
     @Test("test performTask(request:_, decodeTo:_) with valid inputs does decode Person")
@@ -14,7 +13,7 @@ final class RequestPerformable_callbacks_Tests {
         sut.performTask(request: MockRequest(), decodeTo: Person.self) { result in
             defer { didExecute = true }
             switch result {
-            case .success(let person):
+            case let .success(person):
                 #expect(person.name == "John")
                 #expect(person.age == 30)
             case .failure:
@@ -74,7 +73,7 @@ final class RequestPerformable_callbacks_Tests {
             switch result {
             case .success:
                 Issue.record()
-            case .failure(let error):
+            case let .failure(error):
                 #expect(error == NetworkingError.httpError(HTTPError(statusCode: 300)))
             }
         }
@@ -92,7 +91,7 @@ final class RequestPerformable_callbacks_Tests {
             switch result {
             case .success:
                 Issue.record()
-            case .failure(let error):
+            case let .failure(error):
                 #expect(error == NetworkingError.httpError(HTTPError(statusCode: 400)))
             }
         }
@@ -110,7 +109,7 @@ final class RequestPerformable_callbacks_Tests {
             switch result {
             case .success:
                 Issue.record()
-            case .failure(let error):
+            case let .failure(error):
                 #expect(error == NetworkingError.httpError(HTTPError(statusCode: 500)))
             }
         }
@@ -130,7 +129,7 @@ final class RequestPerformable_callbacks_Tests {
             switch result {
             case .success:
                 Issue.record()
-            case .failure(let error):
+            case let .failure(error):
                 #expect(error == NetworkingError.urlError(URLError(.networkConnectionLost)))
             }
         }
@@ -151,7 +150,7 @@ final class RequestPerformable_callbacks_Tests {
             switch result {
             case .success:
                 Issue.record()
-            case .failure(let error):
+            case let .failure(error):
                 #expect(error == NetworkingError.internalError(.requestFailed(UnknownError.error)))
             }
         }
@@ -171,7 +170,7 @@ final class RequestPerformable_callbacks_Tests {
             switch result {
             case .success:
                 Issue.record()
-            case .failure(let error):
+            case let .failure(error):
                 #expect(error == NetworkingError.internalError(.noData))
             }
         }
@@ -190,7 +189,7 @@ final class RequestPerformable_callbacks_Tests {
             switch result {
             case .success:
                 Issue.record()
-            case .failure(let error):
+            case let .failure(error):
                 #expect(error == NetworkingError.internalError(.couldNotParse))
             }
         }
@@ -205,7 +204,7 @@ private func createRequestPerformer(
     validator: ResponseValidator = ResponseValidatorImpl(),
     requestDecoder: RequestDecodable = RequestDecoder()
 ) -> RequestPerformer {
-    return RequestPerformer(urlSession: urlSession, validator: validator, requestDecoder: requestDecoder)
+    RequestPerformer(urlSession: urlSession, validator: validator, requestDecoder: requestDecoder)
 }
 
 private func createMockURLSession(
@@ -213,7 +212,7 @@ private func createMockURLSession(
     statusCode: Int = 200,
     error: Error? = nil
 ) -> MockRequestPerformerURLSession {
-    return MockRequestPerformerURLSession(
+    MockRequestPerformerURLSession(
         data: data,
         urlResponse: buildResponse(statusCode: statusCode),
         error: error
@@ -221,10 +220,12 @@ private func createMockURLSession(
 }
 
 private func buildResponse(statusCode: Int) -> HTTPURLResponse {
-    HTTPURLResponse(url: URL(string: "https://example.com")!,
-                    statusCode: statusCode,
-                    httpVersion: nil,
-                    headerFields: nil)!
+    HTTPURLResponse(
+        url: URL(string: "https://example.com")!,
+        statusCode: statusCode,
+        httpVersion: nil,
+        headerFields: nil
+    )!
 }
 
 private struct MockRequest: Request {

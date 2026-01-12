@@ -1,9 +1,9 @@
-import Foundation
 import EZNetworking
+import Foundation
 
 class MockURLSessionDataTask: URLSessionDataTask {
     private let closure: () -> Void
-    var didCancel: Bool = false
+    var didCancel = false
 
     init(closure: @escaping () -> Void) {
         self.closure = closure

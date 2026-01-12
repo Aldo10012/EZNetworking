@@ -1,7 +1,7 @@
 import Foundation
 @testable import EZNetworking
 
-struct MockData {
+enum MockData {
     static var mockPersonJsonData: Data {
         let jsonString = """
         {

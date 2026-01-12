@@ -1,12 +1,11 @@
-@testable import EZNetworking
 import Foundation
 import Testing
+@testable import EZNetworking
 
 @Suite("Test SessionDelegateURLSessionDelegate")
 final class SessionDelegateURLSessionDelegateTests {
-
     @Test("test SessionDelegate DidReceiveChallenge")
-    func testSessionDelegateDidReceiveChallenge() async {
+    func sessionDelegateDidReceiveChallenge() async {
         let authenticationInterceptor = MockAuthenticationInterceptor()
         let delegate = SessionDelegate()
         delegate.authenticationInterceptor = authenticationInterceptor
@@ -18,7 +17,7 @@ final class SessionDelegateURLSessionDelegateTests {
     }
 
     @Test("test SessionDelegate DidReceiveChallenge with no interceptor")
-    func testSessionDelegateDidReceiveChallengeWithNoInterceptor() async {
+    func sessionDelegateDidReceiveChallengeWithNoInterceptor() async {
         let delegate = SessionDelegate()
 
         let (disposition, credential) = await delegate.urlSession(.shared, didReceive: URLAuthenticationChallenge())
@@ -27,7 +26,7 @@ final class SessionDelegateURLSessionDelegateTests {
     }
 
     @Test("test SessionDelegate DidCreateTask")
-    func testSessionDelegateDidCreateTask() {
+    func sessionDelegateDidCreateTask() {
         let taskLifecycleInterceptor = MockTaskLifecycleInterceptor()
         let delegate = SessionDelegate()
         delegate.taskLifecycleInterceptor = taskLifecycleInterceptor

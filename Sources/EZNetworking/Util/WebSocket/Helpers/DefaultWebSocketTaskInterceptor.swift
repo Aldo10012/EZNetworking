@@ -1,6 +1,6 @@
 import Foundation
 
-internal class DefaultWebSocketTaskInterceptor: WebSocketTaskInterceptor {
+class DefaultWebSocketTaskInterceptor: WebSocketTaskInterceptor {
     var onEvent: ((WebSocketTaskEvent) -> Void)?
 
     init(onEvent: ((WebSocketTaskEvent) -> Void)? = nil) {

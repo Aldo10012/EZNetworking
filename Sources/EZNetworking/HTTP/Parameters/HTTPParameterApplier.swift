@@ -6,7 +6,8 @@ struct HTTPParameterApplier {
     static func apply(_ parameters: [HTTPParameter], to urlRequest: inout URLRequest) {
         guard !parameters.isEmpty,
               let url = urlRequest.url,
-              var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
+              var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false) else
+        {
             return
         }
 

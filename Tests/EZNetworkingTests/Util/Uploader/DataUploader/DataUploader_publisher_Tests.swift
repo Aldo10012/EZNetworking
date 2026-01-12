@@ -1,17 +1,16 @@
 import Combine
-@testable import EZNetworking
 import Foundation
 import Testing
+@testable import EZNetworking
 
 @Suite("Test DataUploader publishers")
 final class DataUploader_Publisher_Tests {
-
     private var cancellables = Set<AnyCancellable>()
 
     // MARK: SUCCESS
 
     @Test("test .uploadDataPublisher() Success")
-    func test_uploadDataPublisher_Success() {
+    func uploadDataPublisher_Success() {
         let sut = createDataUploader()
 
         var didExecute = false
@@ -33,7 +32,7 @@ final class DataUploader_Publisher_Tests {
     // MARK: ERROR - status code
 
     @Test("test .uploadDataPublisher() Fails When Status Code Is Not 200")
-    func test_uploadDataPublisher_FailsWhenStatusCodeIsNot200() {
+    func uploadDataPublisher_FailsWhenStatusCodeIsNot200() {
         let sut = createDataUploader(
             urlSession: createMockURLSession(urlResponse: buildResponse(statusCode: 400))
         )
@@ -42,7 +41,7 @@ final class DataUploader_Publisher_Tests {
         sut.uploadDataPublisher(mockData, with: mockRequest, progress: nil)
             .sink { completion in
                 switch completion {
-                case .failure(let error):
+                case let .failure(error):
                     #expect(error == NetworkingError.httpError(HTTPError(statusCode: 400)))
                     didExecute = true
                 case .finished: Issue.record()
@@ -58,7 +57,7 @@ final class DataUploader_Publisher_Tests {
     // MARK: ERROR - url session
 
     @Test("test .uploadDataPublisher() Fails When URLSession Has Error")
-    func test_uploadDataPublisher_FailsWhenUrlSessionHasError() {
+    func uploadDataPublisher_FailsWhenUrlSessionHasError() {
         let sut = createDataUploader(
             urlSession: createMockURLSession(error: HTTPError(statusCode: 500))
         )
@@ -67,7 +66,7 @@ final class DataUploader_Publisher_Tests {
         sut.uploadDataPublisher(mockData, with: mockRequest, progress: nil)
             .sink { completion in
                 switch completion {
-                case .failure(let error):
+                case let .failure(error):
                     #expect(error == NetworkingError.internalError(.requestFailed(HTTPError(statusCode: 500))))
                     didExecute = true
                 case .finished: Issue.record()
@@ -81,7 +80,7 @@ final class DataUploader_Publisher_Tests {
     }
 
     @Test("test .uploadDataPublisher() Fails When URLSession Has URLError")
-    func test_uploadDataPublisher_FailsWhenUrlSessionHasURLError() {
+    func uploadDataPublisher_FailsWhenUrlSessionHasURLError() {
         let sut = createDataUploader(
             urlSession: createMockURLSession(error: URLError(.notConnectedToInternet))
         )
@@ -90,7 +89,7 @@ final class DataUploader_Publisher_Tests {
         sut.uploadDataPublisher(mockData, with: mockRequest, progress: nil)
             .sink { completion in
                 switch completion {
-                case .failure(let error):
+                case let .failure(error):
                     #expect(error == NetworkingError.urlError(URLError(.notConnectedToInternet)))
                     didExecute = true
                 case .finished: Issue.record()
@@ -106,7 +105,7 @@ final class DataUploader_Publisher_Tests {
     // MARK: Tracking with callbacks
 
     @Test("test .uploadDataPublisher() Download Progress Can Be Tracked")
-    func test_uploadDataPublisher_ProgressCanBeTracked() {
+    func uploadDataPublisher_ProgressCanBeTracked() {
         let urlSession = createMockURLSession()
 
         urlSession.progressToExecute = [
@@ -135,7 +134,7 @@ final class DataUploader_Publisher_Tests {
     }
 
     @Test("test .uploadDataPublisher() Download Progress Tracking Happens Before Return")
-    func test_uploadDataPublisher_ProgressTrackingHappensBeforeReturn() {
+    func uploadDataPublisher_ProgressTrackingHappensBeforeReturn() {
         let urlSession = createMockURLSession()
 
         urlSession.progressToExecute = [
@@ -164,7 +163,7 @@ final class DataUploader_Publisher_Tests {
     }
 
     @Test("test .uploadDataPublisher() Download Progress Tracks Correct Order")
-    func test_uploadDataPublisher_ProgressTracksCorrectOrder() {
+    func uploadDataPublisher_ProgressTracksCorrectOrder() {
         let urlSession = createMockURLSession()
 
         urlSession.progressToExecute = [
@@ -186,7 +185,7 @@ final class DataUploader_Publisher_Tests {
             case .finished: break
             }
         } receiveValue: { _ in }
-            .store(in: &cancellables)
+        .store(in: &cancellables)
 
         #expect(capturedTracking.count == 4)
         #expect(capturedTracking == [0.3, 0.6, 0.9, 1.0])
@@ -195,7 +194,7 @@ final class DataUploader_Publisher_Tests {
     // MARK: Tracking with delegate
 
     @Test("test .uploadDataPublisher() Download Progress Can Be Tracked when Injecting SessionDelegat")
-    func test_uploadDataPublisher_ProgressCanBeTrackedWhenInjectingSessionDelegate() {
+    func uploadDataPublisher_ProgressCanBeTrackedWhenInjectingSessionDelegate() {
         let urlSession = createMockURLSession()
 
         let delegate = SessionDelegate()
@@ -212,7 +211,7 @@ final class DataUploader_Publisher_Tests {
         var didExecute = false
         var didTrackProgress = false
 
-        sut.uploadDataPublisher(mockData, with: mockRequest) { progress in
+        sut.uploadDataPublisher(mockData, with: mockRequest) { _ in
             didTrackProgress = true
         }
         .sink { completion in
@@ -232,7 +231,7 @@ final class DataUploader_Publisher_Tests {
     // MARK: Tracking with Interceptor
 
     @Test("test .uploadDataPublisher() Download Progress Can Be Tracked when Injecting DownloadTaskInterceptor")
-    func test_uploadDataPublisher_DownloadFilePublisherTaskDownloadProgressCanBeTrackedWhenInjectingDownloadTaskInterceptor() {
+    func uploadDataPublisher_DownloadFilePublisherTaskDownloadProgressCanBeTrackedWhenInjectingDownloadTaskInterceptor() {
         let urlSession = createMockURLSession()
 
         var didTrackProgressFromInterceptor = false
@@ -272,13 +271,12 @@ final class DataUploader_Publisher_Tests {
     }
 }
 
-
 // MARK: - helpers
 
 private func createDataUploader(
     urlSession: URLSessionTaskProtocol = createMockURLSession()
 ) -> DataUploader {
-    return DataUploader(urlSession: urlSession)
+    DataUploader(urlSession: urlSession)
 }
 
 private func createMockURLSession(
@@ -290,10 +288,12 @@ private func createMockURLSession(
 }
 
 private func buildResponse(statusCode: Int) -> HTTPURLResponse {
-    HTTPURLResponse(url: URL(string: "https://example.com")!,
-                    statusCode: statusCode,
-                    httpVersion: nil,
-                    headerFields: nil)!
+    HTTPURLResponse(
+        url: URL(string: "https://example.com")!,
+        statusCode: statusCode,
+        httpVersion: nil,
+        headerFields: nil
+    )!
 }
 
 private struct MockRequest: Request {
@@ -304,9 +304,9 @@ private struct MockRequest: Request {
     var body: HTTPBody? { nil }
 }
 
-private extension DataUploader {
+extension DataUploader {
     /// Test-only initializer that mimics the production logic but uses MockFileDownloaderURLSession.
-    convenience init(
+    fileprivate convenience init(
         mockSession: MockDataUploaderURLSession,
         validator: ResponseValidator = ResponseValidatorImpl(),
         requestDecoder: RequestDecodable = RequestDecoder()

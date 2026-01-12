@@ -1,14 +1,13 @@
-@testable import EZNetworking
 import Foundation
 import Testing
+@testable import EZNetworking
 
 @Suite("Test FileUploader async/await methods")
 final class FileUploader_asyncAwait_Tests {
-
     // MARK: - SUCCESS RESPONSE
 
     @Test("test .uploadFile() with all valid inputs does not throw error")
-    func test_uploadFile_withValidInputs_doesNotThrowError() async throws {
+    func uploadFile_withValidInputs_doesNotThrowError() async throws {
         let sut = FileUploader(urlSession: createMockURLSession())
         await #expect(throws: Never.self) {
             try await sut.uploadFile(mockFileURL, with: mockRequest, progress: nil)
@@ -17,12 +16,10 @@ final class FileUploader_asyncAwait_Tests {
 
     // MARK: - FAILURE RESPONSES
 
-
-
     // MARK: http status code error
 
     @Test("test .uploadFile() throws when server responds with 3xx status code")
-    func test_uploadFile_withRedirectStatusCode_throwsError() async throws {
+    func uploadFile_withRedirectStatusCode_throwsError() async throws {
         let session = createMockURLSession(urlResponse: buildResponse(statusCode: 300))
         let sut = createFileUploader(urlSession: session)
         await #expect(throws: NetworkingError.httpError(HTTPError(statusCode: 300))) {
@@ -31,7 +28,7 @@ final class FileUploader_asyncAwait_Tests {
     }
 
     @Test("test .uploadFile() throws when server responds with 4xx status code")
-    func test_uploadFile_withClientErrorStatusCode_throwsError() async throws {
+    func uploadFile_withClientErrorStatusCode_throwsError() async throws {
         let session = createMockURLSession(urlResponse: buildResponse(statusCode: 400))
         let sut = createFileUploader(urlSession: session)
         await #expect(throws: NetworkingError.httpError(HTTPError(statusCode: 400))) {
@@ -40,7 +37,7 @@ final class FileUploader_asyncAwait_Tests {
     }
 
     @Test("test .uploadFile() throws when server responds with 5xx status code")
-    func test_uploadFile_withServerErrorStatusCode_throwsError() async throws {
+    func uploadFile_withServerErrorStatusCode_throwsError() async throws {
         let session = createMockURLSession(urlResponse: buildResponse(statusCode: 500))
         let sut = createFileUploader(urlSession: session)
         await #expect(throws: NetworkingError.httpError(HTTPError(statusCode: 500))) {
@@ -51,7 +48,7 @@ final class FileUploader_asyncAwait_Tests {
     // MARK: URLSession has error
 
     @Test("test .uploadFile() throws when URLSession returns a 300 error")
-    func test_uploadFile_withHTTPError300_throwsError() async throws {
+    func uploadFile_withHTTPError300_throwsError() async throws {
         let session = createMockURLSession(error: HTTPError(statusCode: 300))
         let sut = createFileUploader(urlSession: session)
         await #expect(throws: NetworkingError.internalError(.requestFailed(HTTPError(statusCode: 300)))) {
@@ -60,7 +57,7 @@ final class FileUploader_asyncAwait_Tests {
     }
 
     @Test("test .uploadFile() throws when URLSession returns a 400 error")
-    func test_uploadFile_withHTTPError400_throwsError() async throws {
+    func uploadFile_withHTTPError400_throwsError() async throws {
         let session = createMockURLSession(error: HTTPError(statusCode: 400))
         let sut = createFileUploader(urlSession: session)
         await #expect(throws: NetworkingError.internalError(.requestFailed(HTTPError(statusCode: 400)))) {
@@ -69,7 +66,7 @@ final class FileUploader_asyncAwait_Tests {
     }
 
     @Test("test .uploadFile() throws when URLSession returns a 500 error")
-    func test_uploadFile_withHTTPError500_throwsError() async throws {
+    func uploadFile_withHTTPError500_throwsError() async throws {
         let session = createMockURLSession(error: HTTPError(statusCode: 500))
         let sut = createFileUploader(urlSession: session)
         await #expect(throws: NetworkingError.internalError(.requestFailed(HTTPError(statusCode: 500)))) {
@@ -78,7 +75,7 @@ final class FileUploader_asyncAwait_Tests {
     }
 
     @Test("test .uploadFile() throws when URLSession returns a url error")
-    func test_uploadFile_withNetworkURLError_throwsError() async throws {
+    func uploadFile_withNetworkURLError_throwsError() async throws {
         let networkError = URLError(.notConnectedToInternet)
         let session = createMockURLSession(error: networkError)
         let sut = createFileUploader(urlSession: session)
@@ -90,7 +87,7 @@ final class FileUploader_asyncAwait_Tests {
     // MARK: - Tracking
 
     @Test("test .uploadFile() Download Progress Can Be Tracked")
-    func test_uploadFile_progress_canBeTracked() async throws {
+    func uploadFile_progress_canBeTracked() async throws {
         let urlSession = createMockURLSession()
         urlSession.progressToExecute = [
             .inProgress(percent: 50)
@@ -110,7 +107,7 @@ final class FileUploader_asyncAwait_Tests {
     }
 
     @Test("test .uploadFile() Progress Tracking Happens Before Return")
-    func test_uploadFile_progressTrackingHappensBeforeReturn() async throws {
+    func uploadFile_progressTrackingHappensBeforeReturn() async throws {
         let urlSession = createMockURLSession()
         urlSession.progressToExecute = [
             .inProgress(percent: 50)
@@ -134,7 +131,7 @@ final class FileUploader_asyncAwait_Tests {
     }
 
     @Test("test .uploadFile() Progress Tracking Order")
-    func test_uploadFile_progressTrackingOrder() async throws {
+    func uploadFile_progressTrackingOrder() async throws {
         let urlSession = createMockURLSession()
         urlSession.progressToExecute = [
             .inProgress(percent: 30),
@@ -163,7 +160,7 @@ final class FileUploader_asyncAwait_Tests {
 private func createFileUploader(
     urlSession: URLSessionTaskProtocol = createMockURLSession()
 ) -> FileUploader {
-    return FileUploader(urlSession: urlSession)
+    FileUploader(urlSession: urlSession)
 }
 
 private func createMockURLSession(
@@ -175,10 +172,12 @@ private func createMockURLSession(
 }
 
 private func buildResponse(statusCode: Int) -> HTTPURLResponse {
-    HTTPURLResponse(url: URL(string: "https://example.com")!,
-                    statusCode: statusCode,
-                    httpVersion: nil,
-                    headerFields: nil)!
+    HTTPURLResponse(
+        url: URL(string: "https://example.com")!,
+        statusCode: statusCode,
+        httpVersion: nil,
+        headerFields: nil
+    )!
 }
 
 private struct MockRequest: Request {
@@ -189,9 +188,9 @@ private struct MockRequest: Request {
     var body: HTTPBody? { nil }
 }
 
-private extension FileUploader {
+extension FileUploader {
     /// Test-only initializer that mimics the production logic but uses MockFileDownloaderURLSession.
-    convenience init(
+    fileprivate convenience init(
         mockSession: MockFileUploaderURLSession,
         validator: ResponseValidator = ResponseValidatorImpl(),
         requestDecoder: RequestDecodable = RequestDecoder()

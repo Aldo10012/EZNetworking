@@ -1,10 +1,9 @@
-@testable import EZNetworking
 import Foundation
 import Testing
+@testable import EZNetworking
 
 @Suite("Test URLResponseValidator")
 final class URLResponseValidatorTests {
-
     let sut = ResponseValidatorImpl()
 
     private struct SomeUnknownError: Error {}
@@ -12,19 +11,19 @@ final class URLResponseValidatorTests {
     // MARK: - test validateNoError()
 
     @Test("test validateNoError givenNilError NoThrow")
-    func test_validateNoError_givenNilError_NoThrow() throws {
+    func validateNoError_givenNilError_NoThrow() throws {
         #expect(throws: Never.self) { try sut.validateNoError(nil) }
     }
 
     @Test("test validateNoError givenURLError Throws")
-    func test_validateNoError_givenURLError_Throws() throws {
+    func validateNoError_givenURLError_Throws() throws {
         #expect(throws: NetworkingError.urlError(URLError(.notConnectedToInternet)).self) {
             try sut.validateNoError(URLError(.notConnectedToInternet))
         }
     }
 
     @Test("test validateNoError givenClientError Throws")
-    func test_validateNoError_givenClientError_Throws() throws {
+    func validateNoError_givenClientError_Throws() throws {
         #expect(throws: NetworkingError.internalError(.requestFailed(SomeUnknownError())).self) {
             try sut.validateNoError(SomeUnknownError())
         }
@@ -33,12 +32,12 @@ final class URLResponseValidatorTests {
     // MARK: - test validateData()
 
     @Test("test validateData givenData NoThrow")
-    func test_validateData_givenData_NoThrow() throws {
+    func validateData_givenData_NoThrow() throws {
         #expect(throws: Never.self) { try sut.validateData(MockData.mockPersonJsonData) }
     }
 
     @Test("test validateData givenNilData Throws")
-    func test_validateData_givenNilData_Throws() throws {
+    func validateData_givenNilData_Throws() throws {
         #expect(throws: NetworkingError.internalError(.noData).self) {
             try sut.validateData(nil)
         }
@@ -47,12 +46,12 @@ final class URLResponseValidatorTests {
     // MARK: - test validateUrl()
 
     @Test("test validateUrl givenData NoThrow")
-    func test_validateUrl_givenData_NoThrow() throws {
+    func validateUrl_givenData_NoThrow() throws {
         #expect(throws: Never.self) { try sut.validateUrl(URL(string: "https://www.example.com")!) }
     }
 
     @Test("test validateUrl givenNilData Throws")
-    func test_validateUrl_givenNilData_Throws() throws {
+    func validateUrl_givenNilData_Throws() throws {
         #expect(throws: NetworkingError.internalError(.noURL).self) {
             try sut.validateUrl(nil)
         }
@@ -61,14 +60,14 @@ final class URLResponseValidatorTests {
     // MARK: - test validateStatus()
 
     @Test("test validateStatus givenNilResponse Throws")
-    func test_validateStatus_givenNilResponse_Throws() throws {
+    func validateStatus_givenNilResponse_Throws() throws {
         #expect(throws: NetworkingError.internalError(.noResponse).self) {
             try sut.validateStatus(from: nil)
         }
     }
 
     @Test("test validateStatus givenURLResponse Throws")
-    func test_validateStatus_givenURLResponse_Throws() throws {
+    func validateStatus_givenURLResponse_Throws() throws {
         #expect(throws: NetworkingError.internalError(.noHTTPURLResponse).self) {
             try sut.validateStatus(from: URLResponse())
         }
@@ -77,7 +76,7 @@ final class URLResponseValidatorTests {
     // MARK: 1xx status code
 
     @Test("test validateStatus givenHTTPURLResponseStatusCode100 Throws")
-    func test_validateStatus_givenHTTPURLResponseStatusCode100_Throws() throws {
+    func validateStatus_givenHTTPURLResponseStatusCode100_Throws() throws {
         #expect(throws: NetworkingError.httpError(HTTPError(statusCode: 100)).self) {
             try sut.validateStatus(from: createHttpUrlResponse(statusCode: 100))
         }
@@ -86,14 +85,14 @@ final class URLResponseValidatorTests {
     // MARK: 2xx status code
 
     @Test("test validateStatus givenHTTPURLResponseStatusCode200 NoThrow")
-    func test_validateStatus_givenHTTPURLResponseStatusCode200_NoThrow() throws {
+    func validateStatus_givenHTTPURLResponseStatusCode200_NoThrow() throws {
         #expect(throws: Never.self) { try sut.validateStatus(from: createHttpUrlResponse(statusCode: 200)) }
     }
 
     // MARK: 3xx status code
 
     @Test("test validateStatus givenHTTPURLResponseStatusCode300 Throws")
-    func test_validateStatus_givenHTTPURLResponseStatusCode300_Throws() throws {
+    func validateStatus_givenHTTPURLResponseStatusCode300_Throws() throws {
         #expect(throws: NetworkingError.httpError(HTTPError(statusCode: 300)).self) {
             try sut.validateStatus(from: createHttpUrlResponse(statusCode: 300))
         }
@@ -102,7 +101,7 @@ final class URLResponseValidatorTests {
     // MARK: 4xx status code
 
     @Test("test validateStatus givenHTTPURLResponseStatusCode400 Throws")
-    func test_validateStatus_givenHTTPURLResponseStatusCode400_Throws() throws {
+    func validateStatus_givenHTTPURLResponseStatusCode400_Throws() throws {
         #expect(throws: NetworkingError.httpError(HTTPError(statusCode: 400)).self) {
             try sut.validateStatus(from: createHttpUrlResponse(statusCode: 400))
         }
@@ -111,7 +110,7 @@ final class URLResponseValidatorTests {
     // MARK: 5xx status code
 
     @Test("test validateStatus givenHTTPURLResponseStatusCode500 Throws")
-    func test_validateStatus_givenHTTPURLResponseStatusCode500_Throws() throws {
+    func validateStatus_givenHTTPURLResponseStatusCode500_Throws() throws {
         #expect(throws: NetworkingError.httpError(HTTPError(statusCode: 500)).self) {
             try sut.validateStatus(from: createHttpUrlResponse(statusCode: 500))
         }
@@ -122,10 +121,10 @@ final class URLResponseValidatorTests {
 
 extension URLResponseValidatorTests {
     func createHttpUrlResponse(statusCode: Int) -> HTTPURLResponse {
-        return HTTPURLResponse(url: url, statusCode: statusCode, httpVersion: nil, headerFields: nil)!
+        HTTPURLResponse(url: url, statusCode: statusCode, httpVersion: nil, headerFields: nil)!
     }
 
     var url: URL {
-        return URL(string: "https://example.com")!
+        URL(string: "https://example.com")!
     }
 }

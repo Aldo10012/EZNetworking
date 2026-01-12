@@ -1,12 +1,11 @@
-@testable import EZNetworking
 import Foundation
 import Testing
+@testable import EZNetworking
 
 @Suite("Test HTTPHeaderApplier")
 final class HTTPHeaderApplierTests {
-
     @Test("test allHTTPHeaderFields is set to injected headers")
-    func testAllHTTPHeaderFieldsIsSetToInjectedHeaders() throws {
+    func allHTTPHeaderFieldsIsSetToInjectedHeaders() throws {
         let url = try #require(URL(string: "https://www.example.com"))
         var urlRequest = URLRequest(url: url)
 

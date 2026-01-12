@@ -1,14 +1,13 @@
-@testable import EZNetworking
 import Foundation
 import Testing
+@testable import EZNetworking
 
 @Suite("Test AuthorizationType")
 final class AuthorizationTypeTests {
-
     // MARK: - Standard Authorization Types Tests
 
     @Test("test bearer authorization")
-    func testBearerAuthorization() {
+    func bearerAuthorization() {
         let token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
         let auth = AuthorizationType.bearer(token)
 
@@ -18,7 +17,7 @@ final class AuthorizationTypeTests {
     }
 
     @Test("test basic authorization")
-    func testBasicAuthorization() {
+    func basicAuthorization() {
         let credentials = "dXNlcm5hbWU6cGFzc3dvcmQ="
         let auth = AuthorizationType.basic(credentials)
 
@@ -28,7 +27,7 @@ final class AuthorizationTypeTests {
     }
 
     @Test("test basic authorization with username and password")
-    func testBasicAuthorizationWithUsernameAndPassword() {
+    func basicAuthorizationWithUsernameAndPassword() {
         let auth = AuthorizationType.basic(username: "testuser", password: "testpass")
 
         // The credentials should be base64 encoded "testuser:testpass"
@@ -39,7 +38,7 @@ final class AuthorizationTypeTests {
     }
 
     @Test("test digest authorization")
-    func testDigestAuthorization() {
+    func digestAuthorization() {
         let credentials = "username=\"testuser\", realm=\"testrealm\", nonce=\"123456\""
         let auth = AuthorizationType.digest(credentials)
 
@@ -49,7 +48,7 @@ final class AuthorizationTypeTests {
     }
 
     @Test("test API key authorization")
-    func testApiKeyAuthorization() {
+    func apiKeyAuthorization() {
         let key = "abc123def456"
         let auth = AuthorizationType.apiKey(key)
 
@@ -59,7 +58,7 @@ final class AuthorizationTypeTests {
     }
 
     @Test("test OAuth 1.0 authorization")
-    func testOAuth1Authorization() {
+    func oAuth1Authorization() {
         let credentials = "oauth_consumer_key=\"key\", oauth_token=\"token\""
         let auth = AuthorizationType.oauth1(credentials)
 
@@ -69,7 +68,7 @@ final class AuthorizationTypeTests {
     }
 
     @Test("test OAuth 2.0 authorization with default token type")
-    func testOAuth2AuthorizationWithDefaultTokenType() {
+    func oAuth2AuthorizationWithDefaultTokenType() {
         let token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
         let auth = AuthorizationType.oauth2(token)
 
@@ -79,7 +78,7 @@ final class AuthorizationTypeTests {
     }
 
     @Test("test OAuth 2.0 authorization with custom token type")
-    func testOAuth2AuthorizationWithCustomTokenType() {
+    func oAuth2AuthorizationWithCustomTokenType() {
         let token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
         let tokenType = "MAC"
         let auth = AuthorizationType.oauth2(token, tokenType: tokenType)
@@ -90,7 +89,7 @@ final class AuthorizationTypeTests {
     }
 
     @Test("test AWS4 authorization")
-    func testAws4Authorization() {
+    func aws4Authorization() {
         let signature = "Credential=AKIAIOSFODNN7EXAMPLE/20130524/us-east-1/s3/aws4_request, SignedHeaders=host;x-amz-date, Signature=fe5f80f77d5fa3beca038a248ff027d0445342fe2855ddc963176630326f1024"
         let auth = AuthorizationType.aws4(signature)
 
@@ -100,7 +99,7 @@ final class AuthorizationTypeTests {
     }
 
     @Test("test Hawk authorization")
-    func testHawkAuthorization() {
+    func hawkAuthorization() {
         let credentials = "id=\"dh37fgj492je\", ts=\"1353832234\", nonce=\"j4h3g2\", mac=\"6R4rV5iE+NPoym+WwjeHzjAGXUtLNIxmo1vpMofpLAE=\""
         let auth = AuthorizationType.hawk(credentials)
 
@@ -110,7 +109,7 @@ final class AuthorizationTypeTests {
     }
 
     @Test("test custom authorization")
-    func testCustomAuthorization() {
+    func customAuthorization() {
         let customValue = "CustomScheme customCredentials"
         let auth = AuthorizationType.custom(customValue)
 
@@ -120,7 +119,7 @@ final class AuthorizationTypeTests {
     }
 
     @Test("test custom authorization with single word")
-    func testCustomAuthorizationWithSingleWord() {
+    func customAuthorizationWithSingleWord() {
         let customValue = "SingleWord"
         let auth = AuthorizationType.custom(customValue)
 
@@ -132,7 +131,7 @@ final class AuthorizationTypeTests {
     // MARK: - Convenience Initializer Tests
 
     @Test("test basic convenience initializer")
-    func testBasicConvenienceInitializer() {
+    func basicConvenienceInitializer() {
         let auth = AuthorizationType.basic(username: "alice", password: "secret")
 
         let expectedCredentials = Data("alice:secret".utf8).base64EncodedString()
@@ -142,7 +141,7 @@ final class AuthorizationTypeTests {
     }
 
     @Test("test API key convenience initializer with default header")
-    func testApiKeyConvenienceInitializerWithDefaultHeader() {
+    func apiKeyConvenienceInitializerWithDefaultHeader() {
         let key = "my-api-key-123"
         let auth = AuthorizationType.apiKeyWithHeader(key)
 
@@ -152,7 +151,7 @@ final class AuthorizationTypeTests {
     }
 
     @Test("test API key convenience initializer with custom header")
-    func testApiKeyConvenienceInitializerWithCustomHeader() {
+    func apiKeyConvenienceInitializerWithCustomHeader() {
         let key = "my-api-key-123"
         let headerName = "Authorization-Key"
         let auth = AuthorizationType.apiKeyWithHeader(key, headerName: headerName)
@@ -163,7 +162,7 @@ final class AuthorizationTypeTests {
     }
 
     @Test("test custom scheme convenience initializer")
-    func testCustomSchemeConvenienceInitializer() {
+    func customSchemeConvenienceInitializer() {
         let scheme = "MyAuth"
         let credentials = "my-credentials"
         let auth = AuthorizationType.custom(scheme: scheme, credentials: credentials)
@@ -176,7 +175,7 @@ final class AuthorizationTypeTests {
     // MARK: - Equatable Tests
 
     @Test("test authorization type equality - same cases")
-    func testAuthorizationTypeEqualitySameCases() {
+    func authorizationTypeEqualitySameCases() {
         #expect(AuthorizationType.bearer("token1") == AuthorizationType.bearer("token1"))
         #expect(AuthorizationType.basic("creds1") == AuthorizationType.basic("creds1"))
         #expect(AuthorizationType.apiKey("key1") == AuthorizationType.apiKey("key1"))
@@ -184,7 +183,7 @@ final class AuthorizationTypeTests {
     }
 
     @Test("test authorization type equality - different cases")
-    func testAuthorizationTypeEqualityDifferentCases() {
+    func authorizationTypeEqualityDifferentCases() {
         #expect(AuthorizationType.bearer("token1") != AuthorizationType.bearer("token2"))
         #expect(AuthorizationType.bearer("token1") != AuthorizationType.basic("creds1"))
         #expect(AuthorizationType.basic("creds1") != AuthorizationType.apiKey("key1"))
@@ -192,7 +191,7 @@ final class AuthorizationTypeTests {
     }
 
     @Test("test OAuth2 equality with different token types")
-    func testOAuth2EqualityWithDifferentTokenTypes() {
+    func oAuth2EqualityWithDifferentTokenTypes() {
         let token = "same-token"
         let auth1 = AuthorizationType.oauth2(token, tokenType: "Bearer")
         let auth2 = AuthorizationType.oauth2(token, tokenType: "MAC")
@@ -205,7 +204,7 @@ final class AuthorizationTypeTests {
     // MARK: - Edge Cases Tests
 
     @Test("test empty string credentials")
-    func testEmptyStringCredentials() {
+    func emptyStringCredentials() {
         let auth = AuthorizationType.bearer("")
         #expect(auth.value == "Bearer ")
         #expect(auth.scheme == "Bearer")
@@ -213,7 +212,7 @@ final class AuthorizationTypeTests {
     }
 
     @Test("test special characters in credentials")
-    func testSpecialCharactersInCredentials() {
+    func specialCharactersInCredentials() {
         let credentials = "user@domain.com:pass!word#123"
         let auth = AuthorizationType.basic(username: "user@domain.com", password: "pass!word#123")
 
@@ -222,7 +221,7 @@ final class AuthorizationTypeTests {
     }
 
     @Test("test unicode characters in credentials")
-    func testUnicodeCharactersInCredentials() {
+    func unicodeCharactersInCredentials() {
         let credentials = "用户名:密码"
         let auth = AuthorizationType.basic(username: "用户名", password: "密码")
 
@@ -231,7 +230,7 @@ final class AuthorizationTypeTests {
     }
 
     @Test("test very long credentials")
-    func testVeryLongCredentials() {
+    func veryLongCredentials() {
         let longToken = String(repeating: "a", count: 1000)
         let auth = AuthorizationType.bearer(longToken)
 
@@ -240,7 +239,7 @@ final class AuthorizationTypeTests {
     }
 
     @Test("test custom authorization with multiple spaces")
-    func testCustomAuthorizationWithMultipleSpaces() {
+    func customAuthorizationWithMultipleSpaces() {
         let customValue = "Scheme  multiple   spaces   credentials"
         let auth = AuthorizationType.custom(customValue)
 
@@ -252,7 +251,7 @@ final class AuthorizationTypeTests {
     // MARK: - Scheme and Credentials Extraction Tests
 
     @Test("test scheme extraction from various authorization types")
-    func testSchemeExtractionFromVariousAuthorizationTypes() {
+    func schemeExtractionFromVariousAuthorizationTypes() {
         #expect(AuthorizationType.bearer("token").scheme == "Bearer")
         #expect(AuthorizationType.basic("creds").scheme == "Basic")
         #expect(AuthorizationType.digest("creds").scheme == "Digest")
@@ -264,7 +263,7 @@ final class AuthorizationTypeTests {
     }
 
     @Test("test credentials extraction from various authorization types")
-    func testCredentialsExtractionFromVariousAuthorizationTypes() {
+    func credentialsExtractionFromVariousAuthorizationTypes() {
         let token = "test-token"
         let creds = "test-creds"
         let key = "test-key"
@@ -283,7 +282,7 @@ final class AuthorizationTypeTests {
     // MARK: - Value Format Validation Tests
 
     @Test("test all authorization values contain space separator")
-    func testAllAuthorizationValuesContainSpaceSeparator() {
+    func allAuthorizationValuesContainSpaceSeparator() {
         let allAuthTypes: [AuthorizationType] = [
             .bearer("token"),
             .basic("creds"),
@@ -302,7 +301,7 @@ final class AuthorizationTypeTests {
     }
 
     @Test("test all authorization values start with scheme")
-    func testAllAuthorizationValuesStartWithScheme() {
+    func allAuthorizationValuesStartWithScheme() {
         let allAuthTypes: [AuthorizationType] = [
             .bearer("token"),
             .basic("creds"),
@@ -323,7 +322,7 @@ final class AuthorizationTypeTests {
     // MARK: - Comprehensive Coverage Test
 
     @Test("test all enum cases are covered in switch statement")
-    func testAllEnumCasesAreCoveredInSwitchStatement() {
+    func allEnumCasesAreCoveredInSwitchStatement() {
         // This test ensures that if we add new cases to the enum, we remember to update the switch statement
         let allCases: [AuthorizationType] = [
             .bearer("token"),
@@ -339,9 +338,9 @@ final class AuthorizationTypeTests {
 
         // If this test compiles and runs without crashing, it means all cases are handled
         for auth in allCases {
-            let _ = auth.value
-            let _ = auth.scheme
-            let _ = auth.credentials
+            _ = auth.value
+            _ = auth.scheme
+            _ = auth.credentials
         }
 
         #expect(true) // This test passes if we can access all properties for all cases
@@ -350,7 +349,7 @@ final class AuthorizationTypeTests {
     // MARK: - Real-world Usage Examples
 
     @Test("test JWT token authorization")
-    func testJwtTokenAuthorization() {
+    func jwtTokenAuthorization() {
         let jwtToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
         let auth = AuthorizationType.bearer(jwtToken)
 
@@ -359,7 +358,7 @@ final class AuthorizationTypeTests {
     }
 
     @Test("test GitHub API authorization")
-    func testGitHubApiAuthorization() {
+    func gitHubApiAuthorization() {
         let token = "ghp_1234567890abcdef"
         let auth = AuthorizationType.bearer(token)
 
@@ -367,7 +366,7 @@ final class AuthorizationTypeTests {
     }
 
     @Test("test AWS API authorization")
-    func testAwsApiAuthorization() {
+    func awsApiAuthorization() {
         let signature = "Credential=AKIAIOSFODNN7EXAMPLE/20231201/us-east-1/s3/aws4_request, SignedHeaders=host;x-amz-date, Signature=fe5f80f77d5fa3beca038a248ff027d0445342fe2855ddc963176630326f1024"
         let auth = AuthorizationType.aws4(signature)
 
@@ -375,7 +374,7 @@ final class AuthorizationTypeTests {
     }
 
     @Test("test custom API authorization")
-    func testCustomApiAuthorization() {
+    func customApiAuthorization() {
         let auth = AuthorizationType.custom(scheme: "MyAPI", credentials: "secret-key-123")
 
         #expect(auth.value == "MyAPI secret-key-123")

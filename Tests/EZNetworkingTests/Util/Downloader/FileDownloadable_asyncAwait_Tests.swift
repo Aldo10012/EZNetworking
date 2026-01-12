@@ -1,15 +1,14 @@
 import Combine
-@testable import EZNetworking
 import Foundation
 import Testing
+@testable import EZNetworking
 
 @Suite("Test FileDownloadable async await")
 final class FileDownloadable_AsyncAwait_Tests {
-
     // MARK: SUCCESS
 
     @Test("test .downloadFile() Success")
-    func testDownloadFileSuccess() async throws {
+    func downloadFileSuccess() async throws {
         let sut = createFileDownloader()
 
         do {
@@ -23,7 +22,7 @@ final class FileDownloadable_AsyncAwait_Tests {
     // MARK: ERROR - status code
 
     @Test("test .downloadFile() Fails When StatusCode Is Not 200")
-    func testDownloadFileFailsWhenStatusCodeIsNot200() async throws {
+    func downloadFileFailsWhenStatusCodeIsNot200() async throws {
         let sut = createFileDownloader(
             urlSession: createMockURLSession(statusCode: 400),
             validator: ResponseValidatorImpl()
@@ -32,7 +31,7 @@ final class FileDownloadable_AsyncAwait_Tests {
         do {
             _ = try await sut.downloadFile(from: testURL)
             Issue.record("unexpected error")
-        } catch let error as NetworkingError{
+        } catch let error as NetworkingError {
             #expect(error == NetworkingError.httpError(HTTPError(statusCode: 400)))
         }
     }
@@ -40,7 +39,7 @@ final class FileDownloadable_AsyncAwait_Tests {
     // MARK: ERROR - validation
 
     @Test("test .downloadFile() Fails When Validator Throws AnyError")
-    func testDownloadFileFailsWhenValidatorThrowsAnyError() async throws {
+    func downloadFileFailsWhenValidatorThrowsAnyError() async throws {
         let sut = createFileDownloader(
             validator: MockURLResponseValidator(throwError: NetworkingError.internalError(.noData))
         )
@@ -56,7 +55,7 @@ final class FileDownloadable_AsyncAwait_Tests {
     // MARK: ERROR - urlSession
 
     @Test("test .downloadFile() Fails When urlSession Error Is Not Nil")
-    func testDownloadFileFailsWhenErrorIsNotNil() async throws {
+    func downloadFileFailsWhenErrorIsNotNil() async throws {
         let sut = createFileDownloader(
             urlSession: createMockURLSession(error: NetworkingError.internalError(.unknown))
         )
@@ -64,7 +63,7 @@ final class FileDownloadable_AsyncAwait_Tests {
         do {
             _ = try await sut.downloadFile(from: testURL)
             Issue.record("unexpected error")
-        } catch let error as NetworkingError{
+        } catch let error as NetworkingError {
             #expect(error == NetworkingError.internalError(.requestFailed(NetworkingError.internalError(.unknown))))
         }
     }
@@ -72,7 +71,7 @@ final class FileDownloadable_AsyncAwait_Tests {
     // MARK: Tracking
 
     @Test("test .downloadFile() Download Progress Can Be Tracked")
-    func testDownloadFileDownloadProgressCanBeTracked() async throws {
+    func downloadFileDownloadProgressCanBeTracked() async throws {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = createMockURLSession()
 
@@ -84,7 +83,7 @@ final class FileDownloadable_AsyncAwait_Tests {
         var didTrackProgress = false
 
         do {
-            _ = try await sut.downloadFile(from: testURL, progress: { value in
+            _ = try await sut.downloadFile(from: testURL, progress: { _ in
                 didTrackProgress = true
             })
             #expect(didTrackProgress)
@@ -94,7 +93,7 @@ final class FileDownloadable_AsyncAwait_Tests {
     }
 
     @Test("test .downloadFile() Download Progress Tracking Happens Before Return")
-    func testDownloadFileDownloadProgressTrackingHapensBeforeReturn() async throws {
+    func downloadFileDownloadProgressTrackingHapensBeforeReturn() async throws {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = createMockURLSession()
 
@@ -106,7 +105,7 @@ final class FileDownloadable_AsyncAwait_Tests {
         var didTrackProgressBeforeReturn: Bool? = nil
 
         do {
-            _ = try await sut.downloadFile(from: testURL, progress: { value in
+            _ = try await sut.downloadFile(from: testURL, progress: { _ in
                 if didTrackProgressBeforeReturn == nil {
                     didTrackProgressBeforeReturn = true
                 }
@@ -123,7 +122,7 @@ final class FileDownloadable_AsyncAwait_Tests {
     }
 
     @Test("test .downloadFile() Download Progress Tracking Order")
-    func testDownloadFileDownloadProgressTrackingOrder() async throws {
+    func downloadFileDownloadProgressTrackingOrder() async throws {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = createMockURLSession()
 
@@ -151,7 +150,7 @@ final class FileDownloadable_AsyncAwait_Tests {
     // MARK: Traching with delegate
 
     @Test("test .downloadFile() Download Progress Can Be Tracked when Injecting SessionDelegate")
-    func testDownloadFileDownloadProgressCanBeTrackedWhenInjectingSessionDelegate() async throws {
+    func downloadFileDownloadProgressCanBeTrackedWhenInjectingSessionDelegate() async throws {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = createMockURLSession()
 
@@ -169,7 +168,7 @@ final class FileDownloadable_AsyncAwait_Tests {
         var didTrackProgress = false
 
         do {
-            _ = try await sut.downloadFile(from: testURL, progress: { value in
+            _ = try await sut.downloadFile(from: testURL, progress: { _ in
                 didTrackProgress = true
             })
             #expect(didTrackProgress)
@@ -181,7 +180,7 @@ final class FileDownloadable_AsyncAwait_Tests {
     // MARK: Traching with interceptor
 
     @Test("test .downloadFile() Download Progress Can Be Tracked when Injecting DownloadTaskInterceptor")
-    func testDownloadFileDownloadProgressCanBeTrackedWhenInjectingDownloadTaskInterceptor() async throws {
+    func downloadFileDownloadProgressCanBeTrackedWhenInjectingDownloadTaskInterceptor() async throws {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = createMockURLSession()
 
@@ -203,7 +202,6 @@ final class FileDownloadable_AsyncAwait_Tests {
             sessionDelegate: delegate
         )
 
-
         do {
             _ = try await sut.downloadFile(from: testURL, progress: nil)
             #expect(didTrackProgressFromInterceptor)
@@ -212,7 +210,6 @@ final class FileDownloadable_AsyncAwait_Tests {
             Issue.record()
         }
     }
-
 }
 
 // MARK: helpers
@@ -224,7 +221,7 @@ private func createFileDownloader(
     validator: ResponseValidator = ResponseValidatorImpl(),
     requestDecoder: RequestDecodable = RequestDecoder()
 ) -> FileDownloader {
-    return FileDownloader(
+    FileDownloader(
         urlSession: urlSession,
         validator: validator,
         requestDecoder: requestDecoder
@@ -236,7 +233,7 @@ private func createMockURLSession(
     statusCode: Int = 200,
     error: Error? = nil
 ) -> MockFileDownloaderURLSession {
-    return MockFileDownloaderURLSession(
+    MockFileDownloaderURLSession(
         url: url,
         urlResponse: buildResponse(statusCode: statusCode),
         error: error
@@ -244,13 +241,16 @@ private func createMockURLSession(
 }
 
 private func buildResponse(statusCode: Int) -> HTTPURLResponse {
-    HTTPURLResponse(url: URL(string: "https://example.com")!,
-                    statusCode: statusCode,
-                    httpVersion: nil,
-                    headerFields: nil)!
+    HTTPURLResponse(
+        url: URL(string: "https://example.com")!,
+        statusCode: statusCode,
+        httpVersion: nil,
+        headerFields: nil
+    )!
 }
 
 // MARK: test init extension
+
 extension FileDownloader {
     /// Test-only initializer that mimics the production logic but uses MockFileDownloaderURLSession.
     convenience init(

@@ -1,13 +1,12 @@
-@testable import EZNetworking
 import Testing
+@testable import EZNetworking
 
 @Suite("Test MimeType")
 final class MimeTypeTests {
-
     // MARK: - Application Types Tests
 
     @Test("test application MIME types")
-    func testApplicationMimeTypes() {
+    func applicationMimeTypes() {
         #expect(MimeType.json.value == "application/json")
         #expect(MimeType.xml.value == "application/xml")
         #expect(MimeType.formUrlEncoded.value == "application/x-www-form-urlencoded")
@@ -22,7 +21,7 @@ final class MimeTypeTests {
     // MARK: - Text Types Tests
 
     @Test("test text MIME types")
-    func testTextMimeTypes() {
+    func textMimeTypes() {
         #expect(MimeType.plain.value == "text/plain")
         #expect(MimeType.html.value == "text/html")
         #expect(MimeType.css.value == "text/css")
@@ -34,7 +33,7 @@ final class MimeTypeTests {
     // MARK: - Image Types Tests
 
     @Test("test image MIME types")
-    func testImageMimeTypes() {
+    func imageMimeTypes() {
         #expect(MimeType.jpeg.value == "image/jpeg")
         #expect(MimeType.png.value == "image/png")
         #expect(MimeType.gif.value == "image/gif")
@@ -48,7 +47,7 @@ final class MimeTypeTests {
     // MARK: - Video Types Tests
 
     @Test("test video MIME types")
-    func testVideoMimeTypes() {
+    func videoMimeTypes() {
         #expect(MimeType.mp4.value == "video/mp4")
         #expect(MimeType.avi.value == "video/x-msvideo")
         #expect(MimeType.mov.value == "video/quicktime")
@@ -62,7 +61,7 @@ final class MimeTypeTests {
     // MARK: - Audio Types Tests
 
     @Test("test audio MIME types")
-    func testAudioMimeTypes() {
+    func audioMimeTypes() {
         #expect(MimeType.mp3.value == "audio/mpeg")
         #expect(MimeType.wav.value == "audio/wav")
         #expect(MimeType.ogg.value == "audio/ogg")
@@ -75,7 +74,7 @@ final class MimeTypeTests {
     // MARK: - Font Types Tests
 
     @Test("test font MIME types")
-    func testFontMimeTypes() {
+    func fontMimeTypes() {
         #expect(MimeType.ttf.value == "font/ttf")
         #expect(MimeType.otf.value == "font/otf")
         #expect(MimeType.woff.value == "font/woff")
@@ -93,13 +92,13 @@ final class MimeTypeTests {
     }
 
     @Test("test custom MIME type with empty string")
-    func testCustomMimeTypeWithEmptyString() {
+    func customMimeTypeWithEmptyString() {
         let customMimeType = MimeType.custom("")
         #expect(customMimeType.value == "")
     }
 
     @Test("test custom MIME type with special characters")
-    func testCustomMimeTypeWithSpecialCharacters() {
+    func customMimeTypeWithSpecialCharacters() {
         let customValue = "application/json; charset=utf-8"
         let customMimeType = MimeType.custom(customValue)
         #expect(customMimeType.value == customValue)
@@ -108,7 +107,7 @@ final class MimeTypeTests {
     // MARK: - Equatable Tests
 
     @Test("test MimeType equality - same cases")
-    func testMimeTypeEqualitySameCases() {
+    func mimeTypeEqualitySameCases() {
         #expect(MimeType.json == MimeType.json)
         #expect(MimeType.xml == MimeType.xml)
         #expect(MimeType.png == MimeType.png)
@@ -118,7 +117,7 @@ final class MimeTypeTests {
     }
 
     @Test("test MimeType equality - different cases")
-    func testMimeTypeEqualityDifferentCases() {
+    func mimeTypeEqualityDifferentCases() {
         #expect(MimeType.json != MimeType.xml)
         #expect(MimeType.png != MimeType.jpeg)
         #expect(MimeType.mp4 != MimeType.avi)
@@ -127,7 +126,7 @@ final class MimeTypeTests {
     }
 
     @Test("test MimeType equality - custom cases")
-    func testMimeTypeEqualityCustomCases() {
+    func mimeTypeEqualityCustomCases() {
         let custom1 = MimeType.custom("application/json")
         let custom2 = MimeType.custom("application/json")
         let custom3 = MimeType.custom("application/xml")
@@ -138,7 +137,7 @@ final class MimeTypeTests {
     }
 
     @Test("test MimeType equality - custom vs predefined")
-    func testMimeTypeEqualityCustomVsPredefined() {
+    func mimeTypeEqualityCustomVsPredefined() {
         let customJson = MimeType.custom("application/json")
         let predefinedJson = MimeType.json
 
@@ -149,7 +148,7 @@ final class MimeTypeTests {
     // MARK: - Comprehensive Value Tests
 
     @Test("test all MIME type values are non-empty")
-    func testAllMimeTypeValuesAreNonEmpty() {
+    func allMimeTypeValuesAreNonEmpty() {
         let allMimeTypes: [MimeType] = [
             // Application Types
             .json, .xml, .formUrlEncoded, .multipartFormData(boundary: ""), .pdf, .zip, .octetStream, .javascript, .wasm,
@@ -171,7 +170,7 @@ final class MimeTypeTests {
     }
 
     @Test("test MIME type values contain forward slash")
-    func testMimeTypeValuesContainForwardSlash() {
+    func mimeTypeValuesContainForwardSlash() {
         let allMimeTypes: [MimeType] = [
             // Application Types
             .json, .xml, .formUrlEncoded, .multipartFormData(boundary: ""), .pdf, .zip, .octetStream, .javascript, .wasm,
@@ -195,14 +194,14 @@ final class MimeTypeTests {
     // MARK: - Edge Cases Tests
 
     @Test("test custom MIME type with very long string")
-    func testCustomMimeTypeWithVeryLongString() {
+    func customMimeTypeWithVeryLongString() {
         let longString = String(repeating: "a", count: 1000)
         let customMimeType = MimeType.custom(longString)
         #expect(customMimeType.value == longString)
     }
 
     @Test("test custom MIME type with unicode characters")
-    func testCustomMimeTypeWithUnicodeCharacters() {
+    func customMimeTypeWithUnicodeCharacters() {
         let unicodeString = "application/测试; charset=utf-8"
         let customMimeType = MimeType.custom(unicodeString)
         #expect(customMimeType.value == unicodeString)
@@ -211,18 +210,20 @@ final class MimeTypeTests {
     // MARK: - Pattern Validation Tests
 
     @Test("test application MIME types follow correct pattern")
-    func testApplicationMimeTypesFollowCorrectPattern() {
+    func applicationMimeTypesFollowCorrectPattern() {
         let applicationTypes: [MimeType] = [.json, .xml, .formUrlEncoded, .multipartFormData(boundary: ""), .pdf, .zip, .octetStream, .javascript, .wasm]
 
         for mimeType in applicationTypes {
             let value = mimeType.value
-            #expect(value.hasPrefix("application/") || value.hasPrefix("multipart/"),
-                    "Application MIME type \(mimeType) should start with 'application/' or 'multipart/'")
+            #expect(
+                value.hasPrefix("application/") || value.hasPrefix("multipart/"),
+                "Application MIME type \(mimeType) should start with 'application/' or 'multipart/'"
+            )
         }
     }
 
     @Test("test text MIME types follow correct pattern")
-    func testTextMimeTypesFollowCorrectPattern() {
+    func textMimeTypesFollowCorrectPattern() {
         let textTypes: [MimeType] = [.plain, .html, .css, .csv, .rtf, .xmlText]
 
         for mimeType in textTypes {
@@ -232,7 +233,7 @@ final class MimeTypeTests {
     }
 
     @Test("test image MIME types follow correct pattern")
-    func testImageMimeTypesFollowCorrectPattern() {
+    func imageMimeTypesFollowCorrectPattern() {
         let imageTypes: [MimeType] = [.jpeg, .png, .gif, .webp, .svg, .bmp, .ico, .tiff]
 
         for mimeType in imageTypes {
@@ -242,7 +243,7 @@ final class MimeTypeTests {
     }
 
     @Test("test video MIME types follow correct pattern")
-    func testVideoMimeTypesFollowCorrectPattern() {
+    func videoMimeTypesFollowCorrectPattern() {
         let videoTypes: [MimeType] = [.mp4, .avi, .mov, .wmv, .flv, .webm, .mkv, .quicktime]
 
         for mimeType in videoTypes {
@@ -252,7 +253,7 @@ final class MimeTypeTests {
     }
 
     @Test("test audio MIME types follow correct pattern")
-    func testAudioMimeTypesFollowCorrectPattern() {
+    func audioMimeTypesFollowCorrectPattern() {
         let audioTypes: [MimeType] = [.mp3, .wav, .ogg, .aac, .flac, .m4a, .wma]
 
         for mimeType in audioTypes {
@@ -262,20 +263,22 @@ final class MimeTypeTests {
     }
 
     @Test("test font MIME types follow correct pattern")
-    func testFontMimeTypesFollowCorrectPattern() {
+    func fontMimeTypesFollowCorrectPattern() {
         let fontTypes: [MimeType] = [.ttf, .otf, .woff, .woff2, .eot]
 
         for mimeType in fontTypes {
             let value = mimeType.value
-            #expect(value.hasPrefix("font/") || value.hasPrefix("application/"),
-                    "Font MIME type \(mimeType) should start with 'font/' or 'application/'")
+            #expect(
+                value.hasPrefix("font/") || value.hasPrefix("application/"),
+                "Font MIME type \(mimeType) should start with 'font/' or 'application/'"
+            )
         }
     }
 
     // MARK: - Specific Value Validation Tests
 
     @Test("test specific MIME type values match expected standards")
-    func testSpecificMimeTypeValuesMatchExpectedStandards() {
+    func specificMimeTypeValuesMatchExpectedStandards() {
         // Test some well-known MIME types
         #expect(MimeType.json.value == "application/json")
         #expect(MimeType.html.value == "text/html")
@@ -290,7 +293,7 @@ final class MimeTypeTests {
     // MARK: - Comprehensive Coverage Test
 
     @Test("test all enum cases are covered in switch statement")
-    func testAllEnumCasesAreCoveredInSwitchStatement() {
+    func allEnumCasesAreCoveredInSwitchStatement() {
         // This test ensures that if we add new cases to the enum, we remember to update the switch statement
         let allCases: [MimeType] = [
             // Application Types
@@ -311,7 +314,7 @@ final class MimeTypeTests {
 
         // If this test compiles and runs without crashing, it means all cases are handled
         for mimeType in allCases {
-            let _ = mimeType.value
+            _ = mimeType.value
         }
 
         #expect(true) // This test passes if we can access .value for all cases

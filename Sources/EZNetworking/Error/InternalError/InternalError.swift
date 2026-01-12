@@ -20,30 +20,30 @@ public enum InternalError: Error {
 }
 
 extension InternalError: Equatable {
-    public static func ==(lhs: InternalError, rhs: InternalError) -> Bool {
+    public static func == (lhs: InternalError, rhs: InternalError) -> Bool {
         switch (lhs, rhs) {
         case (.unknown, .unknown),
-            (.noURL, .noURL),
-            (.invalidURL, .invalidURL),
-            (.missingHost, .missingHost),
-            (.couldNotParse, .couldNotParse),
-            (.invalidError, .invalidError),
-            (.noData, .noData),
-            (.noResponse, .noResponse),
-            (.noRequest, .noRequest),
-            (.noHTTPURLResponse, .noHTTPURLResponse),
-            (.invalidImageData, .invalidImageData),
-            (.lostReferenceOfSelf, .lostReferenceOfSelf):
-            return true
+             (.noURL, .noURL),
+             (.invalidURL, .invalidURL),
+             (.missingHost, .missingHost),
+             (.couldNotParse, .couldNotParse),
+             (.invalidError, .invalidError),
+             (.noData, .noData),
+             (.noResponse, .noResponse),
+             (.noRequest, .noRequest),
+             (.noHTTPURLResponse, .noHTTPURLResponse),
+             (.invalidImageData, .invalidImageData),
+             (.lostReferenceOfSelf, .lostReferenceOfSelf):
+            true
 
         case let (.requestFailed(lhsError), .requestFailed(rhsError)):
-            return (lhsError as NSError) == (rhsError as NSError)
+            (lhsError as NSError) == (rhsError as NSError)
 
         case let (.invalidScheme(lhsScheme), .invalidScheme(rhsScheme)):
-            return lhsScheme == rhsScheme
+            lhsScheme == rhsScheme
 
         default:
-            return false
+            false
         }
     }
 }

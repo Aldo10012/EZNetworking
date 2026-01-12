@@ -18,8 +18,8 @@ public protocol WebSocketTaskProtocol {
     var closeReason: Data? { get }
 }
 
-public extension WebSocketTaskProtocol {
-    func sendPing() async throws {
+extension WebSocketTaskProtocol {
+    public func sendPing() async throws {
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
             sendPing { error in
                 if let error {

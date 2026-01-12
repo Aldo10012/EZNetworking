@@ -2,7 +2,7 @@ import Combine
 import Foundation
 
 /// Default implementation of DownloadTaskInterceptor
-internal class DefaultDownloadTaskInterceptor: DownloadTaskInterceptor {
+class DefaultDownloadTaskInterceptor: DownloadTaskInterceptor {
     var progress: (Double) -> Void
 
     init(progress: @escaping (Double) -> Void = { _ in }) {

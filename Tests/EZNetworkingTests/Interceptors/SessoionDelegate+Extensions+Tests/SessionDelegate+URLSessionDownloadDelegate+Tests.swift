@@ -1,12 +1,11 @@
-@testable import EZNetworking
 import Foundation
 import Testing
+@testable import EZNetworking
 
 @Suite("Test SessionDelegateURLSessionDownloadDelegate")
 final class SessionDelegateURLSessionDownloadDelegateTests {
-
     @Test("test SessionDelegate DidFinishDownloadingTo")
-    func testSessionDelegateDidFinishDownloadingTo() {
+    func sessionDelegateDidFinishDownloadingTo() {
         let downloadTaskInterceptor = MockDownloadTaskInterceptor()
         let delegate = SessionDelegate()
         delegate.downloadTaskInterceptor = downloadTaskInterceptor
@@ -18,7 +17,7 @@ final class SessionDelegateURLSessionDownloadDelegateTests {
     }
 
     @Test("test SessionDelegat eDidWriteData")
-    func testSessionDelegateDidWriteData() {
+    func sessionDelegateDidWriteData() {
         let downloadTaskInterceptor = MockDownloadTaskInterceptor()
         let delegate = SessionDelegate()
         delegate.downloadTaskInterceptor = downloadTaskInterceptor
@@ -29,7 +28,7 @@ final class SessionDelegateURLSessionDownloadDelegateTests {
     }
 
     @Test("test SessionDelegate DidResumeAtOffset")
-    func testSessionDelegateDidResumeAtOffset() {
+    func sessionDelegateDidResumeAtOffset() {
         let downloadTaskInterceptor = MockDownloadTaskInterceptor()
         let delegate = SessionDelegate()
         delegate.downloadTaskInterceptor = downloadTaskInterceptor
@@ -38,8 +37,8 @@ final class SessionDelegateURLSessionDownloadDelegateTests {
 
         #expect(downloadTaskInterceptor.didResumeAtOffset)
     }
-
 }
+
 // MARK: mock class
 
 private class MockDownloadTaskInterceptor: DownloadTaskInterceptor {

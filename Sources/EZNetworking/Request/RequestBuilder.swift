@@ -16,19 +16,19 @@ public class RequestBuilderImpl: RequestBuilder {
     private var baseUrlString: String?
     private var parameters: [HTTPParameter]?
     private var headers: [HTTPHeader]?
-    private var body: HTTPBody? = nil
+    private var body: HTTPBody?
     private var timeoutInterval: TimeInterval?
     private var cachePolicy: URLRequest.CachePolicy = .useProtocolCachePolicy
 
-    public init() { }
+    public init() {}
 
     public func setHttpMethod(_ method: HTTPMethod) -> RequestBuilder {
-        self.httpMethod = method
+        httpMethod = method
         return self
     }
 
     public func setBaseUrl(_ baseUrl: String) -> RequestBuilder {
-        self.baseUrlString = baseUrl
+        baseUrlString = baseUrl
         return self
     }
 

@@ -1,11 +1,10 @@
-@testable import EZNetworking
 import Testing
+@testable import EZNetworking
 
 @Suite("Test HTTPRedirectionStatus")
 final class HTTPRedirectionStatusTests {
-
     @Test("test HTTPRedirectionStatus maps status code to description", arguments: zip(map.keys, map.values))
-    func testHTTPRedirectionStatusMapsStatusCodeToDescription(statusCode: Int, description: String) {
+    func hTTPRedirectionStatusMapsStatusCodeToDescription(statusCode: Int, description: String) {
         #expect(HTTPRedirectionStatus.description(from: statusCode) == description)
     }
 

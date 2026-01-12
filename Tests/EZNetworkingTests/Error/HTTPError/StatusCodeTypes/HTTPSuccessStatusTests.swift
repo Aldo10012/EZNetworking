@@ -1,11 +1,10 @@
-@testable import EZNetworking
 import Testing
+@testable import EZNetworking
 
 @Suite("Test HTTPSuccessStatus")
 final class HTTPSuccessStatusTests {
-
     @Test("test HTTPSuccessStatus maps status code to description", arguments: zip(map.keys, map.values))
-    func testHTTPSuccessStatusMapsStatusCodeToDescription(statusCode: Int, description: String) {
+    func hTTPSuccessStatusMapsStatusCodeToDescription(statusCode: Int, description: String) {
         #expect(HTTPSuccessStatus.description(from: statusCode) == description)
     }
 

@@ -1,17 +1,16 @@
 import Combine
-@testable import EZNetworking
 import Foundation
 import Testing
+@testable import EZNetworking
 
 @Suite("Test FileDownloadable publishers")
 final class FileDownloadable_publisher_Tests {
-
     private var cancellables = Set<AnyCancellable>()
 
     // MARK: SUCCESS
 
     @Test("test .downloadFilePublisher() Success")
-    func testDownloadFilePublisherSuccess() {
+    func downloadFilePublisherSuccess() {
         let sut = createFileDownloader()
 
         var didExecute = false
@@ -33,7 +32,7 @@ final class FileDownloadable_publisher_Tests {
     // MARK: ERROR - status code
 
     @Test("test .downloadFilePublisher() Fails When Status Code Is Not 200")
-    func testDownloadFilePublisherFailsWhenStatusCodeIsNot200() {
+    func downloadFilePublisherFailsWhenStatusCodeIsNot200() {
         let sut = createFileDownloader(
             urlSession: createMockURLSession(statusCode: 400)
         )
@@ -42,7 +41,7 @@ final class FileDownloadable_publisher_Tests {
         sut.downloadFilePublisher(from: testURL, progress: nil)
             .sink { completion in
                 switch completion {
-                case .failure(let error):
+                case let .failure(error):
                     #expect(error == NetworkingError.httpError(HTTPError(statusCode: 400)))
                     didExecute = true
                 case .finished: Issue.record()
@@ -58,7 +57,7 @@ final class FileDownloadable_publisher_Tests {
     // MARK: ERROR - validation
 
     @Test("test .downloadFilePublisher() Fails If Validator Throws Any Error")
-    func testDownloadFilePublisherFailsIfValidatorThrowsAnyError() {
+    func downloadFilePublisherFailsIfValidatorThrowsAnyError() {
         let sut = createFileDownloader(
             validator: MockURLResponseValidator(throwError: NetworkingError.internalError(.noData))
         )
@@ -67,7 +66,7 @@ final class FileDownloadable_publisher_Tests {
         sut.downloadFilePublisher(from: testURL, progress: nil)
             .sink { completion in
                 switch completion {
-                case .failure(let error):
+                case let .failure(error):
                     #expect(error == NetworkingError.internalError(.noData))
                     didExecute = true
                 case .finished: Issue.record()
@@ -83,7 +82,7 @@ final class FileDownloadable_publisher_Tests {
     // MARK: ERROR - url session
 
     @Test("test .downloadFilePublisher() Fails When URLSession Has Error")
-    func testDownloadFilePublisherFailsWhenUrlSessionHasError() {
+    func downloadFilePublisherFailsWhenUrlSessionHasError() {
         let sut = createFileDownloader(
             urlSession: createMockURLSession(error: HTTPError(statusCode: 500))
         )
@@ -92,7 +91,7 @@ final class FileDownloadable_publisher_Tests {
         sut.downloadFilePublisher(from: testURL, progress: nil)
             .sink { completion in
                 switch completion {
-                case .failure(let error):
+                case let .failure(error):
                     #expect(error == NetworkingError.internalError(.requestFailed(HTTPError(statusCode: 500))))
                     didExecute = true
                 case .finished: Issue.record()
@@ -108,7 +107,7 @@ final class FileDownloadable_publisher_Tests {
     // MARK: Tracking with callbacks
 
     @Test("test .downloadFilePublisher() Download Progress Can Be Tracked")
-    func testDownloadFilePublisherTaskDownloadProgressCanBeTracked() {
+    func downloadFilePublisherTaskDownloadProgressCanBeTracked() {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = createMockURLSession()
 
@@ -139,7 +138,7 @@ final class FileDownloadable_publisher_Tests {
     }
 
     @Test("test .downloadFilePublisher() Download Progress Tracking Happens Before Return")
-    func testDownloadFilePublisherTaskDownloadProgressTrackingHappensBeforeReturn() {
+    func downloadFilePublisherTaskDownloadProgressTrackingHappensBeforeReturn() {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = createMockURLSession()
 
@@ -171,7 +170,7 @@ final class FileDownloadable_publisher_Tests {
     }
 
     @Test("test .downloadFilePublisher() Download Progress Tracks Correct Order")
-    func testDownloadFilePublisherTaskDownloadProgressTracksCorrectOrder() {
+    func downloadFilePublisherTaskDownloadProgressTracksCorrectOrder() {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = createMockURLSession()
 
@@ -194,7 +193,7 @@ final class FileDownloadable_publisher_Tests {
             case .finished: break
             }
         } receiveValue: { _ in }
-            .store(in: &cancellables)
+        .store(in: &cancellables)
 
         #expect(capturedTracking.count == 4)
         #expect(capturedTracking == [0.3, 0.6, 0.9, 1.0])
@@ -203,7 +202,7 @@ final class FileDownloadable_publisher_Tests {
     // MARK: Tracking with delegate
 
     @Test("test .downloadFilePublisher() Download Progress Can Be Tracked when Injecting SessionDelegat")
-    func testDownloadFilePublisherTaskDownloadProgressCanBeTrackedWhenInjectingSessionDelegate() {
+    func downloadFilePublisherTaskDownloadProgressCanBeTrackedWhenInjectingSessionDelegate() {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = createMockURLSession()
 
@@ -242,7 +241,7 @@ final class FileDownloadable_publisher_Tests {
     // MARK: Tracking with Interceptor
 
     @Test("test .downloadFilePublisher() Download Progress Can Be Tracked when Injecting DownloadTaskInterceptor")
-    func testDownloadFilePublisherTaskDownloadProgressCanBeTrackedWhenInjectingDownloadTaskInterceptor() {
+    func downloadFilePublisherTaskDownloadProgressCanBeTrackedWhenInjectingDownloadTaskInterceptor() {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = createMockURLSession()
 
@@ -293,7 +292,7 @@ private func createFileDownloader(
     validator: ResponseValidator = ResponseValidatorImpl(),
     requestDecoder: RequestDecodable = RequestDecoder()
 ) -> FileDownloader {
-    return FileDownloader(
+    FileDownloader(
         urlSession: urlSession,
         validator: validator,
         requestDecoder: requestDecoder
@@ -305,7 +304,7 @@ private func createMockURLSession(
     statusCode: Int = 200,
     error: Error? = nil
 ) -> MockFileDownloaderURLSession {
-    return MockFileDownloaderURLSession(
+    MockFileDownloaderURLSession(
         url: url,
         urlResponse: buildResponse(statusCode: statusCode),
         error: error
@@ -313,8 +312,10 @@ private func createMockURLSession(
 }
 
 private func buildResponse(statusCode: Int) -> HTTPURLResponse {
-    HTTPURLResponse(url: URL(string: "https://example.com")!,
-                    statusCode: statusCode,
-                    httpVersion: nil,
-                    headerFields: nil)!
+    HTTPURLResponse(
+        url: URL(string: "https://example.com")!,
+        statusCode: statusCode,
+        httpVersion: nil,
+        headerFields: nil
+    )!
 }

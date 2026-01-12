@@ -1,12 +1,11 @@
-@testable import EZNetworking
 import Foundation
 import Testing
+@testable import EZNetworking
 
 @Suite("Test RequestBuilder")
 final class RequestBuilderTests {
-
     @Test("test BuildURLRequest with valid parameters")
-    func testBuildURLRequestWithValidParameters() {
+    func buildURLRequestWithValidParameters() {
         let builder = RequestBuilderImpl()
         let urlString = "https://example.com/api"
         let httpMethod = HTTPMethod.POST
@@ -41,7 +40,7 @@ final class RequestBuilderTests {
     }
 
     @Test("test BuildURLRequest with no parameters and headers")
-    func testBuildURLRequestWithNoParametersAndHeaders() {
+    func buildURLRequestWithNoParametersAndHeaders() {
         let builder = RequestBuilderImpl()
         let urlString = "https://example.com/api"
         let httpMethod = HTTPMethod.PUT
@@ -61,5 +60,4 @@ final class RequestBuilderTests {
         #expect(request?.headers == nil)
         #expect(request?.cachePolicy == .useProtocolCachePolicy)
     }
-
 }

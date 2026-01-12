@@ -1,22 +1,21 @@
-@testable import EZNetworking
 import Foundation
 import Testing
+@testable import EZNetworking
 
 @Suite("Test HTTPBody")
 class HTTPBodyTests {
-
     @Test("test Data is HTTPBody")
-    func testDataIsHTTPBody() {
+    func dataIsHTTPBody() {
         #expect(Data() is HTTPBody)
     }
 
     @Test("test Data is DataConvertible")
-    func testDataIsDataConvertible() {
+    func dataIsDataConvertible() {
         #expect(Data() is DataConvertible)
     }
 
     @Test("test Data is equal to data.toData()")
-    func testDataIsEqualToDataToData() {
+    func dataIsEqualToDataToData() {
         let data = Data()
         #expect(data == data.toData())
     }

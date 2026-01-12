@@ -1,12 +1,11 @@
-@testable import EZNetworking
 import Foundation
 import Testing
+@testable import EZNetworking
 
 @Suite("Test SessionDelegateURLSessionWebSocketDelegate")
 final class SessionDelegateURLSessionWebSocketDelegateTests {
-
     @Test("test SessionDelegate WebSocket DidOpenWithProtocol")
-    func testSessionDelegateWebSocketDidOpenWithProtocol() {
+    func sessionDelegateWebSocketDidOpenWithProtocol() {
         let webSocketInterceptor = SpyWebSocketTaskInterceptor()
         let delegate = SessionDelegate()
         delegate.webSocketTaskInterceptor = webSocketInterceptor
@@ -20,7 +19,7 @@ final class SessionDelegateURLSessionWebSocketDelegateTests {
     }
 
     @Test("test SessionDelegate WebSocket DidCloseWithCodeAndReason")
-    func testSessionDelegateWebSocketDidCloseWithCodeAndReason() {
+    func sessionDelegateWebSocketDidCloseWithCodeAndReason() {
         let webSocketInterceptor = SpyWebSocketTaskInterceptor()
         let delegate = SessionDelegate()
         delegate.webSocketTaskInterceptor = webSocketInterceptor
@@ -35,11 +34,10 @@ final class SessionDelegateURLSessionWebSocketDelegateTests {
     }
 
     @Test("test SessionDelegate WebSocket didCompleteWithError")
-    func testSessionDelegateWebSocketDidCompleteWithError() {
+    func sessionDelegateWebSocketDidCompleteWithError() {
         let webSocketInterceptor = SpyWebSocketTaskInterceptor()
         let delegate = SessionDelegate()
         delegate.webSocketTaskInterceptor = webSocketInterceptor
-
 
         let error = NSError(domain: "test", code: 0)
         delegate.urlSession(.shared, task: .init(), didCompleteWithError: error)

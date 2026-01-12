@@ -1,10 +1,9 @@
-@testable import EZNetworking
 import Foundation
 import Testing
+@testable import EZNetworking
 
 @Suite("Test DefaultUploadTaskInterceptor")
 final class DefaultUploadTaskInterceptorTests {
-
     @Test("test DefaultUploadTaskInterceptor can track 0% progress")
     func test_0_percent_progress_tracking() {
         var trackedProgress: Double = 0
@@ -35,7 +34,6 @@ final class DefaultUploadTaskInterceptorTests {
         #expect(trackedProgress == 1)
     }
 
-
-    private let mockUrl: URL = URL(string: "https://example.com")!
+    private let mockUrl = URL(string: "https://example.com")!
     private var mockDataTask: URLSessionDataTask { URLSessionDataTask() }
 }

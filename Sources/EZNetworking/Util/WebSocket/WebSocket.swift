@@ -1,7 +1,6 @@
 import Foundation
 
 public actor WebSocket: WebSocketClient {
-
     private let urlSession: URLSessionTaskProtocol
     private nonisolated let sessionDelegate: SessionDelegate
     private let webSocketRequest: WebSocketRequest
@@ -14,6 +13,7 @@ public actor WebSocket: WebSocketClient {
             stateEventContinuation.yield(connectionState)
         }
     }
+
     private let stateEventStream: AsyncStream<WebSocketConnectionState>
     private let stateEventContinuation: AsyncStream<WebSocketConnectionState>.Continuation
 
@@ -28,6 +28,7 @@ public actor WebSocket: WebSocketClient {
     private var receiveMessagesTask: Task<Void, Never>?
 
     // MARK: Init
+
     public init(
         url: String,
         protocols: [String]? = nil,
@@ -36,18 +37,21 @@ public actor WebSocket: WebSocketClient {
         urlSession: URLSessionTaskProtocol = URLSession.shared,
         sessionDelegate: SessionDelegate? = nil
     ) {
-        self.init(request: WebSocketRequest(url: url, protocols: protocols, additionalheaders: additionalheaders),
-                  pingConfig: pingConfig,
-                  urlSession: urlSession,
-                  sessionDelegate: sessionDelegate)
+        self.init(
+            request: WebSocketRequest(url: url, protocols: protocols, additionalheaders: additionalheaders),
+            pingConfig: pingConfig,
+            urlSession: urlSession,
+            sessionDelegate: sessionDelegate
+        )
     }
+
     public init(
         request: WebSocketRequest,
         pingConfig: PingConfig = PingConfig(),
         urlSession: URLSessionTaskProtocol = URLSession.shared,
         sessionDelegate: SessionDelegate? = nil
     ) {
-        self.webSocketRequest = request
+        webSocketRequest = request
         self.pingConfig = pingConfig
         if let urlSession = urlSession as? URLSession {
             // If the session already has a delegate, use it (if it's a SessionDelegate)
@@ -76,8 +80,8 @@ public actor WebSocket: WebSocketClient {
         self.messagesContinuation = messagesContinuation
 
         let (stream, continuation) = AsyncStream<WebSocketConnectionState>.makeStream()
-        self.stateEventStream = stream
-        self.stateEventContinuation = continuation
+        stateEventStream = stream
+        stateEventContinuation = continuation
 
         setupWebSocketEventHandler()
     }
@@ -118,6 +122,7 @@ public actor WebSocket: WebSocketClient {
     }
 
     // MARK: Handle delegate events
+
     private nonisolated func setupWebSocketEventHandler() {
         if sessionDelegate.webSocketTaskInterceptor == nil {
             sessionDelegate.webSocketTaskInterceptor = fallbackWebSocketTaskInterceptor
@@ -138,16 +143,16 @@ public actor WebSocket: WebSocketClient {
         case (.notConnected, _), (.disconnected, _):
             break
 
-        case (.connecting, .didOpenWithProtocol(let proto)):
+        case let (.connecting, .didOpenWithProtocol(proto)):
             handleConnect(with: proto)
 
-        case (.connecting, .didOpenWithError(let err)):
+        case let (.connecting, .didOpenWithError(err)):
             handleConnectFail(throwing: .connectionFailed(underlying: err))
 
-        case (.connecting, .didClose(let code, let reason)):
+        case let (.connecting, .didClose(code, reason)):
             handleConnectFail(throwing: .unexpectedDisconnection(code: code, reason: parseReason(reason)))
 
-        case (.connected, .didClose(let code, let reason)):
+        case let (.connected, .didClose(code, reason)):
             let error = WebSocketError.unexpectedDisconnection(code: code, reason: parseReason(reason))
             handleConnectionLoss(error: error)
 
@@ -171,6 +176,7 @@ public actor WebSocket: WebSocketClient {
     }
 
     // MARK: Wait for connection
+
     private func waitForConnection() async throws {
         connectionState = .connecting
 
@@ -222,10 +228,12 @@ public actor WebSocket: WebSocketClient {
             throw WebSocketError.notConnected
         }
 
-        cleanup(closeCode: .normalClosure,
-                reason: nil,
-                newState: .disconnected(.manuallyDisconnected),
-                error: .forcedDisconnection)
+        cleanup(
+            closeCode: .normalClosure,
+            reason: nil,
+            newState: .disconnected(.manuallyDisconnected),
+            error: .forcedDisconnection
+        )
     }
 
     private func handleConnectionLoss(error: WebSocketError) {
@@ -233,10 +241,12 @@ public actor WebSocket: WebSocketClient {
 
         let closeCode = webSocketTask?.closeCode ?? .goingAway
         let reason = webSocketTask?.closeReason ?? nil
-        cleanup(closeCode: closeCode,
-                reason: reason,
-                newState: .disconnected(.connectionLost(error: error)),
-                error: error)
+        cleanup(
+            closeCode: closeCode,
+            reason: reason,
+            newState: .disconnected(.connectionLost(error: error)),
+            error: error
+        )
     }
 
     /// cleanup() is meant to clean up tasks and continuations, marking the WebSocket as disconnected.
@@ -267,9 +277,12 @@ public actor WebSocket: WebSocketClient {
 
     /// terminate() does the same as cleanup(), but ALSO finishes stateEventContinuation and messagesContinuation
     public func terminate() async {
-        cleanup(closeCode: .normalClosure, reason: nil,
-                newState: .disconnected(.terminated),
-                error: .forcedDisconnection)
+        cleanup(
+            closeCode: .normalClosure,
+            reason: nil,
+            newState: .disconnected(.terminated),
+            error: .forcedDisconnection
+        )
         sessionDelegate.webSocketTaskInterceptor?.onEvent = nil
         stateEventContinuation.finish()
         messagesContinuation.finish()
@@ -292,7 +305,7 @@ public actor WebSocket: WebSocketClient {
     // MARK: - Receive messages
 
     public var messages: AsyncStream<InboundMessage> {
-        return messagesStream
+        messagesStream
     }
 
     private func startReceiveMessagesLoop() {
@@ -314,6 +327,6 @@ public actor WebSocket: WebSocketClient {
     // MARK: - State events
 
     public var stateEvents: AsyncStream<WebSocketConnectionState> {
-        return stateEventStream
+        stateEventStream
     }
 }

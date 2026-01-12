@@ -1,10 +1,9 @@
-@testable import EZNetworking
 import Foundation
 import Testing
+@testable import EZNetworking
 
 @Suite("Test WebSocketTaskProtocol")
 final class WebSocketTaskProtocolTest {
-
     @Test("test calling sendPing() async/await method calls the callback method")
     func testSendPing() async throws {
         let sut = SpyWebSocketTaskProtocol(pingShouldThrow: false)
@@ -14,7 +13,7 @@ final class WebSocketTaskProtocolTest {
     }
 
     @Test("test calling sendPing() async/await method when not throwing error")
-    func testSendPingWhenNotThrowingError() async throws {
+    func sendPingWhenNotThrowingError() async throws {
         let sut = SpyWebSocketTaskProtocol(pingShouldThrow: false)
 
         await #expect(throws: Never.self) {
@@ -23,7 +22,7 @@ final class WebSocketTaskProtocolTest {
     }
 
     @Test("test calling sendPing() async/await method when throwing error")
-    func testSendPingWhenThrowingError() async throws {
+    func sendPingWhenThrowingError() async throws {
         let sut = SpyWebSocketTaskProtocol(pingShouldThrow: true)
 
         await #expect(throws: DummyPingError.error) {
@@ -51,11 +50,11 @@ private class SpyWebSocketTaskProtocol: WebSocketTaskProtocol {
     var closeCode: URLSessionWebSocketTask.CloseCode = .goingAway
     var closeReason: Data?
     func resume() {}
-    func cancel(with closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?) { }
-    func send(_ message: URLSessionWebSocketTask.Message) async throws { }
-    func send(_ message: URLSessionWebSocketTask.Message, completionHandler: @escaping @Sendable ((any Error)?) -> Void) { }
+    func cancel(with closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?) {}
+    func send(_ message: URLSessionWebSocketTask.Message) async throws {}
+    func send(_ message: URLSessionWebSocketTask.Message, completionHandler: @escaping @Sendable ((any Error)?) -> Void) {}
     func receive() async throws -> URLSessionWebSocketTask.Message { .string("") }
-    func receive(completionHandler: @escaping @Sendable (Result<URLSessionWebSocketTask.Message, any Error>) -> Void) { }
+    func receive(completionHandler: @escaping @Sendable (Result<URLSessionWebSocketTask.Message, any Error>) -> Void) {}
 }
 
 private enum DummyPingError: Error {

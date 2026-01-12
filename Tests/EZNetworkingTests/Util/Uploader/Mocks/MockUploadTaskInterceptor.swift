@@ -1,5 +1,5 @@
-import Foundation
 import EZNetworking
+import Foundation
 
 class MockUploadTaskInterceptor: UploadTaskInterceptor {
     var progress: (Double) -> Void

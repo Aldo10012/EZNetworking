@@ -26,7 +26,7 @@ public struct MultipartFormPart {
     // MARK: - Internal Initializers
 
     /// Creates a new multipart form part with binary data.
-    internal init(name: String, data: Data, filename: String? = nil, mimeType: MimeType) {
+    init(name: String, data: Data, filename: String? = nil, mimeType: MimeType) {
         self.name = name
         self.data = data
         self.filename = filename
@@ -34,27 +34,26 @@ public struct MultipartFormPart {
     }
 
     /// Creates a new multipart form part from a plain text value.
-    internal init(name: String, value: String) {
+    init(name: String, value: String) {
         self.init(name: name, data: Data(value.utf8), filename: nil, mimeType: .plain)
     }
 }
 
 // MARK: - Creation static methods
 
-public extension MultipartFormPart {
+extension MultipartFormPart {
     /// Creates a text field part with a UTF-8 encoded value.
-    static func fieldPart(name: String, value: String) -> MultipartFormPart {
+    public static func fieldPart(name: String, value: String) -> MultipartFormPart {
         MultipartFormPart(name: name, value: value)
     }
 
     /// Creates a file upload part with binary data and metadata.
-    static func filePart(name: String, data: Data, filename: String, mimeType: MimeType) -> MultipartFormPart {
+    public static func filePart(name: String, data: Data, filename: String, mimeType: MimeType) -> MultipartFormPart {
         MultipartFormPart(name: name, data: data, filename: filename, mimeType: mimeType)
     }
 
     /// Creates a data-only part (no filename) with the given MIME type, useful for raw blobs or non-file fields.
-    static func dataPart(name: String, data: Data, mimeType: MimeType) -> MultipartFormPart {
+    public static func dataPart(name: String, data: Data, mimeType: MimeType) -> MultipartFormPart {
         MultipartFormPart(name: name, data: data, filename: nil, mimeType: mimeType)
     }
-
 }

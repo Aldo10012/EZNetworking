@@ -1,22 +1,21 @@
-@testable import EZNetworking
 import Foundation
 import Testing
+@testable import EZNetworking
 
 @Suite("Test Request")
 final class RequestTests {
-
     @Test("test Request .httpMethod")
-    func testRequestHttpMethod() {
+    func requestHttpMethod() {
         #expect(MockRequest().httpMethod == .GET)
     }
 
     @Test("test Request .baseUrlString")
-    func testRequestBaseUrlString() {
+    func requestBaseUrlString() {
         #expect(MockRequest().baseUrl == "https://www.example.com")
     }
 
     @Test("test Request .parameters")
-    func testRequestParameters() throws {
+    func requestParameters() throws {
         let sut = MockRequest()
         let parameters = try #require(sut.parameters)
         #expect(parameters.count == 3)
@@ -35,7 +34,7 @@ final class RequestTests {
     }
 
     @Test("test Request .headers")
-    func testRequestHeaders() throws {
+    func requestHeaders() throws {
         let sut = MockRequest()
         let headers = try #require(sut.headers)
         #expect(headers.count == 3)
@@ -54,12 +53,12 @@ final class RequestTests {
     }
 
     @Test("test Request .timeoutInterval")
-    func testRequestTimeoutInterval() {
+    func requestTimeoutInterval() {
         #expect(MockRequest().timeoutInterval == 60)
     }
 
     @Test("test Request .urlRequest")
-    func testRequestBuildMethod() throws {
+    func requestBuildMethod() throws {
         let request = MockRequest()
         let sut = try request.getURLRequest()
 
@@ -72,12 +71,11 @@ final class RequestTests {
     }
 
     @Test("test Request .cachePolicy")
-    func testRequestCachePolicy() throws {
+    func requestCachePolicy() throws {
         let request = MockRequest(cachePolicy: .returnCacheDataElseLoad)
         let sut = try request.getURLRequest()
         #expect(sut.cachePolicy == .returnCacheDataElseLoad)
     }
-
 }
 
 private struct MockRequest: Request {

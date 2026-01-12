@@ -1,22 +1,22 @@
-@testable import EZNetworking
 import Foundation
 import Testing
+@testable import EZNetworking
 
 @Suite("Test WebSocketErrorTests")
 final class WebSocketErrorTests {
     @Test("test WebSocketError basic cases are Equatable", arguments: zip(WebSocketErrorList, WebSocketErrorList))
-    func testBasicCasesAreEquatable(inputA: WebSocketError, inputB: WebSocketError) {
+    func basicCasesAreEquatable(inputA: WebSocketError, inputB: WebSocketError) {
         #expect(inputA == inputB)
     }
 
     @Test("test different basic cases are not equal")
-    func testDifferentBasicCasesAreNotEqual() {
+    func differentBasicCasesAreNotEqual() {
         #expect(WebSocketError.notConnected != WebSocketError.alreadyConnected)
         #expect(WebSocketError.alreadyConnected != WebSocketError.stillConnecting)
     }
 
     @Test("test unexpectedDisconnection equality and description")
-    func testUnexpectedDisconnectionEqualityAndDescription() {
+    func unexpectedDisconnectionEqualityAndDescription() {
         let lhs = WebSocketError.unexpectedDisconnection(code: .normalClosure, reason: "bye")
         let rhs = WebSocketError.unexpectedDisconnection(code: .normalClosure, reason: "bye")
         let other = WebSocketError.unexpectedDisconnection(code: .goingAway, reason: "bye")
@@ -35,7 +35,7 @@ final class WebSocketErrorTests {
     }
 
     @Test("test unexpectedDisconnection equality and description with no reason provided")
-    func testUnexpectedDisconnectionEqualityAndDescriptionWithNoReasonProvided() {
+    func unexpectedDisconnectionEqualityAndDescriptionWithNoReasonProvided() {
         let err = WebSocketError.unexpectedDisconnection(code: .normalClosure, reason: nil)
 
         guard case let .unexpectedDisconnection(code, _) = err else {
@@ -49,7 +49,7 @@ final class WebSocketErrorTests {
     }
 
     @Test("test underlying error equality compares by type for various cases")
-    func testUnderlyingErrorEqualityByType() {
+    func underlyingErrorEqualityByType() {
         let urlErr1 = URLError(.timedOut)
         let urlErr2 = URLError(.timedOut)
 
@@ -60,7 +60,7 @@ final class WebSocketErrorTests {
     }
 
     @Test("test underlying error equality compares fails if underlying error difers")
-    func testUnderlyingErrorEqualityByTypeFailsIfErrorDiffers() {
+    func underlyingErrorEqualityByTypeFailsIfErrorDiffers() {
         let urlErr = URLError(.timedOut)
         let nsErr = NSError(domain: "test", code: 1, userInfo: nil)
 
@@ -68,7 +68,7 @@ final class WebSocketErrorTests {
     }
 
     @Test("test localized descriptions for a selection of cases")
-    func testLocalizedDescriptions() {
+    func localizedDescriptions() {
         #expect(WebSocketError.invalidWebSocketURLRequest.errorDescription == "WebSocket URLRequest is invalid")
         #expect(WebSocketError.notConnected.errorDescription == "WebSocket is not connected")
         #expect(WebSocketError.stillConnecting.errorDescription == "WebSocket is still connecting")
@@ -77,7 +77,7 @@ final class WebSocketErrorTests {
     }
 
     @Test("LocalizedError - dynamic descriptions")
-    func testLocalizedErrorDynamicDescriptions() {
+    func localizedErrorDynamicDescriptions() {
         let err = NSError(domain: "Test", code: -1)
         let msg = err.localizedDescription
 

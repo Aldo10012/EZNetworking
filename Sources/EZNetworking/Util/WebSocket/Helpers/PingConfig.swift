@@ -14,24 +14,24 @@ public struct PingConfig {
         }
     }
 
-    internal func waitForPingInterval() async {
+    func waitForPingInterval() async {
         if #available(iOS 16.0, *) {
             switch pingInterval {
-            case .nanoseconds(let nanoseconds):
+            case let .nanoseconds(nanoseconds):
                 try? await Task.sleep(for: .nanoseconds(nanoseconds))
-            case .milliseconds(let milliseconds):
+            case let .milliseconds(milliseconds):
                 try? await Task.sleep(for: .milliseconds(milliseconds))
-            case .seconds(let seconds):
+            case let .seconds(seconds):
                 try? await Task.sleep(for: .seconds(seconds))
             }
         } else {
             // Fallback on earlier versions
             switch pingInterval {
-            case .nanoseconds(let nanoseconds):
+            case let .nanoseconds(nanoseconds):
                 try? await Task.sleep(nanoseconds: nanoseconds)
-            case .milliseconds(let milliseconds):
+            case let .milliseconds(milliseconds):
                 try? await Task.sleep(nanoseconds: milliseconds * 1_000_000)
-            case .seconds(let seconds):
+            case let .seconds(seconds):
                 try? await Task.sleep(nanoseconds: seconds * 1_000_000_000)
             }
         }
@@ -43,14 +43,14 @@ public enum IntervalDuration: Equatable {
     case milliseconds(_ milliseconds: UInt64)
     case seconds(_ seconds: UInt64)
 
-    public static func ==(lhs: IntervalDuration, rhs: IntervalDuration) -> Bool {
+    public static func == (lhs: IntervalDuration, rhs: IntervalDuration) -> Bool {
         switch (lhs, rhs) {
-        case (.nanoseconds(let lT), .nanoseconds(let rT)),
-            (.milliseconds(let lT), .milliseconds(let rT)),
-            (.seconds(let lT), .seconds(let rT)):
-            return lT == rT
+        case let (.nanoseconds(lT), .nanoseconds(rT)),
+             let (.milliseconds(lT), .milliseconds(rT)),
+             let (.seconds(lT), .seconds(rT)):
+            lT == rT
         default:
-            return false
+            false
         }
     }
 }

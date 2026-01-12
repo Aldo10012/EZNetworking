@@ -11,7 +11,7 @@ public struct ResponseValidatorImpl: ResponseValidator {
     public init() {}
 
     public func validateNoError(_ error: Error?) throws {
-        if let error = error {
+        if let error {
             if let urlError = error as? URLError {
                 throw NetworkingError.urlError(urlError)
             }
@@ -44,8 +44,10 @@ public struct ResponseValidatorImpl: ResponseValidator {
     }
 
     private func validateStatusCodeAccepability(from httpURLResponse: HTTPURLResponse) throws {
-        let statusCode = HTTPError(statusCode: httpURLResponse.statusCode,
-                                   headers: httpURLResponse.allHeaderFields)
+        let statusCode = HTTPError(
+            statusCode: httpURLResponse.statusCode,
+            headers: httpURLResponse.allHeaderFields
+        )
 
         if statusCode.category == .success {
             return // successful http response (2xx) do not throw error

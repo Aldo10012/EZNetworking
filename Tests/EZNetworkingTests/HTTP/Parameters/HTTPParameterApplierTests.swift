@@ -1,12 +1,11 @@
-@testable import EZNetworking
 import Foundation
 import Testing
+@testable import EZNetworking
 
 @Suite("Test HTTPParameterApplier")
 final class HTTPParameterApplierTests {
-
     @Test("test URL Query Parameters Are Added")
-    func testURLQueryParametersAreAdded() throws {
+    func uRLQueryParametersAreAdded() throws {
         let url = try #require(URL(string: "https://www.example.com"))
         var urlRequest = URLRequest(url: url)
 
@@ -19,5 +18,4 @@ final class HTTPParameterApplierTests {
         let expectedURL = "https://www.example.com?key_1=value_1&key_2=value_2&key_3=value_3"
         #expect(urlRequest.url?.absoluteString == expectedURL)
     }
-
 }

@@ -1,12 +1,11 @@
-@testable import EZNetworking
 import Foundation
 import Testing
+@testable import EZNetworking
 
 @Suite("Test SessionDelegateURLSessionDataDelegate")
 final class SessionDelegateURLSessionDataDelegateTest {
-
     @Test("test SessionDelegate.willCacheResponse")
-    func testSessionDelegateWillCacheResponse() async {
+    func sessionDelegateWillCacheResponse() async {
         let cacheInterceptor = MockCacheInterceptor()
         let delegate = SessionDelegate()
         delegate.cacheInterceptor = cacheInterceptor
@@ -17,7 +16,7 @@ final class SessionDelegateURLSessionDataDelegateTest {
     }
 
     @Test("test SessionDelegate.willCacheResponse with no CacheInterceptor injected")
-    func testSessionDelegateWillCacheResponseWithNoCacheInterceptorInjected() async {
+    func sessionDelegateWillCacheResponseWithNoCacheInterceptorInjected() async {
         let delegate = SessionDelegate()
 
         let result = await delegate.urlSession(.shared, dataTask: mockUrlSessionDataTask, willCacheResponse: .init())
@@ -25,7 +24,7 @@ final class SessionDelegateURLSessionDataDelegateTest {
     }
 
     @Test("test SessionDelegate.didReceiveResponse")
-    func testSessionDelegateDidReceiveResponse() async {
+    func sessionDelegateDidReceiveResponse() async {
         let dataTaskInterceptor = MockDataTaskInterceptor()
         let delegate = SessionDelegate()
         delegate.dataTaskInterceptor = dataTaskInterceptor
@@ -35,7 +34,7 @@ final class SessionDelegateURLSessionDataDelegateTest {
     }
 
     @Test("test SessionDelegate.didReceiveResponse with no interceptor")
-    func testSessionDelegateDidReceiveResponseWithNoInterceptor() async {
+    func sessionDelegateDidReceiveResponseWithNoInterceptor() async {
         let delegate = SessionDelegate()
 
         let disposition = await delegate.urlSession(.shared, dataTask: mockUrlSessionDataTask, didReceive: URLResponse())
@@ -43,7 +42,7 @@ final class SessionDelegateURLSessionDataDelegateTest {
     }
 
     @Test("test SessionDelegate.didReceiveData")
-    func testSessionDelegateDidReceiveData() {
+    func sessionDelegateDidReceiveData() {
         let dataTaskInterceptor = MockDataTaskInterceptor()
         let delegate = SessionDelegate()
         delegate.dataTaskInterceptor = dataTaskInterceptor
@@ -53,7 +52,7 @@ final class SessionDelegateURLSessionDataDelegateTest {
     }
 
     @Test("test SessionDelegate.didBecomeDownloadTask")
-    func testSessionDelegateDidBecomeDownloadTask() {
+    func sessionDelegateDidBecomeDownloadTask() {
         let dataTaskInterceptor = MockDataTaskInterceptor()
         let delegate = SessionDelegate()
         delegate.dataTaskInterceptor = dataTaskInterceptor
@@ -63,7 +62,7 @@ final class SessionDelegateURLSessionDataDelegateTest {
     }
 
     @Test("test SessionDelegate.didBecomeStreamTask")
-    func testSessionDelegateDidBecomeStreamTask() {
+    func sessionDelegateDidBecomeStreamTask() {
         let dataTaskInterceptor = MockDataTaskInterceptor()
         let delegate = SessionDelegate()
         delegate.dataTaskInterceptor = dataTaskInterceptor

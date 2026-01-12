@@ -11,14 +11,14 @@ public protocol Request {
 }
 
 // default values
-public extension Request {
-    var timeoutInterval: TimeInterval { 60 }
-    var cachePolicy: URLRequest.CachePolicy { .useProtocolCachePolicy }
+extension Request {
+    public var timeoutInterval: TimeInterval { 60 }
+    public var cachePolicy: URLRequest.CachePolicy { .useProtocolCachePolicy }
 }
 
 // additions
-public extension Request {
-    func getURLRequest(allowedSchemes: URLBuilder.URLSchemePolicy = .http) throws -> URLRequest {
+extension Request {
+    public func getURLRequest(allowedSchemes: URLBuilder.URLSchemePolicy = .http) throws -> URLRequest {
         let url = try URLBuilder(allowedSchemes: allowedSchemes).buildAndValidate(baseUrl)
 
         var request = URLRequest(url: url)
@@ -27,11 +27,11 @@ public extension Request {
         request.timeoutInterval = timeoutInterval
         request.cachePolicy = cachePolicy
 
-        if let parameters = parameters {
+        if let parameters {
             HTTPParameterApplier.apply(parameters, to: &request)
         }
 
-        if let headers = headers {
+        if let headers {
             HTTPHeaderApplier.apply(headers, to: &request)
         }
 
@@ -39,7 +39,7 @@ public extension Request {
     }
 }
 
-internal struct EZRequest: Request {
+struct EZRequest: Request {
     var httpMethod: HTTPMethod
     var baseUrl: String
     var parameters: [HTTPParameter]?

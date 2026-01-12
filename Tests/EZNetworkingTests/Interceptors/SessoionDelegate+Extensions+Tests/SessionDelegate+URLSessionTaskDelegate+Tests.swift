@@ -1,12 +1,11 @@
-@testable import EZNetworking
 import Foundation
 import Testing
+@testable import EZNetworking
 
 @Suite("Test SessionDelegateURLSessionTaskDelegate")
 final class SessionDelegateURLSessionTaskDelegateTests {
-
     @Test("test SessionDelegate DidReceiveChallenge")
-    func testSessionDelegateDidReceiveChallenge() async {
+    func sessionDelegateDidReceiveChallenge() async {
         let authenticationInterceptor = MockAuthenticationInterceptor()
         let delegate = SessionDelegate()
         delegate.authenticationInterceptor = authenticationInterceptor
@@ -18,7 +17,7 @@ final class SessionDelegateURLSessionTaskDelegateTests {
     }
 
     @Test("test SessionDelegate DidReceiveChallenge with no interceptor")
-    func testSessionDelegateDidReceiveChallengeWithNoInterceptor() async {
+    func sessionDelegateDidReceiveChallengeWithNoInterceptor() async {
         let delegate = SessionDelegate()
 
         let (disposition, credential) = await delegate.urlSession(.shared, task: mockURLSessionTask, didReceive: URLAuthenticationChallenge())
@@ -27,7 +26,7 @@ final class SessionDelegateURLSessionTaskDelegateTests {
     }
 
     @Test("test SessionDelegate WillPerformHTTPRedirection")
-    func testSessionDelegateWillPerformHTTPRedirection() async {
+    func sessionDelegateWillPerformHTTPRedirection() async {
         let redirectInterceptor = MockRedirectInterceptor()
         let delegate = SessionDelegate()
         delegate.redirectInterceptor = redirectInterceptor
@@ -41,7 +40,7 @@ final class SessionDelegateURLSessionTaskDelegateTests {
     }
 
     @Test("test SessionDelegate WillPerformHTTPRedirection with no interceptor")
-    func testSessionDelegateWillPerformHTTPRedirectionWithNoInterceptor() async {
+    func sessionDelegateWillPerformHTTPRedirectionWithNoInterceptor() async {
         let delegate = SessionDelegate()
 
         let response = HTTPURLResponse(url: URL(string: "https://example.com")!, statusCode: 301, httpVersion: nil, headerFields: nil)!
@@ -52,7 +51,7 @@ final class SessionDelegateURLSessionTaskDelegateTests {
     }
 
     @Test("test SessionDelegate DidFinishCollectingMetrics")
-    func testSessionDelegateDidFinishCollectingMetrics() {
+    func sessionDelegateDidFinishCollectingMetrics() {
         let metricsInterceptor = MockMetricsInterceptor()
         let delegate = SessionDelegate()
         delegate.metricsInterceptor = metricsInterceptor
@@ -63,7 +62,7 @@ final class SessionDelegateURLSessionTaskDelegateTests {
     }
 
     @Test("test SessionDelegate DidCompleteWithError")
-    func testSessionDelegateDidCompleteWithError() {
+    func sessionDelegateDidCompleteWithError() {
         let taskLifecycleInterceptor = MockTaskLifecycleInterceptor()
         let delegate = SessionDelegate()
         delegate.taskLifecycleInterceptor = taskLifecycleInterceptor
@@ -75,7 +74,7 @@ final class SessionDelegateURLSessionTaskDelegateTests {
     }
 
     @Test("test SessionDelegateT askIsWaitingForConnectivity")
-    func testSessionDelegateTaskIsWaitingForConnectivity() {
+    func sessionDelegateTaskIsWaitingForConnectivity() {
         let taskLifecycleInterceptor = MockTaskLifecycleInterceptor()
         let delegate = SessionDelegate()
         delegate.taskLifecycleInterceptor = taskLifecycleInterceptor
@@ -84,7 +83,6 @@ final class SessionDelegateURLSessionTaskDelegateTests {
 
         #expect(taskLifecycleInterceptor.taskIsWaitingForConnectivity)
     }
-
 }
 
 // MARK: Mock classes

@@ -1,12 +1,11 @@
-@testable import EZNetworking
 import Foundation
 import Testing
+@testable import EZNetworking
 
 @Suite("Test SessionDelegateURLSessionStreamDelegate")
 final class SessionDelegateURLSessionStreamDelegateTests {
-
     @Test("test SessionDelegate ReadClosedForStreamTask")
-    func testSessionDelegateReadClosedForStreamTask() {
+    func sessionDelegateReadClosedForStreamTask() {
         let streamTaskInterceptor = MockStreamTaskInterceptor()
         let delegate = SessionDelegate()
         delegate.streamTaskInterceptor = streamTaskInterceptor
@@ -17,7 +16,7 @@ final class SessionDelegateURLSessionStreamDelegateTests {
     }
 
     @Test("test SessionDelegate WriteClosedForStreamTask")
-    func testSessionDelegateWriteClosedForStreamTask() {
+    func sessionDelegateWriteClosedForStreamTask() {
         let streamTaskInterceptor = MockStreamTaskInterceptor()
         let delegate = SessionDelegate()
         delegate.streamTaskInterceptor = streamTaskInterceptor
@@ -28,7 +27,7 @@ final class SessionDelegateURLSessionStreamDelegateTests {
     }
 
     @Test("test SessionDelegate BetterRouteDiscoveredForStreamTask")
-    func testSessionDelegateBetterRouteDiscoveredForStreamTask() {
+    func sessionDelegateBetterRouteDiscoveredForStreamTask() {
         let streamTaskInterceptor = MockStreamTaskInterceptor()
         let delegate = SessionDelegate()
         delegate.streamTaskInterceptor = streamTaskInterceptor
@@ -39,7 +38,7 @@ final class SessionDelegateURLSessionStreamDelegateTests {
     }
 
     @Test("test SessionDelegate StreamTaskDidBecomeStreams")
-    func testSessionDelegateStreamTaskDidBecomeStreams() {
+    func sessionDelegateStreamTaskDidBecomeStreams() {
         let streamTaskInterceptor = MockStreamTaskInterceptor()
         let delegate = SessionDelegate()
         delegate.streamTaskInterceptor = streamTaskInterceptor

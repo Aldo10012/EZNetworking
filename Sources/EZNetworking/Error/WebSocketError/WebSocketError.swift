@@ -36,19 +36,17 @@ extension WebSocketError: LocalizedError {
             return "WebSocket is still connecting"
         case .alreadyConnected:
             return "WebSocket is already connected"
-        case .connectionFailed(let error):
+        case let .connectionFailed(error):
             return "WebSocket connection failed: \(error.localizedDescription)"
-
-        case .sendFailed(let error):
+        case let .sendFailed(error):
             return "Failed to send WebSocket message: \(error.localizedDescription)"
-        case .receiveFailed(let error):
+        case let .receiveFailed(error):
             return "Failed to receive WebSocket message: \(error.localizedDescription)"
-        case .pingFailed(let error):
+        case let .pingFailed(error):
             return "WebSocket ping failed: \(error.localizedDescription)"
         case .pongTimeout:
             return "WebSocket pong response timed out"
-
-        case .unexpectedDisconnection(let code, let reason):
+        case let .unexpectedDisconnection(code, reason):
             let reasonText = reason ?? "No reason provided"
             return "WebSocket disconnected unexpectedly with code \(code.rawValue): \(reasonText)"
         case .forcedDisconnection:
@@ -71,26 +69,28 @@ extension WebSocketError: Equatable {
     public static func == (lhs: WebSocketError, rhs: WebSocketError) -> Bool {
         switch (lhs, rhs) {
         case (.invalidWebSocketURLRequest, .invalidWebSocketURLRequest),
-            (.notConnected, .notConnected),
-            (.stillConnecting, .stillConnecting),
-            (.alreadyConnected, .alreadyConnected),
-            (.pongTimeout, .pongTimeout),
-            (.forcedDisconnection, .forcedDisconnection):
-            return true
+             (.notConnected, .notConnected),
+             (.stillConnecting, .stillConnecting),
+             (.alreadyConnected, .alreadyConnected),
+             (.pongTimeout, .pongTimeout),
+             (.forcedDisconnection, .forcedDisconnection):
+            true
 
-        case (.unexpectedDisconnection(let lhsCode, let lhsReason),
-              .unexpectedDisconnection(let rhsCode, let rhsReason)):
-            return lhsCode == rhsCode && lhsReason == rhsReason
+        case let (
+            .unexpectedDisconnection(lhsCode, lhsReason),
+            .unexpectedDisconnection(rhsCode, rhsReason)
+        ):
+            lhsCode == rhsCode && lhsReason == rhsReason
 
-            // For errors with underlying errors, compare type names
-        case (.connectionFailed(let lhsError), .connectionFailed(let rhsError)),
-            (.sendFailed(let lhsError), .sendFailed(let rhsError)),
-            (.receiveFailed(let lhsError), .receiveFailed(let rhsError)),
-            (.pingFailed(let lhsError), .pingFailed(let rhsError)):
-            return (lhsError as NSError) == (rhsError as NSError)
+        // For errors with underlying errors, compare type names
+        case let (.connectionFailed(lhsError), .connectionFailed(rhsError)),
+             let (.sendFailed(lhsError), .sendFailed(rhsError)),
+             let (.receiveFailed(lhsError), .receiveFailed(rhsError)),
+             let (.pingFailed(lhsError), .pingFailed(rhsError)):
+            (lhsError as NSError) == (rhsError as NSError)
 
         default:
-            return false
+            false
         }
     }
 }

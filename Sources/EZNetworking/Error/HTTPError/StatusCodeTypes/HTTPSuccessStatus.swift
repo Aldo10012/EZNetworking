@@ -2,7 +2,7 @@ import Foundation
 
 enum HTTPSuccessStatus: Error {
     static func description(from statusCode: Int) -> String {
-        return HTTPSuccessStatus.descriptions[statusCode] ?? "Unknown Success Status"
+        HTTPSuccessStatus.descriptions[statusCode] ?? "Unknown Success Status"
     }
 
     private static let descriptions: [Int: String] = [

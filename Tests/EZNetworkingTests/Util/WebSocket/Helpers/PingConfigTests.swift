@@ -1,19 +1,18 @@
-@testable import EZNetworking
 import Foundation
 import Testing
+@testable import EZNetworking
 
 @Suite("Test PingConfig")
 final class PingConfigTests {
-
     @Test("test default ping configurations")
-    func testDefaultPingConfigurations() {
+    func defaultPingConfigurations() {
         let sut = PingConfig()
         #expect(sut.maxPingFailures == 3)
         #expect(sut.pingInterval == .seconds(30))
     }
 
     @Test("test setting PingConfig(maxPingFailures: 0) sets maxPingFailures to 1")
-    func testSettingMaxPingFailuresToZeroGetsSetToOne() {
+    func settingMaxPingFailuresToZeroGetsSetToOne() {
         let sut = PingConfig(maxPingFailures: 0)
         #expect(sut.maxPingFailures == 1)
     }
@@ -24,14 +23,12 @@ final class PingConfigTests {
         await sut.waitForPingInterval()
         #expect(true, "waitForPingInterval did return")
     }
-
 }
 
 @Suite("Test IntervalDuration")
 final class IntervalDurationTests {
-
     @Test("test IntervalDuration equality")
-    func testIntervalDurationEquality() {
+    func intervalDurationEquality() {
         let oneSecond = IntervalDuration.seconds(1)
         let tenSecond = IntervalDuration.seconds(10)
         let oneMilliseconds = IntervalDuration.milliseconds(1)

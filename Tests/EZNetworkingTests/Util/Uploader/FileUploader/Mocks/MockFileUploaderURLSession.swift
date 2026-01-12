@@ -1,5 +1,5 @@
-import Foundation
 import EZNetworking
+import Foundation
 
 class MockFileUploaderURLSession: URLSessionTaskProtocol {
     var data: Data?
@@ -7,12 +7,13 @@ class MockFileUploaderURLSession: URLSessionTaskProtocol {
     var error: Error?
     var completionHandler: ((Data?, URLResponse?, (any Error)?) -> Void)?
 
-    var sessionDelegate: SessionDelegate? = nil
+    var sessionDelegate: SessionDelegate?
     var progressToExecute: [UploadProgress] = []
 
-    init(data: Data?,
-         urlResponse: URLResponse? = nil,
-         error: Error? = nil
+    init(
+        data: Data?,
+        urlResponse: URLResponse? = nil,
+        error: Error? = nil
     ) {
         self.data = data
         self.urlResponse = urlResponse
@@ -39,10 +40,9 @@ extension MockFileUploaderURLSession {
     }
 
     private func simulateDownloadProgress(for task: URLSessionDownloadTask) {
-
-        for progressToExecute in self.progressToExecute {
+        for progressToExecute in progressToExecute {
             switch progressToExecute {
-            case .inProgress(let percent):
+            case let .inProgress(percent):
                 // Simulate x% progress
                 sessionDelegate?.urlSession(
                     .shared,
@@ -72,12 +72,15 @@ extension MockFileUploaderURLSession {
     func dataTask(with request: URLRequest, completionHandler: @escaping @Sendable (Data?, URLResponse?, (any Error)?) -> Void) -> URLSessionDataTask {
         fatalError("Should not be using in this mock")
     }
+
     func downloadTask(with url: URL, completionHandler: @escaping @Sendable (URL?, URLResponse?, (any Error)?) -> Void) -> URLSessionDownloadTask {
         fatalError("Should not be using in this mock")
     }
+
     func uploadTask(with request: URLRequest, from bodyData: Data?, completionHandler: @escaping @Sendable (Data?, URLResponse?, (any Error)?) -> Void) -> URLSessionUploadTask {
         fatalError("Should not be using in this mock")
     }
+
     func webSocketTaskInspectable(with request: URLRequest) -> WebSocketTaskProtocol {
         fatalError("Should not be using in this mock")
     }

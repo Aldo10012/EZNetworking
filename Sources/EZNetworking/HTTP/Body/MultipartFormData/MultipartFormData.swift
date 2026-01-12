@@ -1,7 +1,6 @@
 import Foundation
 
 public class MultipartFormData: DataConvertible {
-
     // MARK: - Helper Types
 
     enum Constants {

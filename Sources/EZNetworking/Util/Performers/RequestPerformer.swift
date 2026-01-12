@@ -35,13 +35,14 @@ public struct RequestPerformer: RequestPerformable {
     }
 
     // MARK: Async Await
+
     public func perform<T: Decodable>(request: Request, decodeTo decodableObject: T.Type) async throws -> T {
         try await withCheckedThrowingContinuation { continuation in
             performDataTask(request: request, decodeTo: decodableObject, completion: { result in
                 switch result {
-                case .success(let success):
+                case let .success(success):
                     continuation.resume(returning: success)
-                case .failure(let failure):
+                case let .failure(failure):
                     continuation.resume(throwing: failure)
                 }
             })
@@ -49,12 +50,14 @@ public struct RequestPerformer: RequestPerformable {
     }
 
     // MARK: Completion Handler
+
     @discardableResult
     public func performTask<T: Decodable>(request: Request, decodeTo decodableObject: T.Type, completion: @escaping ((Result<T, NetworkingError>) -> Void)) -> URLSessionDataTask? {
-        return performDataTask(request: request, decodeTo: decodableObject, completion: completion)
+        performDataTask(request: request, decodeTo: decodableObject, completion: completion)
     }
 
     // MARK: Publisher
+
     public func performPublisher<T: Decodable>(request: Request, decodeTo decodableObject: T.Type) -> AnyPublisher<T, NetworkingError> {
         Future { promise in
             performDataTask(request: request, decodeTo: decodableObject) { result in
@@ -68,7 +71,6 @@ public struct RequestPerformer: RequestPerformable {
 
     @discardableResult
     private func performDataTask<T: Decodable>(request: Request, decodeTo decodableObject: T.Type, completion: @escaping ((Result<T, NetworkingError>) -> Void)) -> URLSessionDataTask? {
-
         guard let urlRequest = getURLRequest(from: request) else {
             completion(.failure(.internalError(.noRequest)))
             return nil

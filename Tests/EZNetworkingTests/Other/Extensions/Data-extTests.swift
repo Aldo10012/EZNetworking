@@ -1,13 +1,13 @@
-@testable import EZNetworking
 import Foundation
 import Testing
+@testable import EZNetworking
 
 @Suite("Test Data Extensions")
 class DataExtensionsTests {
-
     // MARK: - Test string case
+
     @Test("test String Success")
-    func testStringSuccess() {
+    func stringSuccess() {
         let data = Data(string: "Hello World")
 
         #expect(data != nil)
@@ -15,8 +15,9 @@ class DataExtensionsTests {
     }
 
     // MARK: - Test dictionary case
+
     @Test("test Dictionary Success")
-    func testDictionarySuccess() {
+    func dictionarySuccess() {
         let dictionary: [String: Any] = ["key": "value"]
         let data = Data(dictionary: dictionary)
 
@@ -26,7 +27,7 @@ class DataExtensionsTests {
     }
 
     @Test("test Dictionary Success 2")
-    func testDictionarySuccess2() {
+    func dictionarySuccess2() {
         let dictionary: [String: Any] = ["key": ["subKey": "subValue"]]
         let data = Data(dictionary: dictionary)
 
@@ -36,13 +37,14 @@ class DataExtensionsTests {
     }
 
     // MARK: - Test encodable case
+
     struct TestEncodable: Codable, Equatable {
         let id: Int
         let name: String
     }
 
     @Test("test Encodable Success")
-    func testEncodableSuccess() {
+    func encodableSuccess() {
         let encodable = TestEncodable(id: 1, name: "Test")
         let data = Data(encodable: encodable)
 
@@ -55,7 +57,7 @@ class DataExtensionsTests {
     // MARK: - Test fileURL case
 
     @Test("test File URLFailure")
-    func testFileURLFailure() {
+    func fileURLFailure() {
         let fileURL = URL(fileURLWithPath: "/path/to/non/existing/file")
         let data = Data(fileURL: fileURL)
 
@@ -63,8 +65,9 @@ class DataExtensionsTests {
     }
 
     // MARK: - Test jsonString case
+
     @Test("test Json String Success")
-    func testJsonStringSuccess() {
+    func jsonStringSuccess() {
         let json = "{\"key\":\"value\"}"
         let data = Data(jsonString: json)
 
@@ -73,7 +76,7 @@ class DataExtensionsTests {
     }
 
     @Test("test Json String Failure")
-    func testJsonStringFailure() {
+    func jsonStringFailure() {
         let json = "{\"key\": \"value\""
         let data = Data(jsonString: json)
 
@@ -81,8 +84,9 @@ class DataExtensionsTests {
     }
 
     // MARK: - Test base64 case
+
     @Test("test Base64 Success")
-    func testBase64Success() {
+    func base64Success() {
         let base64String = "SGVsbG8gV29ybGQ="
         let data = Data(base64: base64String)
 
@@ -91,7 +95,7 @@ class DataExtensionsTests {
     }
 
     @Test("test Base64 Failure")
-    func testBase64Failure() {
+    func base64Failure() {
         let base64String = "InvalidBase64String"
         let data = Data(base64: base64String)
 
@@ -109,7 +113,8 @@ class DataExtensionsTests {
             boundary: "BOUNDARY"
         )
         guard let data = Data(multipartFormData: multipartFormData),
-              let decodedString = String(data: data, encoding: .utf8) else {
+              let decodedString = String(data: data, encoding: .utf8) else
+        {
             Issue.record()
             return
         }
@@ -118,10 +123,10 @@ class DataExtensionsTests {
         --BOUNDARY
         Content-Disposition: form-data; name="username"
         Content-Type: text/plain
-        
+
         Daniel
         --BOUNDARY--
-        
+
         """
 
         let normalizedDecoded = decodedString.replacingOccurrences(of: "\r\n", with: "\n")
@@ -131,8 +136,10 @@ class DataExtensionsTests {
     }
 
     @Test("test UrlComponents Success")
+
     // MARK: - Test urlComponents case
-    func testUrlComponentsSuccess() {
+
+    func urlComponentsSuccess() {
         var components = URLComponents()
         components.queryItems = [URLQueryItem(name: "key", value: "value")]
 
@@ -143,7 +150,7 @@ class DataExtensionsTests {
     }
 
     @Test("test UrlComponents Failure")
-    func testUrlComponentsFailure() {
+    func urlComponentsFailure() {
         var components = URLComponents()
         components.queryItems = nil
 
@@ -152,7 +159,7 @@ class DataExtensionsTests {
     }
 
     @Test("test String Equality")
-    func testStringEquality() {
+    func stringEquality() {
         let data1 = Data(string: "testString")
         let data2 = Data(string: "testString")
         let data3 = Data(string: "differentString")
@@ -162,7 +169,7 @@ class DataExtensionsTests {
     }
 
     @Test("test Dictionary Equality")
-    func testDictionaryEquality() {
+    func dictionaryEquality() {
         let dictionary1: [String: Any] = ["key1": "value1", "key2": 2]
         let dictionary2: [String: Any] = ["key1": "value1", "key2": 3]
 
@@ -173,7 +180,7 @@ class DataExtensionsTests {
     }
 
     @Test("test Encodable Equality")
-    func testEncodableEquality() {
+    func encodableEquality() {
         let encodable1 = TestEncodable(id: 1, name: "Test")
         let encodable2 = TestEncodable(id: 1, name: "Test")
 
@@ -192,7 +199,7 @@ class DataExtensionsTests {
     }
 
     @Test("test Encodable not Equal when different")
-    func testEncodableNonEquality() {
+    func encodableNonEquality() {
         let encodable1 = TestEncodable(id: 1, name: "Test")
         let encodable2 = TestEncodable(id: 2, name: "test")
 
@@ -203,7 +210,7 @@ class DataExtensionsTests {
     }
 
     @Test("test encodable HTTPBody can decode to correct type")
-    func testEncodableHttpBodyCanDecodeToCorrectType() {
+    func encodableHttpBodyCanDecodeToCorrectType() {
         let sut = TestEncodable(id: 1, name: "Test")
         guard let data = Data(encodable: sut) else {
             Issue.record(); return
@@ -215,7 +222,7 @@ class DataExtensionsTests {
     }
 
     @Test("test Mixed Case Equality")
-    func testMixedCaseEquality() {
+    func mixedCaseEquality() {
         let stringBody = Data(string: "testString")
         let dictionaryBody: [String: Any] = ["key": "value"]
         let data1 = Data(dictionary: dictionaryBody)
@@ -226,7 +233,7 @@ class DataExtensionsTests {
     // MARK: Test .appending()
 
     @Test("test .appending(_:) is chainable and returns concatenated data")
-    func test_appending_chainable_concatenates() {
+    func appending_chainable_concatenates() {
         let result = Data()
             .appending(Data(string: "A"))
             .appending(Data(string: "B"))
@@ -236,7 +243,7 @@ class DataExtensionsTests {
     }
 
     @Test("test .appending(nil) returns original unchanged")
-    func test_appending_nil_returnsSame() {
+    func appending_nil_returnsSame() {
         let original = Data(string: "X")!
         let appended = original.appending(nil)
 
@@ -244,7 +251,7 @@ class DataExtensionsTests {
     }
 
     @Test("test .appending(_) does not mutate the original Data (non-mutating API)")
-    func test_appending_doesNotMutateOriginal() {
+    func appending_doesNotMutateOriginal() {
         let original = Data(string: "orig")!
         let copyBefore = original
         _ = original.appending(Data(string: "more"))
@@ -253,7 +260,7 @@ class DataExtensionsTests {
     }
 
     @Test("test .appending(empty Data) returns concatenated result equal to original + empty")
-    func test_appending_emptyData_behavesCorrectly() {
+    func appending_emptyData_behavesCorrectly() {
         let original = Data(string: "Y")!
         let empty = Data()
         let result = original.appending(empty)

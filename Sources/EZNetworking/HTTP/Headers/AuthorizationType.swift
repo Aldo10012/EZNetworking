@@ -34,33 +34,33 @@ public enum AuthorizationType: Equatable {
 
     var value: String {
         switch self {
-            // Standard Authorization Types
-        case .bearer(let token):
-            return "Bearer \(token)"
+        // Standard Authorization Types
+        case let .bearer(token):
+            "Bearer \(token)"
 
-        case .basic(let credentials):
-            return "Basic \(credentials)"
+        case let .basic(credentials):
+            "Basic \(credentials)"
 
-        case .digest(let credentials):
-            return "Digest \(credentials)"
+        case let .digest(credentials):
+            "Digest \(credentials)"
 
-        case .apiKey(let key):
-            return "ApiKey \(key)"
+        case let .apiKey(key):
+            "ApiKey \(key)"
 
-        case .oauth1(let credentials):
-            return "OAuth \(credentials)"
+        case let .oauth1(credentials):
+            "OAuth \(credentials)"
 
-        case .oauth2(let token, let tokenType):
-            return "\(tokenType) \(token)"
+        case let .oauth2(token, tokenType):
+            "\(tokenType) \(token)"
 
-        case .aws4(let signature):
-            return "AWS4-HMAC-SHA256 \(signature)"
+        case let .aws4(signature):
+            "AWS4-HMAC-SHA256 \(signature)"
 
-        case .hawk(let credentials):
-            return "Hawk \(credentials)"
+        case let .hawk(credentials):
+            "Hawk \(credentials)"
 
-        case .custom(let value):
-            return value
+        case let .custom(value):
+            value
         }
     }
 
@@ -75,12 +75,12 @@ public enum AuthorizationType: Equatable {
 
     /// Creates an API Key authorization with a specific header name
     public static func apiKeyWithHeader(_ key: String, headerName: String = "X-API-Key") -> AuthorizationType {
-        return .custom("\(headerName) \(key)")
+        .custom("\(headerName) \(key)")
     }
 
     /// Creates a custom authorization with a specific scheme
     public static func custom(scheme: String, credentials: String) -> AuthorizationType {
-        return .custom("\(scheme) \(credentials)")
+        .custom("\(scheme) \(credentials)")
     }
 }
 
@@ -100,13 +100,13 @@ extension AuthorizationType {
             return "ApiKey"
         case .oauth1:
             return "OAuth"
-        case .oauth2(_, let tokenType):
+        case let .oauth2(_, tokenType):
             return tokenType
         case .aws4:
             return "AWS4-HMAC-SHA256"
         case .hawk:
             return "Hawk"
-        case .custom(let value):
+        case let .custom(value):
             // Extract scheme from custom value (everything before first space)
             if let spaceIndex = value.firstIndex(of: " ") {
                 return String(value[..<spaceIndex])
@@ -118,23 +118,23 @@ extension AuthorizationType {
     /// Returns the credentials part (everything after the scheme)
     public var credentials: String {
         switch self {
-        case .bearer(let token):
+        case let .bearer(token):
             return token
-        case .basic(let credentials):
+        case let .basic(credentials):
             return credentials
-        case .digest(let credentials):
+        case let .digest(credentials):
             return credentials
-        case .apiKey(let key):
+        case let .apiKey(key):
             return key
-        case .oauth1(let credentials):
+        case let .oauth1(credentials):
             return credentials
-        case .oauth2(let token, _):
+        case let .oauth2(token, _):
             return token
-        case .aws4(let signature):
+        case let .aws4(signature):
             return signature
-        case .hawk(let credentials):
+        case let .hawk(credentials):
             return credentials
-        case .custom(let value):
+        case let .custom(value):
             // Extract credentials from custom value (everything after first space)
             if let spaceIndex = value.firstIndex(of: " ") {
                 return String(value[value.index(after: spaceIndex)...])

@@ -1,10 +1,9 @@
-@testable import EZNetworking
 import Foundation
 import Testing
+@testable import EZNetworking
 
 @Suite("Test RequestPerformable async/await methods")
 final class RequestPerformable_asyncAwait_Tests {
-
     // MARK: - SUCCESS RESPONSE
 
     @Test("test perform(request:_, decodeTo:_) with all valid inputs does not throw error")
@@ -32,8 +31,6 @@ final class RequestPerformable_asyncAwait_Tests {
     }
 
     // MARK: - ERROR RESPONSE
-
-
 
     // MARK: http status code error tests
 
@@ -142,7 +139,7 @@ private func createRequestPerformer(
     validator: ResponseValidator = ResponseValidatorImpl(),
     requestDecoder: RequestDecodable = RequestDecoder()
 ) -> RequestPerformer {
-    return RequestPerformer(urlSession: urlSession, validator: validator, requestDecoder: requestDecoder)
+    RequestPerformer(urlSession: urlSession, validator: validator, requestDecoder: requestDecoder)
 }
 
 private func createMockURLSession(
@@ -150,7 +147,7 @@ private func createMockURLSession(
     statusCode: Int = 200,
     error: Error? = nil
 ) -> MockRequestPerformerURLSession {
-    return MockRequestPerformerURLSession(
+    MockRequestPerformerURLSession(
         data: data,
         urlResponse: buildResponse(statusCode: statusCode),
         error: error
@@ -158,10 +155,12 @@ private func createMockURLSession(
 }
 
 private func buildResponse(statusCode: Int) -> HTTPURLResponse {
-    HTTPURLResponse(url: URL(string: "https://example.com")!,
-                    statusCode: statusCode,
-                    httpVersion: nil,
-                    headerFields: nil)!
+    HTTPURLResponse(
+        url: URL(string: "https://example.com")!,
+        statusCode: statusCode,
+        httpVersion: nil,
+        headerFields: nil
+    )!
 }
 
 private struct MockRequest: Request {

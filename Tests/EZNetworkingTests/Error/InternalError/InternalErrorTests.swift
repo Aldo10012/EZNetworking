@@ -1,16 +1,15 @@
-@testable import EZNetworking
 import Testing
+@testable import EZNetworking
 
 @Suite("Test InternalError")
 final class InternalErrorTests {
-
     @Test("test InternalError Is Equatable", arguments: zip(InternalErrorList, InternalErrorList))
-    func testCouldNotParseIsEquatable(inputA: InternalError, inputB: InternalError) {
+    func couldNotParseIsEquatable(inputA: InternalError, inputB: InternalError) {
         #expect(inputA == inputB)
     }
 
     @Test("test Different InternalError Are Not Equatable")
-    func testDifferentInternalErrorAreNotEquatable() {
+    func differentInternalErrorAreNotEquatable() {
         #expect(InternalError.unknown != InternalError.couldNotParse)
     }
 
@@ -28,6 +27,6 @@ final class InternalErrorTests {
         InternalError.noHTTPURLResponse,
         InternalError.invalidImageData,
         InternalError.lostReferenceOfSelf,
-        InternalError.unknown,
+        InternalError.unknown
     ]
 }

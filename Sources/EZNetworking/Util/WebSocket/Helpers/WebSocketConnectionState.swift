@@ -13,15 +13,15 @@ public enum WebSocketConnectionState: Equatable, Sendable {
     public static func == (lhs: WebSocketConnectionState, rhs: WebSocketConnectionState) -> Bool {
         switch (lhs, rhs) {
         case (.notConnected, .notConnected):
-            return true
+            true
         case (.connecting, .connecting):
-            return true
-        case (.connected(let lhsProto), .connected(let rhsProto)):
-            return lhsProto == rhsProto
-        case (.disconnected(let lhsError), .disconnected(let rhsError)):
-            return lhsError == rhsError
+            true
+        case let (.connected(lhsProto), .connected(rhsProto)):
+            lhsProto == rhsProto
+        case let (.disconnected(lhsError), .disconnected(rhsError)):
+            lhsError == rhsError
         default:
-            return false
+            false
         }
     }
 
@@ -38,13 +38,13 @@ public enum WebSocketConnectionState: Equatable, Sendable {
         public static func == (lhs: DisconnectReason, rhs: DisconnectReason) -> Bool {
             switch (lhs, rhs) {
             case (.manuallyDisconnected, .manuallyDisconnected), (.terminated, .terminated):
-                return true
-            case (.failedToConnect(let lhsError), .failedToConnect(let rhsError)):
-                return lhsError == rhsError
-            case (.connectionLost(let lhsError), .connectionLost(let rhsError)):
-                return lhsError == rhsError
+                true
+            case let (.failedToConnect(lhsError), .failedToConnect(rhsError)):
+                lhsError == rhsError
+            case let (.connectionLost(lhsError), .connectionLost(rhsError)):
+                lhsError == rhsError
             default:
-                return false
+                false
             }
         }
     }

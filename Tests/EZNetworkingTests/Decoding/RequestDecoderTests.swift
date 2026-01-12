@@ -1,5 +1,5 @@
-@testable import EZNetworking
 import Testing
+@testable import EZNetworking
 
 @Suite("Test RequestDecoder")
 final class RequestDecoderTests {

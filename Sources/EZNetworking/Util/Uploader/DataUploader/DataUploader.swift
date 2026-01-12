@@ -1,12 +1,12 @@
-import Foundation
 import Combine
+import Foundation
 
 public class DataUploader: DataUploadable {
     private let urlSession: URLSessionTaskProtocol
     private let validator: ResponseValidator
     private var sessionDelegate: SessionDelegate
 
-    private let fallbackUploadTaskInterceptor: DefaultUploadTaskInterceptor = DefaultUploadTaskInterceptor()
+    private let fallbackUploadTaskInterceptor = DefaultUploadTaskInterceptor()
 
     // MARK: init
 
@@ -42,9 +42,9 @@ public class DataUploader: DataUploadable {
         try await withCheckedThrowingContinuation { continuation in
             self._uploadDataTask(data, with: request, progress: progress) { result in
                 switch result {
-                case .success(let data):
+                case let .success(data):
                     continuation.resume(returning: data)
-                case .failure(let error):
+                case let .failure(error):
                     continuation.resume(throwing: error)
                 }
             }
@@ -55,7 +55,7 @@ public class DataUploader: DataUploadable {
 
     @discardableResult
     public func uploadDataTask(_ data: Data, with request: Request, progress: UploadProgressHandler?, completion: @escaping (UploadCompletionHandler)) -> URLSessionUploadTask? {
-        return _uploadDataTask(data, with: request, progress: progress, completion: completion)
+        _uploadDataTask(data, with: request, progress: progress, completion: completion)
     }
 
     // MARK: Publisher
@@ -78,9 +78,9 @@ public class DataUploader: DataUploadable {
             }
             let task = self._uploadDataTask(data, with: request, progress: progressHandler) { result in
                 switch result {
-                case .success(let data):
+                case let .success(data):
                     continuation.yield(.success(data))
-                case .failure(let error):
+                case let .failure(error):
                     continuation.yield(.failure(error))
                 }
                 continuation.finish()
@@ -109,12 +109,12 @@ public class DataUploader: DataUploadable {
                 return
             }
             do {
-                try self.validator.validateNoError(error)
-                try self.validator.validateStatus(from: response)
-                let validData = try self.validator.validateData(data)
+                try validator.validateNoError(error)
+                try validator.validateStatus(from: response)
+                let validData = try validator.validateData(data)
                 completion(.success(validData))
             } catch {
-                completion(.failure(self.mapError(error)))
+                completion(.failure(mapError(error)))
             }
         }
         task.resume()
