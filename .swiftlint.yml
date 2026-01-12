@@ -1,14 +1,63 @@
-disabled_rules: []
-
 opt_in_rules:
+  - closure_end_indentation
+  - closure_spacing
+  - discouraged_object_literal
+  - empty_string
   - explicit_init
+  - fatal_error_message
+  - file_header
+  - file_length
+  - first_where
+  - identical_operands
+  - line_length
+  - private_over_fileprivate
   - redundant_nil_coalescing
   - sorted_imports
+  - toggle_bool
+  - trailing_comma
+  - type_body_length
+  - type_name
+  - untyped_error_in_catch
+  - weak_delegate
+  - xctfail_message
+  - yoda_condition
+  - contains_over_filter_count
+  - contains_over_filter_is_empty
 
-included:
-  - Sources
-  - Tests
+disabled_rules:
+  - force_cast
+  - force_try
+  - identifier_name
+  - computed_accessors_order
+  - empty_parentheses_with_trailing_closure
+  - non_optional_string_data_conversion
+  - unneeded_synthesized_initializer
+  - void_function_in_ternary
+  - redundant_void_return
+  - static_over_final_class
+  - unneeded_override
+  - control_statement
+  - for_where
+  - prefer_type_checking
 
 excluded:
   - .build
   - Package.swift
+
+line_length: 300
+
+file_length: 600
+
+type_body_length: 400
+
+type_name:
+  min_length: 3
+  max_length:
+    warning: 70
+    error: 70
+
+trailing_comma:
+  mandatory_comma: false
+
+file_header:
+  forbidden_pattern: '//'
