@@ -86,6 +86,21 @@ final class URLBuilderTests {
             _ = try wsURLBuilder.buildAndValidate("wss://www.example.com")
         }
     }
+    
+    @Test("test URLBuilder")
+    func testURLBuilder() throws {
+        let httpURL = try httpURLBuilder.buildAndValidate("http://www.example.com")
+        #expect(httpURL.absoluteString == "http://www.example.com")
+        
+        let httpsURL = try httpURLBuilder.buildAndValidate("https://www.example.com")
+        #expect(httpsURL.absoluteString == "https://www.example.com")
+        
+        let wsURL = try wsURLBuilder.buildAndValidate("ws://www.example.com")
+        #expect(wsURL.absoluteString == "ws://www.example.com")
+        
+        let wssURL = try wsURLBuilder.buildAndValidate("wss://www.example.com")
+        #expect(wssURL.absoluteString == "wss://www.example.com")
+    }
 
 }
 
