@@ -55,7 +55,7 @@
 --enable strongifiedSelf
 --enable trailingClosures
 --enable unusedArguments
---enable wrapEnumCases
+--disable wrapEnumCases
 --enable wrapSwitchCases
 
 # Commas
