@@ -59,4 +59,4 @@
 --enable wrapSwitchCases
 
 # Commas
---trailingcommas inline
+--trailingcommas never
