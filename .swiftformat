@@ -3,3 +3,5 @@
 --wrapparameters before-first
 --indent 4
 --linebreaks lf
+--elseposition same-line
+--guardelse same-line
