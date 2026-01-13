@@ -18,7 +18,6 @@ opt_in_rules:
   - type_body_length
   - type_name
   - untyped_error_in_catch
-  - weak_delegate
   - xctfail_message
   - yoda_condition
   - contains_over_filter_count
