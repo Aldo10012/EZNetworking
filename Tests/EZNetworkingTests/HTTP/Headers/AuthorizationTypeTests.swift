@@ -125,7 +125,7 @@ final class AuthorizationTypeTests {
 
         #expect(auth.value == customValue)
         #expect(auth.scheme == customValue)
-        #expect(auth.credentials == "")
+        #expect(auth.credentials.isEmpty)
     }
 
     // MARK: - Convenience Initializer Tests
@@ -208,7 +208,7 @@ final class AuthorizationTypeTests {
         let auth = AuthorizationType.bearer("")
         #expect(auth.value == "Bearer ")
         #expect(auth.scheme == "Bearer")
-        #expect(auth.credentials == "")
+        #expect(auth.credentials.isEmpty)
     }
 
     @Test("test special characters in credentials")

@@ -94,7 +94,7 @@ final class MimeTypeTests {
     @Test("test custom MIME type with empty string")
     func customMimeTypeWithEmptyString() {
         let customMimeType = MimeType.custom("")
-        #expect(customMimeType.value == "")
+        #expect(customMimeType.value.isEmpty)
     }
 
     @Test("test custom MIME type with special characters")
