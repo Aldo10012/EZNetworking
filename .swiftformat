@@ -58,7 +58,6 @@
 --enable wrapEnumCases
 --enable redundantNilInit
 --enable redundantOptionalBinding
---enable emptyEnumCase
 --disable wrapSwitchCases
 
 # Commas
