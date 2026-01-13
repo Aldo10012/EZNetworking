@@ -4,7 +4,7 @@ import Foundation
 import Testing
 
 @Suite("Test FileUploadable async stream")
-final class FileUploader_AsyncStream_Tests {
+final class FileUploaderAsyncStreamTests {
     // MARK: SUCCESS
 
     @Test("test .uploadFileStream() Success")

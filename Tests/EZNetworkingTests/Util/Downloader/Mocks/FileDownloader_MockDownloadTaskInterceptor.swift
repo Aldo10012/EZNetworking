@@ -1,7 +1,7 @@
 import EZNetworking
 import Foundation
 
-class FileDownloader_MockDownloadTaskInterceptor: DownloadTaskInterceptor {
+class FileDownloaderMockDownloadTaskInterceptor: DownloadTaskInterceptor {
     var progress: (Double) -> Void
 
     init(progress: @escaping (Double) -> Void) {

@@ -3,7 +3,7 @@ import Foundation
 import Testing
 
 @Suite("Test RequestPerformable async/await methods")
-final class RequestPerformable_asyncAwait_Tests {
+final class RequestPerformableAsyncAwaitTests {
     // MARK: - SUCCESS RESPONSE
 
     @Test("test perform(request:_, decodeTo:_) with all valid inputs does not throw error")

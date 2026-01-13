@@ -4,7 +4,7 @@ import Foundation
 import Testing
 
 @Suite("Test FileDownloadable async await")
-final class FileDownloadable_AsyncAwait_Tests {
+final class FileDownloadableAsyncAwaitTests {
     // MARK: SUCCESS
 
     @Test("test .downloadFile() Success")
@@ -186,7 +186,7 @@ final class FileDownloadable_AsyncAwait_Tests {
 
         var didTrackProgressFromInterceptor = false
 
-        let downloadInterceptor = FileDownloader_MockDownloadTaskInterceptor(progress: { _ in
+        let downloadInterceptor = FileDownloaderMockDownloadTaskInterceptor(progress: { _ in
             didTrackProgressFromInterceptor = true
         })
         let delegate = SessionDelegate(

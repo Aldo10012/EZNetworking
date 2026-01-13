@@ -3,7 +3,7 @@ import Foundation
 import Testing
 
 @Suite("Test RequestPerformable callback methods")
-final class RequestPerformable_callbacks_Tests {
+final class RequestPerformableCallbacksTests {
     // MARK: - SUCCESS RESPONSE
 
     @Test("test performTask(request:_, decodeTo:_) with valid inputs does decode Person")

@@ -4,7 +4,7 @@ import Foundation
 import Testing
 
 @Suite("Test FileDownloadable async stream")
-final class FileDownloadable_AsyncStream_Tests {
+final class FileDownloadableAsyncStreamTests {
     // MARK: SUCCESS
 
     @Test("test .downloadFileStream() Success")
@@ -237,7 +237,7 @@ final class FileDownloadable_AsyncStream_Tests {
 
         var didTrackProgressStreamEvent = false
         var didTrackProgressFromInterceptorClosure = false
-        let downloadTaskInterceptor = FileDownloader_MockDownloadTaskInterceptor(progress: { _ in
+        let downloadTaskInterceptor = FileDownloaderMockDownloadTaskInterceptor(progress: { _ in
             didTrackProgressFromInterceptorClosure = true
         })
         let delegate = SessionDelegate(

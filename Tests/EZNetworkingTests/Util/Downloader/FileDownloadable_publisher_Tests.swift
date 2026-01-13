@@ -4,7 +4,7 @@ import Foundation
 import Testing
 
 @Suite("Test FileDownloadable publishers")
-final class FileDownloadable_publisher_Tests {
+final class FileDownloadablePublisherTests {
     private var cancellables = Set<AnyCancellable>()
 
     // MARK: SUCCESS
@@ -247,7 +247,7 @@ final class FileDownloadable_publisher_Tests {
 
         var didTrackProgressFromInterceptor = false
 
-        let downloadTaskInterceptor = FileDownloader_MockDownloadTaskInterceptor { _ in
+        let downloadTaskInterceptor = FileDownloaderMockDownloadTaskInterceptor { _ in
             didTrackProgressFromInterceptor = true
         }
         let delegate = SessionDelegate(

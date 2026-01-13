@@ -3,7 +3,7 @@ import Foundation
 import Testing
 
 @Suite("Test FileUploader async/await methods")
-final class FileUploader_asyncAwait_Tests {
+final class FileUploaderAsyncAwaitTests {
     // MARK: - SUCCESS RESPONSE
 
     @Test("test .uploadFile() with all valid inputs does not throw error")

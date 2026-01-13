@@ -3,7 +3,7 @@ import Foundation
 import Testing
 
 @Suite("Test DataUploader call backs")
-final class DataUploader_Callbacks_Tests {
+final class DataUploaderCallbacksTests {
     // MARK: SUCCESS
 
     @Test("test .uploadDataTask() Success")

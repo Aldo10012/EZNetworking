@@ -4,7 +4,7 @@ import Foundation
 import Testing
 
 @Suite("Test FileDownloadable call backs")
-final class FileDownloadable_CallBacks_Tests {
+final class FileDownloadableCallBacksTests {
     // MARK: SUCCESS
 
     @Test("test .downloadFileTask() Success")
@@ -222,7 +222,7 @@ final class FileDownloadable_CallBacks_Tests {
 
         var didTrackProgressFromInterceptor = false
 
-        let downloadTaskInterceptor = FileDownloader_MockDownloadTaskInterceptor { _ in
+        let downloadTaskInterceptor = FileDownloaderMockDownloadTaskInterceptor { _ in
             didTrackProgressFromInterceptor = true
         }
         let delegate = SessionDelegate(

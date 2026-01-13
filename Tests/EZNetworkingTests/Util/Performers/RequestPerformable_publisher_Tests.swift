@@ -4,7 +4,7 @@ import Foundation
 import Testing
 
 @Suite("Test RequestPerformable publisher methods")
-final class RequestPerformable_publisher_Tests {
+final class RequestPerformablepublisherTests {
     private var cancellables = Set<AnyCancellable>()
 
     // MARK: - SUCCESS

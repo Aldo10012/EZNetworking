@@ -4,7 +4,7 @@ import Foundation
 import Testing
 
 @Suite("Test FileUploader publishers")
-final class FileUploader_Publisher_Tests {
+final class FileUploaderPublisherTests {
     private var cancellables = Set<AnyCancellable>()
 
     // MARK: SUCCESS
