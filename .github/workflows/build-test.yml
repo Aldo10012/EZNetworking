@@ -8,25 +8,29 @@ on:
 
 jobs:
   build-and-test:
-    name: Build and Test iOS - Swift 6.0
+    name: Build and Test iOS - Swift ${{ matrix.swift-version }}
     runs-on: macos-14
+    strategy:
+      fail-fast: false
+      matrix:
+        swift-version: ['5.10', '6.0', '6.1', '6.2']
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
       
-      - name: Setup Swift 6.0
+      - name: Setup Swift ${{ matrix.swift-version }}
         uses: swift-actions/setup-swift@v2
         with:
-          swift-version: '6.0'
+          swift-version: ${{ matrix.swift-version }}
       
       - name: Cache Swift Package Manager
         uses: actions/cache@v4
         with:
           path: .build
-          key: ${{ runner.os }}-spm-ios-6.0-${{ hashFiles('**/Package.resolved') }}
+          key: ${{ runner.os }}-spm-ios-${{ matrix.swift-version }}-${{ hashFiles('**/Package.resolved') }}
           restore-keys: |
-            ${{ runner.os }}-spm-ios-6.0-
+            ${{ runner.os }}-spm-ios-${{ matrix.swift-version }}-
             ${{ runner.os }}-spm-ios-
             ${{ runner.os }}-spm-
       
@@ -34,10 +38,11 @@ jobs:
         run: swift build
       
       - name: Run Tests
+        if: matrix.swift-version != '5.10'
         run: swift test --enable-code-coverage
       
       # - name: Generate Code Coverage Report
-      #   if: success()
+      #   if: success() && matrix.swift-version != '5.10'
       #   run: |
       #     xcrun llvm-cov export \
       #       -instr-profile .build/debug/codecov/default.profdata \
@@ -45,15 +50,15 @@ jobs:
       #       -format="lcov" > coverage.lcov
       
       # - name: Upload Coverage Report
-      #   if: success()
+      #   if: success() && matrix.swift-version != '5.10'
       #   uses: actions/upload-artifact@v4
       #   with:
-      #     name: coverage-report-ios-6.0
+      #     name: coverage-report-ios-${{ matrix.swift-version }}
       #     path: coverage.lcov
       #     retention-days: 30
       
       # - name: Display Coverage Summary
-      #   if: success()
+      #   if: success() && matrix.swift-version != '5.10'
       #   run: |
       #     xcrun llvm-cov report \
       #       -instr-profile .build/debug/codecov/default.profdata \
