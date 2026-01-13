@@ -8,7 +8,6 @@ opt_in_rules:
   - file_header
   - file_length
   - first_where
-  - identical_operands
   - line_length
   - private_over_fileprivate
   - redundant_nil_coalescing
