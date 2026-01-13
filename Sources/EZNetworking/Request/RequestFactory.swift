@@ -1,6 +1,7 @@
 import Foundation
 
 public protocol RequestFactory {
+    // swiftlint:disable:next function_parameter_count
     func build(
         httpMethod: HTTPMethod,
         baseUrlString: String,
