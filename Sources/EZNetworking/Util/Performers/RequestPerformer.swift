@@ -14,7 +14,7 @@ public struct RequestPerformer: RequestPerformable {
     ) {
         if let urlSession = urlSession as? URLSession {
             // If the session already has a delegate, use it (if it's a SessionDelegate)
-            if let _ = urlSession.delegate as? SessionDelegate {
+            if urlSession.delegate is SessionDelegate {
                 self.urlSession = urlSession
             } else {
                 // If no delegate or not a SessionDelegate, create one
