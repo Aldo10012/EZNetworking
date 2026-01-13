@@ -180,7 +180,6 @@ final class DataUploaderCallbacksTests {
 
     @Test("test .uploadDataTask() Download Progress Can Be Tracked when Injecting SessionDelegat")
     func uploadDataTask_progressCanBeTrackedWhenInjectingSessionDelegate() {
-        let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = createMockURLSession()
 
         let delegate = SessionDelegate()
