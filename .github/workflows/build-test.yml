@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        swift-version: ['6.0', '6.1', '6.2']
+        swift-version: ['5.10', '6.0', '6.1', '6.2']
     
     steps:
       - name: Checkout code
@@ -38,10 +38,11 @@ jobs:
         run: swift build
       
       - name: Run Tests
+        if: matrix.swift-version != '5.10'
         run: swift test --enable-code-coverage
       
       # - name: Generate Code Coverage Report
-      #   if: success()
+      #   if: success() && matrix.swift-version != '5.10'
       #   run: |
       #     xcrun llvm-cov export \
       #       -instr-profile .build/debug/codecov/default.profdata \
@@ -49,7 +50,7 @@ jobs:
       #       -format="lcov" > coverage.lcov
       
       # - name: Upload Coverage Report
-      #   if: success()
+      #   if: success() && matrix.swift-version != '5.10'
       #   uses: actions/upload-artifact@v4
       #   with:
       #     name: coverage-report-ios-${{ matrix.swift-version }}
@@ -57,7 +58,7 @@ jobs:
       #     retention-days: 30
       
       # - name: Display Coverage Summary
-      #   if: success()
+      #   if: success() && matrix.swift-version != '5.10'
       #   run: |
       #     xcrun llvm-cov report \
       #       -instr-profile .build/debug/codecov/default.profdata \
