@@ -30,29 +30,18 @@ jobs:
             ${{ runner.os }}-spm-ios-
             ${{ runner.os }}-spm-
       
-      - name: Build for iOS
-        run: |
-          xcodebuild build-for-testing \
-            -scheme EZNetworking \
-            -destination 'platform=iOS Simulator,name=iPhone 15,OS=latest' \
-            -skipPackagePluginValidation \
-            -enableCodeCoverage YES
+      - name: Build Package
+        run: swift build
       
       - name: Run Tests
-        run: |
-          xcodebuild test-without-building \
-            -scheme EZNetworking \
-            -destination 'platform=iOS Simulator,name=iPhone 15,OS=latest' \
-            -skipPackagePluginValidation \
-            -enableCodeCoverage YES \
-            -resultBundlePath TestResults
+        run: swift test --enable-code-coverage
       
       - name: Generate Code Coverage Report
         if: success()
         run: |
           xcrun llvm-cov export \
-            .build/debug/EZNetworkingPackageTests.xctest/Contents/MacOS/EZNetworkingPackageTests \
             -instr-profile .build/debug/codecov/default.profdata \
+            .build/debug/EZNetworkingPackageTests.xctest \
             -format="lcov" > coverage.lcov
       
       - name: Upload Coverage Report
@@ -67,5 +56,5 @@ jobs:
         if: success()
         run: |
           xcrun llvm-cov report \
-            .build/debug/EZNetworkingPackageTests.xctest/Contents/MacOS/EZNetworkingPackageTests \
-            -instr-profile .build/debug/codecov/default.profdata
+            -instr-profile .build/debug/codecov/default.profdata \
+            .build/debug/EZNetworkingPackageTests.xctest
