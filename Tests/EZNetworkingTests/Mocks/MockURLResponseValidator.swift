@@ -1,23 +1,23 @@
-import Foundation
 import EZNetworking
+import Foundation
 
 struct MockURLResponseValidator: ResponseValidator {
-    var throwError: NetworkingError? = nil
+    var throwError: NetworkingError?
 
     func validateNoError(_ error: (any Error)?) throws {
-        if let throwError = throwError {
+        if let throwError {
             throw throwError
         }
     }
-    
+
     func validateStatus(from urlResponse: URLResponse?) throws {
-        if let throwError = throwError {
+        if let throwError {
             throw throwError
         }
     }
-    
+
     func validateData(_ data: Data?) throws -> Data {
-        if let throwError = throwError {
+        if let throwError {
             throw throwError
         }
         guard let data else {
@@ -25,9 +25,9 @@ struct MockURLResponseValidator: ResponseValidator {
         }
         return data
     }
-    
+
     func validateUrl(_ url: URL?) throws -> URL {
-        if let throwError = throwError {
+        if let throwError {
             throw throwError
         }
         guard let url else {

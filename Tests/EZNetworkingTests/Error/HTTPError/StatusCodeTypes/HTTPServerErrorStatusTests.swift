@@ -3,9 +3,8 @@ import Testing
 
 @Suite("Test HTTPServerErrorStatus")
 final class HTTPServerErrorStatusTests {
-
     @Test("test HTTPServerErrorStatus maps status code to description", arguments: zip(map.keys, map.values))
-    func testHTTPServerErrorStatusMapsStatusCodeToDescription(statusCode: Int, description: String) {
+    func hTTPServerErrorStatusMapsStatusCodeToDescription(statusCode: Int, description: String) {
         #expect(HTTPServerErrorStatus.description(from: statusCode) == description)
     }
 
@@ -21,6 +20,6 @@ final class HTTPServerErrorStatusTests {
         508: "Loop Detected",
         510: "Not Extended",
         511: "Network Authentication Required",
-         -1: "Unknown Server Error"
+        -1: "Unknown Server Error"
     ]
 }

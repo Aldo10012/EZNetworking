@@ -4,50 +4,49 @@ import Testing
 
 @Suite("Test SessionDelegateURLSessionStreamDelegate")
 final class SessionDelegateURLSessionStreamDelegateTests {
-    
     @Test("test SessionDelegate ReadClosedForStreamTask")
-    func testSessionDelegateReadClosedForStreamTask() {
+    func sessionDelegateReadClosedForStreamTask() {
         let streamTaskInterceptor = MockStreamTaskInterceptor()
         let delegate = SessionDelegate()
         delegate.streamTaskInterceptor = streamTaskInterceptor
-        
+
         delegate.urlSession(.shared, readClosedFor: mockUrlSessionStreamTask)
-        
+
         #expect(streamTaskInterceptor.readClosed)
     }
-    
+
     @Test("test SessionDelegate WriteClosedForStreamTask")
-    func testSessionDelegateWriteClosedForStreamTask() {
+    func sessionDelegateWriteClosedForStreamTask() {
         let streamTaskInterceptor = MockStreamTaskInterceptor()
         let delegate = SessionDelegate()
         delegate.streamTaskInterceptor = streamTaskInterceptor
-        
+
         delegate.urlSession(.shared, writeClosedFor: mockUrlSessionStreamTask)
-        
+
         #expect(streamTaskInterceptor.writeClosed)
     }
-    
+
     @Test("test SessionDelegate BetterRouteDiscoveredForStreamTask")
-    func testSessionDelegateBetterRouteDiscoveredForStreamTask() {
+    func sessionDelegateBetterRouteDiscoveredForStreamTask() {
         let streamTaskInterceptor = MockStreamTaskInterceptor()
         let delegate = SessionDelegate()
         delegate.streamTaskInterceptor = streamTaskInterceptor
-        
+
         delegate.urlSession(.shared, betterRouteDiscoveredFor: mockUrlSessionStreamTask)
-        
+
         #expect(streamTaskInterceptor.betterRouteDiscovered)
     }
-    
+
     @Test("test SessionDelegate StreamTaskDidBecomeStreams")
-    func testSessionDelegateStreamTaskDidBecomeStreams() {
+    func sessionDelegateStreamTaskDidBecomeStreams() {
         let streamTaskInterceptor = MockStreamTaskInterceptor()
         let delegate = SessionDelegate()
         delegate.streamTaskInterceptor = streamTaskInterceptor
-        
+
         let inputStream = InputStream(data: Data())
         let outputStream = OutputStream(toMemory: ())
         delegate.urlSession(.shared, streamTask: mockUrlSessionStreamTask, didBecome: inputStream, outputStream: outputStream)
-        
+
         #expect(streamTaskInterceptor.didBecomeStreams)
     }
 }
@@ -59,17 +58,17 @@ private class MockStreamTaskInterceptor: StreamTaskInterceptor {
     func urlSession(_ session: URLSession, readClosedFor streamTask: URLSessionStreamTask) {
         readClosed = true
     }
-    
+
     var writeClosed = false
     func urlSession(_ session: URLSession, writeClosedFor streamTask: URLSessionStreamTask) {
         writeClosed = true
     }
-    
+
     var betterRouteDiscovered = false
     func urlSession(_ session: URLSession, betterRouteDiscoveredFor streamTask: URLSessionStreamTask) {
         betterRouteDiscovered = true
     }
-    
+
     var didBecomeStreams = false
     func urlSession(_ session: URLSession, streamTask: URLSessionStreamTask, didBecome inputStream: InputStream, outputStream: OutputStream) {
         didBecomeStreams = true

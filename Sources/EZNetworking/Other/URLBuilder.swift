@@ -6,7 +6,7 @@ public struct URLBuilder {
         case http
         /// Support ws and wss schemes
         case ws
-        
+
         public var values: Set<String> {
             switch self {
             case .http: ["http", "https"]
@@ -14,13 +14,13 @@ public struct URLBuilder {
             }
         }
     }
-    
+
     private let allowedSchemes: URLSchemePolicy
-    
+
     public init(allowedSchemes: URLSchemePolicy = .http) {
         self.allowedSchemes = allowedSchemes
     }
-    
+
     public func buildAndValidate(_ urlString: String) throws -> URL {
         guard !urlString.isEmpty else {
             throw NetworkingError.internalError(.noURL)

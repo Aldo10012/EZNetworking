@@ -21,45 +21,45 @@ public enum HTTPHeader: Equatable {
 
     var key: String {
         switch self {
-        case .accept: return "Accept"
-        case .acceptCharset: return "Accept-Charset"
-        case .acceptEncoding: return "Accept-Encoding"
-        case .acceptLanguage: return "Accept-Language"
-        case .authorization: return "Authorization"
-        case .cacheControl: return "Cache-Control"
-        case .contentLength: return "Content-Length"
-        case .contentType: return "Content-Type"
-        case .cookie: return "Cookie"
-        case .host: return "Host"
-        case .ifModifiedSince: return "If-Modified-Since"
-        case .ifNoneMatch: return "If-None-Match"
-        case .origin: return "Origin"
-        case .referer: return "Referer"
-        case .userAgent: return "User-Agent"
-        case .secWebSocketProtocol: return "Sec-WebSocket-Protocol"
-        case .custom(let key, _): return key
+        case .accept: "Accept"
+        case .acceptCharset: "Accept-Charset"
+        case .acceptEncoding: "Accept-Encoding"
+        case .acceptLanguage: "Accept-Language"
+        case .authorization: "Authorization"
+        case .cacheControl: "Cache-Control"
+        case .contentLength: "Content-Length"
+        case .contentType: "Content-Type"
+        case .cookie: "Cookie"
+        case .host: "Host"
+        case .ifModifiedSince: "If-Modified-Since"
+        case .ifNoneMatch: "If-None-Match"
+        case .origin: "Origin"
+        case .referer: "Referer"
+        case .userAgent: "User-Agent"
+        case .secWebSocketProtocol: "Sec-WebSocket-Protocol"
+        case let .custom(key, _): key
         }
     }
 
     var value: String {
         switch self {
-        case .accept(let accept): return accept.value
-        case .acceptCharset(let value): return value
-        case .acceptEncoding(let value): return value
-        case .acceptLanguage(let value): return value
-        case .authorization(let authentication): return authentication.value
-        case .cacheControl(let value): return value
-        case .contentLength(let value): return value
-        case .contentType(let contentType): return contentType.value
-        case .cookie(let value): return value
-        case .host(let value): return value
-        case .ifModifiedSince(let value): return value
-        case .ifNoneMatch(let value): return value
-        case .origin(let value): return value
-        case .referer(let value): return value
-        case .userAgent(let value): return value
-        case .secWebSocketProtocol(let protocols): return protocols.joined(separator: ", ")
-        case .custom(_, let value): return value
+        case let .accept(accept): accept.value
+        case let .acceptCharset(value): value
+        case let .acceptEncoding(value): value
+        case let .acceptLanguage(value): value
+        case let .authorization(authentication): authentication.value
+        case let .cacheControl(value): value
+        case let .contentLength(value): value
+        case let .contentType(contentType): contentType.value
+        case let .cookie(value): value
+        case let .host(value): value
+        case let .ifModifiedSince(value): value
+        case let .ifNoneMatch(value): value
+        case let .origin(value): value
+        case let .referer(value): value
+        case let .userAgent(value): value
+        case let .secWebSocketProtocol(protocols): protocols.joined(separator: ", ")
+        case let .custom(_, value): value
         }
     }
 }

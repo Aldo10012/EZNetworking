@@ -2,9 +2,9 @@ import Foundation
 
 enum HTTPServerErrorStatus: Error {
     static func description(from statusCode: Int) -> String {
-        return HTTPServerErrorStatus.descriptions[statusCode] ?? "Unknown Server Error"
+        HTTPServerErrorStatus.descriptions[statusCode] ?? "Unknown Server Error"
     }
-    
+
     private static let descriptions: [Int: String] = [
         500: "Internal Server Error",
         501: "Not Implemented",

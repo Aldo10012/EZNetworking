@@ -3,9 +3,8 @@ import Testing
 
 @Suite("Test HTTPRedirectionStatus")
 final class HTTPRedirectionStatusTests {
-
     @Test("test HTTPRedirectionStatus maps status code to description", arguments: zip(map.keys, map.values))
-    func testHTTPRedirectionStatusMapsStatusCodeToDescription(statusCode: Int, description: String) {
+    func hTTPRedirectionStatusMapsStatusCodeToDescription(statusCode: Int, description: String) {
         #expect(HTTPRedirectionStatus.description(from: statusCode) == description)
     }
 
@@ -18,6 +17,6 @@ final class HTTPRedirectionStatusTests {
         305: "Use Proxy",
         307: "Temporary Redirect",
         308: "Permanent Redirect",
-         -1: "Unknown Redirection Status"
+        -1: "Unknown Redirection Status"
     ]
 }

@@ -3,8 +3,7 @@ import Foundation
 import Testing
 
 @Suite("Test RequestPerformable async/await methods")
-final class RequestPerformable_asyncAwait_Tests {
-
+final class RequestPerformableAsyncAwaitTests {
     // MARK: - SUCCESS RESPONSE
 
     @Test("test perform(request:_, decodeTo:_) with all valid inputs does not throw error")
@@ -32,9 +31,7 @@ final class RequestPerformable_asyncAwait_Tests {
     }
 
     // MARK: - ERROR RESPONSE
-    
-    
-    
+
     // MARK: http status code error tests
 
     @Test("test perform(request:_) fails when status code is 3xx")
@@ -68,7 +65,7 @@ final class RequestPerformable_asyncAwait_Tests {
     }
 
     // MARK: URLSession has error
-    
+
     @Test("test perform(request:_) fails when URLSession throws HTTPClientError")
     func perform_throwsErrorWhen_urlSessionThrowsHTTPClientError() async throws {
         let sut = createRequestPerformer(
@@ -78,7 +75,7 @@ final class RequestPerformable_asyncAwait_Tests {
             try await sut.perform(request: MockRequest(), decodeTo: Person.self)
         }
     }
-    
+
     @Test("test perform(request:_) fails when URLSession throws HTTPServerError")
     func perform_throwsErrorWhen_urlSessionThrowsHTTPServerError() async throws {
         let sut = createRequestPerformer(
@@ -88,7 +85,7 @@ final class RequestPerformable_asyncAwait_Tests {
             try await sut.perform(request: MockRequest(), decodeTo: Person.self)
         }
     }
-    
+
     @Test("test perform(request:_) fails when URLSession throws URLError")
     func perform_throwsErrorWhen_urlSessionThrowsURLError() async throws {
         let sut = createRequestPerformer(
@@ -142,7 +139,7 @@ private func createRequestPerformer(
     validator: ResponseValidator = ResponseValidatorImpl(),
     requestDecoder: RequestDecodable = RequestDecoder()
 ) -> RequestPerformer {
-    return RequestPerformer(urlSession: urlSession, validator: validator, requestDecoder: requestDecoder)
+    RequestPerformer(urlSession: urlSession, validator: validator, requestDecoder: requestDecoder)
 }
 
 private func createMockURLSession(
@@ -150,7 +147,7 @@ private func createMockURLSession(
     statusCode: Int = 200,
     error: Error? = nil
 ) -> MockRequestPerformerURLSession {
-    return MockRequestPerformerURLSession(
+    MockRequestPerformerURLSession(
         data: data,
         urlResponse: buildResponse(statusCode: statusCode),
         error: error
@@ -158,10 +155,12 @@ private func createMockURLSession(
 }
 
 private func buildResponse(statusCode: Int) -> HTTPURLResponse {
-    HTTPURLResponse(url: URL(string: "https://example.com")!,
-                    statusCode: statusCode,
-                    httpVersion: nil,
-                    headerFields: nil)!
+    HTTPURLResponse(
+        url: URL(string: "https://example.com")!,
+        statusCode: statusCode,
+        httpVersion: nil,
+        headerFields: nil
+    )!
 }
 
 private struct MockRequest: Request {

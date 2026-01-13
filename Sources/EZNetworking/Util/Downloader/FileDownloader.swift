@@ -8,7 +8,7 @@ public class FileDownloader: FileDownloadable {
     private var sessionDelegate: SessionDelegate
 
     private let fallbackDownloadTaskInterceptor: DownloadTaskInterceptor = DefaultDownloadTaskInterceptor()
-    
+
     // MARK: init
 
     public init(
@@ -41,16 +41,16 @@ public class FileDownloader: FileDownloadable {
         self.validator = validator
         self.requestDecoder = requestDecoder
     }
-    
+
     // MARK: Async Await
 
     public func downloadFile(from serverUrl: URL, progress: DownloadProgressHandler? = nil) async throws -> URL {
         try await withCheckedThrowingContinuation { continuation in
             performDownloadTask(url: serverUrl, progress: progress) { result in
                 switch result {
-                case .success(let success):
+                case let .success(success):
                     continuation.resume(returning: success)
-                case .failure(let error):
+                case let .failure(error):
                     continuation.resume(throwing: error)
                 }
             }
@@ -60,8 +60,8 @@ public class FileDownloader: FileDownloadable {
     // MARK: Completion Handler
 
     @discardableResult
-    public func downloadFileTask(from serverUrl: URL, progress: DownloadProgressHandler?, completion: @escaping(DownloadCompletionHandler)) -> URLSessionDownloadTask {
-        return performDownloadTask(url: serverUrl, progress: progress, completion: completion)
+    public func downloadFileTask(from serverUrl: URL, progress: DownloadProgressHandler?, completion: @escaping (DownloadCompletionHandler)) -> URLSessionDownloadTask {
+        performDownloadTask(url: serverUrl, progress: progress, completion: completion)
     }
 
     // MARK: Publisher
@@ -86,9 +86,9 @@ public class FileDownloader: FileDownloadable {
             // Start the download task, yielding completion to the stream.
             let task = self.performDownloadTask(url: serverUrl, progress: progressHandler) { result in
                 switch result {
-                case .success(let url):
+                case let .success(url):
                     continuation.yield(.success(url))
-                case .failure(let error):
+                case let .failure(error):
                     continuation.yield(.failure(error))
                 }
                 continuation.finish()
@@ -103,7 +103,7 @@ public class FileDownloader: FileDownloadable {
     // MARK: - Core
 
     @discardableResult
-    private func performDownloadTask(url: URL, progress: DownloadProgressHandler?, completion: @escaping(DownloadCompletionHandler)) -> URLSessionDownloadTask {
+    private func performDownloadTask(url: URL, progress: DownloadProgressHandler?, completion: @escaping (DownloadCompletionHandler)) -> URLSessionDownloadTask {
         configureProgressTracking(progress: progress)
 
         let task = urlSession.downloadTask(with: url) { [weak self] localURL, response, error in
@@ -112,10 +112,10 @@ public class FileDownloader: FileDownloadable {
                 return
             }
             do {
-                try self.validator.validateNoError(error)
-                try self.validator.validateStatus(from: response)
-                let localURL = try self.validator.validateUrl(localURL)
-                
+                try validator.validateNoError(error)
+                try validator.validateStatus(from: response)
+                let localURL = try validator.validateUrl(localURL)
+
                 completion(.success(localURL))
             } catch {
                 completion(.failure(mapError(error)))

@@ -1,0 +1,66 @@
+--swiftversion 5.9
+
+# Wrapping
+--wraparguments before-first
+--wrapparameters before-first
+--wrapcollections before-first
+--wrapternary before-operators
+--closingparen balanced
+--maxwidth 300
+--wrapconditions preserve
+
+# Indentation
+--indent 4
+--indentcase false
+--ifdef indent
+--xcodeindentation enabled
+
+# Linebreaks
+--linebreaks lf
+--elseposition same-line
+--guardelse same-line
+
+# Braces
+--allman false
+
+# Spacing
+--trimwhitespace always
+--commas inline
+--semicolons inline
+--ranges spaced
+
+# Organization
+--importgrouping alphabetized
+--stripunusedargs closure-only
+
+# Syntax preferences
+--self remove
+--shortoptionals always
+--redundanttype inferred
+--emptybraces no-space
+--voidtype void
+--extensionacl on-declarations
+
+# Header comments
+--header strip
+
+# Enable/disable specific rules
+--enable isEmpty
+--enable sortedImports
+--enable blankLinesAtStartOfScope
+--enable blankLinesAtEndOfScope
+--enable blankLinesBetweenScopes
+--enable consecutiveSpaces
+--enable duplicateImports
+--enable redundantReturn
+--enable strongifiedSelf
+--enable trailingClosures
+--enable unusedArguments
+--enable wrapEnumCases
+--enable redundantNilInit
+--enable redundantOptionalBinding
+--disable wrapSwitchCases
+--disable wrapMultilineStatementBraces
+
+# Commas
+--trailingcommas never

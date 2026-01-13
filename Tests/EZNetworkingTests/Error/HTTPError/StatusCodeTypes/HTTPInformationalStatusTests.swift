@@ -3,9 +3,8 @@ import Testing
 
 @Suite("Test HTTPInformationalStatus")
 final class HTTPInformationalStatusTests {
-
     @Test("test HTTPInformationalStatus maps status code to description", arguments: zip(map.keys, map.values))
-    func testHTTPInformationalStatusMapsStatusCodeToDescription(statusCode: Int, description: String) {
+    func hTTPInformationalStatusMapsStatusCodeToDescription(statusCode: Int, description: String) {
         #expect(HTTPInformationalStatus.description(from: statusCode) == description)
     }
 
@@ -13,6 +12,6 @@ final class HTTPInformationalStatusTests {
         100: "Continue",
         101: "Switching Protocols",
         102: "Processing",
-         -1: "Unknown Informational Status"
+        -1: "Unknown Informational Status"
     ]
 }

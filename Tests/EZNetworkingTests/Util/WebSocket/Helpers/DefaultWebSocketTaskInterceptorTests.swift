@@ -4,14 +4,13 @@ import Testing
 
 @Suite("Test DefaultWebSocketTaskInterceptor")
 final class DefaultWebSocketTaskInterceptorTests {
-
     @Test("calls onEvent when didOpenWithProtocol is invoked")
-    func testDidOpenCallsOnEvent() {
+    func didOpenCallsOnEvent() {
         let url = URL(string: "wss://example.com/socket")!
         let session = URLSession(configuration: .default)
         let task = session.webSocketTask(with: url)
 
-        var received: WebSocketTaskEvent? = nil
+        var received: WebSocketTaskEvent?
         let interceptor = DefaultWebSocketTaskInterceptor { event in
             received = event
         }
@@ -26,12 +25,12 @@ final class DefaultWebSocketTaskInterceptorTests {
     }
 
     @Test("calls onEvent when didCloseWith is invoked with code and reason")
-    func testDidCloseCallsOnEvent() {
+    func didCloseCallsOnEvent() {
         let url = URL(string: "wss://example.com/socket")!
         let session = URLSession(configuration: .default)
         let task = session.webSocketTask(with: url)
 
-        var received: WebSocketTaskEvent? = nil
+        var received: WebSocketTaskEvent?
         let interceptor = DefaultWebSocketTaskInterceptor { event in
             received = event
         }
@@ -48,7 +47,7 @@ final class DefaultWebSocketTaskInterceptorTests {
     }
 
     @Test("default init does not crash and onEvent is mutable")
-    func testDefaultInitAndOnEventMutation() {
+    func defaultInitAndOnEventMutation() {
         let url = URL(string: "wss://example.com/socket")!
         let session = URLSession(configuration: .default)
         let task = session.webSocketTask(with: url)
@@ -56,7 +55,7 @@ final class DefaultWebSocketTaskInterceptorTests {
         let interceptor = DefaultWebSocketTaskInterceptor()
 
         var called = false
-        interceptor.onEvent = { event in
+        interceptor.onEvent = { _ in
             called = true
         }
 
@@ -65,12 +64,12 @@ final class DefaultWebSocketTaskInterceptorTests {
     }
 
     @Test("calls onEvent when task:didCompleteWithError is invoked")
-    func testDidCompleteWithErrorCallsOnEvent() {
+    func didCompleteWithErrorCallsOnEvent() {
         let url = URL(string: "wss://example.com/socket")!
         let session = URLSession(configuration: .default)
         let task = session.webSocketTask(with: url)
 
-        var received: WebSocketTaskEvent? = nil
+        var received: WebSocketTaskEvent?
         let interceptor = DefaultWebSocketTaskInterceptor { event in
             received = event
         }

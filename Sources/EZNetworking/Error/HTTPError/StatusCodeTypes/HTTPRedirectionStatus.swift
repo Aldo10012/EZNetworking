@@ -2,9 +2,9 @@ import Foundation
 
 enum HTTPRedirectionStatus: Error {
     static func description(from statusCode: Int) -> String {
-        return HTTPRedirectionStatus.descriptions[statusCode] ?? "Unknown Redirection Status"
+        HTTPRedirectionStatus.descriptions[statusCode] ?? "Unknown Redirection Status"
     }
-    
+
     private static let descriptions: [Int: String] = [
         300: "Multiple Choices",
         301: "Moved Permanently",

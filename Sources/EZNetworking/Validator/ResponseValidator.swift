@@ -9,16 +9,16 @@ public protocol ResponseValidator {
 
 public struct ResponseValidatorImpl: ResponseValidator {
     public init() {}
-    
+
     public func validateNoError(_ error: Error?) throws {
-        if let error = error {
+        if let error {
             if let urlError = error as? URLError {
                 throw NetworkingError.urlError(urlError)
             }
             throw NetworkingError.internalError(.requestFailed(error))
         }
     }
-    
+
     public func validateStatus(from urlResponse: URLResponse?) throws {
         guard let urlResponse else {
             throw NetworkingError.internalError(.noResponse)
@@ -28,7 +28,7 @@ public struct ResponseValidatorImpl: ResponseValidator {
         }
         try validateStatusCodeAccepability(from: httpURLResponse)
     }
-    
+
     public func validateData(_ data: Data?) throws -> Data {
         guard let data else {
             throw NetworkingError.internalError(.noData)
@@ -44,8 +44,10 @@ public struct ResponseValidatorImpl: ResponseValidator {
     }
 
     private func validateStatusCodeAccepability(from httpURLResponse: HTTPURLResponse) throws {
-        let statusCode = HTTPError(statusCode: httpURLResponse.statusCode,
-                                   headers: httpURLResponse.allHeaderFields)
+        let statusCode = HTTPError(
+            statusCode: httpURLResponse.statusCode,
+            headers: httpURLResponse.allHeaderFields
+        )
 
         if statusCode.category == .success {
             return // successful http response (2xx) do not throw error

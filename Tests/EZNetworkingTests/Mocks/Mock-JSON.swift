@@ -1,7 +1,7 @@
-import Foundation
 @testable import EZNetworking
+import Foundation
 
-struct MockData {
+enum MockData {
     static var mockPersonJsonData: Data {
         let jsonString = """
         {
@@ -11,7 +11,7 @@ struct MockData {
         """
         return Data(jsonString: jsonString)!
     }
-    
+
     static var invalidMockPersonJsonData: Data {
         let jsonString = """
         {
@@ -21,7 +21,7 @@ struct MockData {
         """
         return Data(jsonString: jsonString)!
     }
-    
+
     static func imageUrlData(from imageUrlString: String) -> Data? {
         guard let url = URL(string: imageUrlString) else {
             return nil

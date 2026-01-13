@@ -3,9 +3,8 @@ import Testing
 
 @Suite("Test HTTPSuccessStatus")
 final class HTTPSuccessStatusTests {
-
     @Test("test HTTPSuccessStatus maps status code to description", arguments: zip(map.keys, map.values))
-    func testHTTPSuccessStatusMapsStatusCodeToDescription(statusCode: Int, description: String) {
+    func hTTPSuccessStatusMapsStatusCodeToDescription(statusCode: Int, description: String) {
         #expect(HTTPSuccessStatus.description(from: statusCode) == description)
     }
 
@@ -20,6 +19,6 @@ final class HTTPSuccessStatusTests {
         207: "Multi-Status",
         208: "Already Reported",
         226: "IM Used",
-         -1: "Unknown Success Status"
+        -1: "Unknown Success Status"
     ]
 }

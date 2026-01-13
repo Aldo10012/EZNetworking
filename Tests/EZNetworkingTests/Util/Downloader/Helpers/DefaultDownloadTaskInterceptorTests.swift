@@ -3,12 +3,10 @@ import Combine
 import Foundation
 import Testing
 
-
 @Suite("Test DefaultDownloadTaskInterceptor")
 final class DefaultDownloadTaskInterceptorTests {
-    
     @Test("test .urlSession(_, downloadTask:_, didFinishDownloadingTo:_) tracks progress 100%")
-    func test_didFinishDownloadingTo_tracksProgress_completion() {
+    func didFinishDownloadingTo_tracksProgress_completion() {
         var trackedProgress: Double = 0
         let sut = DefaultDownloadTaskInterceptor { progress in
             trackedProgress = progress
@@ -18,7 +16,7 @@ final class DefaultDownloadTaskInterceptorTests {
     }
 
     @Test("test .urlSession(_, downloadTask:_, didResumeAtOffset:_, expectedTotalBytes:_) tracks partial progress")
-    func test_didResumeAtOffset_tracksProgress() {
+    func didResumeAtOffset_tracksProgress() {
         var trackedProgress: Double = 0
         let sut = DefaultDownloadTaskInterceptor { progress in
             trackedProgress = progress
@@ -28,7 +26,7 @@ final class DefaultDownloadTaskInterceptorTests {
     }
 
     @Test("test .urlSession(_, downloadTask:_, didWriteData:_, totalBytesWritten:_, totalBytesExpectedToWrite:_) tracks partial progress")
-    func test_didWriteData_tracksProgress_() {
+    func didWriteData_tracksProgress_() {
         var trackedProgress: Double = 0
         let sut = DefaultDownloadTaskInterceptor { progress in
             trackedProgress = progress
@@ -38,5 +36,5 @@ final class DefaultDownloadTaskInterceptorTests {
     }
 }
 
-private let mockUrl: URL = URL(string: "https://example.com")!
+private let mockUrl = URL(string: "https://example.com")!
 private var mockDownloadTask: URLSessionDownloadTask { URLSessionDownloadTask() }

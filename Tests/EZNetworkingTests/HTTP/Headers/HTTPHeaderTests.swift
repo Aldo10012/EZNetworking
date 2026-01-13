@@ -3,13 +3,13 @@ import Testing
 
 @Suite("Test HTTPHeader")
 final class HTTPHeaderTests {
-
     @Test("test HTTPHeader .key and .value", arguments: arguments)
-    func testHTTPHeaderKeyAndValue(header: HTTPHeader, key: String, value: String) {
+    func hTTPHeaderKeyAndValue(header: HTTPHeader, key: String, value: String) {
         #expect(header.key == key)
         #expect(header.value == value)
     }
 
+    // swiftlint:disable large_tuple
     private static let arguments: [(header: HTTPHeader, key: String, value: String)] = [
         (header: HTTPHeader.accept(.json), key: "Accept", value: "application/json"),
         (header: HTTPHeader.accept(.xml), key: "Accept", value: "application/xml"),
@@ -34,9 +34,10 @@ final class HTTPHeaderTests {
         (header: HTTPHeader.userAgent(sampleUserAgent), key: "User-Agent", value: sampleUserAgent),
         (header: HTTPHeader.secWebSocketProtocol([]), key: "Sec-WebSocket-Protocol", value: ""),
         (header: HTTPHeader.secWebSocketProtocol(["graphql-ws"]), key: "Sec-WebSocket-Protocol", value: "graphql-ws"),
-        (header: HTTPHeader.secWebSocketProtocol(["graphql-ws","json"]), key: "Sec-WebSocket-Protocol", value: "graphql-ws, json"),
+        (header: HTTPHeader.secWebSocketProtocol(["graphql-ws", "json"]), key: "Sec-WebSocket-Protocol", value: "graphql-ws, json"),
         (header: HTTPHeader.custom(key: "X-Custom-Header", value: "custom-value"), key: "X-Custom-Header", value: "custom-value")
     ]
+    // swiftlint:enable large_tuple
 
     private static let sampleDate = "Tue, 21 Jul 2024 00:00:00 GMT"
     private static let sampleUserAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"

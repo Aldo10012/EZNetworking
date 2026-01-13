@@ -66,6 +66,7 @@ EZNetworking is a powerful, lightweight Swift networking library that simplifies
     - [WebSocket Task Interceptor](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#websocket-task-interceptor)
   - [Session Management](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#session-management)
 - [Error Handling](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#error-handling-)
+- [Scripts](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#scripts)
 - [Contributing](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#contributing-)
 - [License](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#license-)
 
@@ -1054,6 +1055,22 @@ do {
     }
 }
 ```
+
+## Scripts
+
+`swiftformat Sources Tests`
+
+- Automatically formats the Swift code according to the rules defined in .swiftformat configuration file.
+
+`swiftlint Sources Tests`
+
+- Analyzes the Swift code and reports violations of the rules defined in .swiftlint.yaml configuration file.
+
+`swiftlint --fix Sources Tests`
+
+- Automatically fixes auto-correctable SwiftLint violations in the code.
+
+
 
 ## Contributing 🤝
 

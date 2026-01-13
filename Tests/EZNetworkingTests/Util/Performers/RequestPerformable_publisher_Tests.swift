@@ -4,8 +4,7 @@ import Foundation
 import Testing
 
 @Suite("Test RequestPerformable publisher methods")
-final class RequestPerformable_publisher_Tests {
-
+final class RequestPerformablepublisherTests {
     private var cancellables = Set<AnyCancellable>()
 
     // MARK: - SUCCESS
@@ -14,7 +13,7 @@ final class RequestPerformable_publisher_Tests {
     func performPublisher_withValidInputs_doesDecodePerson() {
         let sut = createRequestPerformer()
         var didDecodePerson = false
-        
+
         sut.performPublisher(request: MockRequest(), decodeTo: Person.self)
             .sink(receiveCompletion: { completion in
                 switch completion {
@@ -31,9 +30,7 @@ final class RequestPerformable_publisher_Tests {
     }
 
     // MARK: - ERROR RESPONSE
-    
-    
-    
+
     // MARK: http status code error tests
 
     @Test("test performPublisher(request:_, decodeTo:_) fails when status code is 3xx")
@@ -45,7 +42,7 @@ final class RequestPerformable_publisher_Tests {
         sut.performPublisher(request: MockRequest(), decodeTo: Person.self)
             .sink(receiveCompletion: { completion in
                 switch completion {
-                case .failure(let error):
+                case let .failure(error):
                     #expect(error == NetworkingError.httpError(HTTPError(statusCode: 300)))
                     didComplete = true
                 case .finished: Issue.record()
@@ -66,7 +63,7 @@ final class RequestPerformable_publisher_Tests {
         sut.performPublisher(request: MockRequest(), decodeTo: Person.self)
             .sink(receiveCompletion: { completion in
                 switch completion {
-                case .failure(let error):
+                case let .failure(error):
                     #expect(error == NetworkingError.httpError(HTTPError(statusCode: 400)))
                     didComplete = true
                 case .finished: Issue.record()
@@ -87,7 +84,7 @@ final class RequestPerformable_publisher_Tests {
         sut.performPublisher(request: MockRequest(), decodeTo: Person.self)
             .sink(receiveCompletion: { completion in
                 switch completion {
-                case .failure(let error):
+                case let .failure(error):
                     #expect(error == NetworkingError.httpError(HTTPError(statusCode: 500)))
                     didComplete = true
                 case .finished: Issue.record()
@@ -98,7 +95,7 @@ final class RequestPerformable_publisher_Tests {
             .store(in: &cancellables)
         #expect(didComplete == true)
     }
-    
+
     // MARK: URLSession has error
 
     @Test("test performPublisher(request:_, decodeTo:_) fails when urlsession throws URL error")
@@ -110,7 +107,7 @@ final class RequestPerformable_publisher_Tests {
         sut.performPublisher(request: MockRequest(), decodeTo: Person.self)
             .sink(receiveCompletion: { completion in
                 switch completion {
-                case .failure(let error):
+                case let .failure(error):
                     #expect(error == NetworkingError.urlError(URLError(.networkConnectionLost)))
                     didComplete = true
                 case .finished: Issue.record()
@@ -134,7 +131,7 @@ final class RequestPerformable_publisher_Tests {
         sut.performPublisher(request: MockRequest(), decodeTo: Person.self)
             .sink(receiveCompletion: { completion in
                 switch completion {
-                case .failure(let error):
+                case let .failure(error):
                     #expect(error == NetworkingError.internalError(.requestFailed(UnknownError.error)))
                     didComplete = true
                 case .finished: Issue.record()
@@ -157,7 +154,7 @@ final class RequestPerformable_publisher_Tests {
         sut.performPublisher(request: MockRequest(), decodeTo: Person.self)
             .sink(receiveCompletion: { completion in
                 switch completion {
-                case .failure(let error):
+                case let .failure(error):
                     #expect(error == NetworkingError.internalError(.noData))
                     didComplete = true
                 case .finished: Issue.record()
@@ -178,7 +175,7 @@ final class RequestPerformable_publisher_Tests {
         sut.performPublisher(request: MockRequest(), decodeTo: Person.self)
             .sink(receiveCompletion: { completion in
                 switch completion {
-                case .failure(let error):
+                case let .failure(error):
                     #expect(error == NetworkingError.internalError(.couldNotParse))
                     didComplete = true
                 case .finished: Issue.record()
@@ -198,7 +195,7 @@ private func createRequestPerformer(
     validator: ResponseValidator = ResponseValidatorImpl(),
     requestDecoder: RequestDecodable = RequestDecoder()
 ) -> RequestPerformer {
-    return RequestPerformer(urlSession: urlSession, validator: validator, requestDecoder: requestDecoder)
+    RequestPerformer(urlSession: urlSession, validator: validator, requestDecoder: requestDecoder)
 }
 
 private func createMockURLSession(
@@ -206,7 +203,7 @@ private func createMockURLSession(
     statusCode: Int = 200,
     error: Error? = nil
 ) -> MockRequestPerformerURLSession {
-    return MockRequestPerformerURLSession(
+    MockRequestPerformerURLSession(
         data: data,
         urlResponse: buildResponse(statusCode: statusCode),
         error: error
@@ -214,10 +211,12 @@ private func createMockURLSession(
 }
 
 private func buildResponse(statusCode: Int) -> HTTPURLResponse {
-    HTTPURLResponse(url: URL(string: "https://example.com")!,
-                    statusCode: statusCode,
-                    httpVersion: nil,
-                    headerFields: nil)!
+    HTTPURLResponse(
+        url: URL(string: "https://example.com")!,
+        statusCode: statusCode,
+        httpVersion: nil,
+        headerFields: nil
+    )!
 }
 
 private struct MockRequest: Request {
