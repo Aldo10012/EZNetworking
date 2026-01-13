@@ -132,7 +132,7 @@ public actor WebSocket: WebSocketClient {
         }
 
         sessionDelegate.webSocketTaskInterceptor?.onEvent = { [weak self] event in
-            Task {
+            Task { @Sendable [weak self] in
                 await self?.handleWebSocketInterceptorEvent(event)
             }
         }
