@@ -15,7 +15,7 @@ final class DataUploaderCallbacksTests {
             defer { didExecute = true }
             switch result {
             case .success:
-                #expect(true)
+                #expect(Bool(true))
             case .failure:
                 Issue.record()
             }
@@ -113,7 +113,7 @@ final class DataUploaderCallbacksTests {
         }, completion: { result in
             defer { didExecute = true }
             switch result {
-            case .success: #expect(true)
+            case .success: #expect(Bool(true))
             case .failure: Issue.record()
             }
         })
@@ -200,7 +200,7 @@ final class DataUploaderCallbacksTests {
         }, completion: { result in
             defer { didExecute = true }
             switch result {
-            case .success: #expect(true)
+            case .success: #expect(Bool(true))
             case .failure: Issue.record()
             }
         })
@@ -235,7 +235,7 @@ final class DataUploaderCallbacksTests {
         _ = sut.uploadDataTask(mockData, with: mockRequest, progress: nil) { result in
             defer { didExecute = true }
             switch result {
-            case .success: #expect(true)
+            case .success: #expect(Bool(true))
             case .failure: Issue.record()
             }
         }

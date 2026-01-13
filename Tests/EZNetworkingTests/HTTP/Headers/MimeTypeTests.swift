@@ -317,6 +317,6 @@ final class MimeTypeTests {
             _ = mimeType.value
         }
 
-        #expect(true) // This test passes if we can access .value for all cases
+        #expect(Bool(true)) // This test passes if we can access .value for all cases
     }
 }

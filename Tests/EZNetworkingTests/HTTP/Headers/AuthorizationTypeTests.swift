@@ -343,7 +343,7 @@ final class AuthorizationTypeTests {
             _ = auth.credentials
         }
 
-        #expect(true) // This test passes if we can access all properties for all cases
+        #expect(Bool(true)) // This test passes if we can access all properties for all cases
     }
 
     // MARK: - Real-world Usage Examples

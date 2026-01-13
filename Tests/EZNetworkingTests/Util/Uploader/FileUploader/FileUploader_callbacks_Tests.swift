@@ -15,7 +15,7 @@ final class FileUploaderCallbacksTests {
             defer { didExecute = true }
             switch result {
             case .success:
-                #expect(true)
+                #expect(Bool(true))
             case .failure:
                 Issue.record()
             }
@@ -113,7 +113,7 @@ final class FileUploaderCallbacksTests {
         }, completion: { result in
             defer { didExecute = true }
             switch result {
-            case .success: #expect(true)
+            case .success: #expect(Bool(true))
             case .failure: Issue.record()
             }
         })
@@ -200,7 +200,7 @@ final class FileUploaderCallbacksTests {
         }, completion: { result in
             defer { didExecute = true }
             switch result {
-            case .success: #expect(true)
+            case .success: #expect(Bool(true))
             case .failure: Issue.record()
             }
         })
@@ -235,7 +235,7 @@ final class FileUploaderCallbacksTests {
         _ = sut.uploadFileTask(mockFileURL, with: mockRequest, progress: nil) { result in
             defer { didExecute = true }
             switch result {
-            case .success: #expect(true)
+            case .success: #expect(Bool(true))
             case .failure: Issue.record()
             }
         }

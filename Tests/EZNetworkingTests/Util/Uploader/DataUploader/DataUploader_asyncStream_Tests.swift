@@ -19,7 +19,7 @@ final class DataUploaderAsyncStreamTests {
         #expect(events.count == 1)
         switch events[0] {
         case .success:
-            #expect(true)
+            #expect(Bool(true))
         default:
             Issue.record()
         }
