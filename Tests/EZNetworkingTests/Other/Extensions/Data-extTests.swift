@@ -113,8 +113,7 @@ class DataExtensionsTests {
             boundary: "BOUNDARY"
         )
         guard let data = Data(multipartFormData: multipartFormData),
-              let decodedString = String(data: data, encoding: .utf8) else
-        {
+              let decodedString = String(data: data, encoding: .utf8) else {
             Issue.record()
             return
         }
