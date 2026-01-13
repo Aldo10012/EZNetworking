@@ -4,8 +4,8 @@ import Testing
 
 // MARK: .connect()
 
-@Suite("Test WebSocketEngine.connect()")
-final class WebSocketEngineConnectTests {
+@Suite("Test WebSocket.connect()")
+final class WebSocketConnectTests {
     @Test("test calling .connect succeeds")
     func callingConnectDoesNotThrow() async throws {
         let wsTask = MockURLSessionWebSocketTask()
@@ -137,8 +137,8 @@ final class WebSocketEngineConnectTests {
 
 // MARK: .connect() + ping pong
 
-@Suite("Test WebSocketEngine.connect() with ping pont")
-final class WebSocketEngineConnectPingPongTests {
+@Suite("Test WebSocket.connect() with ping pont")
+final class WebSocketConnectPingPongTests {
     @Test("test calling .connect does call URLSessionWebSocketTask.sendPing()")
     func callingConnectDoesCallURLSessionWebSocketTaskSendPing() async throws {
         let pingConfig = PingConfig(pingInterval: .nanoseconds(1), maxPingFailures: 0)
@@ -220,8 +220,8 @@ final class WebSocketEngineConnectPingPongTests {
 
 // MARK: .disconnect()
 
-@Suite("Test WebSocketEngine.disconnect()")
-final class WebSocketEngineDisconnectTests {
+@Suite("Test WebSocket.disconnect()")
+final class WebSocketDisconnectTests {
     @Test("test calling .disconnect() does call WebSocketTask.cancel()")
     func callingDisconnectDoesCallWebSocketTaskCancel() async throws {
         let pingConfig = PingConfig(pingInterval: .seconds(1), maxPingFailures: 1)
@@ -274,8 +274,8 @@ final class WebSocketEngineDisconnectTests {
 
 // MARK: .send()
 
-@Suite("Test WebSocketEngine.send()")
-final class WebSocketEngineSendTests {
+@Suite("Test WebSocket.send()")
+final class WebSocketSendTests {
     @Test("test string message successfully send after connection is made")
     func sendingMessageSuccessfullyIfSentAfterConnect() async throws {
         let pingConfig = PingConfig(pingInterval: .seconds(1), maxPingFailures: 1)
@@ -362,8 +362,8 @@ final class WebSocketEngineSendTests {
 
 // MARK: .messages()
 
-@Suite("Test WebSocketEngine.messages()")
-final class WebSocketEngineMessagesTests {
+@Suite("Test WebSocket.messages()")
+final class WebSocketMessagesTests {
     @Test("test receiveing messagess")
     func receivingMessages() async throws {
         let pingConfig = PingConfig(pingInterval: .seconds(1), maxPingFailures: 1)
@@ -589,8 +589,8 @@ final class WebSocketEngineMessagesTests {
 
 // MARK: .stateChanges()
 
-@Suite("Test WebSocketEngine.stateChanges()")
-final class WebSocketEngineStateEventsTests {
+@Suite("Test WebSocket.stateChanges()")
+final class WebSocketStateEventsTests {
     @Test("test stateEvents when connecting")
     func stateEventsWhenConnecting() async throws {
         let pingConfig = PingConfig(pingInterval: .seconds(1), maxPingFailures: 1)
