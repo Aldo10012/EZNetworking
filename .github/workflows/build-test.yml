@@ -33,7 +33,7 @@ jobs:
       - name: Build for iOS
         run: |
           xcodebuild build-for-testing \
-            -scheme YourPackageName \
+            -scheme EZNetworking \
             -destination 'platform=iOS Simulator,name=iPhone 15,OS=latest' \
             -skipPackagePluginValidation \
             -enableCodeCoverage YES
@@ -41,7 +41,7 @@ jobs:
       - name: Run Tests
         run: |
           xcodebuild test-without-building \
-            -scheme YourPackageName \
+            -scheme EZNetworking \
             -destination 'platform=iOS Simulator,name=iPhone 15,OS=latest' \
             -skipPackagePluginValidation \
             -enableCodeCoverage YES \
@@ -51,7 +51,7 @@ jobs:
         if: success()
         run: |
           xcrun llvm-cov export \
-            .build/debug/YourPackageNamePackageTests.xctest/Contents/MacOS/YourPackageNamePackageTests \
+            .build/debug/EZNetworkingPackageTests.xctest/Contents/MacOS/EZNetworkingPackageTests \
             -instr-profile .build/debug/codecov/default.profdata \
             -format="lcov" > coverage.lcov
       
@@ -67,5 +67,5 @@ jobs:
         if: success()
         run: |
           xcrun llvm-cov report \
-            .build/debug/YourPackageNamePackageTests.xctest/Contents/MacOS/YourPackageNamePackageTests \
+            .build/debug/EZNetworkingPackageTests.xctest/Contents/MacOS/EZNetworkingPackageTests \
             -instr-profile .build/debug/codecov/default.profdata
