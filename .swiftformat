@@ -7,6 +7,7 @@
 --wrapternary before-operators
 --closingparen balanced
 --maxwidth 300
+--wrapconditions preserve
 
 # Indentation
 --indent 4
@@ -59,7 +60,7 @@
 --enable redundantNilInit
 --enable redundantOptionalBinding
 --disable wrapSwitchCases
---enable redundantNilInit
+--disable wrapMultilineStatementBraces
 
 # Commas
 --trailingcommas never
