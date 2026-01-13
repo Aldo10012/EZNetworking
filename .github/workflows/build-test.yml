@@ -1,0 +1,71 @@
+name: iOS Build and Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    name: Build and Test iOS - Swift 5.10
+    runs-on: macos-14
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Swift 5.10
+        uses: swift-actions/setup-swift@v2
+        with:
+          swift-version: '5.10'
+      
+      - name: Cache Swift Package Manager
+        uses: actions/cache@v4
+        with:
+          path: .build
+          key: ${{ runner.os }}-spm-ios-5.10-${{ hashFiles('**/Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-ios-5.10-
+            ${{ runner.os }}-spm-ios-
+            ${{ runner.os }}-spm-
+      
+      - name: Build for iOS
+        run: |
+          xcodebuild build-for-testing \
+            -scheme YourPackageName \
+            -destination 'platform=iOS Simulator,name=iPhone 15,OS=latest' \
+            -skipPackagePluginValidation \
+            -enableCodeCoverage YES
+      
+      - name: Run Tests
+        run: |
+          xcodebuild test-without-building \
+            -scheme YourPackageName \
+            -destination 'platform=iOS Simulator,name=iPhone 15,OS=latest' \
+            -skipPackagePluginValidation \
+            -enableCodeCoverage YES \
+            -resultBundlePath TestResults
+      
+      - name: Generate Code Coverage Report
+        if: success()
+        run: |
+          xcrun llvm-cov export \
+            .build/debug/YourPackageNamePackageTests.xctest/Contents/MacOS/YourPackageNamePackageTests \
+            -instr-profile .build/debug/codecov/default.profdata \
+            -format="lcov" > coverage.lcov
+      
+      - name: Upload Coverage Report
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report-ios-5.10
+          path: coverage.lcov
+          retention-days: 30
+      
+      - name: Display Coverage Summary
+        if: success()
+        run: |
+          xcrun llvm-cov report \
+            .build/debug/YourPackageNamePackageTests.xctest/Contents/MacOS/YourPackageNamePackageTests \
+            -instr-profile .build/debug/codecov/default.profdata
