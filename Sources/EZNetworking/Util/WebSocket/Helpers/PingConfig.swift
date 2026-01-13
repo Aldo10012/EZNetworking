@@ -15,7 +15,7 @@ public struct PingConfig {
     }
 
     func waitForPingInterval() async {
-        if #available(iOS 16.0, *) {
+        if #available(iOS 16.0, macOS 13.0, watchOS 9.0, tvOS 16.0, visionOS 1.0, *) {
             switch pingInterval {
             case let .nanoseconds(nanoseconds):
                 try? await Task.sleep(for: .nanoseconds(nanoseconds))
