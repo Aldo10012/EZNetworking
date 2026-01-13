@@ -1,6 +1,6 @@
+@testable import EZNetworking
 import Foundation
 import Testing
-@testable import EZNetworking
 
 @Suite("Test DataUploader call backs")
 final class DataUploader_Callbacks_Tests {

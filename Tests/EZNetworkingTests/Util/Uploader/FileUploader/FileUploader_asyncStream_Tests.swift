@@ -1,7 +1,7 @@
 import Combine
+@testable import EZNetworking
 import Foundation
 import Testing
-@testable import EZNetworking
 
 @Suite("Test FileUploadable async stream")
 final class FileUploader_AsyncStream_Tests {

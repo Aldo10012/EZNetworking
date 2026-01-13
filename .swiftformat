@@ -29,7 +29,7 @@
 --ranges spaced
 
 # Organization
---importgrouping testable-bottom
+--importgrouping alphabetized
 --stripunusedargs closure-only
 
 # Syntax preferences

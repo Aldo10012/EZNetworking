@@ -1,7 +1,7 @@
 import Combine
+@testable import EZNetworking
 import Foundation
 import Testing
-@testable import EZNetworking
 
 @Suite("Test FileDownloadable async await")
 final class FileDownloadable_AsyncAwait_Tests {

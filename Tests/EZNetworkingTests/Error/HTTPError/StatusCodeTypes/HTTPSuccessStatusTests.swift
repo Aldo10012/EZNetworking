@@ -1,5 +1,5 @@
-import Testing
 @testable import EZNetworking
+import Testing
 
 @Suite("Test HTTPSuccessStatus")
 final class HTTPSuccessStatusTests {

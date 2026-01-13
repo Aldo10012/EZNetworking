@@ -1,7 +1,7 @@
 import Combine
+@testable import EZNetworking
 import Foundation
 import Testing
-@testable import EZNetworking
 
 @Suite("Test FileUploader publishers")
 final class FileUploader_Publisher_Tests {

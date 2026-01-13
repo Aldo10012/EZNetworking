@@ -1,6 +1,6 @@
+@testable import EZNetworking
 import Foundation
 import Testing
-@testable import EZNetworking
 
 @Suite("Test RequestPerformable async/await methods")
 final class RequestPerformable_asyncAwait_Tests {

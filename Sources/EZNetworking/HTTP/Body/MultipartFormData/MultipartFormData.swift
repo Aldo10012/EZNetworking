@@ -9,7 +9,9 @@ public class MultipartFormData: DataConvertible {
 
     enum BoundaryGenerator {
         enum BoundaryType {
-            case initial, encapsulated, final
+            case initial
+            case encapsulated
+            case final
         }
 
         static func boundaryData(forBoundaryType boundaryType: BoundaryType, boundary: String) -> Data {

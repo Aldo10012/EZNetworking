@@ -1,5 +1,5 @@
-import Foundation
 @testable import EZNetworking
+import Foundation
 
 enum MockData {
     static var mockPersonJsonData: Data {

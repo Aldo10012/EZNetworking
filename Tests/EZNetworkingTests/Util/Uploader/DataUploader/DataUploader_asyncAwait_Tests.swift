@@ -1,6 +1,6 @@
+@testable import EZNetworking
 import Foundation
 import Testing
-@testable import EZNetworking
 
 @Suite("Test DataUploader async/await methods")
 final class DataUploader_asyncAwait_Tests {

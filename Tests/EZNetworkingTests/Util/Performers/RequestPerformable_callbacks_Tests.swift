@@ -1,6 +1,6 @@
+@testable import EZNetworking
 import Foundation
 import Testing
-@testable import EZNetworking
 
 @Suite("Test RequestPerformable callback methods")
 final class RequestPerformable_callbacks_Tests {
