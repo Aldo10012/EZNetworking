@@ -7,13 +7,13 @@ public class MultipartFormData: DataConvertible {
         static let crlf = "\r\n"
     }
 
-    enum BoundaryGenerator {
-        enum BoundaryType {
-            case initial
-            case encapsulated
-            case final
-        }
+    enum BoundaryType {
+        case initial
+        case encapsulated
+        case final
+    }
 
+    enum BoundaryGenerator {
         static func boundaryData(forBoundaryType boundaryType: BoundaryType, boundary: String) -> Data {
             let boundaryText = switch boundaryType {
             case .initial:
