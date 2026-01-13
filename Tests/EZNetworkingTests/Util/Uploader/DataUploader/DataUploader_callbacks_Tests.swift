@@ -110,13 +110,13 @@ final class DataUploader_Callbacks_Tests {
 
         _ = sut.uploadDataTask(mockData, with: mockRequest, progress: { _ in
             didTrackProgress = true
-        }) { result in
+        }, completion: { result in
             defer { didExecute = true }
             switch result {
             case .success: #expect(true)
             case .failure: Issue.record()
             }
-        }
+        })
         #expect(didExecute)
         #expect(didTrackProgress)
     }
@@ -136,7 +136,7 @@ final class DataUploader_Callbacks_Tests {
             if didTrackProgressBeforeReturn == nil {
                 didTrackProgressBeforeReturn = true
             }
-        }) { result in
+        }, completion: { result in
             switch result {
             case .success:
                 if didTrackProgressBeforeReturn == nil {
@@ -145,7 +145,7 @@ final class DataUploader_Callbacks_Tests {
             case .failure:
                 Issue.record()
             }
-        }
+        })
         #expect(didTrackProgressBeforeReturn == true)
     }
 
@@ -197,13 +197,13 @@ final class DataUploader_Callbacks_Tests {
 
         _ = sut.uploadDataTask(mockData, with: mockRequest, progress: { _ in
             didTrackProgress = true
-        }) { result in
+        }, completion: { result in
             defer { didExecute = true }
             switch result {
             case .success: #expect(true)
             case .failure: Issue.record()
             }
-        }
+        })
         #expect(didExecute)
         #expect(didTrackProgress)
     }
