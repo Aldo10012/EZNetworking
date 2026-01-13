@@ -130,7 +130,7 @@ final class FileUploader_Callbacks_Tests {
         ]
 
         let sut = FileUploader(mockSession: urlSession)
-        var didTrackProgressBeforeReturn: Bool? = nil
+        var didTrackProgressBeforeReturn: Bool?
 
         _ = sut.uploadFileTask(mockFileURL, with: mockRequest, progress: { _ in
             if didTrackProgressBeforeReturn == nil {

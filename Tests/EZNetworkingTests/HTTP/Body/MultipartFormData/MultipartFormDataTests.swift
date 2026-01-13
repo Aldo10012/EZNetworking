@@ -144,7 +144,7 @@ class MultipartFormDataTests {
         let sampleMiniTxtFileContent = """
         Start of document:
 
-        This is a mock .txt file that is being uploaded as part of a multipart form. 
+        This is a mock .txt file that is being uploaded as part of a multipart form.
         This will simulate what it is like submiting a txt file via multipartform submission.
         """
         let parts: [MultipartFormPart] = [
@@ -182,7 +182,7 @@ class MultipartFormDataTests {
         let sampleMiniTxtFileContent = """
         Start of document:
 
-        This is a mock .txt file that is being uploaded as part of a multipart form. 
+        This is a mock .txt file that is being uploaded as part of a multipart form.
         This will simulate what it is like submiting a txt file via multipartform submission.
         """
         let parts: [MultipartFormPart] = [

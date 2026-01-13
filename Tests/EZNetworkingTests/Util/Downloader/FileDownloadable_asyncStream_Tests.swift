@@ -141,7 +141,7 @@ final class FileDownloadable_AsyncStream_Tests {
         ]
 
         let sut = FileDownloader(mockSession: urlSession)
-        var didTrackProgressBeforeReturn: Bool? = nil
+        var didTrackProgressBeforeReturn: Bool?
         var numberOfEvents = 0
 
         for await event in sut.downloadFileStream(from: testURL) {

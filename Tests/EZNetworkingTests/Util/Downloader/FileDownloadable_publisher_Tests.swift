@@ -147,7 +147,7 @@ final class FileDownloadable_publisher_Tests {
         ]
 
         let sut = FileDownloader(mockSession: urlSession)
-        var didTrackProgressBeforeReturn: Bool? = nil
+        var didTrackProgressBeforeReturn: Bool?
 
         sut.downloadFilePublisher(from: testURL) { _ in
             if didTrackProgressBeforeReturn == nil {

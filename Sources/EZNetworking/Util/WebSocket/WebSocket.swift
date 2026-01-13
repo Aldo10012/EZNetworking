@@ -103,7 +103,7 @@ public actor WebSocket: WebSocketClient {
         if case .connecting = connectionState {
             throw WebSocketError.stillConnecting
         }
-        if case .connected(protocol: _) = connectionState {
+        if case .connected = connectionState {
             throw WebSocketError.alreadyConnected
         }
 
@@ -200,7 +200,7 @@ public actor WebSocket: WebSocketClient {
     private func startPingLoop() {
         pingTask = Task(priority: .high) {
             var consecutiveFailures = 0
-            var lastError: WebSocketError? = nil
+            var lastError: WebSocketError?
             while !Task.isCancelled, let wsTask = webSocketTask, case .connected = connectionState {
                 // Check if ping failed too many times in a row
                 if consecutiveFailures >= pingConfig.maxPingFailures {
@@ -240,7 +240,7 @@ public actor WebSocket: WebSocketClient {
         guard case .connected = connectionState else { return }
 
         let closeCode = webSocketTask?.closeCode ?? .goingAway
-        let reason = webSocketTask?.closeReason ?? nil
+        let reason = webSocketTask?.closeReason
         cleanup(
             closeCode: closeCode,
             reason: reason,

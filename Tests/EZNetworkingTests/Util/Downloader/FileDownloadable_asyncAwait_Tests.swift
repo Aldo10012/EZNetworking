@@ -102,7 +102,7 @@ final class FileDownloadable_AsyncAwait_Tests {
         ]
 
         let sut = FileDownloader(mockSession: urlSession)
-        var didTrackProgressBeforeReturn: Bool? = nil
+        var didTrackProgressBeforeReturn: Bool?
 
         do {
             _ = try await sut.downloadFile(from: testURL, progress: { _ in

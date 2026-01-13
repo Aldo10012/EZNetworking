@@ -135,7 +135,7 @@ final class FileDownloadable_CallBacks_Tests {
         ]
 
         let sut = FileDownloader(mockSession: urlSession)
-        var didTrackProgressBeforeReturn: Bool? = nil
+        var didTrackProgressBeforeReturn: Bool?
 
         _ = sut.downloadFileTask(from: testURL, progress: { _ in
             if didTrackProgressBeforeReturn == nil {

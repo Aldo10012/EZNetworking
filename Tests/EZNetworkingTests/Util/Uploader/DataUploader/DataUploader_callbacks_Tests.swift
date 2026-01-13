@@ -130,7 +130,7 @@ final class DataUploader_Callbacks_Tests {
         ]
 
         let sut = DataUploader(mockSession: urlSession)
-        var didTrackProgressBeforeReturn: Bool? = nil
+        var didTrackProgressBeforeReturn: Bool?
 
         _ = sut.uploadDataTask(mockData, with: mockRequest, progress: { _ in
             if didTrackProgressBeforeReturn == nil {

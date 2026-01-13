@@ -10,7 +10,7 @@ final class DefaultWebSocketTaskInterceptorTests {
         let session = URLSession(configuration: .default)
         let task = session.webSocketTask(with: url)
 
-        var received: WebSocketTaskEvent? = nil
+        var received: WebSocketTaskEvent?
         let interceptor = DefaultWebSocketTaskInterceptor { event in
             received = event
         }
@@ -30,7 +30,7 @@ final class DefaultWebSocketTaskInterceptorTests {
         let session = URLSession(configuration: .default)
         let task = session.webSocketTask(with: url)
 
-        var received: WebSocketTaskEvent? = nil
+        var received: WebSocketTaskEvent?
         let interceptor = DefaultWebSocketTaskInterceptor { event in
             received = event
         }
@@ -69,7 +69,7 @@ final class DefaultWebSocketTaskInterceptorTests {
         let session = URLSession(configuration: .default)
         let task = session.webSocketTask(with: url)
 
-        var received: WebSocketTaskEvent? = nil
+        var received: WebSocketTaskEvent?
         let interceptor = DefaultWebSocketTaskInterceptor { event in
             received = event
         }
