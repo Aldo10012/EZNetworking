@@ -6,7 +6,8 @@ import PackageDescription
 let package = Package(
     name: "EZNetworking",
     platforms: [
-        .iOS(.v15) // Set the minimum iOS version here
+        .iOS(.v15), // Set the minimum iOS version here
+        .macOS(.v10_15)
     ],
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.

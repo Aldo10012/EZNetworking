@@ -117,7 +117,7 @@ final class FileDownloadableCallBacksTests {
         }, completion: { result in
             defer { didExecute = true }
             switch result {
-            case .success: #expect(true)
+            case .success: #expect(Bool(true))
             case .failure: Issue.record()
             }
         })
@@ -205,7 +205,7 @@ final class FileDownloadableCallBacksTests {
         }, completion: { result in
             defer { didExecute = true }
             switch result {
-            case .success: #expect(true)
+            case .success: #expect(Bool(true))
             case .failure: Issue.record()
             }
         })
@@ -241,7 +241,7 @@ final class FileDownloadableCallBacksTests {
         _ = sut.downloadFileTask(from: testURL, progress: nil) { result in
             defer { didExecute = true }
             switch result {
-            case .success: #expect(true)
+            case .success: #expect(Bool(true))
             case .failure: Issue.record()
             }
         }

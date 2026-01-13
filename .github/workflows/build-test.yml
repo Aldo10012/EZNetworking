@@ -1,0 +1,60 @@
+name: iOS Build and Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    name: Build and Test iOS - Swift 6.0
+    runs-on: macos-14
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Swift 6.0
+        uses: swift-actions/setup-swift@v2
+        with:
+          swift-version: '6.0'
+      
+      - name: Cache Swift Package Manager
+        uses: actions/cache@v4
+        with:
+          path: .build
+          key: ${{ runner.os }}-spm-ios-6.0-${{ hashFiles('**/Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-ios-6.0-
+            ${{ runner.os }}-spm-ios-
+            ${{ runner.os }}-spm-
+      
+      - name: Build Package
+        run: swift build
+      
+      - name: Run Tests
+        run: swift test --enable-code-coverage
+      
+      # - name: Generate Code Coverage Report
+      #   if: success()
+      #   run: |
+      #     xcrun llvm-cov export \
+      #       -instr-profile .build/debug/codecov/default.profdata \
+      #       .build/debug/EZNetworkingPackageTests.xctest \
+      #       -format="lcov" > coverage.lcov
+      
+      # - name: Upload Coverage Report
+      #   if: success()
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: coverage-report-ios-6.0
+      #     path: coverage.lcov
+      #     retention-days: 30
+      
+      # - name: Display Coverage Summary
+      #   if: success()
+      #   run: |
+      #     xcrun llvm-cov report \
+      #       -instr-profile .build/debug/codecov/default.profdata \
+      #       .build/debug/EZNetworkingPackageTests.xctest

@@ -93,6 +93,7 @@ public class FileUploader: FileUploadable {
 
     // MARK: - Core
 
+    @discardableResult
     private func _uploadFileTask(_ fileURL: URL, with request: Request, progress: UploadProgressHandler?, completion: @escaping (UploadCompletionHandler)) -> URLSessionUploadTask? {
         let request = request
         configureProgressTracking(progress: progress)

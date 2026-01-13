@@ -21,7 +21,7 @@ final class DataUploaderPublisherTests {
                 case .finished: break
                 }
             } receiveValue: { _ in
-                #expect(true)
+                #expect(Bool(true))
                 didExecute = true
             }
             .store(in: &cancellables)

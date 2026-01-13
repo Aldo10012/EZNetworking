@@ -15,7 +15,7 @@ final class DataUploaderCallbacksTests {
             defer { didExecute = true }
             switch result {
             case .success:
-                #expect(true)
+                #expect(Bool(true))
             case .failure:
                 Issue.record()
             }
@@ -113,7 +113,7 @@ final class DataUploaderCallbacksTests {
         }, completion: { result in
             defer { didExecute = true }
             switch result {
-            case .success: #expect(true)
+            case .success: #expect(Bool(true))
             case .failure: Issue.record()
             }
         })
@@ -180,7 +180,6 @@ final class DataUploaderCallbacksTests {
 
     @Test("test .uploadDataTask() Download Progress Can Be Tracked when Injecting SessionDelegat")
     func uploadDataTask_progressCanBeTrackedWhenInjectingSessionDelegate() {
-        let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = createMockURLSession()
 
         let delegate = SessionDelegate()
@@ -200,7 +199,7 @@ final class DataUploaderCallbacksTests {
         }, completion: { result in
             defer { didExecute = true }
             switch result {
-            case .success: #expect(true)
+            case .success: #expect(Bool(true))
             case .failure: Issue.record()
             }
         })
@@ -235,7 +234,7 @@ final class DataUploaderCallbacksTests {
         _ = sut.uploadDataTask(mockData, with: mockRequest, progress: nil) { result in
             defer { didExecute = true }
             switch result {
-            case .success: #expect(true)
+            case .success: #expect(Bool(true))
             case .failure: Issue.record()
             }
         }
