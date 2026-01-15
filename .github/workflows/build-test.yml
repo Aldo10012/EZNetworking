@@ -92,7 +92,7 @@ jobs:
         run: |
           SWIFT_PATH=$(which swift)
           TOOLCHAIN_PATH=$(dirname $(dirname $SWIFT_PATH))
-          $TOOLCHAIN_PATH/usr/bin/llvm-cov report \
+          $TOOLCHAIN_PATH/bin/llvm-cov report \
             -instr-profile .build/arm64-apple-macosx/debug/codecov/default.profdata \
             .build/arm64-apple-macosx/debug/${{ steps.package-name.outputs.name }}PackageTests.xctest/Contents/MacOS/${{ steps.package-name.outputs.name }}PackageTests
       
@@ -102,7 +102,7 @@ jobs:
         run: |
           SWIFT_PATH=$(which swift)
           TOOLCHAIN_PATH=$(dirname $(dirname $SWIFT_PATH))
-          $TOOLCHAIN_PATH/usr/bin/llvm-cov export \
+          $TOOLCHAIN_PATH/bin/llvm-cov export \
             -instr-profile .build/arm64-apple-macosx/debug/codecov/default.profdata \
             .build/arm64-apple-macosx/debug/${{ steps.package-name.outputs.name }}PackageTests.xctest/Contents/MacOS/${{ steps.package-name.outputs.name }}PackageTests \
             -format="lcov" > coverage.lcov
