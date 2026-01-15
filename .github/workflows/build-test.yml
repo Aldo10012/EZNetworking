@@ -11,30 +11,35 @@ jobs:
   # Platform Builds
   # -------------------------
   build-macos:
+    name: Build macOS
     uses: ./.github/workflows/reusable-build.yml
     with:
       platform: macOS
       swift-versions: '["5.10", "6.0", "6.1", "6.2"]'
 
   build-iOS:
+    name: Build iOS
     uses: ./.github/workflows/reusable-build.yml
     with:
       platform: iOS
       swift-versions: '["6.2"]'
 
   build-watchOS:
+    name: Build watchOS
     uses: ./.github/workflows/reusable-build.yml
     with:
       platform: watchOS
       swift-versions: '["6.2"]'
 
   build-tvOS:
+    name: Build tvOS
     uses: ./.github/workflows/reusable-build.yml
     with:
       platform: tvOS
       swift-versions: '["6.2"]'
 
   build-visionOS:
+    name: Build visionOS
     uses: ./.github/workflows/reusable-build.yml
     with:
       platform: visionOS
