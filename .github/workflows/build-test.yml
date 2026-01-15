@@ -87,7 +87,9 @@ jobs:
         if: steps.package-name.outcome == 'success'
         continue-on-error: true
         run: |
-          xcrun --toolchain $(basename $(dirname $(dirname $(which swift)))) llvm-cov report \
+          SWIFT_PATH=$(which swift)
+          TOOLCHAIN_PATH=$(dirname $(dirname $SWIFT_PATH))
+          $TOOLCHAIN_PATH/usr/bin/llvm-cov report \
             -instr-profile .build/arm64-apple-macosx/debug/codecov/default.profdata \
             .build/arm64-apple-macosx/debug/${{ steps.package-name.outputs.name }}PackageTests.xctest/Contents/MacOS/${{ steps.package-name.outputs.name }}PackageTests
       
@@ -95,7 +97,9 @@ jobs:
         if: steps.package-name.outcome == 'success'
         continue-on-error: true
         run: |
-          xcrun --toolchain $(basename $(dirname $(dirname $(which swift)))) llvm-cov export \
+          SWIFT_PATH=$(which swift)
+          TOOLCHAIN_PATH=$(dirname $(dirname $SWIFT_PATH))
+          $TOOLCHAIN_PATH/usr/bin/llvm-cov export \
             -instr-profile .build/arm64-apple-macosx/debug/codecov/default.profdata \
             .build/arm64-apple-macosx/debug/${{ steps.package-name.outputs.name }}PackageTests.xctest/Contents/MacOS/${{ steps.package-name.outputs.name }}PackageTests \
             -format="lcov" > coverage.lcov
