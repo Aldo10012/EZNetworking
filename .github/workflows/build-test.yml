@@ -8,7 +8,7 @@ on:
 
 jobs:
   # -------------------------
-  # macOS Build
+  # Platform Builds
   # -------------------------
   build-macos:
     name: Build macOS
@@ -17,9 +17,6 @@ jobs:
       platform: macOS
       swift-versions: '["5.10", "6.0", "6.1", "6.2"]'
 
-  # -------------------------
-  # iOS Build
-  # -------------------------
   build-iOS:
     name: Build iOS
     uses: ./.github/workflows/reusable-build.yml
@@ -27,9 +24,6 @@ jobs:
       platform: iOS
       swift-versions: '["6.2"]'
 
-  # -------------------------
-  # watchOS Build
-  # -------------------------
   build-watchOS:
     name: Build watchOS
     uses: ./.github/workflows/reusable-build.yml
@@ -37,9 +31,6 @@ jobs:
       platform: watchOS
       swift-versions: '["6.2"]'
 
-  # -------------------------
-  # tvOS Build
-  # -------------------------
   build-tvOS:
     name: Build tvOS
     uses: ./.github/workflows/reusable-build.yml
@@ -47,9 +38,6 @@ jobs:
       platform: tvOS
       swift-versions: '["6.2"]'
 
-  # -------------------------
-  # visionOS Build
-  # -------------------------
   build-visionOS:
     name: Build visionOS
     uses: ./.github/workflows/reusable-build.yml
