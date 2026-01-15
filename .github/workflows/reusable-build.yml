@@ -1,0 +1,44 @@
+name: Reusable Build Workflow
+
+on:
+  workflow_call:
+    inputs:
+      platform:
+        required: true
+        type: string
+        description: 'Platform to build for (macOS, iOS, watchOS, tvOS, visionOS)'
+      swift-versions:
+        required: true
+        type: string
+        description: 'JSON array of Swift versions to build with, e.g. ["5.10", "6.0", "6.1", "6.2"]'
+
+jobs:
+  build:
+    name: Swift ${{ matrix.swift-version }}
+    runs-on: macos-14
+    strategy:
+      fail-fast: false
+      matrix:
+        swift-version: ${{ fromJSON(inputs.swift-versions) }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Swift ${{ matrix.swift-version }}
+        uses: swift-actions/setup-swift@v2
+        with:
+          swift-version: ${{ matrix.swift-version }}
+      
+      - name: Cache Swift Package Manager
+        uses: actions/cache@v4
+        with:
+          path: .build
+          key: ${{ runner.os }}-spm-${{ inputs.platform }}-${{ matrix.swift-version }}-${{ hashFiles('**/Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-${{ inputs.platform }}-${{ matrix.swift-version }}-
+            ${{ runner.os }}-spm-${{ inputs.platform }}-
+            ${{ runner.os }}-spm-
+      
+      - name: Build for ${{ inputs.platform }}
+        run: swift build
