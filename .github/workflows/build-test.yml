@@ -20,7 +20,7 @@ jobs:
   # -------------------------
   # iOS Build
   # -------------------------
-  build-ios:
+  build-iOS:
     name: Build iOS
     uses: ./.github/workflows/reusable-build.yml
     with:
@@ -30,7 +30,7 @@ jobs:
   # -------------------------
   # watchOS Build
   # -------------------------
-  build-watchos:
+  build-watchOS:
     name: Build watchOS
     uses: ./.github/workflows/reusable-build.yml
     with:
@@ -41,30 +41,11 @@ jobs:
   # tvOS Build
   # -------------------------
   build-tvOS:
-    name: Build tvOS - Swift 6.2
-    runs-on: macos-14
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Swift 6.2
-        uses: swift-actions/setup-swift@v2
-        with:
-          swift-version: '6.2'
-
-      - name: Cache Swift Package Manager
-        uses: actions/cache@v4
-        with:
-          path: .build
-          key: ${{ runner.os }}-spm-tvos-6.2-${{ hashFiles('**/Package.resolved') }}
-          restore-keys: |
-            ${{ runner.os }}-spm-tvos-6.2-
-            ${{ runner.os }}-spm-tvos-
-            ${{ runner.os }}-spm-
-
-      - name: Build for tvOS
-        run: swift build
+    name: Build tvOS
+    uses: ./.github/workflows/reusable-build.yml
+    with:
+      platform: tvOS
+      swift-versions: '["6.2"]'
 
   # -------------------------
   # visionOS Build
