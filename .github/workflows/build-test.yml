@@ -87,20 +87,17 @@ jobs:
         if: steps.package-name.outcome == 'success'
         continue-on-error: true
         run: |
-          swift test --enable-code-coverage --show-codecov-path
-          LLVM_COV=$(swift test --enable-code-coverage --show-codecov-path 2>&1 | grep -o '/.*llvm-cov')
-          $LLVM_COV report \
-            -instr-profile .build/debug/codecov/default.profdata \
-            .build/debug/${{ steps.package-name.outputs.name }}PackageTests.xctest/Contents/MacOS/${{ steps.package-name.outputs.name }}PackageTests
+          xcrun --toolchain $(basename $(dirname $(dirname $(which swift)))) llvm-cov report \
+            -instr-profile .build/arm64-apple-macosx/debug/codecov/default.profdata \
+            .build/arm64-apple-macosx/debug/${{ steps.package-name.outputs.name }}PackageTests.xctest/Contents/MacOS/${{ steps.package-name.outputs.name }}PackageTests
       
       - name: Generate Coverage Report (LCOV)
         if: steps.package-name.outcome == 'success'
         continue-on-error: true
         run: |
-          LLVM_COV=$(swift test --enable-code-coverage --show-codecov-path 2>&1 | grep -o '/.*llvm-cov')
-          $LLVM_COV export \
-            -instr-profile .build/debug/codecov/default.profdata \
-            .build/debug/${{ steps.package-name.outputs.name }}PackageTests.xctest/Contents/MacOS/${{ steps.package-name.outputs.name }}PackageTests \
+          xcrun --toolchain $(basename $(dirname $(dirname $(which swift)))) llvm-cov export \
+            -instr-profile .build/arm64-apple-macosx/debug/codecov/default.profdata \
+            .build/arm64-apple-macosx/debug/${{ steps.package-name.outputs.name }}PackageTests.xctest/Contents/MacOS/${{ steps.package-name.outputs.name }}PackageTests \
             -format="lcov" > coverage.lcov
       
       - name: Upload Coverage Artifact
