@@ -49,7 +49,7 @@ jobs:
   # Testing
   # -------------------------
   test:
-    name: Test - macOS - Swift 6.2
+    name: Test
     runs-on: macos-14
     needs: [build-macos, build-ios, build-watchOS, build-tvOS, build-visionOS]
     
