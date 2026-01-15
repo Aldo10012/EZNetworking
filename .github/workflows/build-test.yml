@@ -51,30 +51,11 @@ jobs:
   # visionOS Build
   # -------------------------
   build-visionOS:
-    name: Build visionOS - Swift 6.2
-    runs-on: macos-14
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Swift 6.2
-        uses: swift-actions/setup-swift@v2
-        with:
-          swift-version: '6.2'
-
-      - name: Cache Swift Package Manager
-        uses: actions/cache@v4
-        with:
-          path: .build
-          key: ${{ runner.os }}-spm-visionos-6.2-${{ hashFiles('**/Package.resolved') }}
-          restore-keys: |
-            ${{ runner.os }}-spm-visionos-6.2-
-            ${{ runner.os }}-spm-visionos-
-            ${{ runner.os }}-spm-
-
-      - name: Build for visionOS
-        run: swift build
+    name: Build visionOS
+    uses: ./.github/workflows/reusable-build.yml
+    with:
+      platform: visionOS
+      swift-versions: '["6.2"]'
 
   # -------------------------
   # Testing
