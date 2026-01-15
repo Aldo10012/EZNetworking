@@ -87,7 +87,9 @@ jobs:
         if: steps.package-name.outcome == 'success'
         continue-on-error: true
         run: |
-          xcrun llvm-cov report \
+          swift test --enable-code-coverage --show-codecov-path
+          LLVM_COV=$(swift test --enable-code-coverage --show-codecov-path 2>&1 | grep -o '/.*llvm-cov')
+          $LLVM_COV report \
             -instr-profile .build/debug/codecov/default.profdata \
             .build/debug/${{ steps.package-name.outputs.name }}PackageTests.xctest/Contents/MacOS/${{ steps.package-name.outputs.name }}PackageTests
       
@@ -95,7 +97,8 @@ jobs:
         if: steps.package-name.outcome == 'success'
         continue-on-error: true
         run: |
-          xcrun llvm-cov export \
+          LLVM_COV=$(swift test --enable-code-coverage --show-codecov-path 2>&1 | grep -o '/.*llvm-cov')
+          $LLVM_COV export \
             -instr-profile .build/debug/codecov/default.profdata \
             .build/debug/${{ steps.package-name.outputs.name }}PackageTests.xctest/Contents/MacOS/${{ steps.package-name.outputs.name }}PackageTests \
             -format="lcov" > coverage.lcov
