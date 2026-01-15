@@ -7,7 +7,8 @@ let package = Package(
     name: "EZNetworking",
     platforms: [
         .iOS(.v15), // Set the minimum iOS version here
-        .macOS(.v10_15)
+        .macOS(.v10_15),
+        .watchOS(.v8)
     ],
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
