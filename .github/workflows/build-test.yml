@@ -52,6 +52,9 @@ jobs:
     name: Test
     runs-on: macos-14
     needs: [build-macos, build-ios, build-watchOS, build-tvOS, build-visionOS]
+    permissions:
+      contents: read
+      pull-requests: write
     
     steps:
       - name: Checkout code
@@ -89,7 +92,7 @@ jobs:
         run: |
           SWIFT_PATH=$(which swift)
           TOOLCHAIN_PATH=$(dirname $(dirname $SWIFT_PATH))
-          $TOOLCHAIN_PATH/bin/llvm-cov report \
+          $TOOLCHAIN_PATH/usr/bin/llvm-cov report \
             -instr-profile .build/arm64-apple-macosx/debug/codecov/default.profdata \
             .build/arm64-apple-macosx/debug/${{ steps.package-name.outputs.name }}PackageTests.xctest/Contents/MacOS/${{ steps.package-name.outputs.name }}PackageTests
       
@@ -99,7 +102,7 @@ jobs:
         run: |
           SWIFT_PATH=$(which swift)
           TOOLCHAIN_PATH=$(dirname $(dirname $SWIFT_PATH))
-          $TOOLCHAIN_PATH/bin/llvm-cov export \
+          $TOOLCHAIN_PATH/usr/bin/llvm-cov export \
             -instr-profile .build/arm64-apple-macosx/debug/codecov/default.profdata \
             .build/arm64-apple-macosx/debug/${{ steps.package-name.outputs.name }}PackageTests.xctest/Contents/MacOS/${{ steps.package-name.outputs.name }}PackageTests \
             -format="lcov" > coverage.lcov
@@ -112,11 +115,3 @@ jobs:
           name: coverage-report-swift-6.2
           path: coverage.lcov
           retention-days: 30
-
-      - name: Comment Coverage on PR
-        if: steps.package-name.outcome == 'success' && github.event_name == 'pull_request'
-        continue-on-error: true
-        uses: romeovs/lcov-reporter-action@v0.3.1
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          lcov-file: ./coverage.lcov
