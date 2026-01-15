@@ -74,25 +74,41 @@ jobs:
       - name: Run Tests
         run: swift test --enable-code-coverage
       
-      # - name: Generate Code Coverage Report
-      #   if: success()
-      #   run: |
-      #     xcrun llvm-cov export \
-      #       -instr-profile .build/debug/codecov/default.profdata \
-      #       .build/debug/EZNetworkingPackageTests.xctest \
-      #       -format="lcov" > coverage.lcov
+      # --- Coverage Reporting (Non-blocking) ---
       
-      # - name: Upload Coverage Report
-      #   if: success()
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: coverage-report-swift-6.2
-      #     path: coverage.lcov
-      #     retention-days: 30
+      - name: Get Package Name
+        id: package-name
+        continue-on-error: true
+        run: |
+          PACKAGE_NAME=$(swift package describe --type json | jq -r '.name')
+          echo "name=$PACKAGE_NAME" >> $GITHUB_OUTPUT
       
-      # - name: Display Coverage Summary
-      #   if: success()
-      #   run: |
-      #     xcrun llvm-cov report \
-      #       -instr-profile .build/debug/codecov/default.profdata \
-      #       .build/debug/EZNetworkingPackageTests.xctest
+      - name: Display Coverage Summary
+        if: steps.package-name.outcome == 'success'
+        continue-on-error: true
+        run: |
+          SWIFT_PATH=$(which swift)
+          TOOLCHAIN_PATH=$(dirname $(dirname $SWIFT_PATH))
+          $TOOLCHAIN_PATH/bin/llvm-cov report \
+            -instr-profile .build/arm64-apple-macosx/debug/codecov/default.profdata \
+            .build/arm64-apple-macosx/debug/${{ steps.package-name.outputs.name }}PackageTests.xctest/Contents/MacOS/${{ steps.package-name.outputs.name }}PackageTests
+      
+      - name: Generate Coverage Report (LCOV)
+        if: steps.package-name.outcome == 'success'
+        continue-on-error: true
+        run: |
+          SWIFT_PATH=$(which swift)
+          TOOLCHAIN_PATH=$(dirname $(dirname $SWIFT_PATH))
+          $TOOLCHAIN_PATH/bin/llvm-cov export \
+            -instr-profile .build/arm64-apple-macosx/debug/codecov/default.profdata \
+            .build/arm64-apple-macosx/debug/${{ steps.package-name.outputs.name }}PackageTests.xctest/Contents/MacOS/${{ steps.package-name.outputs.name }}PackageTests \
+            -format="lcov" > coverage.lcov
+      
+      - name: Upload Coverage Artifact
+        if: steps.package-name.outcome == 'success'
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report-swift-6.2
+          path: coverage.lcov
+          retention-days: 30
