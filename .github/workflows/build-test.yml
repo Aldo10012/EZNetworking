@@ -112,3 +112,11 @@ jobs:
           name: coverage-report-swift-6.2
           path: coverage.lcov
           retention-days: 30
+
+      - name: Comment Coverage on PR
+        if: steps.package-name.outcome == 'success' && github.event_name == 'pull_request'
+        continue-on-error: true
+        uses: romeovs/lcov-reporter-action@v0.3.1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          lcov-file: ./coverage.lcov
