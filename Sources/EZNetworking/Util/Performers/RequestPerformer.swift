@@ -2,12 +2,12 @@ import Combine
 import Foundation
 
 public struct RequestPerformer: RequestPerformable {
-    private let urlSession: URLSessionTaskProtocol
+    private let urlSession: URLSessionProtocol
     private let validator: ResponseValidator
     private let requestDecoder: RequestDecodable
 
     public init(
-        urlSession: URLSessionTaskProtocol = URLSession.shared,
+        urlSession: URLSessionProtocol = URLSession.shared,
         validator: ResponseValidator = ResponseValidatorImpl(),
         requestDecoder: RequestDecodable = RequestDecoder(),
         sessionDelegate: SessionDelegate? = nil

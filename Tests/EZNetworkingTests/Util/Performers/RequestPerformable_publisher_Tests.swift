@@ -191,7 +191,7 @@ final class RequestPerformablepublisherTests {
 // MARK: helpers
 
 private func createRequestPerformer(
-    urlSession: URLSessionTaskProtocol = createMockURLSession(),
+    urlSession: URLSessionProtocol = createMockURLSession(),
     validator: ResponseValidator = ResponseValidatorImpl(),
     requestDecoder: RequestDecodable = RequestDecoder()
 ) -> RequestPerformer {

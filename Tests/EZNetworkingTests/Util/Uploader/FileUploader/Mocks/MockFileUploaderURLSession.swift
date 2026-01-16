@@ -1,7 +1,7 @@
 import EZNetworking
 import Foundation
 
-class MockFileUploaderURLSession: URLSessionTaskProtocol {
+class MockFileUploaderURLSession: URLSessionProtocol {
     var data: Data?
     var urlResponse: URLResponse?
     var error: Error?
@@ -81,7 +81,7 @@ extension MockFileUploaderURLSession {
         fatalError("Should not be using in this mock")
     }
 
-    func webSocketTaskInspectable(with request: URLRequest) -> WebSocketTaskProtocol {
+    func webSocketTaskInspectable(with request: URLRequest) -> URLSessionWebSocketTaskProtocol {
         fatalError("Should not be using in this mock")
     }
 }

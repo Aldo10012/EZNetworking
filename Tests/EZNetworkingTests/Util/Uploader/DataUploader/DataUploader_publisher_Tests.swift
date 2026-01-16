@@ -274,7 +274,7 @@ final class DataUploaderPublisherTests {
 // MARK: - helpers
 
 private func createDataUploader(
-    urlSession: URLSessionTaskProtocol = createMockURLSession()
+    urlSession: URLSessionProtocol = createMockURLSession()
 ) -> DataUploader {
     DataUploader(urlSession: urlSession)
 }

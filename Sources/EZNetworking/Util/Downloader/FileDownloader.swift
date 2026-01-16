@@ -2,7 +2,7 @@ import Combine
 import Foundation
 
 public class FileDownloader: FileDownloadable {
-    private let urlSession: URLSessionTaskProtocol
+    private let urlSession: URLSessionProtocol
     private let validator: ResponseValidator
     private let requestDecoder: RequestDecodable
     private var sessionDelegate: SessionDelegate
@@ -12,7 +12,7 @@ public class FileDownloader: FileDownloadable {
     // MARK: init
 
     public init(
-        urlSession: URLSessionTaskProtocol = URLSession.shared,
+        urlSession: URLSessionProtocol = URLSession.shared,
         validator: ResponseValidator = ResponseValidatorImpl(),
         requestDecoder: RequestDecodable = RequestDecoder(),
         sessionDelegate: SessionDelegate? = nil // Now optional!
