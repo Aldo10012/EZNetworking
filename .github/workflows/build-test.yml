@@ -112,3 +112,12 @@ jobs:
           name: coverage-report-swift-6.2
           path: coverage.lcov
           retention-days: 30
+      
+      - name: Upload to Codecov
+        if: steps.package-name.outcome == 'success'
+        continue-on-error: true
+        uses: codecov/codecov-action@v4
+        with:
+          files: coverage.lcov
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
