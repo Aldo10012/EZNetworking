@@ -158,7 +158,7 @@ final class FileUploaderAsyncAwaitTests {
 // MARK: - helpers
 
 private func createFileUploader(
-    urlSession: URLSessionTaskProtocol = createMockURLSession()
+    urlSession: URLSessionProtocol = createMockURLSession()
 ) -> FileUploader {
     FileUploader(urlSession: urlSession)
 }

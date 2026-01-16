@@ -1,6 +1,6 @@
 import Foundation
 
-public protocol URLSessionTaskProtocol {
+public protocol URLSessionProtocol {
     func dataTask(with request: URLRequest, completionHandler: @escaping @Sendable (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTask
 
     func downloadTask(with url: URL, completionHandler: @escaping @Sendable (URL?, URLResponse?, Error?) -> Void) -> URLSessionDownloadTask
@@ -12,7 +12,7 @@ public protocol URLSessionTaskProtocol {
     func webSocketTaskInspectable(with request: URLRequest) -> WebSocketTaskProtocol
 }
 
-extension URLSession: URLSessionTaskProtocol {
+extension URLSession: URLSessionProtocol {
     public func webSocketTaskInspectable(with request: URLRequest) -> WebSocketTaskProtocol {
         let task: URLSessionWebSocketTask = webSocketTask(with: request)
         return task as WebSocketTaskProtocol

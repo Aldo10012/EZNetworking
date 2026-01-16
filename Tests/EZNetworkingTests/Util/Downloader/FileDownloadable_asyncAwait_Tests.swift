@@ -217,7 +217,7 @@ final class FileDownloadableAsyncAwaitTests {
 private let testURL = URL(string: "https://example.com/example.pdf")!
 
 private func createFileDownloader(
-    urlSession: URLSessionTaskProtocol = createMockURLSession(statusCode: 200),
+    urlSession: URLSessionProtocol = createMockURLSession(statusCode: 200),
     validator: ResponseValidator = ResponseValidatorImpl(),
     requestDecoder: RequestDecodable = RequestDecoder()
 ) -> FileDownloader {

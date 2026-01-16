@@ -1,7 +1,7 @@
 import EZNetworking
 import Foundation
 
-class MockWebSockerURLSession: URLSessionTaskProtocol {
+class MockWebSockerURLSession: URLSessionProtocol {
     private let webSocketTask: MockURLSessionWebSocketTask
 
     var didCallWebSocketTaskInspectable = false

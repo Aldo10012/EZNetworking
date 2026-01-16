@@ -2,7 +2,7 @@ import Combine
 import Foundation
 
 public class DataUploader: DataUploadable {
-    private let urlSession: URLSessionTaskProtocol
+    private let urlSession: URLSessionProtocol
     private let validator: ResponseValidator
     private var sessionDelegate: SessionDelegate
 
@@ -11,7 +11,7 @@ public class DataUploader: DataUploadable {
     // MARK: init
 
     public init(
-        urlSession: URLSessionTaskProtocol = URLSession.shared,
+        urlSession: URLSessionProtocol = URLSession.shared,
         validator: ResponseValidator = ResponseValidatorImpl(),
         sessionDelegate: SessionDelegate? = nil
     ) {

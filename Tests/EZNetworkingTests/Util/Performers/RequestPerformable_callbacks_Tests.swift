@@ -200,7 +200,7 @@ final class RequestPerformableCallbacksTests {
 // MARK: helpers
 
 private func createRequestPerformer(
-    urlSession: URLSessionTaskProtocol = createMockURLSession(),
+    urlSession: URLSessionProtocol = createMockURLSession(),
     validator: ResponseValidator = ResponseValidatorImpl(),
     requestDecoder: RequestDecodable = RequestDecoder()
 ) -> RequestPerformer {

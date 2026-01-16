@@ -248,7 +248,7 @@ final class FileUploaderCallbacksTests {
 // MARK: - helpers
 
 private func createFileUploader(
-    urlSession: URLSessionTaskProtocol = createMockURLSession()
+    urlSession: URLSessionProtocol = createMockURLSession()
 ) -> FileUploader {
     FileUploader(urlSession: urlSession)
 }

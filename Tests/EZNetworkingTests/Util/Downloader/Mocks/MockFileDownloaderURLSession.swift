@@ -1,7 +1,7 @@
 import EZNetworking
 import Foundation
 
-class MockFileDownloaderURLSession: URLSessionTaskProtocol {
+class MockFileDownloaderURLSession: URLSessionProtocol {
     var url: URL?
     var data: Data?
     var urlResponse: URLResponse?

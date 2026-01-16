@@ -1,7 +1,7 @@
 import Foundation
 
 public actor WebSocket: WebSocketClient {
-    private let urlSession: URLSessionTaskProtocol
+    private let urlSession: URLSessionProtocol
     private nonisolated let sessionDelegate: SessionDelegate
     private let webSocketRequest: WebSocketRequest
 
@@ -34,7 +34,7 @@ public actor WebSocket: WebSocketClient {
         protocols: [String]? = nil,
         additionalheaders: [HTTPHeader]? = nil,
         pingConfig: PingConfig = PingConfig(),
-        urlSession: URLSessionTaskProtocol = URLSession.shared,
+        urlSession: URLSessionProtocol = URLSession.shared,
         sessionDelegate: SessionDelegate? = nil
     ) {
         self.init(
@@ -48,7 +48,7 @@ public actor WebSocket: WebSocketClient {
     public init(
         request: WebSocketRequest,
         pingConfig: PingConfig = PingConfig(),
-        urlSession: URLSessionTaskProtocol = URLSession.shared,
+        urlSession: URLSessionProtocol = URLSession.shared,
         sessionDelegate: SessionDelegate? = nil
     ) {
         webSocketRequest = request

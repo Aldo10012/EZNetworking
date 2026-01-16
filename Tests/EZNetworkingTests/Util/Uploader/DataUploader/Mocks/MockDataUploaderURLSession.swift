@@ -1,7 +1,7 @@
 import EZNetworking
 import Foundation
 
-class MockDataUploaderURLSession: URLSessionTaskProtocol {
+class MockDataUploaderURLSession: URLSessionProtocol {
     var data: Data?
     var urlResponse: URLResponse?
     var error: Error?
