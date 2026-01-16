@@ -1,7 +1,7 @@
 import Foundation
 
 // protocol to allow unit testing and mocking for URLSessionWebSocketTask
-public protocol WebSocketTaskProtocol {
+public protocol URLSessionWebSocketTaskProtocol {
     func resume()
     func cancel(with closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?)
 
@@ -18,7 +18,7 @@ public protocol WebSocketTaskProtocol {
     var closeReason: Data? { get }
 }
 
-extension WebSocketTaskProtocol {
+extension URLSessionWebSocketTaskProtocol {
     public func sendPing() async throws {
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
             sendPing { error in
@@ -32,4 +32,4 @@ extension WebSocketTaskProtocol {
     }
 }
 
-extension URLSessionWebSocketTask: WebSocketTaskProtocol {}
+extension URLSessionWebSocketTask: URLSessionWebSocketTaskProtocol {}

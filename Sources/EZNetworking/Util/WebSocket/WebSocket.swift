@@ -5,7 +5,7 @@ public actor WebSocket: WebSocketClient {
     private nonisolated let sessionDelegate: SessionDelegate
     private let webSocketRequest: WebSocketRequest
 
-    private var webSocketTask: WebSocketTaskProtocol?
+    private var webSocketTask: URLSessionWebSocketTaskProtocol?
     private nonisolated let fallbackWebSocketTaskInterceptor: WebSocketTaskInterceptor = DefaultWebSocketTaskInterceptor()
 
     private var connectionState: WebSocketConnectionState = .notConnected {

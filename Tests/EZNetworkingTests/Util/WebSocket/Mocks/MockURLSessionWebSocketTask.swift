@@ -1,7 +1,7 @@
 import EZNetworking
 import Foundation
 
-class MockURLSessionWebSocketTask: WebSocketTaskProtocol {
+class MockURLSessionWebSocketTask: URLSessionWebSocketTaskProtocol {
     var closeCode: URLSessionWebSocketTask.CloseCode = .goingAway
     var closeReason: Data?
 

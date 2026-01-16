@@ -10,7 +10,7 @@ class MockWebSockerURLSession: URLSessionProtocol {
         self.webSocketTask = webSocketTask
     }
 
-    func webSocketTaskInspectable(with request: URLRequest) -> WebSocketTaskProtocol {
+    func webSocketTaskInspectable(with request: URLRequest) -> URLSessionWebSocketTaskProtocol {
         didCallWebSocketTaskInspectable = true
         return webSocketTask
     }

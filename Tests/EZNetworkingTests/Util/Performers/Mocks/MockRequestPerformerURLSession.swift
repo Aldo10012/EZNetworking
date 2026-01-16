@@ -37,7 +37,7 @@ extension MockRequestPerformerURLSession {
         fatalError("Should not be using in this mock")
     }
 
-    func webSocketTaskInspectable(with request: URLRequest) -> WebSocketTaskProtocol {
+    func webSocketTaskInspectable(with request: URLRequest) -> URLSessionWebSocketTaskProtocol {
         fatalError("Should not be using in this mock")
     }
 }

@@ -9,12 +9,12 @@ public protocol URLSessionProtocol {
 
     func uploadTask(with request: URLRequest, fromFile fileURL: URL, completionHandler: @escaping @Sendable (Data?, URLResponse?, (any Error)?) -> Void) -> URLSessionUploadTask
 
-    func webSocketTaskInspectable(with request: URLRequest) -> WebSocketTaskProtocol
+    func webSocketTaskInspectable(with request: URLRequest) -> URLSessionWebSocketTaskProtocol
 }
 
 extension URLSession: URLSessionProtocol {
-    public func webSocketTaskInspectable(with request: URLRequest) -> WebSocketTaskProtocol {
+    public func webSocketTaskInspectable(with request: URLRequest) -> URLSessionWebSocketTaskProtocol {
         let task: URLSessionWebSocketTask = webSocketTask(with: request)
-        return task as WebSocketTaskProtocol
+        return task as URLSessionWebSocketTaskProtocol
     }
 }
