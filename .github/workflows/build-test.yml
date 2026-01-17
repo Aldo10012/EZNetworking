@@ -10,7 +10,7 @@ jobs:
   # -------------------------
   # Platform Builds
   # -------------------------
-  build-macos:
+  build-macOS:
     name: Build macOS
     uses: ./.github/workflows/reusable-build.yml
     with:
@@ -51,7 +51,7 @@ jobs:
   test:
     name: Test
     runs-on: macos-14
-    needs: [build-macos, build-ios, build-watchOS, build-tvOS, build-visionOS]
+    needs: [build-macOS, build-iOS, build-watchOS, build-tvOS, build-visionOS]
     
     steps:
       - name: Checkout code
