@@ -37,16 +37,7 @@ public struct RequestPerformer: RequestPerformable {
     // MARK: Async Await
 
     public func perform<T: Decodable>(request: Request, decodeTo decodableObject: T.Type) async throws -> T {
-        try await withCheckedThrowingContinuation { continuation in
-            performDataTask(request: request, decodeTo: decodableObject, completion: { result in
-                switch result {
-                case let .success(success):
-                    continuation.resume(returning: success)
-                case let .failure(failure):
-                    continuation.resume(throwing: failure)
-                }
-            })
-        }
+        return try await _perform(request: request, decodeTo: decodableObject)
     }
 
     // MARK: Completion Handler
@@ -91,10 +82,25 @@ public struct RequestPerformer: RequestPerformable {
         return task
     }
 
+    // New Core method
+
+    private func _perform<T: Decodable>(request: Request, decodeTo decodableObject: T.Type) async throws -> T {
+        do {
+            let urlReequest = try request.getURLRequest()
+            let (data, urlResponse) = try await urlSession.data(for: urlReequest)
+            try validator.validateStatus(from: urlResponse)
+            let validData = try validator.validateData(data)
+            let result = try requestDecoder.decode(decodableObject, from: validData)
+            return result
+        } catch {
+            throw mapError(error)
+        }
+    }
+
     private func mapError(_ error: Error) -> NetworkingError {
         if let networkError = error as? NetworkingError { return networkError }
         if let urlError = error as? URLError { return .urlError(urlError) }
-        return .internalError(.unknown)
+        return .internalError(.requestFailed(error))
     }
 
     private func getURLRequest(from request: Request) -> URLRequest? {

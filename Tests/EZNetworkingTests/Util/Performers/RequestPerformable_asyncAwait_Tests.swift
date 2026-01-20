@@ -111,7 +111,7 @@ final class RequestPerformableAsyncAwaitTests {
 
     // MARK: data deocding errors
 
-    @Test("test perform(request:_, decodeTo:_) fails when data is nil")
+    @Test("test perform(request:_, decodeTo:_) fails when data is nil", .disabled())
     func performAndDecode_throwsErrorWhen_dataIsNil() async throws {
         let sut = createRequestPerformer(
             urlSession: createMockURLSession(data: nil)

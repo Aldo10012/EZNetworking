@@ -8,7 +8,7 @@ class MockRequestPerformerURLSession: URLSessionProtocol {
     var completion: ((Data?, URLResponse?, Error?) -> Void)?
     var sessionDelegate: SessionDelegate?
 
-    init(data: Data? = nil, urlResponse: URLResponse? = nil, error: Error? = nil) {
+    init(data: Data? = Data(), urlResponse: URLResponse? = buildResponse(statusCode: 200), error: Error? = nil) {
         self.data = data
         self.urlResponse = urlResponse
         self.error = error
@@ -49,4 +49,13 @@ extension MockRequestPerformerURLSession {
     func webSocketTaskInspectable(with request: URLRequest) -> URLSessionWebSocketTaskProtocol {
         fatalError("Should not be using in this mock")
     }
+}
+
+private func buildResponse(statusCode: Int) -> HTTPURLResponse {
+    HTTPURLResponse(
+        url: URL(string: "https://example.com")!,
+        statusCode: statusCode,
+        httpVersion: nil,
+        headerFields: nil
+    )!
 }
