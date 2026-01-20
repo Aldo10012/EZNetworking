@@ -43,8 +43,22 @@ public struct RequestPerformer: RequestPerformable {
     // MARK: Completion Handler
 
     @discardableResult
-    public func performTask<T: Decodable>(request: Request, decodeTo decodableObject: T.Type, completion: @escaping ((Result<T, NetworkingError>) -> Void)) -> URLSessionDataTask? {
-        performDataTask(request: request, decodeTo: decodableObject, completion: completion)
+    public func performTask<T: Decodable>(
+        request: Request,
+        decodeTo decodableObject: T.Type,
+        completion: @escaping ((Result<T, NetworkingError>) -> Void)
+    ) -> URLSessionDataTask? {
+        let dataTask = EZURLSessionDataTask {
+            do {
+                let result = try await self._perform(request: request, decodeTo: decodableObject)
+                guard !Task.isCancelled else { return }
+                completion(.success(result))
+            } catch {
+                completion(.failure(self.mapError(error)))
+            }
+        }
+        dataTask.resume()
+        return dataTask
     }
 
     // MARK: Publisher
@@ -107,3 +121,25 @@ public struct RequestPerformer: RequestPerformable {
         do { return try request.getURLRequest() } catch { return nil }
     }
 }
+
+// TODO: move somewhere else
+
+final class EZURLSessionDataTask: URLSessionDataTask, @unchecked Sendable {
+    private var task: Task<Void, Never>?
+    private let work: @Sendable () async -> Void
+
+    init(work: @escaping @Sendable () async -> Void) {
+        self.work = work
+        super.init()
+    }
+
+    override func resume() {
+        guard task == nil else { return }  // Prevent double-resume
+        task = Task(priority: .high) { await work() }
+    }
+
+    override func cancel() {
+        task?.cancel()
+    }
+}
+
