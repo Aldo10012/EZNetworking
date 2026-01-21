@@ -1,6 +1,6 @@
 import Foundation
 
-final class EZURLSessionDataTask: URLSessionDataTask, @unchecked Sendable {
+public final class EZURLSessionDataTask: URLSessionDataTask, @unchecked Sendable {
     private var task: Task<Void, Never>?
     private let workBlock: @Sendable () async -> Void
 
@@ -9,12 +9,12 @@ final class EZURLSessionDataTask: URLSessionDataTask, @unchecked Sendable {
         super.init()
     }
 
-    override func resume() {
+    public override func resume() {
         guard task == nil else { return } // Prevent double-resume
         task = Task(priority: .high) { await workBlock() }
     }
 
-    override func cancel() {
+    public override func cancel() {
         task?.cancel()
     }
 }
