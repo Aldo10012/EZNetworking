@@ -158,27 +158,6 @@ final class RequestPerformablepublisherTests {
 
     // MARK: data deocding errors
 
-    @Test("test performPublisher(request:_, decodeTo:_) fails when data is nil", .disabled())
-    func performPublisher_throwsErrorWhen_dataIsNil() {
-        let sut = createRequestPerformer(
-            urlSession: createMockURLSession(data: nil)
-        )
-        var didComplete = false
-        sut.performPublisher(request: MockRequest(), decodeTo: Person.self)
-            .sink(receiveCompletion: { completion in
-                switch completion {
-                case let .failure(error):
-                    #expect(error == NetworkingError.internalError(.noData))
-                    didComplete = true
-                case .finished: Issue.record()
-                }
-            }, receiveValue: { _ in
-                Issue.record()
-            })
-            .store(in: &cancellables)
-        #expect(didComplete == true)
-    }
-
     @Test("test performPublisher(request:_, decodeTo:_) fails when data does not match decodeTo type")
     func performPublisher_throwsErrorWhen_dataDoesNotMatchDecodeToType() async {
         let sut = createRequestPerformer(

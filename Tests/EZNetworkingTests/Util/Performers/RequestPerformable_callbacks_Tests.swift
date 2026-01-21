@@ -43,27 +43,6 @@ final class RequestPerformableCallbacksTests {
         #expect(didExecute == true)
     }
 
-    // MARK: DataTask cancellation
-
-    @Test("test performTask(request:_, decodeTo:_) .cancel() does cancel DataTask", .disabled())
-    func performTaskAndDecode_cancel_doesCancelDataTask() throws {
-        let sut = createRequestPerformer()
-
-        let task = sut.performTask(request: MockRequest(), decodeTo: Person.self) { _ in }
-        task?.cancel()
-        let dataTask = try #require(task as? MockURLSessionDataTask)
-        #expect(dataTask.didCancel == true)
-    }
-
-    @Test("test performTask(request:_) .cancel() does cancel DataTask", .disabled())
-    func performTask_cancel_doesCancelDataTask() throws {
-        let sut = createRequestPerformer()
-        let task = sut.performTask(request: MockRequest(), decodeTo: EmptyResponse.self) { _ in }
-        task?.cancel()
-        let dataTask = try #require(task as? MockURLSessionDataTask)
-        #expect(dataTask.didCancel == true)
-    }
-
     // MARK: - ERROR RESPONSE
 
     @Test("test performTask(request:_) fails when status code is 3xx")
@@ -167,24 +146,6 @@ final class RequestPerformableCallbacksTests {
     }
 
     // MARK: data deocding errors
-
-    @Test("test performTask(request:_, decode:_) fails when data is nil", .disabled())
-    func performTask_throwsErrorWhen_dataIsNil() {
-        let sut = createRequestPerformer(
-            urlSession: createMockURLSession(data: nil)
-        )
-        var didExecute = false
-        sut.performTask(request: MockRequest(), decodeTo: Person.self) { result in
-            defer { didExecute = true }
-            switch result {
-            case .success:
-                Issue.record()
-            case let .failure(error):
-                #expect(error == NetworkingError.internalError(.noData))
-            }
-        }
-        #expect(didExecute == true)
-    }
 
     @Test("test performTask(request:_, decode:_) fails when data does not match decodeTo type")
     func performTask_throwsErrorWhen_dataDoesNotMatchDecodeToType() async {
