@@ -166,6 +166,21 @@ final class RequestPerformableCallbacksTests {
         try? await Task.sleep(nanoseconds: duration)
         #expect(didExecute == true)
     }
+
+    // MARK: Cancellation
+
+    @Test("test performTask(request:_, decodeTo:_) does not call completion after cancellation")
+    func performTask_cancelsTaskOnCancel() async {
+        let sut = createRequestPerformer()
+        var didExecute = false
+        let dataTask = sut.performTask(request: MockRequest(), decodeTo: EmptyResponse.self) { _ in
+            didExecute = true
+        }
+        dataTask?.cancel()
+        // Wait a short time to ensure cancellation propagates
+        try? await Task.sleep(nanoseconds: 200_000_000)
+        #expect(didExecute == false)
+    }
 }
 
 // MARK: helpers
