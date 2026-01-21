@@ -10,7 +10,7 @@ final class EZURLSessionDataTask: URLSessionDataTask, @unchecked Sendable {
     }
 
     override func resume() {
-        guard task == nil else { return }  // Prevent double-resume
+        guard task == nil else { return } // Prevent double-resume
         task = Task(priority: .high) { await work() }
     }
 

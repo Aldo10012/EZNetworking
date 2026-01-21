@@ -4,8 +4,8 @@ import Testing
 
 @Suite("Test RequestPerformable callback methods")
 final class RequestPerformableCallbacksTests {
-
     private let duration: UInt64 = 1_000_000_000
+
     // MARK: - SUCCESS RESPONSE
 
     @Test("test performTask(request:_, decodeTo:_) with valid inputs does decode Person")

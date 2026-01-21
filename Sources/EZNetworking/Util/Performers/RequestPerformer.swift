@@ -37,7 +37,7 @@ public struct RequestPerformer: RequestPerformable {
     // MARK: Async Await
 
     public func perform<T: Decodable>(request: Request, decodeTo decodableObject: T.Type) async throws -> T {
-        return try await _perform(request: request, decodeTo: decodableObject)
+        try await _perform(request: request, decodeTo: decodableObject)
     }
 
     // MARK: Completion Handler
@@ -50,11 +50,11 @@ public struct RequestPerformer: RequestPerformable {
     ) -> URLSessionDataTask? {
         let dataTask = EZURLSessionDataTask {
             do {
-                let result = try await self._perform(request: request, decodeTo: decodableObject)
+                let result = try await _perform(request: request, decodeTo: decodableObject)
                 guard !Task.isCancelled else { return }
                 completion(.success(result))
             } catch {
-                completion(.failure(self.mapError(error)))
+                completion(.failure(mapError(error)))
             }
         }
         dataTask.resume()
@@ -69,7 +69,7 @@ public struct RequestPerformer: RequestPerformable {
         return Future { promise in
             task = Task(priority: .high) {
                 do {
-                    let result = try await self._perform(request: request, decodeTo: decodableObject)
+                    let result = try await _perform(request: request, decodeTo: decodableObject)
                     guard !Task.isCancelled else { return }
                     promise(.success(result))
                 } catch {

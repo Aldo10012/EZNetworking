@@ -27,7 +27,7 @@ final class RequestPerformablepublisherTests {
                 didDecodePerson = true
             })
             .store(in: &cancellables)
-        
+
         try? await Task.sleep(nanoseconds: duration)
         #expect(didDecodePerson == true)
     }

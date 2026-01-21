@@ -4,7 +4,6 @@ import Testing
 
 @Suite("Test EZURLSessionDataTask")
 final class EZURLSessionDataTaskTests {
-
     @Test("test initializing EZURLSessionDataTask does not trigger async work block")
     func initializingEZURLSessionDataTaskDoesNotTriggerAsyncWorkBlcok() {
         var didTriggerBlock = false
@@ -25,7 +24,7 @@ final class EZURLSessionDataTaskTests {
     }
 
     @Test("test cancel cancels the async work block")
-    func testCancelCancelsAsyncWorkBlock() async {
+    func cancelCancelsAsyncWorkBlock() async {
         var didFinish = false
         let sut = EZURLSessionDataTask(work: {
             do {
@@ -44,7 +43,7 @@ final class EZURLSessionDataTaskTests {
     }
 
     @Test("test calling resume twice only triggers work once")
-    func testResumeIsIdempotent() async {
+    func resumeIsIdempotent() async {
         var runCount = 0
         let sut = EZURLSessionDataTask(work: {
             runCount += 1
@@ -56,7 +55,7 @@ final class EZURLSessionDataTaskTests {
     }
 
     @Test("test resume, cancel, then resume again does not trigger work twice")
-    func testResumeCancelResumeDoesNotTriggerWorkTwice() async {
+    func resumeCancelResumeDoesNotTriggerWorkTwice() async {
         var runCount = 0
         let sut = EZURLSessionDataTask(work: {
             runCount += 1

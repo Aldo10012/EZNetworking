@@ -15,10 +15,10 @@ class MockRequestPerformerURLSession: URLSessionProtocol {
     }
 
     func data(for request: URLRequest) async throws -> (Data, URLResponse) {
-        if let error = error {
+        if let error {
             throw error
         }
-        if let data = data, let urlResponse = urlResponse {
+        if let data, let urlResponse {
             return (data, urlResponse)
         }
         fatalError("Could not set up MockRequestPerformerURLSession.data(for:_)")
