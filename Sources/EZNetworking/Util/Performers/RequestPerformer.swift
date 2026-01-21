@@ -103,10 +103,6 @@ public struct RequestPerformer: RequestPerformable {
         if let urlError = error as? URLError { return .urlError(urlError) }
         return .internalError(.requestFailed(error))
     }
-
-    private func getURLRequest(from request: Request) -> URLRequest? {
-        do { return try request.getURLRequest() } catch { return nil }
-    }
 }
 
 // TODO: move somewhere else
