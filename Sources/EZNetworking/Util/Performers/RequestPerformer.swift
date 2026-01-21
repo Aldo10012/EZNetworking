@@ -34,13 +34,22 @@ public struct RequestPerformer: RequestPerformable {
         self.requestDecoder = requestDecoder
     }
 
-    // MARK: Async Await
+    // MARK: Async Await (CORE)
 
     public func perform<T: Decodable>(request: Request, decodeTo decodableObject: T.Type) async throws -> T {
-        try await _perform(request: request, decodeTo: decodableObject)
+        do {
+            let urlReequest = try request.getURLRequest()
+            let (data, urlResponse) = try await urlSession.data(for: urlReequest)
+            try validator.validateStatus(from: urlResponse)
+            let validData = try validator.validateData(data)
+            let result = try requestDecoder.decode(decodableObject, from: validData)
+            return result
+        } catch {
+            throw mapError(error)
+        }
     }
 
-    // MARK: Completion Handler
+    // MARK: Callback (wrapper)
 
     @discardableResult
     public func performTask<T: Decodable & Sendable>(
@@ -50,7 +59,7 @@ public struct RequestPerformer: RequestPerformable {
     ) -> URLSessionDataTask? {
         let dataTask = EZURLSessionDataTask {
             do {
-                let result = try await _perform(request: request, decodeTo: decodableObject)
+                let result = try await perform(request: request, decodeTo: decodableObject)
                 guard !Task.isCancelled else { return }
                 completion(.success(result))
             } catch {
@@ -61,7 +70,7 @@ public struct RequestPerformer: RequestPerformable {
         return dataTask
     }
 
-    // MARK: Publisher
+    // MARK: Publisher (wrapper)
 
     public func performPublisher<T: Decodable & Sendable>(request: Request, decodeTo decodableObject: T.Type) -> AnyPublisher<T, NetworkingError> {
         var task: Task<Void, Never>?
@@ -69,7 +78,7 @@ public struct RequestPerformer: RequestPerformable {
         return Future { promise in
             task = Task(priority: .high) {
                 do {
-                    let result = try await _perform(request: request, decodeTo: decodableObject)
+                    let result = try await perform(request: request, decodeTo: decodableObject)
                     guard !Task.isCancelled else { return }
                     promise(.success(result))
                 } catch {
@@ -83,20 +92,7 @@ public struct RequestPerformer: RequestPerformable {
         .eraseToAnyPublisher()
     }
 
-    // MARK: Core
-
-    private func _perform<T: Decodable>(request: Request, decodeTo decodableObject: T.Type) async throws -> T {
-        do {
-            let urlReequest = try request.getURLRequest()
-            let (data, urlResponse) = try await urlSession.data(for: urlReequest)
-            try validator.validateStatus(from: urlResponse)
-            let validData = try validator.validateData(data)
-            let result = try requestDecoder.decode(decodableObject, from: validData)
-            return result
-        } catch {
-            throw mapError(error)
-        }
-    }
+    // MARK: Helpers
 
     private func mapError(_ error: Error) -> NetworkingError {
         if let networkError = error as? NetworkingError { return networkError }
