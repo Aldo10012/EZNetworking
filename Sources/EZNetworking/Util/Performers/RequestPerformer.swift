@@ -1,7 +1,7 @@
 import Combine
 import Foundation
 
-public struct RequestPerformer: RequestPerformable {
+public class RequestPerformer: RequestPerformable {
     private let urlSession: URLSessionProtocol
     private let validator: ResponseValidator
     private let requestDecoder: RequestDecodable
@@ -38,12 +38,11 @@ public struct RequestPerformer: RequestPerformable {
 
     public func perform<T: Decodable>(request: Request, decodeTo decodableObject: T.Type) async throws -> T {
         do {
-            let urlReequest = try request.getURLRequest()
-            let (data, urlResponse) = try await urlSession.data(for: urlReequest)
+            let urlRequest = try request.getURLRequest()
+            let (data, urlResponse) = try await urlSession.data(for: urlRequest)
             try validator.validateStatus(from: urlResponse)
             let validData = try validator.validateData(data)
-            let result = try requestDecoder.decode(decodableObject, from: validData)
-            return result
+            return try requestDecoder.decode(decodableObject, from: validData)
         } catch {
             throw mapError(error)
         }
@@ -57,7 +56,8 @@ public struct RequestPerformer: RequestPerformable {
         decodeTo decodableObject: T.Type,
         completion: @escaping ((Result<T, NetworkingError>) -> Void)
     ) -> URLSessionDataTask? {
-        let dataTask = EZURLSessionDataTask(work: {
+        let dataTask = EZURLSessionDataTask(work: { [weak self] in
+            guard let self else { return }
             do {
                 let result = try await perform(request: request, decodeTo: decodableObject)
                 try Task.checkCancellation()
@@ -78,7 +78,8 @@ public struct RequestPerformer: RequestPerformable {
         var task: Task<Void, Never>?
 
         return Future { promise in
-            task = Task(priority: .high) {
+            task = Task(priority: .high) { [weak self] in
+                guard let self else { return }
                 do {
                     let result = try await perform(request: request, decodeTo: decodableObject)
                     try Task.checkCancellation()
