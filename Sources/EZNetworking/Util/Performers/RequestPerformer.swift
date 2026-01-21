@@ -64,11 +64,22 @@ public struct RequestPerformer: RequestPerformable {
     // MARK: Publisher
 
     public func performPublisher<T: Decodable>(request: Request, decodeTo decodableObject: T.Type) -> AnyPublisher<T, NetworkingError> {
-        Future { promise in
-            performDataTask(request: request, decodeTo: decodableObject) { result in
-                promise(result)
+        var task: Task<Void, Never>?
+
+        return Future { promise in
+            task = Task(priority: .high) {
+                do {
+                    let result = try await self._perform(request: request, decodeTo: decodableObject)
+                    guard !Task.isCancelled else { return }
+                    promise(.success(result))
+                } catch {
+                    promise(.failure(mapError(error)))
+                }
             }
         }
+        .handleEvents(receiveCancel: {
+            task?.cancel()
+        })
         .eraseToAnyPublisher()
     }
 

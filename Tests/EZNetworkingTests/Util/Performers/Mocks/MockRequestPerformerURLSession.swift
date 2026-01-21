@@ -27,7 +27,7 @@ class MockRequestPerformerURLSession: URLSessionProtocol {
         if let data = data, let urlResponse = urlResponse {
             return (data, urlResponse)
         }
-        fatalError("Could not set up MockRequestPerformerURLSession.data()")
+        fatalError("Could not set up MockRequestPerformerURLSession.data(for:_)")
     }
 }
 
