@@ -57,7 +57,7 @@ public struct RequestPerformer: RequestPerformable {
         decodeTo decodableObject: T.Type,
         completion: @escaping ((Result<T, NetworkingError>) -> Void)
     ) -> URLSessionDataTask? {
-        let dataTask = EZURLSessionDataTask(performOnResume: {
+        let dataTask = EZURLSessionDataTask(work: {
             do {
                 let result = try await perform(request: request, decodeTo: decodableObject)
                 try Task.checkCancellation()
