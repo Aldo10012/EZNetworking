@@ -60,8 +60,10 @@ public struct RequestPerformer: RequestPerformable {
         let dataTask = EZURLSessionDataTask(performOnResume: {
             do {
                 let result = try await perform(request: request, decodeTo: decodableObject)
-                guard !Task.isCancelled else { return }
+                try Task.checkCancellation()
                 completion(.success(result))
+            } catch is CancellationError {
+                return // Don't call completion - matches URLSessionDataTask behavior
             } catch {
                 completion(.failure(mapError(error)))
             }
@@ -79,8 +81,10 @@ public struct RequestPerformer: RequestPerformable {
             task = Task(priority: .high) {
                 do {
                     let result = try await perform(request: request, decodeTo: decodableObject)
-                    guard !Task.isCancelled else { return }
+                    try Task.checkCancellation()
                     promise(.success(result))
+                } catch is CancellationError {
+                    return // Don't call completion - matches SessionDataPublisher behavior
                 } catch {
                     promise(.failure(mapError(error)))
                 }
