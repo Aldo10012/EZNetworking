@@ -85,30 +85,6 @@ public struct RequestPerformer: RequestPerformable {
 
     // MARK: Core
 
-    @discardableResult
-    private func performDataTask<T: Decodable>(request: Request, decodeTo decodableObject: T.Type, completion: @escaping ((Result<T, NetworkingError>) -> Void)) -> URLSessionDataTask? {
-        guard let urlRequest = getURLRequest(from: request) else {
-            completion(.failure(.internalError(.noRequest)))
-            return nil
-        }
-        let task = urlSession.dataTask(with: urlRequest) { data, urlResponse, error in
-            do {
-                try validator.validateNoError(error)
-                try validator.validateStatus(from: urlResponse)
-                let validData = try validator.validateData(data)
-
-                let result = try requestDecoder.decode(decodableObject, from: validData)
-                completion(.success(result))
-            } catch {
-                completion(.failure(mapError(error)))
-            }
-        }
-        task.resume()
-        return task
-    }
-
-    // New Core method
-
     private func _perform<T: Decodable>(request: Request, decodeTo decodableObject: T.Type) async throws -> T {
         do {
             let urlReequest = try request.getURLRequest()
