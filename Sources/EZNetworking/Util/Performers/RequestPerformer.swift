@@ -43,7 +43,7 @@ public struct RequestPerformer: RequestPerformable {
     // MARK: Completion Handler
 
     @discardableResult
-    public func performTask<T: Decodable>(
+    public func performTask<T: Decodable & Sendable>(
         request: Request,
         decodeTo decodableObject: T.Type,
         completion: @escaping ((Result<T, NetworkingError>) -> Void)
@@ -63,7 +63,7 @@ public struct RequestPerformer: RequestPerformable {
 
     // MARK: Publisher
 
-    public func performPublisher<T: Decodable>(request: Request, decodeTo decodableObject: T.Type) -> AnyPublisher<T, NetworkingError> {
+    public func performPublisher<T: Decodable & Sendable>(request: Request, decodeTo decodableObject: T.Type) -> AnyPublisher<T, NetworkingError> {
         var task: Task<Void, Never>?
 
         return Future { promise in
