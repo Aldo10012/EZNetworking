@@ -180,6 +180,26 @@ final class RequestPerformablepublisherTests {
         try? await Task.sleep(nanoseconds: duration)
         #expect(didComplete == true)
     }
+
+    // MARK: Cancellation
+
+    @Test("test performPublisher(request:_, decodeTo:_) cancels task when subscription is cancelled")
+    func performPublisher_cancelsTaskOnCancel() async {
+        let sut = createRequestPerformer()
+        var didComplete = false
+        var didReceiveValue = false
+        let cancellable = sut.performPublisher(request: MockRequest(), decodeTo: Person.self)
+            .sink(receiveCompletion: { _ in
+                didComplete = true
+            }, receiveValue: { _ in
+                didReceiveValue = true
+            })
+        cancellable.cancel()
+        // Wait a short time to ensure cancellation propagates
+        try? await Task.sleep(nanoseconds: 200_000_000)
+        #expect(didComplete == false)
+        #expect(didReceiveValue == false)
+    }
 }
 
 // MARK: helpers
