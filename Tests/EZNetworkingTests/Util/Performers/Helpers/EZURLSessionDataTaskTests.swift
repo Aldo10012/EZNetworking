@@ -5,22 +5,24 @@ import Testing
 @Suite("Test EZURLSessionDataTask")
 final class EZURLSessionDataTaskTests {
     @Test("test initializing EZURLSessionDataTask does not trigger async work block")
-    func initializingEZURLSessionDataTaskDoesNotTriggerAsyncWorkBlcok() {
+    func initializingEZURLSessionDataTaskDoesNotTriggerAsyncWorkBlcok() async {
         var didTriggerBlock = false
         _ = EZURLSessionDataTask(work: {
             didTriggerBlock = true
         })
+        try? await Task.sleep(nanoseconds: 1_000)
         #expect(didTriggerBlock == false)
     }
 
     @Test("test initializing EZURLSessionDataTask does trigger async work block")
-    func initializingEZURLSessionDataTaskDoesTriggerAsyncWorkBlcok() {
+    func initializingEZURLSessionDataTaskDoesTriggerAsyncWorkBlcok() async {
         var didTriggerBlock = false
         let sut = EZURLSessionDataTask(work: {
             didTriggerBlock = true
         })
         sut.resume()
-        #expect(didTriggerBlock == false)
+        try? await Task.sleep(nanoseconds: 1_000)
+        #expect(didTriggerBlock == true)
     }
 
     @Test("test cancel cancels the async work block")
@@ -61,9 +63,11 @@ final class EZURLSessionDataTaskTests {
             runCount += 1
         })
         sut.resume()
+        try? await Task.sleep(nanoseconds: 1_000)
         sut.cancel()
+        try? await Task.sleep(nanoseconds: 1_000)
         sut.resume()
-        try? await Task.sleep(nanoseconds: 100_000_000)
+        try? await Task.sleep(nanoseconds: 1_000)
         #expect(runCount == 1)
     }
 }

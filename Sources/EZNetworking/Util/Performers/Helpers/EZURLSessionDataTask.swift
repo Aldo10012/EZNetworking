@@ -26,4 +26,16 @@ public final class EZURLSessionDataTask: URLSessionDataTask, @unchecked Sendable
         isCancelled = true
         task?.cancel()
     }
+
+    public override func suspend() {
+        assertionFailure("""
+            suspend() is not supported on async/await-backed tasks.
+
+            This networking library uses Swift Concurrency, which does not
+            support pausing in-flight async operations.
+
+            For downloads requiring suspend/resume, use URLSession with
+            background configuration directly.
+        """)
+    }
 }
