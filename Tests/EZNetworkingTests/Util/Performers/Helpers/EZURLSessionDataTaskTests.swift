@@ -70,4 +70,23 @@ final class EZURLSessionDataTaskTests {
         try? await Task.sleep(nanoseconds: 1_000)
         #expect(runCount == 1)
     }
+
+    @Test("test suspend does not stop the async work block")
+    func suspendDoesNotStopTheAsyncWorkBlock() async {
+        var didFinish = false
+        let sut = EZURLSessionDataTask(work: {
+            do {
+                try await Task.sleep(nanoseconds: 200_000_000)
+                if !Task.isCancelled {
+                    didFinish = true
+                }
+            } catch {
+                // Task was cancelled
+            }
+        })
+        sut.resume()
+        sut.suspend()
+        try? await Task.sleep(nanoseconds: 300_000_000)
+        #expect(didFinish == true)
+    }
 }
