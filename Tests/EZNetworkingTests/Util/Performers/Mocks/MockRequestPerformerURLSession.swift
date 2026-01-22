@@ -5,8 +5,6 @@ class MockRequestPerformerURLSession: URLSessionProtocol {
     var data: Data?
     var urlResponse: URLResponse?
     var error: Error?
-    var completion: ((Data?, URLResponse?, Error?) -> Void)?
-    var sessionDelegate: SessionDelegate?
 
     init(data: Data? = Data(), urlResponse: URLResponse? = buildResponse(statusCode: 200), error: Error? = nil) {
         self.data = data
