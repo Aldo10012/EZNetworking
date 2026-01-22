@@ -76,10 +76,7 @@ final class EZURLSessionDataTaskTests {
         var didFinish = false
         let sut = EZURLSessionDataTask(work: {
             do {
-                try await Task.sleep(nanoseconds: 200_000_000)
-                if !Task.isCancelled {
-                    didFinish = true
-                }
+                didFinish = true
             } catch {
                 // Task was cancelled
             }

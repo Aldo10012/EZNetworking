@@ -58,15 +58,12 @@ public class RequestPerformer: RequestPerformable {
     ) -> URLSessionDataTask? {
         let dataTask = EZURLSessionDataTask(work: { [weak self] in
             guard let self else { return }
-            do {
-                let result = try await perform(request: request, decodeTo: decodableObject)
-                try Task.checkCancellation()
-                completion(.success(result))
-            } catch is CancellationError {
-                return // Don't call completion - matches URLSessionDataTask behavior
-            } catch {
-                completion(.failure(mapError(error)))
-            }
+            await self.performAndHandle(
+                request: request,
+                decodeTo: decodableObject,
+                onSuccess: { completion(.success($0)) },
+                onFailure: { completion(.failure($0)) }
+            )
         })
         dataTask.resume()
         return dataTask
@@ -80,15 +77,12 @@ public class RequestPerformer: RequestPerformable {
         return Future { promise in
             task = Task(priority: .high) { [weak self] in
                 guard let self else { return }
-                do {
-                    let result = try await perform(request: request, decodeTo: decodableObject)
-                    try Task.checkCancellation()
-                    promise(.success(result))
-                } catch is CancellationError {
-                    return // Don't call completion - matches SessionDataPublisher behavior
-                } catch {
-                    promise(.failure(mapError(error)))
-                }
+                await self.performAndHandle(
+                    request: request,
+                    decodeTo: decodableObject,
+                    onSuccess: { promise(.success($0)) },
+                    onFailure: { promise(.failure($0)) }
+                )
             }
         }
         .handleEvents(receiveCancel: {
@@ -103,5 +97,23 @@ public class RequestPerformer: RequestPerformable {
         if let networkError = error as? NetworkingError { return networkError }
         if let urlError = error as? URLError { return .urlError(urlError) }
         return .internalError(.requestFailed(error))
+    }
+
+    private func performAndHandle<T: Decodable>(
+        request: Request,
+        decodeTo decodableObject: T.Type,
+        onSuccess: @escaping (T) -> Void,
+        onFailure: @escaping (NetworkingError) -> Void
+    ) async {
+        do {
+            let result = try await perform(request: request, decodeTo: decodableObject)
+            try Task.checkCancellation()
+            onSuccess(result)
+        } catch is CancellationError {
+            // Don't call handlers - task was cancelled
+            return
+        } catch {
+            onFailure(mapError(error))
+        }
     }
 }

@@ -28,6 +28,8 @@ public final class EZURLSessionDataTask: URLSessionDataTask, @unchecked Sendable
     }
 
     public override func suspend() {
+        lock.lock()
+        defer { lock.unlock() }
         // Swift Concurrency does not support suspend.
         // This is a no-op to maintain compatibility with URLSessionDataTask API.
 
