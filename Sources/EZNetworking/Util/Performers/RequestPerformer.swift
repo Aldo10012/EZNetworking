@@ -58,12 +58,7 @@ public class RequestPerformer: RequestPerformable {
     ) -> URLSessionDataTask? {
         let dataTask = EZURLSessionDataTask(work: { [weak self] in
             guard let self else { return }
-            await self.performAndHandle(
-                request: request,
-                decodeTo: decodableObject,
-                onSuccess: { completion(.success($0)) },
-                onFailure: { completion(.failure($0)) }
-            )
+            await self.performAndHandle(request: request, decodeTo: decodableObject, completion: completion)
         })
         dataTask.resume()
         return dataTask
@@ -77,12 +72,7 @@ public class RequestPerformer: RequestPerformable {
         return Future { promise in
             task = Task(priority: .high) { [weak self] in
                 guard let self else { return }
-                await self.performAndHandle(
-                    request: request,
-                    decodeTo: decodableObject,
-                    onSuccess: { promise(.success($0)) },
-                    onFailure: { promise(.failure($0)) }
-                )
+                await self.performAndHandle(request: request, decodeTo: decodableObject, completion: { promise($0) })
             }
         }
         .handleEvents(receiveCancel: {
@@ -102,18 +92,16 @@ public class RequestPerformer: RequestPerformable {
     private func performAndHandle<T: Decodable>(
         request: Request,
         decodeTo decodableObject: T.Type,
-        onSuccess: @escaping (T) -> Void,
-        onFailure: @escaping (NetworkingError) -> Void
+        completion: @escaping ((Result<T, NetworkingError>) -> Void)
     ) async {
         do {
             let result = try await perform(request: request, decodeTo: decodableObject)
             try Task.checkCancellation()
-            onSuccess(result)
+            completion(.success(result))
         } catch is CancellationError {
-            // Don't call handlers - task was cancelled
-            return
+            return // Don't call handlers - task was cancelled
         } catch {
-            onFailure(mapError(error))
+            completion(.failure(mapError(error)))
         }
     }
 }
