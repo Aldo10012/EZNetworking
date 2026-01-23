@@ -1,8 +1,8 @@
 @testable import EZNetworking
 import Testing
 
-@Suite("Test decoder")
-final class decoderTests {
+@Suite("Test EZJSONDecoder")
+final class EZJSONDecoderTests {
     private let sut = EZJSONDecoder()
 
     @Test("can decode valid mock JSON into Decodable object")
