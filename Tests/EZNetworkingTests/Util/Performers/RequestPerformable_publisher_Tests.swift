@@ -176,7 +176,11 @@ final class RequestPerformablepublisherTests {
             .sink(receiveCompletion: { completion in
                 switch completion {
                 case let .failure(error):
-                    #expect(error == NetworkingError.internalError(.couldNotParse))
+                    if case .internalError(.couldNotParse) = error {
+                        #expect(Bool(true))
+                    } else {
+                        Issue.record()
+                    }
                     didComplete = true
                 case .finished: Issue.record()
                 }
@@ -193,9 +197,9 @@ final class RequestPerformablepublisherTests {
 private func createRequestPerformer(
     urlSession: URLSessionProtocol = createMockURLSession(),
     validator: ResponseValidator = ResponseValidatorImpl(),
-    requestDecoder: RequestDecodable = RequestDecoder()
+    decoder: JSONDecoder = EZJSONDecoder()
 ) -> RequestPerformer {
-    RequestPerformer(urlSession: urlSession, validator: validator, requestDecoder: requestDecoder)
+    RequestPerformer(urlSession: urlSession, validator: validator, decoder: decoder)
 }
 
 private func createMockURLSession(

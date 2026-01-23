@@ -190,7 +190,11 @@ final class RequestPerformableCallbacksTests {
             case .success:
                 Issue.record()
             case let .failure(error):
-                #expect(error == NetworkingError.internalError(.couldNotParse))
+                if case .internalError(.couldNotParse) = error {
+                    #expect(Bool(true))
+                } else {
+                    Issue.record()
+                }
             }
         }
         #expect(didExecute == true)
@@ -202,9 +206,9 @@ final class RequestPerformableCallbacksTests {
 private func createRequestPerformer(
     urlSession: URLSessionProtocol = createMockURLSession(),
     validator: ResponseValidator = ResponseValidatorImpl(),
-    requestDecoder: RequestDecodable = RequestDecoder()
+    decoder: JSONDecoder = EZJSONDecoder()
 ) -> RequestPerformer {
-    RequestPerformer(urlSession: urlSession, validator: validator, requestDecoder: requestDecoder)
+    RequestPerformer(urlSession: urlSession, validator: validator, decoder: decoder)
 }
 
 private func createMockURLSession(

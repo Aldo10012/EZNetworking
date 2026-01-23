@@ -4,12 +4,12 @@ import Foundation
 public struct RequestPerformer: RequestPerformable {
     private let urlSession: URLSessionProtocol
     private let validator: ResponseValidator
-    private let requestDecoder: RequestDecodable
+    private let decoder: JSONDecoder
 
     public init(
         urlSession: URLSessionProtocol = URLSession.shared,
         validator: ResponseValidator = ResponseValidatorImpl(),
-        requestDecoder: RequestDecodable = RequestDecoder(),
+        decoder: JSONDecoder = EZJSONDecoder(),
         sessionDelegate: SessionDelegate? = nil
     ) {
         if let urlSession = urlSession as? URLSession {
@@ -31,7 +31,7 @@ public struct RequestPerformer: RequestPerformable {
             self.urlSession = urlSession
         }
         self.validator = validator
-        self.requestDecoder = requestDecoder
+        self.decoder = decoder
     }
 
     // MARK: Async Await
@@ -81,7 +81,7 @@ public struct RequestPerformer: RequestPerformable {
                 try validator.validateStatus(from: urlResponse)
                 let validData = try validator.validateData(data)
 
-                let result = try requestDecoder.decode(decodableObject, from: validData)
+                let result = try decoder.decode(decodableObject, from: validData)
                 completion(.success(result))
             } catch {
                 completion(.failure(mapError(error)))

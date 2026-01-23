@@ -1,4 +1,5 @@
 @testable import EZNetworking
+import Foundation
 import Testing
 
 @Suite("Test InternalError")
@@ -10,7 +11,7 @@ final class InternalErrorTests {
 
     @Test("test Different InternalError Are Not Equatable")
     func differentInternalErrorAreNotEquatable() {
-        #expect(InternalError.unknown != InternalError.couldNotParse)
+        #expect(InternalError.unknown != InternalError.noData)
     }
 
     private static let InternalErrorList: [InternalError] = [
@@ -18,7 +19,7 @@ final class InternalErrorTests {
         InternalError.invalidURL,
         InternalError.missingHost,
         InternalError.invalidScheme(""),
-        InternalError.couldNotParse,
+        InternalError.couldNotParse(underlying: NSError(domain: "test", code: -1)),
         InternalError.invalidError,
         InternalError.noData,
         InternalError.noResponse,

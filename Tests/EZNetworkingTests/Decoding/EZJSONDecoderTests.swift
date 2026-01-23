@@ -1,9 +1,9 @@
 @testable import EZNetworking
 import Testing
 
-@Suite("Test RequestDecoder")
-final class RequestDecoderTests {
-    private let sut = RequestDecoder()
+@Suite("Test EZJSONDecoder")
+final class EZJSONDecoderTests {
+    private let sut = EZJSONDecoder()
 
     @Test("can decode valid mock JSON into Decodable object")
     func canDecodeValidMockJSONIntoDecodableObject() throws {
@@ -22,7 +22,11 @@ final class RequestDecoderTests {
             _ = try sut.decode(Person.self, from: MockData.invalidMockPersonJsonData)
             Issue.record("Unexpected error)")
         } catch let error as NetworkingError {
-            #expect(error == NetworkingError.internalError(.couldNotParse))
+            if case let .internalError(.couldNotParse(underlying)) = error {
+                #expect(underlying is DecodingError)
+            } else {
+                Issue.record("expected couldNotParse")
+            }
         }
     }
 }
