@@ -1,14 +1,9 @@
 import Foundation
 
-public protocol RequestDecodable {
-    func decode<T: Decodable>(_ type: T.Type, from data: Data) throws -> T
-}
-
-public struct RequestDecoder: RequestDecodable {
-    public init() {}
-    public func decode<T: Decodable>(_ type: T.Type, from data: Data) throws -> T {
+public class EZJSONDecoder: JSONDecoder, @unchecked Sendable {
+    public override func decode<T>(_ type: T.Type, from data: Data) throws -> T where T: Decodable {
         do {
-            return try JSONDecoder().decode(T.self, from: data)
+            return try super.decode(type, from: data)
         } catch {
             throw NetworkingError.internalError(.couldNotParse)
         }
