@@ -219,7 +219,7 @@ private let testURL = URL(string: "https://example.com/example.pdf")!
 private func createFileDownloader(
     urlSession: URLSessionProtocol = createMockURLSession(statusCode: 200),
     validator: ResponseValidator = ResponseValidatorImpl(),
-    requestDecoder: RequestDecodable = RequestDecoder()
+    requestDecoder: JSONDecoder = EZJSONDecoder()
 ) -> FileDownloader {
     FileDownloader(
         urlSession: urlSession,
@@ -256,7 +256,7 @@ extension FileDownloader {
     convenience init(
         mockSession: MockFileDownloaderURLSession,
         validator: ResponseValidator = ResponseValidatorImpl(),
-        requestDecoder: RequestDecodable = RequestDecoder()
+        requestDecoder: JSONDecoder = EZJSONDecoder()
     ) {
         let sessionDelegate = SessionDelegate()
         mockSession.sessionDelegate = sessionDelegate

@@ -193,7 +193,7 @@ final class RequestPerformablepublisherTests {
 private func createRequestPerformer(
     urlSession: URLSessionProtocol = createMockURLSession(),
     validator: ResponseValidator = ResponseValidatorImpl(),
-    requestDecoder: RequestDecodable = RequestDecoder()
+    requestDecoder: JSONDecoder = EZJSONDecoder()
 ) -> RequestPerformer {
     RequestPerformer(urlSession: urlSession, validator: validator, requestDecoder: requestDecoder)
 }

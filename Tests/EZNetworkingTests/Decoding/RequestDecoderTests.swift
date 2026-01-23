@@ -3,7 +3,7 @@ import Testing
 
 @Suite("Test RequestDecoder")
 final class RequestDecoderTests {
-    private let sut = RequestDecoder()
+    private let sut = EZJSONDecoder()
 
     @Test("can decode valid mock JSON into Decodable object")
     func canDecodeValidMockJSONIntoDecodableObject() throws {

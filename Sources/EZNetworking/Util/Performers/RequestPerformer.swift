@@ -4,12 +4,12 @@ import Foundation
 public struct RequestPerformer: RequestPerformable {
     private let urlSession: URLSessionProtocol
     private let validator: ResponseValidator
-    private let requestDecoder: RequestDecodable
+    private let requestDecoder: JSONDecoder
 
     public init(
         urlSession: URLSessionProtocol = URLSession.shared,
         validator: ResponseValidator = ResponseValidatorImpl(),
-        requestDecoder: RequestDecodable = RequestDecoder(),
+        requestDecoder: JSONDecoder = EZJSONDecoder(),
         sessionDelegate: SessionDelegate? = nil
     ) {
         if let urlSession = urlSession as? URLSession {

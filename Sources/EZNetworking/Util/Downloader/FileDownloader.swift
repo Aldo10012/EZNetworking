@@ -4,7 +4,7 @@ import Foundation
 public class FileDownloader: FileDownloadable {
     private let urlSession: URLSessionProtocol
     private let validator: ResponseValidator
-    private let requestDecoder: RequestDecodable
+    private let requestDecoder: JSONDecoder
     private var sessionDelegate: SessionDelegate
 
     private let fallbackDownloadTaskInterceptor: DownloadTaskInterceptor = DefaultDownloadTaskInterceptor()
@@ -14,7 +14,7 @@ public class FileDownloader: FileDownloadable {
     public init(
         urlSession: URLSessionProtocol = URLSession.shared,
         validator: ResponseValidator = ResponseValidatorImpl(),
-        requestDecoder: RequestDecodable = RequestDecoder(),
+        requestDecoder: JSONDecoder = EZJSONDecoder(),
         sessionDelegate: SessionDelegate? = nil // Now optional!
     ) {
         if let urlSession = urlSession as? URLSession {
