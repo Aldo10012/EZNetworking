@@ -193,7 +193,7 @@ extension FileUploader {
     fileprivate convenience init(
         mockSession: MockFileUploaderURLSession,
         validator: ResponseValidator = ResponseValidatorImpl(),
-        requestDecoder: JSONDecoder = EZJSONDecoder()
+        decoder: JSONDecoder = EZJSONDecoder()
     ) {
         let sessionDelegate = SessionDelegate()
         mockSession.sessionDelegate = sessionDelegate

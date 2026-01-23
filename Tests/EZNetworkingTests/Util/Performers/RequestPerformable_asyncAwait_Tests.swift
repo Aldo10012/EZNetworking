@@ -137,9 +137,9 @@ final class RequestPerformableAsyncAwaitTests {
 private func createRequestPerformer(
     urlSession: URLSessionProtocol = createMockURLSession(),
     validator: ResponseValidator = ResponseValidatorImpl(),
-    requestDecoder: JSONDecoder = EZJSONDecoder()
+    decoder: JSONDecoder = EZJSONDecoder()
 ) -> RequestPerformer {
-    RequestPerformer(urlSession: urlSession, validator: validator, requestDecoder: requestDecoder)
+    RequestPerformer(urlSession: urlSession, validator: validator, decoder: decoder)
 }
 
 private func createMockURLSession(

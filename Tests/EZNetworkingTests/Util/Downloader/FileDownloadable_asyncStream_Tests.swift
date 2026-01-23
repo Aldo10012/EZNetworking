@@ -16,7 +16,7 @@ final class FileDownloadableAsyncStreamTests {
         let sut = FileDownloader(
             urlSession: urlSession,
             validator: ResponseValidatorImpl(),
-            requestDecoder: EZJSONDecoder(),
+            decoder: EZJSONDecoder(),
             sessionDelegate: delegate
         )
 
