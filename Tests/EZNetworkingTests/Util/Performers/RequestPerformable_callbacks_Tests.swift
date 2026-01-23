@@ -190,7 +190,11 @@ final class RequestPerformableCallbacksTests {
             case .success:
                 Issue.record()
             case let .failure(error):
-                #expect(error == NetworkingError.internalError(.couldNotParse))
+                if case .internalError(.couldNotParse) = error {
+                    #expect(Bool(true))
+                } else {
+                    Issue.record()
+                }
             }
         }
         #expect(didExecute == true)

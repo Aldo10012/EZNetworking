@@ -5,7 +5,7 @@ public class EZJSONDecoder: JSONDecoder, @unchecked Sendable {
         do {
             return try super.decode(type, from: data)
         } catch {
-            throw NetworkingError.internalError(.couldNotParse)
+            throw NetworkingError.internalError(.couldNotParse(underlying: error))
         }
     }
 }

@@ -176,7 +176,11 @@ final class RequestPerformablepublisherTests {
             .sink(receiveCompletion: { completion in
                 switch completion {
                 case let .failure(error):
-                    #expect(error == NetworkingError.internalError(.couldNotParse))
+                    if case .internalError(.couldNotParse) = error {
+                        #expect(Bool(true))
+                    } else {
+                        Issue.record()
+                    }
                     didComplete = true
                 case .finished: Issue.record()
                 }

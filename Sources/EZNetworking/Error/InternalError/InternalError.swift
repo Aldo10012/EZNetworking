@@ -7,7 +7,7 @@ public enum InternalError: Error {
     case invalidScheme(String?)
     case missingHost
 
-    case couldNotParse
+    case couldNotParse(underlying: Error)
     case invalidError
     case noData
     case noResponse
@@ -26,7 +26,6 @@ extension InternalError: Equatable {
              (.noURL, .noURL),
              (.invalidURL, .invalidURL),
              (.missingHost, .missingHost),
-             (.couldNotParse, .couldNotParse),
              (.invalidError, .invalidError),
              (.noData, .noData),
              (.noResponse, .noResponse),
@@ -36,7 +35,8 @@ extension InternalError: Equatable {
              (.lostReferenceOfSelf, .lostReferenceOfSelf):
             true
 
-        case let (.requestFailed(lhsError), .requestFailed(rhsError)):
+        case let (.requestFailed(lhsError), .requestFailed(rhsError)),
+             let (.couldNotParse(underlying: lhsError), .couldNotParse(underlying: rhsError)):
             (lhsError as NSError) == (rhsError as NSError)
 
         case let (.invalidScheme(lhsScheme), .invalidScheme(rhsScheme)):

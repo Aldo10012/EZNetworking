@@ -22,7 +22,11 @@ final class decoderTests {
             _ = try sut.decode(Person.self, from: MockData.invalidMockPersonJsonData)
             Issue.record("Unexpected error)")
         } catch let error as NetworkingError {
-            #expect(error == NetworkingError.internalError(.couldNotParse))
+            if case .internalError(.couldNotParse(let underlying)) = error {
+                #expect(underlying is DecodingError)
+            } else {
+                Issue.record("expected couldNotParse")
+            }
         }
     }
 }

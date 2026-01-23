@@ -126,8 +126,14 @@ final class RequestPerformableAsyncAwaitTests {
         let sut = createRequestPerformer(
             urlSession: createMockURLSession(data: MockData.invalidMockPersonJsonData)
         )
-        await #expect(throws: NetworkingError.internalError(.couldNotParse)) {
-            try await sut.perform(request: MockRequest(), decodeTo: Person.self)
+        do {
+            _ = try await sut.perform(request: MockRequest(), decodeTo: Person.self)
+        } catch {
+            if case NetworkingError.internalError(.couldNotParse) = error {
+                #expect(Bool(true))
+            } else {
+                Issue.record()
+            }
         }
     }
 }
