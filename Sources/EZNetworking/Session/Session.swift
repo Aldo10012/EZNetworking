@@ -1,6 +1,14 @@
 import Foundation
 
-public class Session {
+public protocol NetworkSession {
+    var configuration: URLSessionConfiguration { get }
+    var delegate: SessionDelegate { get }
+    var delegateQueue: OperationQueue? { get }
+
+    var urlSession: URLSessionProtocol { get }
+}
+
+public class Session: NetworkSession {
     public internal(set) var configuration: URLSessionConfiguration
     public internal(set) var delegate: SessionDelegate
     public internal(set) var delegateQueue: OperationQueue?
