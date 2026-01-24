@@ -2,34 +2,16 @@ import Combine
 import Foundation
 
 public struct RequestPerformer: RequestPerformable {
-    private let urlSession: URLSessionProtocol
+    private let session: NetworkSession
     private let validator: ResponseValidator
     private let decoder: JSONDecoder
 
     public init(
-        urlSession: URLSessionProtocol = URLSession.shared,
+        session: NetworkSession = Session(),
         validator: ResponseValidator = ResponseValidatorImpl(),
-        decoder: JSONDecoder = EZJSONDecoder(),
-        sessionDelegate: SessionDelegate? = nil
+        decoder: JSONDecoder = EZJSONDecoder()
     ) {
-        if let urlSession = urlSession as? URLSession {
-            // If the session already has a delegate, use it (if it's a SessionDelegate)
-            if urlSession.delegate is SessionDelegate {
-                self.urlSession = urlSession
-            } else {
-                // If no delegate or not a SessionDelegate, create one
-                let newDelegate = sessionDelegate ?? SessionDelegate()
-                let newSession = URLSession(
-                    configuration: urlSession.configuration,
-                    delegate: newDelegate,
-                    delegateQueue: urlSession.delegateQueue
-                )
-                self.urlSession = newSession
-            }
-        } else {
-            // For mocks or custom protocol types
-            self.urlSession = urlSession
-        }
+        self.session = session
         self.validator = validator
         self.decoder = decoder
     }
@@ -75,7 +57,7 @@ public struct RequestPerformer: RequestPerformable {
             completion(.failure(.internalError(.noRequest)))
             return nil
         }
-        let task = urlSession.dataTask(with: urlRequest) { data, urlResponse, error in
+        let task = session.urlSession.dataTask(with: urlRequest) { data, urlResponse, error in
             do {
                 try validator.validateNoError(error)
                 try validator.validateStatus(from: urlResponse)

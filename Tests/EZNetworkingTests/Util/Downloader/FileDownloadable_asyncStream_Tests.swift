@@ -14,10 +14,12 @@ final class FileDownloadableAsyncStreamTests {
         let delegate = SessionDelegate()
         urlSession.sessionDelegate = delegate
         let sut = FileDownloader(
-            urlSession: urlSession,
+            session: MockSession(
+                urlSession: urlSession,
+                delegate: delegate
+            ),
             validator: ResponseValidatorImpl(),
-            decoder: EZJSONDecoder(),
-            sessionDelegate: delegate
+            decoder: EZJSONDecoder()
         )
 
         var events: [DownloadStreamEvent] = []
@@ -40,7 +42,9 @@ final class FileDownloadableAsyncStreamTests {
     func downloadFileStreamFailsWhenStatusCodeIsNot200() async throws {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let sut = FileDownloader(
-            urlSession: createMockURLSession(statusCode: 400),
+            session: MockSession(
+                urlSession: createMockURLSession(statusCode: 400)
+            ),
             validator: ResponseValidatorImpl()
         )
 
@@ -64,7 +68,9 @@ final class FileDownloadableAsyncStreamTests {
     func downloadFileStreamFailsWhenValidatorThrowsAnyError() async throws {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let sut = FileDownloader(
-            urlSession: createMockURLSession(),
+            session: MockSession(
+                urlSession: createMockURLSession()
+            ),
             validator: MockURLResponseValidator(throwError: NetworkingError.internalError(.noData))
         )
 
@@ -88,7 +94,9 @@ final class FileDownloadableAsyncStreamTests {
     func downloadFileStreamFailsWhenErrorIsNotNil() async throws {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let sut = FileDownloader(
-            urlSession: createMockURLSession(error: NetworkingError.internalError(.unknown))
+            session: MockSession(
+                urlSession: createMockURLSession(error: NetworkingError.internalError(.unknown))
+            )
         )
 
         var events: [DownloadStreamEvent] = []
@@ -210,8 +218,7 @@ final class FileDownloadableAsyncStreamTests {
         ]
 
         let sut = FileDownloader(
-            urlSession: urlSession,
-            sessionDelegate: delegate
+            session: MockSession(urlSession: urlSession, delegate: delegate)
         )
 
         var didTrackProgress = false
@@ -249,8 +256,7 @@ final class FileDownloadableAsyncStreamTests {
         ]
 
         let sut = FileDownloader(
-            urlSession: urlSession,
-            sessionDelegate: delegate
+            session: MockSession(urlSession: urlSession, delegate: delegate)
         )
 
         for await event in sut.downloadFileStream(from: testURL) {

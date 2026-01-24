@@ -204,8 +204,7 @@ final class FileUploaderPublisherTests {
         ]
 
         let sut = FileUploader(
-            urlSession: urlSession,
-            sessionDelegate: delegate
+            session: MockSession(urlSession: urlSession, delegate: delegate)
         )
 
         var didExecute = false
@@ -248,8 +247,7 @@ final class FileUploaderPublisherTests {
         ]
 
         let sut = FileUploader(
-            urlSession: urlSession,
-            sessionDelegate: delegate
+            session: MockSession(urlSession: urlSession, delegate: delegate)
         )
 
         var didExecute = false
@@ -276,7 +274,7 @@ final class FileUploaderPublisherTests {
 private func createFileUploader(
     urlSession: URLSessionProtocol = createMockURLSession()
 ) -> FileUploader {
-    FileUploader(urlSession: urlSession)
+    FileUploader(session: MockSession(urlSession: urlSession))
 }
 
 private func createMockURLSession(
@@ -314,9 +312,8 @@ extension FileUploader {
         let sessionDelegate = SessionDelegate()
         mockSession.sessionDelegate = sessionDelegate
         self.init(
-            urlSession: mockSession,
-            validator: validator,
-            sessionDelegate: sessionDelegate
+            session: MockSession(urlSession: mockSession, delegate: sessionDelegate),
+            validator: validator
         )
     }
 }

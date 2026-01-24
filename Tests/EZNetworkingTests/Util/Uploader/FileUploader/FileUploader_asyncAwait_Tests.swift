@@ -8,7 +8,7 @@ final class FileUploaderAsyncAwaitTests {
 
     @Test("test .uploadFile() with all valid inputs does not throw error")
     func uploadFile_withValidInputs_doesNotThrowError() async throws {
-        let sut = FileUploader(urlSession: createMockURLSession())
+        let sut = FileUploader(session: MockSession(urlSession: createMockURLSession()))
         await #expect(throws: Never.self) {
             try await sut.uploadFile(mockFileURL, with: mockRequest, progress: nil)
         }
@@ -160,7 +160,7 @@ final class FileUploaderAsyncAwaitTests {
 private func createFileUploader(
     urlSession: URLSessionProtocol = createMockURLSession()
 ) -> FileUploader {
-    FileUploader(urlSession: urlSession)
+    FileUploader(session: MockSession(urlSession: urlSession))
 }
 
 private func createMockURLSession(
@@ -198,9 +198,8 @@ extension FileUploader {
         let sessionDelegate = SessionDelegate()
         mockSession.sessionDelegate = sessionDelegate
         self.init(
-            urlSession: mockSession,
-            validator: validator,
-            sessionDelegate: sessionDelegate
+            session: MockSession(urlSession: mockSession, delegate: sessionDelegate),
+            validator: validator
         )
     }
 }

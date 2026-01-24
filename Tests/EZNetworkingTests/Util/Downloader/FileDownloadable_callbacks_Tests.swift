@@ -193,8 +193,7 @@ final class FileDownloadableCallBacksTests {
         urlSession.progressToExecute = [.inProgress(percent: 50)]
 
         let sut = FileDownloader(
-            urlSession: urlSession,
-            sessionDelegate: delegate
+            session: MockSession(urlSession: urlSession, delegate: delegate)
         )
 
         var didExecute = false
@@ -232,8 +231,7 @@ final class FileDownloadableCallBacksTests {
         urlSession.progressToExecute = [.inProgress(percent: 50)]
 
         let sut = FileDownloader(
-            urlSession: urlSession,
-            sessionDelegate: delegate
+            session: MockSession(urlSession: urlSession, delegate: delegate)
         )
 
         var didExecute = false
@@ -261,7 +259,7 @@ private func createFileDownloader(
     decoder: JSONDecoder = EZJSONDecoder()
 ) -> FileDownloader {
     FileDownloader(
-        urlSession: urlSession,
+        session: MockSession(urlSession: urlSession),
         validator: validator,
         decoder: decoder
     )

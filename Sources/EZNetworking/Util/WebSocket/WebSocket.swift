@@ -1,8 +1,7 @@
 import Foundation
 
 public actor WebSocket: WebSocketClient {
-    private let urlSession: URLSessionProtocol
-    private nonisolated let sessionDelegate: SessionDelegate
+    private let session: NetworkSession
     private let webSocketRequest: WebSocketRequest
 
     private var webSocketTask: URLSessionWebSocketTaskProtocol?
@@ -34,46 +33,23 @@ public actor WebSocket: WebSocketClient {
         protocols: [String]? = nil,
         additionalheaders: [HTTPHeader]? = nil,
         pingConfig: PingConfig = PingConfig(),
-        urlSession: URLSessionProtocol = URLSession.shared,
-        sessionDelegate: SessionDelegate? = nil
+        session: NetworkSession = Session()
     ) {
         self.init(
             request: WebSocketRequest(url: url, protocols: protocols, additionalheaders: additionalheaders),
             pingConfig: pingConfig,
-            urlSession: urlSession,
-            sessionDelegate: sessionDelegate
+            session: session
         )
     }
 
     public init(
         request: WebSocketRequest,
         pingConfig: PingConfig = PingConfig(),
-        urlSession: URLSessionProtocol = URLSession.shared,
-        sessionDelegate: SessionDelegate? = nil
+        session: NetworkSession = Session()
     ) {
         webSocketRequest = request
         self.pingConfig = pingConfig
-        if let urlSession = urlSession as? URLSession {
-            // If the session already has a delegate, use it (if it's a SessionDelegate)
-            if let existingDelegate = urlSession.delegate as? SessionDelegate {
-                self.sessionDelegate = existingDelegate
-                self.urlSession = urlSession
-            } else {
-                // If no delegate or not a SessionDelegate, create one
-                let newDelegate = sessionDelegate ?? SessionDelegate()
-                let newSession = URLSession(
-                    configuration: urlSession.configuration,
-                    delegate: newDelegate,
-                    delegateQueue: urlSession.delegateQueue
-                )
-                self.sessionDelegate = newDelegate
-                self.urlSession = newSession
-            }
-        } else {
-            // For mocks or custom protocol types
-            self.sessionDelegate = sessionDelegate ?? SessionDelegate()
-            self.urlSession = urlSession
-        }
+        self.session = session
 
         let (messagesStream, messagesContinuation) = AsyncStream<InboundMessage>.makeStream()
         self.messagesStream = messagesStream
@@ -89,7 +65,7 @@ public actor WebSocket: WebSocketClient {
     // MARK: deinit
 
     deinit {
-        sessionDelegate.webSocketTaskInterceptor?.onEvent = nil
+        session.delegate.webSocketTaskInterceptor?.onEvent = nil
         stateEventContinuation.finish()
         messagesContinuation.finish()
     }
@@ -108,7 +84,7 @@ public actor WebSocket: WebSocketClient {
         }
 
         // Create and resume WebSocket task
-        webSocketTask = urlSession.webSocketTaskInspectable(with: urlRequest)
+        webSocketTask = session.urlSession.webSocketTaskInspectable(with: urlRequest)
         webSocketTask?.resume()
 
         // wait for connection to establish
@@ -124,14 +100,14 @@ public actor WebSocket: WebSocketClient {
     // MARK: Handle delegate events
 
     private nonisolated func setupWebSocketEventHandler() {
-        if sessionDelegate.webSocketTaskInterceptor == nil {
-            sessionDelegate.webSocketTaskInterceptor = fallbackWebSocketTaskInterceptor
+        if session.delegate.webSocketTaskInterceptor == nil {
+            session.delegate.webSocketTaskInterceptor = fallbackWebSocketTaskInterceptor
         }
-        guard sessionDelegate.webSocketTaskInterceptor?.onEvent == nil else {
+        guard session.delegate.webSocketTaskInterceptor?.onEvent == nil else {
             return
         }
 
-        sessionDelegate.webSocketTaskInterceptor?.onEvent = { [weak self] event in
+        session.delegate.webSocketTaskInterceptor?.onEvent = { [weak self] event in
             Task { @Sendable [weak self] in
                 await self?.handleWebSocketInterceptorEvent(event)
             }
@@ -283,7 +259,7 @@ public actor WebSocket: WebSocketClient {
             newState: .disconnected(.terminated),
             error: .forcedDisconnection
         )
-        sessionDelegate.webSocketTaskInterceptor?.onEvent = nil
+        session.delegate.webSocketTaskInterceptor?.onEvent = nil
         stateEventContinuation.finish()
         messagesContinuation.finish()
     }

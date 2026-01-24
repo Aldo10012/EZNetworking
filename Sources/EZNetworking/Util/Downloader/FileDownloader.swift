@@ -2,42 +2,20 @@ import Combine
 import Foundation
 
 public class FileDownloader: FileDownloadable {
-    private let urlSession: URLSessionProtocol
+    private let session: NetworkSession
     private let validator: ResponseValidator
     private let decoder: JSONDecoder
-    private var sessionDelegate: SessionDelegate
 
     private let fallbackDownloadTaskInterceptor: DownloadTaskInterceptor = DefaultDownloadTaskInterceptor()
 
     // MARK: init
 
     public init(
-        urlSession: URLSessionProtocol = URLSession.shared,
+        session: NetworkSession = Session(),
         validator: ResponseValidator = ResponseValidatorImpl(),
-        decoder: JSONDecoder = EZJSONDecoder(),
-        sessionDelegate: SessionDelegate? = nil // Now optional!
+        decoder: JSONDecoder = EZJSONDecoder()
     ) {
-        if let urlSession = urlSession as? URLSession {
-            // If the session already has a delegate, use it (if it's a SessionDelegate)
-            if let existingDelegate = urlSession.delegate as? SessionDelegate {
-                self.sessionDelegate = existingDelegate
-                self.urlSession = urlSession
-            } else {
-                // If no delegate or not a SessionDelegate, create one
-                let newDelegate = sessionDelegate ?? SessionDelegate()
-                let newSession = URLSession(
-                    configuration: urlSession.configuration,
-                    delegate: newDelegate,
-                    delegateQueue: urlSession.delegateQueue
-                )
-                self.sessionDelegate = newDelegate
-                self.urlSession = newSession
-            }
-        } else {
-            // For mocks or custom protocol types
-            self.sessionDelegate = sessionDelegate ?? SessionDelegate()
-            self.urlSession = urlSession
-        }
+        self.session = session
         self.validator = validator
         self.decoder = decoder
     }
@@ -106,7 +84,7 @@ public class FileDownloader: FileDownloadable {
     private func performDownloadTask(url: URL, progress: DownloadProgressHandler?, completion: @escaping (DownloadCompletionHandler)) -> URLSessionDownloadTask {
         configureProgressTracking(progress: progress)
 
-        let task = urlSession.downloadTask(with: url) { [weak self] localURL, response, error in
+        let task = session.urlSession.downloadTask(with: url) { [weak self] localURL, response, error in
             guard let self else {
                 completion(.failure(.internalError(.lostReferenceOfSelf)))
                 return
@@ -134,13 +112,13 @@ public class FileDownloader: FileDownloadable {
     private func configureProgressTracking(progress: DownloadProgressHandler?) {
         guard let progress else { return }
 
-        if sessionDelegate.downloadTaskInterceptor != nil {
+        if session.delegate.downloadTaskInterceptor != nil {
             // Update existing interceptor's progress handler
-            sessionDelegate.downloadTaskInterceptor?.progress = progress
+            session.delegate.downloadTaskInterceptor?.progress = progress
         } else {
             // Set up fallback interceptor with progress handler
             fallbackDownloadTaskInterceptor.progress = progress
-            sessionDelegate.downloadTaskInterceptor = fallbackDownloadTaskInterceptor
+            session.delegate.downloadTaskInterceptor = fallbackDownloadTaskInterceptor
         }
     }
 }
