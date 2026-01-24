@@ -208,7 +208,7 @@ private func createRequestPerformer(
     validator: ResponseValidator = ResponseValidatorImpl(),
     decoder: JSONDecoder = EZJSONDecoder()
 ) -> RequestPerformer {
-    RequestPerformer(urlSession: urlSession, validator: validator, decoder: decoder)
+    RequestPerformer(session: MockSession(urlSession: urlSession), validator: validator, decoder: decoder)
 }
 
 private func createMockURLSession(
