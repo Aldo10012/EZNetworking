@@ -8,7 +8,8 @@ final class DataUploaderAsyncAwaitTests {
 
     @Test("test .uploadData() with all valid inputs does not throw error")
     func upload_withValidInputs_doesNotThrowError() async throws {
-        let sut = DataUploader(urlSession: createMockURLSession())
+        let session = MockSession(urlSession: createMockURLSession())
+        let sut = DataUploader(session: session)
         await #expect(throws: Never.self) {
             try await sut.uploadData(mockData, with: mockRequest, progress: nil)
         }
@@ -167,8 +168,7 @@ final class DataUploaderAsyncAwaitTests {
         ]
 
         let sut = DataUploader(
-            urlSession: urlSession,
-            sessionDelegate: delegate
+            session: MockSession(urlSession: urlSession, delegate: delegate)
         )
 
         var didTrackProgress = false
@@ -203,8 +203,7 @@ final class DataUploaderAsyncAwaitTests {
         ]
 
         let sut = DataUploader(
-            urlSession: urlSession,
-            sessionDelegate: delegate
+            session: MockSession(urlSession: urlSession, delegate: delegate)
         )
 
         do {
@@ -222,7 +221,7 @@ final class DataUploaderAsyncAwaitTests {
 private func createDataUploader(
     urlSession: URLSessionProtocol = createMockURLSession()
 ) -> DataUploader {
-    DataUploader(urlSession: urlSession)
+    DataUploader(session: MockSession(urlSession: urlSession))
 }
 
 private func createMockURLSession(
@@ -260,9 +259,8 @@ extension DataUploader {
         let sessionDelegate = SessionDelegate()
         mockSession.sessionDelegate = sessionDelegate
         self.init(
-            urlSession: mockSession,
-            validator: validator,
-            sessionDelegate: sessionDelegate
+            session: MockSession(urlSession: mockSession, delegate: sessionDelegate),
+            validator: validator
         )
     }
 }

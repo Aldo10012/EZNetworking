@@ -9,7 +9,11 @@ final class DataUploaderAsyncStreamTests {
 
     @Test("test .uploadDataStream() Success")
     func uploadDataStream_streamSuccess() async throws {
-        let sut = DataUploader(urlSession: createMockURLSession())
+        let sut = DataUploader(
+            session: MockSession(
+                urlSession: createMockURLSession()
+            )
+        )
 
         var events: [UploadStreamEvent] = []
         for await event in sut.uploadDataStream(mockData, with: mockRequest) {
@@ -30,8 +34,10 @@ final class DataUploaderAsyncStreamTests {
     @Test("test .uploadDataStream() Fails When StatusCode Is not 200")
     func uploadDataStream_withRedirectStatusCode() async throws {
         let sut = DataUploader(
-            urlSession: createMockURLSession(
-                urlResponse: buildResponse(statusCode: 400)
+            session: MockSession(
+                urlSession: createMockURLSession(
+                    urlResponse: buildResponse(statusCode: 400)
+                )
             )
         )
         var events: [UploadStreamEvent] = []
@@ -53,8 +59,10 @@ final class DataUploaderAsyncStreamTests {
     @Test("test .uploadDataStream() Fails when URLSession has error")
     func uploadDataStream_whenURLSessionHasError_throwsError() async throws {
         let sut = DataUploader(
-            urlSession: createMockURLSession(
-                error: HTTPError(statusCode: 500)
+            session: MockSession(
+                urlSession: createMockURLSession(
+                    error: HTTPError(statusCode: 500)
+                )
             )
         )
         var events: [UploadStreamEvent] = []
@@ -74,8 +82,10 @@ final class DataUploaderAsyncStreamTests {
     @Test("test .uploadDataStream() Fails when URLSession has URLError")
     func uploadDataStream_whenURLSessionHasURLError_throwsError() async throws {
         let sut = DataUploader(
-            urlSession: createMockURLSession(
-                error: URLError(.notConnectedToInternet)
+            session: MockSession(
+                urlSession: createMockURLSession(
+                    error: URLError(.notConnectedToInternet)
+                )
             )
         )
         var events: [UploadStreamEvent] = []
@@ -185,8 +195,7 @@ final class DataUploaderAsyncStreamTests {
         ]
 
         let sut = DataUploader(
-            urlSession: urlSession,
-            sessionDelegate: delegate
+            session: MockSession(urlSession: urlSession, delegate: delegate)
         )
 
         var didTrackProgress = false
@@ -223,8 +232,7 @@ final class DataUploaderAsyncStreamTests {
         ]
 
         let sut = DataUploader(
-            urlSession: urlSession,
-            sessionDelegate: delegate
+            session: MockSession(urlSession: urlSession, delegate: delegate)
         )
 
         for await event in sut.uploadDataStream(mockData, with: mockRequest) {
@@ -246,7 +254,7 @@ final class DataUploaderAsyncStreamTests {
 private func createDataUploader(
     urlSession: URLSessionProtocol = createMockURLSession()
 ) -> DataUploader {
-    DataUploader(urlSession: urlSession)
+    DataUploader(session: MockSession(urlSession: urlSession))
 }
 
 private func createMockURLSession(
@@ -284,9 +292,8 @@ extension DataUploader {
         let sessionDelegate = SessionDelegate()
         mockSession.sessionDelegate = sessionDelegate
         self.init(
-            urlSession: mockSession,
-            validator: validator,
-            sessionDelegate: sessionDelegate
+            session: MockSession(urlSession: mockSession, delegate: sessionDelegate),
+            validator: validator
         )
     }
 }

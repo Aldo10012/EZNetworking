@@ -204,8 +204,7 @@ final class DataUploaderPublisherTests {
         ]
 
         let sut = DataUploader(
-            urlSession: urlSession,
-            sessionDelegate: delegate
+            session: MockSession(urlSession: urlSession, delegate: delegate)
         )
 
         var didExecute = false
@@ -248,8 +247,7 @@ final class DataUploaderPublisherTests {
         ]
 
         let sut = DataUploader(
-            urlSession: urlSession,
-            sessionDelegate: delegate
+            session: MockSession(urlSession: urlSession, delegate: delegate)
         )
 
         var didExecute = false
@@ -276,7 +274,7 @@ final class DataUploaderPublisherTests {
 private func createDataUploader(
     urlSession: URLSessionProtocol = createMockURLSession()
 ) -> DataUploader {
-    DataUploader(urlSession: urlSession)
+    DataUploader(session: MockSession(urlSession: urlSession))
 }
 
 private func createMockURLSession(
@@ -314,9 +312,8 @@ extension DataUploader {
         let sessionDelegate = SessionDelegate()
         mockSession.sessionDelegate = sessionDelegate
         self.init(
-            urlSession: mockSession,
-            validator: validator,
-            sessionDelegate: sessionDelegate
+            session: MockSession(urlSession: mockSession, delegate: sessionDelegate),
+            validator: validator
         )
     }
 }
