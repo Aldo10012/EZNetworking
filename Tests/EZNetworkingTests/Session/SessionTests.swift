@@ -4,7 +4,6 @@ import Testing
 
 @Suite("Test Session")
 final class SessionTests {
-
     @Test("test Session default configuration")
     func sessionDefaultConfiguration() {
         #expect(Session().configuration == URLSessionConfiguration.default)

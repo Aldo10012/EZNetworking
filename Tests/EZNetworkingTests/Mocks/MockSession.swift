@@ -3,7 +3,7 @@ import Foundation
 
 class MockSession: NetworkSession {
     var configuration: URLSessionConfiguration = .default
-    var delegateQueue: OperationQueue? = nil
+    var delegateQueue: OperationQueue?
 
     var delegate: EZNetworking.SessionDelegate
     var urlSession: any EZNetworking.URLSessionProtocol

@@ -13,9 +13,7 @@ public class Session: NetworkSession {
     public internal(set) var delegate: SessionDelegate
     public internal(set) var delegateQueue: OperationQueue?
 
-    public private(set) lazy var urlSession: URLSessionProtocol = {
-        URLSession(configuration: configuration, delegate: delegate, delegateQueue: delegateQueue)
-    }()
+    public private(set) lazy var urlSession: URLSessionProtocol = URLSession(configuration: configuration, delegate: delegate, delegateQueue: delegateQueue)
 
     public init(
         configuration: URLSessionConfiguration = .default,
