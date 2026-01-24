@@ -2,37 +2,18 @@ import Combine
 import Foundation
 
 public class FileUploader: FileUploadable {
-    private let urlSession: URLSessionProtocol
+    private let session: NetworkSession
     private let validator: ResponseValidator
-    private var sessionDelegate: SessionDelegate
 
     private let fallbackUploadTaskInterceptor = DefaultUploadTaskInterceptor()
 
     // MARK: init
 
     public init(
-        urlSession: URLSessionProtocol = URLSession.shared,
-        validator: ResponseValidator = ResponseValidatorImpl(),
-        sessionDelegate: SessionDelegate? = nil
+        session: NetworkSession = Session(),
+        validator: ResponseValidator = ResponseValidatorImpl()
     ) {
-        if let urlSession = urlSession as? URLSession {
-            if let existingDelegate = urlSession.delegate as? SessionDelegate {
-                self.sessionDelegate = existingDelegate
-                self.urlSession = urlSession
-            } else {
-                let newDelegate = sessionDelegate ?? SessionDelegate()
-                let newSession = URLSession(
-                    configuration: urlSession.configuration,
-                    delegate: newDelegate,
-                    delegateQueue: urlSession.delegateQueue
-                )
-                self.sessionDelegate = newDelegate
-                self.urlSession = newSession
-            }
-        } else {
-            self.sessionDelegate = sessionDelegate ?? SessionDelegate()
-            self.urlSession = urlSession
-        }
+        self.session = session
         self.validator = validator
     }
 
@@ -103,7 +84,7 @@ public class FileUploader: FileUploadable {
             return nil
         }
 
-        let task = urlSession.uploadTask(with: urlRequest, fromFile: fileURL) { [weak self] data, response, error in
+        let task = session.urlSession.uploadTask(with: urlRequest, fromFile: fileURL) { [weak self] data, response, error in
             guard let self else {
                 completion(.failure(.internalError(.lostReferenceOfSelf)))
                 return
@@ -129,11 +110,11 @@ public class FileUploader: FileUploadable {
 
     private func configureProgressTracking(progress: UploadProgressHandler?) {
         guard let progress else { return }
-        if sessionDelegate.uploadTaskInterceptor != nil {
-            sessionDelegate.uploadTaskInterceptor?.progress = progress
+        if session.delegate.uploadTaskInterceptor != nil {
+            session.delegate.uploadTaskInterceptor?.progress = progress
         } else {
             fallbackUploadTaskInterceptor.progress = progress
-            sessionDelegate.uploadTaskInterceptor = fallbackUploadTaskInterceptor
+            session.delegate.uploadTaskInterceptor = fallbackUploadTaskInterceptor
         }
     }
 

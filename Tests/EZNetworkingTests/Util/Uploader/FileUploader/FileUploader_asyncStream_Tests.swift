@@ -9,7 +9,7 @@ final class FileUploaderAsyncStreamTests {
 
     @Test("test .uploadFileStream() Success")
     func uploadFileStream_streamSuccess() async throws {
-        let sut = FileUploader(urlSession: createMockURLSession())
+        let sut = FileUploader(session: MockSession(urlSession: createMockURLSession()))
 
         var events: [UploadStreamEvent] = []
         for await event in sut.uploadFileStream(mockFileURL, with: mockRequest) {
@@ -30,8 +30,10 @@ final class FileUploaderAsyncStreamTests {
     @Test("test .uploadFileStream() Fails When StatusCode Is not 200")
     func uploadFileStream_withRedirectStatusCode() async throws {
         let sut = FileUploader(
-            urlSession: createMockURLSession(
-                urlResponse: buildResponse(statusCode: 400)
+            session: MockSession(
+                urlSession: createMockURLSession(
+                    urlResponse: buildResponse(statusCode: 400)
+                )
             )
         )
         var events: [UploadStreamEvent] = []
@@ -53,8 +55,10 @@ final class FileUploaderAsyncStreamTests {
     @Test("test .uploadFileStream() Fails when URLSession has error")
     func uploadFileStream_whenURLSessionHasError_throwsError() async throws {
         let sut = FileUploader(
-            urlSession: createMockURLSession(
-                error: HTTPError(statusCode: 500)
+            session: MockSession(
+                urlSession: createMockURLSession(
+                    error: HTTPError(statusCode: 500)
+                )
             )
         )
         var events: [UploadStreamEvent] = []
@@ -74,8 +78,10 @@ final class FileUploaderAsyncStreamTests {
     @Test("test .uploadFileStream() Fails when URLSession has URLError")
     func uploadFileStream_whenURLSessionHasURLError_throwsError() async throws {
         let sut = FileUploader(
-            urlSession: createMockURLSession(
-                error: URLError(.notConnectedToInternet)
+            session: MockSession(
+                urlSession: createMockURLSession(
+                    error: URLError(.notConnectedToInternet)
+                )
             )
         )
         var events: [UploadStreamEvent] = []
@@ -185,8 +191,7 @@ final class FileUploaderAsyncStreamTests {
         ]
 
         let sut = FileUploader(
-            urlSession: urlSession,
-            sessionDelegate: delegate
+            session: MockSession(urlSession: urlSession, delegate: delegate)
         )
 
         var didTrackProgress = false
@@ -223,8 +228,7 @@ final class FileUploaderAsyncStreamTests {
         ]
 
         let sut = FileUploader(
-            urlSession: urlSession,
-            sessionDelegate: delegate
+            session: MockSession(urlSession: urlSession, delegate: delegate)
         )
 
         for await event in sut.uploadFileStream(mockFileURL, with: mockRequest) {
@@ -246,7 +250,7 @@ final class FileUploaderAsyncStreamTests {
 private func createFileUploader(
     urlSession: URLSessionProtocol = createMockURLSession()
 ) -> FileUploader {
-    FileUploader(urlSession: urlSession)
+    FileUploader(session: MockSession(urlSession: urlSession))
 }
 
 private func createMockURLSession(
@@ -284,9 +288,8 @@ extension FileUploader {
         let sessionDelegate = SessionDelegate()
         mockSession.sessionDelegate = sessionDelegate
         self.init(
-            urlSession: mockSession,
-            validator: validator,
-            sessionDelegate: sessionDelegate
+            session: MockSession(urlSession: mockSession, delegate: sessionDelegate),
+            validator: validator
         )
     }
 }
