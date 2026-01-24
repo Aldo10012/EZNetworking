@@ -11,7 +11,7 @@ final class WebSocketDisconnectTests {
         let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
         let wsInterceptor = MockWebSocketTaskInterceptor()
         let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
-        let sut = WebSocket(request: webSocketRequest, pingConfig: pingConfig, urlSession: urlSession, sessionDelegate: session)
+        let sut = WebSocket(request: webSocketRequest, pingConfig: pingConfig, session: MockSession(urlSession: urlSession, delegate: session))
 
         var didDisconnect = false
         let task = Task {
@@ -41,7 +41,7 @@ final class WebSocketDisconnectTests {
         let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
         let wsInterceptor = MockWebSocketTaskInterceptor()
         let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
-        let sut = WebSocket(request: webSocketRequest, pingConfig: pingConfig, urlSession: urlSession, sessionDelegate: session)
+        let sut = WebSocket(request: webSocketRequest, pingConfig: pingConfig, session: MockSession(urlSession: urlSession, delegate: session))
 
         var disconnectDidThrow = false
         do {

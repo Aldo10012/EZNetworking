@@ -11,7 +11,7 @@ final class WebSocketMessagesTests {
         let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
         let wsInterceptor = MockWebSocketTaskInterceptor()
         let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
-        let sut = WebSocket(request: webSocketRequest, pingConfig: pingConfig, urlSession: urlSession, sessionDelegate: session)
+        let sut = WebSocket(request: webSocketRequest, pingConfig: pingConfig, session: MockSession(urlSession: urlSession, delegate: session))
 
         let connectTask = Task {
             do {
@@ -55,7 +55,7 @@ final class WebSocketMessagesTests {
         let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
         let wsInterceptor = MockWebSocketTaskInterceptor()
         let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
-        let sut = WebSocket(request: webSocketRequest, pingConfig: pingConfig, urlSession: urlSession, sessionDelegate: session)
+        let sut = WebSocket(request: webSocketRequest, pingConfig: pingConfig, session: MockSession(urlSession: urlSession, delegate: session))
 
         let connectTask = Task {
             do {
@@ -100,7 +100,7 @@ final class WebSocketMessagesTests {
         let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
         let wsInterceptor = MockWebSocketTaskInterceptor()
         let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
-        let sut = WebSocket(request: webSocketRequest, pingConfig: pingConfig, urlSession: urlSession, sessionDelegate: session)
+        let sut = WebSocket(request: webSocketRequest, pingConfig: pingConfig, session: MockSession(urlSession: urlSession, delegate: session))
 
         let connectTask = Task {
             do {
@@ -134,7 +134,7 @@ final class WebSocketMessagesTests {
         let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
         let wsInterceptor = MockWebSocketTaskInterceptor()
         let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
-        let sut = WebSocket(request: webSocketRequest, pingConfig: pingConfig, urlSession: urlSession, sessionDelegate: session)
+        let sut = WebSocket(request: webSocketRequest, pingConfig: pingConfig, session: MockSession(urlSession: urlSession, delegate: session))
 
         // connect
         let connectTask = Task {
@@ -195,7 +195,7 @@ final class WebSocketMessagesTests {
         let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
         let wsInterceptor = MockWebSocketTaskInterceptor()
         let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
-        let sut = WebSocket(request: webSocketRequest, pingConfig: pingConfig, urlSession: urlSession, sessionDelegate: session)
+        let sut = WebSocket(request: webSocketRequest, pingConfig: pingConfig, session: MockSession(urlSession: urlSession, delegate: session))
 
         // connect
         let connectTask = Task {
