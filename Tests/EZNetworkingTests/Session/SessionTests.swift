@@ -39,4 +39,29 @@ final class SessionTests {
         #expect(delegate.redirectInterceptor == nil)
         #expect(delegate.metricsInterceptor == nil)
     }
+
+    @Test("test delegate injected into URLSession does invoke interceptor")
+    func delegateInjectedIntoURLSessionDOesInvokeInterceptor() async throws {
+        let cacheInterceptor = MockCacheInterceptor()
+        let delegate = SessionDelegate(cacheInterceptor: cacheInterceptor)
+        let session = Session(delegate: delegate)
+
+        let urlSession = try #require(session.urlSession as? URLSession)
+        let urlSessionDelegate = try #require(urlSession.delegate as? SessionDelegate)
+
+        #expect(cacheInterceptor.willCacheResponseWasCalled == false)
+
+        _ = await urlSessionDelegate.urlSession(.shared, dataTask: .init(), willCacheResponse: .init())
+
+        #expect(cacheInterceptor.willCacheResponseWasCalled == true)
+    }
+}
+
+private class MockCacheInterceptor: CacheInterceptor {
+    var willCacheResponseWasCalled = false
+
+    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, willCacheResponse proposedResponse: CachedURLResponse) async -> CachedURLResponse? {
+        willCacheResponseWasCalled = true
+        return .none
+    }
 }
