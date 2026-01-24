@@ -161,8 +161,7 @@ final class FileDownloadableAsyncAwaitTests {
         ]
 
         let sut = FileDownloader(
-            urlSession: urlSession,
-            sessionDelegate: delegate
+            session: MockSession(urlSession: urlSession, delegate: delegate)
         )
 
         var didTrackProgress = false
@@ -198,8 +197,7 @@ final class FileDownloadableAsyncAwaitTests {
         ]
 
         let sut = FileDownloader(
-            urlSession: urlSession,
-            sessionDelegate: delegate
+            session: MockSession(urlSession: urlSession, delegate: delegate)
         )
 
         do {
@@ -222,7 +220,7 @@ private func createFileDownloader(
     decoder: JSONDecoder = EZJSONDecoder()
 ) -> FileDownloader {
     FileDownloader(
-        urlSession: urlSession,
+        session: MockSession(urlSession: urlSession),
         validator: validator,
         decoder: decoder
     )
@@ -261,10 +259,9 @@ extension FileDownloader {
         let sessionDelegate = SessionDelegate()
         mockSession.sessionDelegate = sessionDelegate
         self.init(
-            urlSession: mockSession,
+            session: MockSession(urlSession: mockSession, delegate: sessionDelegate),
             validator: validator,
-            decoder: decoder,
-            sessionDelegate: sessionDelegate
+            decoder: decoder
         )
     }
 }
