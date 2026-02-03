@@ -36,18 +36,7 @@ public struct RequestPerformer: RequestPerformable {
     public func performTask<T: Decodable>(request: Request, decodeTo decodableObject: T.Type, completion: @escaping ((Result<T, NetworkingError>) -> Void)) -> CancellableRequest {
         var task: Task<Void, Never>?
         let cancellableRequest = CancellableRequest {
-            task = Task {
-                do {
-                    let result = try await self.perform(request: request, decodeTo: decodableObject)
-                    guard !Task.isCancelled else { return }
-                    completion(.success(result))
-                } catch is CancellationError {
-                    // Task has been cancelled, do not return
-                } catch {
-                    guard !Task.isCancelled else { return }
-                    completion(.failure(self.mapError(error)))
-                }
-            }
+            task = createTaskAndPerform(request: request, decodeTo: decodableObject, completion: completion)
         } onCancel: {
             task?.cancel()
         }
@@ -62,18 +51,7 @@ public struct RequestPerformer: RequestPerformable {
             var task: Task<Void, Never>?
 
             return Future<T, NetworkingError> { promise in
-                task = Task {
-                    do {
-                        let result = try await self.perform(request: request, decodeTo: decodableObject)
-                        guard !Task.isCancelled else { return }
-                        promise(.success(result))
-                    } catch is CancellationError {
-                        // Task has been cancelled, do not return
-                    } catch {
-                        guard !Task.isCancelled else { return }
-                        promise(.failure(self.mapError(error)))
-                    }
-                }
+                task = createTaskAndPerform(request: request, decodeTo: decodableObject, completion: { promise($0) })
             }
             .handleEvents(receiveCancel: {
                 task?.cancel()
@@ -84,10 +62,28 @@ public struct RequestPerformer: RequestPerformable {
 
     // MARK: Helpers
 
+    private func createTaskAndPerform<T: Decodable>(
+        request: Request,
+        decodeTo decodableObject: T.Type,
+        completion: @escaping ((Result<T, NetworkingError>) -> Void)
+    ) -> Task<Void, Never> {
+        return Task {
+            do {
+                let result = try await self.perform(request: request, decodeTo: decodableObject)
+                guard !Task.isCancelled else { return }
+                completion(.success(result))
+            } catch is CancellationError {
+                // Task has been cancelled, do not return
+            } catch {
+                guard !Task.isCancelled else { return }
+                completion(.failure(self.mapError(error)))
+            }
+        }
+    }
+
     private func mapError(_ error: Error) -> NetworkingError {
         if let networkError = error as? NetworkingError { return networkError }
         if let urlError = error as? URLError { return .urlError(urlError) }
         return .internalError(.requestFailed(error))
     }
-
 }
