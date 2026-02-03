@@ -19,7 +19,7 @@ final class Expectation: Sendable {
         self.isInverted = isInverted
 
         var continuation: AsyncStream<Void>.Continuation!
-        self.stream = AsyncStream<Void> { cont in
+        stream = AsyncStream<Void> { cont in
             continuation = cont
         }
         self.continuation = continuation

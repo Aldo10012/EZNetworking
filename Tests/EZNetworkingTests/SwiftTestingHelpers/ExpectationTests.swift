@@ -3,7 +3,6 @@ import Testing
 
 @Suite("Expectation Tests")
 struct ExpectationTests {
-
     // MARK: - Basic Fulfillment Tests
 
     @Test("Expectation is fulfilled immediately")
@@ -86,7 +85,7 @@ struct ExpectationTests {
         let expectation = Expectation(expectedFulfillmentCount: 5)
 
         Task {
-            for _ in 0..<5 {
+            for _ in 0 ..< 5 {
                 expectation.fulfill()
             }
         }
@@ -198,8 +197,8 @@ struct ExpectationTests {
             await expectation.fulfillment(within: .milliseconds(50))
         } matching: { issue in
             issue.description.contains("50000000 nanoseconds") ||
-            issue.description.contains("0.05") ||
-            issue.description.contains("milliseconds")
+                issue.description.contains("0.05") ||
+                issue.description.contains("milliseconds")
         }
     }
 
