@@ -6,8 +6,8 @@ public class CancellableRequest {
     private(set) var hasStarted = false
 
     init(
-        onResume: @escaping @Sendable (() -> Void),
-        onCancel: @escaping @Sendable (() -> Void)
+        onResume: @escaping @Sendable () -> Void,
+        onCancel: @escaping @Sendable () -> Void
     ) {
         self.onResume = onResume
         self.onCancel = onCancel
