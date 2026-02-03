@@ -2,7 +2,6 @@ import Combine
 @testable import EZNetworking
 import Foundation
 import Testing
-import TestingExpectation
 
 @Suite("Test RequestPerformable publisher methods")
 final class RequestPerformablepublisherTests {
