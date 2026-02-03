@@ -11,7 +11,7 @@ final class RequestPerformableCallbacksTests {
     func performTaskAndDecode_withValidInputs_doesDecodePerson() async {
         let sut = createRequestPerformer()
         let expectation = Expectation()
-        
+
         sut.performTask(request: MockRequest(), decodeTo: Person.self) { result in
             defer { expectation.fulfill() }
             switch result {

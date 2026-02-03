@@ -18,6 +18,7 @@ public class CancellableRequest {
         hasStarted = true
         onResume()
     }
+
     public func cancel() {
         onCancel()
     }

@@ -46,7 +46,7 @@ public struct RequestPerformer: RequestPerformable {
 
     // MARK: Publisher
 
-    public func performPublisher<T: Decodable>( request: Request, decodeTo decodableObject: T.Type) -> AnyPublisher<T, NetworkingError> {
+    public func performPublisher<T: Decodable>(request: Request, decodeTo decodableObject: T.Type) -> AnyPublisher<T, NetworkingError> {
         Deferred {
             var task: Task<Void, Never>?
 
@@ -67,16 +67,16 @@ public struct RequestPerformer: RequestPerformable {
         decodeTo decodableObject: T.Type,
         completion: @escaping ((Result<T, NetworkingError>) -> Void)
     ) -> Task<Void, Never> {
-        return Task {
+        Task {
             do {
-                let result = try await self.perform(request: request, decodeTo: decodableObject)
+                let result = try await perform(request: request, decodeTo: decodableObject)
                 guard !Task.isCancelled else { return }
                 completion(.success(result))
             } catch is CancellationError {
                 // Task has been cancelled, do not return
             } catch {
                 guard !Task.isCancelled else { return }
-                completion(.failure(self.mapError(error)))
+                completion(.failure(mapError(error)))
             }
         }
     }
