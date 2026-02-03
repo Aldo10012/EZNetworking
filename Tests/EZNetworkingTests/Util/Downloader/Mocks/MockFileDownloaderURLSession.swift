@@ -25,6 +25,7 @@ class MockFileDownloaderURLSession: URLSessionProtocol {
         guard let urlResponse else {
             fatalError("Could not configure return for MockFileDownloaderURLSession.download")
         }
+        simulateDownloadProgress(for: .init())
         return (URL(fileURLWithPath: "/tmp/test.pdf"), urlResponse)
     }
     func downloadTask(with url: URL, completionHandler: @escaping @Sendable (URL?, URLResponse?, Error?) -> Void) -> URLSessionDownloadTask {

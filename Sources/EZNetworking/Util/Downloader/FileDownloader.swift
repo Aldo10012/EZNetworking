@@ -57,21 +57,23 @@ public class FileDownloader: FileDownloadable {
 
     public func downloadFileStream(from serverUrl: URL) -> AsyncStream<DownloadStreamEvent> {
         AsyncStream { continuation in
-            // Progress handler yields progress updates to the stream.
-            let progressHandler: DownloadProgressHandler = { progress in
+            configureProgressTracking { progress in
                 continuation.yield(.progress(progress))
             }
-            // Start the download task, yielding completion to the stream.
-            let task = self.performDownloadTask(url: serverUrl, progress: progressHandler) { result in
-                switch result {
-                case let .success(url):
+            let task = Task {
+                do {
+                    let (localURL, response) = try await session.urlSession.download(from: serverUrl, delegate: nil)
+                    try validator.validateStatus(from: response)
+                    let url = try validator.validateUrl(localURL)
                     continuation.yield(.success(url))
-                case let .failure(error):
-                    continuation.yield(.failure(error))
+                    continuation.finish()
+                } catch is CancellationError {
+                    // optional: silently finish or emit failure
+                } catch {
+                    continuation.yield(.failure(mapError(error)))
+                    continuation.finish()
                 }
-                continuation.finish()
             }
-            // Cancel the task if the stream is terminated.
             continuation.onTermination = { @Sendable _ in
                 task.cancel()
             }
