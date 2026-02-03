@@ -12,6 +12,7 @@ public protocol RequestPerformable {
 public class CancellableRequest {
     private let onResume: () -> Void
     private let onCancel: () -> Void
+    private var hasStarted = false
 
     init(
         onResume: @escaping @Sendable (() -> Void),
@@ -22,6 +23,8 @@ public class CancellableRequest {
     }
 
     public func resume() {
+        guard !hasStarted else { return }
+        hasStarted = true
         onResume()
     }
     public func cancel() {
