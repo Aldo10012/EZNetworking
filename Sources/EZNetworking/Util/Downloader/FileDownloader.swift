@@ -106,19 +106,15 @@ public class FileDownloader: FileDownloadable {
     private func mapError(_ error: Error) -> NetworkingError {
         if let networkError = error as? NetworkingError { return networkError }
         if let urlError = error as? URLError { return .urlError(urlError) }
-        return .internalError(.unknown)
+        return .internalError(.requestFailed(error))
     }
 
     private func configureProgressTracking(progress: DownloadProgressHandler?) {
         guard let progress else { return }
 
-        if session.delegate.downloadTaskInterceptor != nil {
-            // Update existing interceptor's progress handler
-            session.delegate.downloadTaskInterceptor?.progress = progress
-        } else {
-            // Set up fallback interceptor with progress handler
-            fallbackDownloadTaskInterceptor.progress = progress
+        if session.delegate.downloadTaskInterceptor == nil {
             session.delegate.downloadTaskInterceptor = fallbackDownloadTaskInterceptor
         }
+        session.delegate.downloadTaskInterceptor?.progress = progress
     }
 }
