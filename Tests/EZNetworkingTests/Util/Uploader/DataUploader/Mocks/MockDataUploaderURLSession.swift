@@ -69,6 +69,9 @@ extension MockDataUploaderURLSession {
 // MARK: unused methods
 
 extension MockDataUploaderURLSession {
+    func data(for request: URLRequest) async throws -> (Data, URLResponse) {
+        fatalError("Should not be using in this mock")
+    }
     func dataTask(with request: URLRequest, completionHandler: @escaping @Sendable (Data?, URLResponse?, (any Error)?) -> Void) -> URLSessionDataTask {
         fatalError("Should not be using in this mock")
     }
