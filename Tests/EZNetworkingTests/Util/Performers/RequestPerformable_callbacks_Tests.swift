@@ -41,27 +41,6 @@ final class RequestPerformableCallbacksTests {
         await expectation.fulfillment(within: .seconds(1))
     }
 
-    // MARK: DataTask cancellation
-
-//    @Test("test performTask(request:_, decodeTo:_) .cancel() does cancel DataTask")
-//    func performTaskAndDecode_cancel_doesCancelDataTask() throws {
-//        let sut = createRequestPerformer()
-//
-//        let task = sut.performTask(request: MockRequest(), decodeTo: Person.self) { _ in }
-//        task.cancel()
-//        let dataTask = try #require(task as? MockURLSessionDataTask)
-//        #expect(dataTask.didCancel == true)
-//    }
-//
-//    @Test("test performTask(request:_) .cancel() does cancel DataTask")
-//    func performTask_cancel_doesCancelDataTask() throws {
-//        let sut = createRequestPerformer()
-//        let task = sut.performTask(request: MockRequest(), decodeTo: EmptyResponse.self) { _ in }
-//        task.cancel()
-//        let dataTask = try #require(task as? MockURLSessionDataTask)
-//        #expect(dataTask.didCancel == true)
-//    }
-
     // MARK: - ERROR RESPONSE
 
     @Test("test performTask(request:_) fails when status code is 3xx")
