@@ -6,28 +6,3 @@ public protocol RequestPerformable {
     func performTask<T: Decodable>(request: Request, decodeTo decodableObject: T.Type, completion: @escaping ((Result<T, NetworkingError>) -> Void)) -> CancellableRequest
     func performPublisher<T: Decodable>(request: Request, decodeTo decodableObject: T.Type) -> AnyPublisher<T, NetworkingError>
 }
-
-// TODO: move to another file
-
-public class CancellableRequest {
-    private let onResume: () -> Void
-    private let onCancel: () -> Void
-    private var hasStarted = false
-
-    init(
-        onResume: @escaping @Sendable (() -> Void),
-        onCancel: @escaping @Sendable (() -> Void)
-    ) {
-        self.onResume = onResume
-        self.onCancel = onCancel
-    }
-
-    public func resume() {
-        guard !hasStarted else { return }
-        hasStarted = true
-        onResume()
-    }
-    public func cancel() {
-        onCancel()
-    }
-}
