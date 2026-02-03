@@ -18,7 +18,7 @@ class MockFileDownloaderURLSession: URLSessionProtocol {
         self.error = error
     }
 
-    func download(for request: URLRequest, delegate: (any URLSessionTaskDelegate)?) async throws -> (URL, URLResponse) {
+    func download(from url: URL, delegate: (any URLSessionTaskDelegate)?) async throws -> (URL, URLResponse) {
         if let error {
             throw error
         }

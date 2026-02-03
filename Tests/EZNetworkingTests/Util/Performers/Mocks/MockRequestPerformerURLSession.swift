@@ -28,7 +28,7 @@ class MockRequestPerformerURLSession: URLSessionProtocol {
 // MARK: unused methods
 
 extension MockRequestPerformerURLSession {
-    func download(for request: URLRequest, delegate: (any URLSessionTaskDelegate)?) async throws -> (URL, URLResponse) {
+    func download(from url: URL, delegate: (any URLSessionTaskDelegate)?) async throws -> (URL, URLResponse) {
         fatalError("Should not be using in this mock")
     }
     func downloadTask(with url: URL, completionHandler: @escaping @Sendable (URL?, URLResponse?, Error?) -> Void) -> URLSessionDownloadTask {
