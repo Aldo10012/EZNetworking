@@ -96,22 +96,3 @@ public struct RequestPerformer: RequestPerformable {
         return .internalError(.requestFailed(error))
     }
 }
-
-// for Swift 6 compliance
-final class TaskBox: @unchecked Sendable {
-    private let lock = NSLock()
-    private var _task: Task<Void, Never>?
-
-    var task: Task<Void, Never>? {
-        get {
-            lock.lock()
-            defer { lock.unlock() }
-            return _task
-        }
-        set {
-            lock.lock()
-            defer { lock.unlock() }
-            _task = newValue
-        }
-    }
-}
