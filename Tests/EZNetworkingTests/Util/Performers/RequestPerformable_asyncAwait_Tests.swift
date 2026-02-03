@@ -111,16 +111,6 @@ final class RequestPerformableAsyncAwaitTests {
 
     // MARK: data deocding errors
 
-    @Test("test perform(request:_, decodeTo:_) fails when data is nil")
-    func performAndDecode_throwsErrorWhen_dataIsNil() async throws {
-        let sut = createRequestPerformer(
-            urlSession: createMockURLSession(data: nil)
-        )
-        await #expect(throws: NetworkingError.internalError(.noData)) {
-            try await sut.perform(request: MockRequest(), decodeTo: Person.self)
-        }
-    }
-
     @Test("test perform(request:_, decodeTo:_) fails data does not match decodeTo type")
     func performAndDecode_throwsErrorWhen_dataDoesNotMatchDecodeToType() async throws {
         let sut = createRequestPerformer(

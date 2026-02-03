@@ -18,68 +18,81 @@ public struct RequestPerformer: RequestPerformable {
 
     // MARK: Async Await
 
-    public func perform<T: Decodable>(request: Request, decodeTo decodableObject: T.Type) async throws -> T {
-        try await withCheckedThrowingContinuation { continuation in
-            performDataTask(request: request, decodeTo: decodableObject, completion: { result in
-                switch result {
-                case let .success(success):
-                    continuation.resume(returning: success)
-                case let .failure(failure):
-                    continuation.resume(throwing: failure)
-                }
-            })
+    public func perform<T: Decodable & Sendable>(
+        request: Request,
+        decodeTo decodableObject: T.Type
+    ) async throws -> T {
+        do {
+            let urlRequest = try request.getURLRequest()
+            let (data, urlResponse) = try await session.urlSession.data(for: urlRequest)
+            try validator.validateStatus(from: urlResponse)
+            let validData = try validator.validateData(data)
+            return try decoder.decode(decodableObject, from: validData)
+        } catch {
+            throw mapError(error)
         }
     }
 
     // MARK: Completion Handler
 
     @discardableResult
-    public func performTask<T: Decodable>(request: Request, decodeTo decodableObject: T.Type, completion: @escaping ((Result<T, NetworkingError>) -> Void)) -> URLSessionDataTask? {
-        performDataTask(request: request, decodeTo: decodableObject, completion: completion)
+    public func performTask<T: Decodable & Sendable>(
+        request: Request,
+        decodeTo decodableObject: T.Type,
+        completion: @escaping (Result<T, NetworkingError>) -> Void
+    ) -> CancellableRequest {
+        let taskBox = TaskBox()
+        let cancellableRequest = CancellableRequest {
+            taskBox.task = createTaskAndPerform(request: request, decodeTo: decodableObject, completion: completion)
+        } onCancel: {
+            taskBox.task?.cancel()
+        }
+        cancellableRequest.resume()
+        return cancellableRequest
     }
 
     // MARK: Publisher
 
-    public func performPublisher<T: Decodable>(request: Request, decodeTo decodableObject: T.Type) -> AnyPublisher<T, NetworkingError> {
-        Future { promise in
-            performDataTask(request: request, decodeTo: decodableObject) { result in
-                promise(result)
+    public func performPublisher<T: Decodable & Sendable>(
+        request: Request,
+        decodeTo decodableObject: T.Type
+    ) -> AnyPublisher<T, NetworkingError> {
+        Deferred {
+            var task: Task<Void, Never>?
+            return Future<T, NetworkingError> { promise in
+                task = createTaskAndPerform(request: request, decodeTo: decodableObject, completion: { promise($0) })
             }
+            .handleEvents(receiveCancel: {
+                task?.cancel()
+            })
         }
         .eraseToAnyPublisher()
     }
 
-    // MARK: Core
+    // MARK: Helpers
 
-    @discardableResult
-    private func performDataTask<T: Decodable>(request: Request, decodeTo decodableObject: T.Type, completion: @escaping ((Result<T, NetworkingError>) -> Void)) -> URLSessionDataTask? {
-        guard let urlRequest = getURLRequest(from: request) else {
-            completion(.failure(.internalError(.noRequest)))
-            return nil
-        }
-        let task = session.urlSession.dataTask(with: urlRequest) { data, urlResponse, error in
+    private func createTaskAndPerform<T: Decodable & Sendable>(
+        request: Request,
+        decodeTo decodableObject: T.Type,
+        completion: @escaping ((Result<T, NetworkingError>) -> Void)
+    ) -> Task<Void, Never> {
+        Task {
             do {
-                try validator.validateNoError(error)
-                try validator.validateStatus(from: urlResponse)
-                let validData = try validator.validateData(data)
-
-                let result = try decoder.decode(decodableObject, from: validData)
+                let result = try await perform(request: request, decodeTo: decodableObject)
+                guard !Task.isCancelled else { return }
                 completion(.success(result))
+            } catch is CancellationError {
+                // Task has been cancelled, do not return
             } catch {
+                guard !Task.isCancelled else { return }
                 completion(.failure(mapError(error)))
             }
         }
-        task.resume()
-        return task
     }
 
     private func mapError(_ error: Error) -> NetworkingError {
         if let networkError = error as? NetworkingError { return networkError }
         if let urlError = error as? URLError { return .urlError(urlError) }
-        return .internalError(.unknown)
-    }
-
-    private func getURLRequest(from request: Request) -> URLRequest? {
-        do { return try request.getURLRequest() } catch { return nil }
+        return .internalError(.requestFailed(error))
     }
 }
