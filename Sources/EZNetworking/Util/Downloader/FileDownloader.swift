@@ -23,16 +23,19 @@ public class FileDownloader: FileDownloadable {
     // MARK: Async Await
 
     public func downloadFile(from serverUrl: URL, progress: DownloadProgressHandler? = nil) async throws -> URL {
-        try await withCheckedThrowingContinuation { continuation in
-            performDownloadTask(url: serverUrl, progress: progress) { result in
-                switch result {
-                case let .success(success):
-                    continuation.resume(returning: success)
-                case let .failure(error):
-                    continuation.resume(throwing: error)
-                }
+        for await event in downloadFileStream(from: serverUrl) {
+            switch event {
+            case .progress(let value):
+                progress?(value)
+
+            case .success(let url):
+                return url
+
+            case .failure(let error):
+                throw error
             }
         }
+        throw NetworkingError.internalError(.unknown)
     }
 
     // MARK: Completion Handler
