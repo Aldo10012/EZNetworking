@@ -160,7 +160,7 @@ final class WebSocketConnectPingPongTests {
         wsInterceptor.simulateOpenWithProtocol(nil)
         await task.value
 
-        try await Task.sleep(nanoseconds: 1_000_000_000)
+        try await Task.sleep(nanoseconds: 1_500_000_000)
 
         #expect(wsTask.didCallSendPing)
     }

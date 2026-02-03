@@ -18,7 +18,10 @@ public struct RequestPerformer: RequestPerformable {
 
     // MARK: Async Await
 
-    public func perform<T: Decodable>(request: Request, decodeTo decodableObject: T.Type) async throws -> T {
+    public func perform<T: Decodable & Sendable>(
+        request: Request,
+        decodeTo decodableObject: T.Type
+    ) async throws -> T {
         do {
             let urlRequest = try request.getURLRequest()
             let (data, urlResponse) = try await session.urlSession.data(for: urlRequest)
@@ -33,12 +36,16 @@ public struct RequestPerformer: RequestPerformable {
     // MARK: Completion Handler
 
     @discardableResult
-    public func performTask<T: Decodable>(request: Request, decodeTo decodableObject: T.Type, completion: @escaping ((Result<T, NetworkingError>) -> Void)) -> CancellableRequest {
-        var task: Task<Void, Never>?
+    public func performTask<T: Decodable & Sendable>(
+        request: Request,
+        decodeTo decodableObject: T.Type,
+        completion: @escaping (Result<T, NetworkingError>) -> Void
+    ) -> CancellableRequest {
+        let taskBox = TaskBox()
         let cancellableRequest = CancellableRequest {
-            task = createTaskAndPerform(request: request, decodeTo: decodableObject, completion: completion)
+            taskBox.task = createTaskAndPerform(request: request, decodeTo: decodableObject, completion: completion)
         } onCancel: {
-            task?.cancel()
+            taskBox.task?.cancel()
         }
         cancellableRequest.resume()
         return cancellableRequest
@@ -46,10 +53,12 @@ public struct RequestPerformer: RequestPerformable {
 
     // MARK: Publisher
 
-    public func performPublisher<T: Decodable>(request: Request, decodeTo decodableObject: T.Type) -> AnyPublisher<T, NetworkingError> {
+    public func performPublisher<T: Decodable & Sendable>(
+        request: Request,
+        decodeTo decodableObject: T.Type
+    ) -> AnyPublisher<T, NetworkingError> {
         Deferred {
             var task: Task<Void, Never>?
-
             return Future<T, NetworkingError> { promise in
                 task = createTaskAndPerform(request: request, decodeTo: decodableObject, completion: { promise($0) })
             }
@@ -62,7 +71,7 @@ public struct RequestPerformer: RequestPerformable {
 
     // MARK: Helpers
 
-    private func createTaskAndPerform<T: Decodable>(
+    private func createTaskAndPerform<T: Decodable & Sendable>(
         request: Request,
         decodeTo decodableObject: T.Type,
         completion: @escaping ((Result<T, NetworkingError>) -> Void)
@@ -85,5 +94,24 @@ public struct RequestPerformer: RequestPerformable {
         if let networkError = error as? NetworkingError { return networkError }
         if let urlError = error as? URLError { return .urlError(urlError) }
         return .internalError(.requestFailed(error))
+    }
+}
+
+// for Swift 6 compliance
+final class TaskBox: @unchecked Sendable {
+    private let lock = NSLock()
+    private var _task: Task<Void, Never>?
+
+    var task: Task<Void, Never>? {
+        get {
+            lock.lock()
+            defer { lock.unlock() }
+            return _task
+        }
+        set {
+            lock.lock()
+            defer { lock.unlock() }
+            _task = newValue
+        }
     }
 }
