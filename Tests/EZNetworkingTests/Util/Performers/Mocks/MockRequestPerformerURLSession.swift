@@ -23,12 +23,6 @@ class MockRequestPerformerURLSession: URLSessionProtocol {
         }
         return (data, urlResponse)
     }
-    func dataTask(with request: URLRequest, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTask {
-        completion = completionHandler
-        return MockURLSessionDataTask {
-            completionHandler(self.data, self.urlResponse, self.error)
-        }
-    }
 }
 
 // MARK: unused methods
