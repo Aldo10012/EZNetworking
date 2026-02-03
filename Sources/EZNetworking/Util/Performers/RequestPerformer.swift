@@ -33,8 +33,26 @@ public struct RequestPerformer: RequestPerformable {
     // MARK: Completion Handler
 
     @discardableResult
-    public func performTask<T: Decodable>(request: Request, decodeTo decodableObject: T.Type, completion: @escaping ((Result<T, NetworkingError>) -> Void)) -> URLSessionDataTask? {
-        performDataTask(request: request, decodeTo: decodableObject, completion: completion)
+    public func performTask<T: Decodable>(request: Request, decodeTo decodableObject: T.Type, completion: @escaping ((Result<T, NetworkingError>) -> Void)) -> CancellableRequest {
+        var task: Task<Void, Never>?
+        let cancellableRequest = CancellableRequest {
+            task = Task {
+                do {
+                    let result = try await self.perform(request: request, decodeTo: decodableObject)
+                    guard !Task.isCancelled else { return }
+                    completion(.success(result))
+                } catch is CancellationError {
+                    // Task has been cancelled, do not return
+                } catch {
+                    guard !Task.isCancelled else { return }
+                    completion(.failure(self.mapError(error)))
+                }
+            }
+        } onCancel: {
+            task?.cancel()
+        }
+        cancellableRequest.resume()
+        return cancellableRequest
     }
 
     // MARK: Publisher
@@ -49,7 +67,10 @@ public struct RequestPerformer: RequestPerformable {
                         let result = try await self.perform(request: request, decodeTo: decodableObject)
                         guard !Task.isCancelled else { return }
                         promise(.success(result))
+                    } catch is CancellationError {
+                        // Task has been cancelled, do not return
                     } catch {
+                        guard !Task.isCancelled else { return }
                         promise(.failure(self.mapError(error)))
                     }
                 }
@@ -61,29 +82,7 @@ public struct RequestPerformer: RequestPerformable {
         .eraseToAnyPublisher()
     }
 
-    // MARK: Core
-
-    @discardableResult
-    private func performDataTask<T: Decodable>(request: Request, decodeTo decodableObject: T.Type, completion: @escaping ((Result<T, NetworkingError>) -> Void)) -> URLSessionDataTask? {
-        guard let urlRequest = getURLRequest(from: request) else {
-            completion(.failure(.internalError(.noRequest)))
-            return nil
-        }
-        let task = session.urlSession.dataTask(with: urlRequest) { data, urlResponse, error in
-            do {
-                try validator.validateNoError(error)
-                try validator.validateStatus(from: urlResponse)
-                let validData = try validator.validateData(data)
-
-                let result = try decoder.decode(decodableObject, from: validData)
-                completion(.success(result))
-            } catch {
-                completion(.failure(mapError(error)))
-            }
-        }
-        task.resume()
-        return task
-    }
+    // MARK: Helpers
 
     private func mapError(_ error: Error) -> NetworkingError {
         if let networkError = error as? NetworkingError { return networkError }
@@ -91,7 +90,4 @@ public struct RequestPerformer: RequestPerformable {
         return .internalError(.requestFailed(error))
     }
 
-    private func getURLRequest(from request: Request) -> URLRequest? {
-        do { return try request.getURLRequest() } catch { return nil }
-    }
 }

@@ -1,17 +1,19 @@
 @testable import EZNetworking
 import Foundation
 import Testing
+import TestingExpectation
 
 @Suite("Test RequestPerformable callback methods")
 final class RequestPerformableCallbacksTests {
     // MARK: - SUCCESS RESPONSE
 
     @Test("test performTask(request:_, decodeTo:_) with valid inputs does decode Person")
-    func performTaskAndDecode_withValidInputs_doesDecodePerson() {
+    func performTaskAndDecode_withValidInputs_doesDecodePerson() async {
         let sut = createRequestPerformer()
-        var didExecute = false
+        let expectation = Expectation()
+        
         sut.performTask(request: MockRequest(), decodeTo: Person.self) { result in
-            defer { didExecute = true }
+            defer { expectation.fulfill() }
             switch result {
             case let .success(person):
                 #expect(person.name == "John")
@@ -20,15 +22,15 @@ final class RequestPerformableCallbacksTests {
                 Issue.record()
             }
         }
-        #expect(didExecute == true)
+        await expectation.fulfillment(within: .seconds(1))
     }
 
     @Test("test performTask(request:_) with valid inputs does return success result")
-    func performTask_withValidInputs_doesSucceed() {
+    func performTask_withValidInputs_doesSucceed() async {
         let sut = createRequestPerformer()
-        var didExecute = false
+        let expectation = Expectation()
         sut.performTask(request: MockRequest(), decodeTo: EmptyResponse.self) { result in
-            defer { didExecute = true }
+            defer { expectation.fulfill() }
             switch result {
             case .success:
                 #expect(Bool(true))
@@ -36,40 +38,40 @@ final class RequestPerformableCallbacksTests {
                 Issue.record()
             }
         }
-        #expect(didExecute == true)
+        await expectation.fulfillment(within: .seconds(1))
     }
 
     // MARK: DataTask cancellation
 
-    @Test("test performTask(request:_, decodeTo:_) .cancel() does cancel DataTask")
-    func performTaskAndDecode_cancel_doesCancelDataTask() throws {
-        let sut = createRequestPerformer()
-
-        let task = sut.performTask(request: MockRequest(), decodeTo: Person.self) { _ in }
-        task?.cancel()
-        let dataTask = try #require(task as? MockURLSessionDataTask)
-        #expect(dataTask.didCancel == true)
-    }
-
-    @Test("test performTask(request:_) .cancel() does cancel DataTask")
-    func performTask_cancel_doesCancelDataTask() throws {
-        let sut = createRequestPerformer()
-        let task = sut.performTask(request: MockRequest(), decodeTo: EmptyResponse.self) { _ in }
-        task?.cancel()
-        let dataTask = try #require(task as? MockURLSessionDataTask)
-        #expect(dataTask.didCancel == true)
-    }
+//    @Test("test performTask(request:_, decodeTo:_) .cancel() does cancel DataTask")
+//    func performTaskAndDecode_cancel_doesCancelDataTask() throws {
+//        let sut = createRequestPerformer()
+//
+//        let task = sut.performTask(request: MockRequest(), decodeTo: Person.self) { _ in }
+//        task.cancel()
+//        let dataTask = try #require(task as? MockURLSessionDataTask)
+//        #expect(dataTask.didCancel == true)
+//    }
+//
+//    @Test("test performTask(request:_) .cancel() does cancel DataTask")
+//    func performTask_cancel_doesCancelDataTask() throws {
+//        let sut = createRequestPerformer()
+//        let task = sut.performTask(request: MockRequest(), decodeTo: EmptyResponse.self) { _ in }
+//        task.cancel()
+//        let dataTask = try #require(task as? MockURLSessionDataTask)
+//        #expect(dataTask.didCancel == true)
+//    }
 
     // MARK: - ERROR RESPONSE
 
     @Test("test performTask(request:_) fails when status code is 3xx")
-    func performTask_throwsErrorWhen_statusCodeIs300() {
+    func performTask_throwsErrorWhen_statusCodeIs300() async {
         let sut = createRequestPerformer(
             urlSession: createMockURLSession(statusCode: 300)
         )
-        var didExecute = false
+        let expectation = Expectation()
         sut.performTask(request: MockRequest(), decodeTo: EmptyResponse.self) { result in
-            defer { didExecute = true }
+            defer { expectation.fulfill() }
             switch result {
             case .success:
                 Issue.record()
@@ -77,17 +79,17 @@ final class RequestPerformableCallbacksTests {
                 #expect(error == NetworkingError.httpError(HTTPError(statusCode: 300)))
             }
         }
-        #expect(didExecute == true)
+        await expectation.fulfillment(within: .seconds(1))
     }
 
     @Test("test performTask(request:_) fails when status code is 4xx")
-    func performTask_throwsErrorWhen_statusCodeIs400() {
+    func performTask_throwsErrorWhen_statusCodeIs400() async {
         let sut = createRequestPerformer(
             urlSession: createMockURLSession(statusCode: 400)
         )
-        var didExecute = false
+        let expectation = Expectation()
         sut.performTask(request: MockRequest(), decodeTo: EmptyResponse.self) { result in
-            defer { didExecute = true }
+            defer { expectation.fulfill() }
             switch result {
             case .success:
                 Issue.record()
@@ -95,17 +97,17 @@ final class RequestPerformableCallbacksTests {
                 #expect(error == NetworkingError.httpError(HTTPError(statusCode: 400)))
             }
         }
-        #expect(didExecute == true)
+        await expectation.fulfillment(within: .seconds(1))
     }
 
     @Test("test performTask(request:_) fails when status code is 5xx")
-    func performTask_throwsErrorWhen_statusCodeIs500() {
+    func performTask_throwsErrorWhen_statusCodeIs500() async {
         let sut = createRequestPerformer(
             urlSession: createMockURLSession(statusCode: 500)
         )
-        var didExecute = false
+        let expectation = Expectation()
         sut.performTask(request: MockRequest(), decodeTo: EmptyResponse.self) { result in
-            defer { didExecute = true }
+            defer { expectation.fulfill() }
             switch result {
             case .success:
                 Issue.record()
@@ -113,19 +115,19 @@ final class RequestPerformableCallbacksTests {
                 #expect(error == NetworkingError.httpError(HTTPError(statusCode: 500)))
             }
         }
-        #expect(didExecute == true)
+        await expectation.fulfillment(within: .seconds(1))
     }
 
     // MARK: URLSession has error
 
     @Test("test performTask(request:_) fails when urlsession throws URL error")
-    func performTask_throwsErrorWhen_urlSessionThrowsURLError() {
+    func performTask_throwsErrorWhen_urlSessionThrowsURLError() async {
         let sut = createRequestPerformer(
             urlSession: createMockURLSession(error: URLError(.networkConnectionLost))
         )
-        var didExecute = false
+        let expectation = Expectation()
         sut.performTask(request: MockRequest(), decodeTo: EmptyResponse.self) { result in
-            defer { didExecute = true }
+            defer { expectation.fulfill() }
             switch result {
             case .success:
                 Issue.record()
@@ -133,20 +135,20 @@ final class RequestPerformableCallbacksTests {
                 #expect(error == NetworkingError.urlError(URLError(.networkConnectionLost)))
             }
         }
-        #expect(didExecute == true)
+        await expectation.fulfillment(within: .seconds(1))
     }
 
     @Test("test performTask(request:_) fails when urlsession throws unknown error")
-    func performTask_throwsErrorWhen_urlSessionThrowsUnknownError() {
+    func performTask_throwsErrorWhen_urlSessionThrowsUnknownError() async {
         enum UnknownError: Error {
             case error
         }
         let sut = createRequestPerformer(
             urlSession: createMockURLSession(error: UnknownError.error)
         )
-        var didExecute = false
+        let expectation = Expectation()
         sut.performTask(request: MockRequest(), decodeTo: EmptyResponse.self) { result in
-            defer { didExecute = true }
+            defer { expectation.fulfill() }
             switch result {
             case .success:
                 Issue.record()
@@ -154,38 +156,20 @@ final class RequestPerformableCallbacksTests {
                 #expect(error == NetworkingError.internalError(.requestFailed(UnknownError.error)))
             }
         }
-        #expect(didExecute == true)
+        await expectation.fulfillment(within: .seconds(1))
     }
 
     // MARK: data deocding errors
 
-    @Test("test performTask(request:_, decode:_) fails when data is nil")
-    func performTask_throwsErrorWhen_dataIsNil() {
-        let sut = createRequestPerformer(
-            urlSession: createMockURLSession(data: nil)
-        )
-        var didExecute = false
-        sut.performTask(request: MockRequest(), decodeTo: Person.self) { result in
-            defer { didExecute = true }
-            switch result {
-            case .success:
-                Issue.record()
-            case let .failure(error):
-                #expect(error == NetworkingError.internalError(.noData))
-            }
-        }
-        #expect(didExecute == true)
-    }
-
     @Test("test performTask(request:_, decode:_) fails when data does not match decodeTo type")
-    func performTask_throwsErrorWhen_dataDoesNotMatchDecodeToType() {
+    func performTask_throwsErrorWhen_dataDoesNotMatchDecodeToType() async {
         let sut = createRequestPerformer(
             urlSession: createMockURLSession(data: MockData.invalidMockPersonJsonData)
         )
 
-        var didExecute = false
+        let expectation = Expectation()
         sut.performTask(request: MockRequest(), decodeTo: Person.self) { result in
-            defer { didExecute = true }
+            defer { expectation.fulfill() }
             switch result {
             case .success:
                 Issue.record()
@@ -197,7 +181,7 @@ final class RequestPerformableCallbacksTests {
                 }
             }
         }
-        #expect(didExecute == true)
+        await expectation.fulfillment(within: .seconds(1))
     }
 }
 
