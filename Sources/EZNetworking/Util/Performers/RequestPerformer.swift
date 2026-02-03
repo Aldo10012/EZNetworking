@@ -19,15 +19,14 @@ public struct RequestPerformer: RequestPerformable {
     // MARK: Async Await
 
     public func perform<T: Decodable>(request: Request, decodeTo decodableObject: T.Type) async throws -> T {
-        try await withCheckedThrowingContinuation { continuation in
-            performDataTask(request: request, decodeTo: decodableObject, completion: { result in
-                switch result {
-                case let .success(success):
-                    continuation.resume(returning: success)
-                case let .failure(failure):
-                    continuation.resume(throwing: failure)
-                }
-            })
+        do {
+            let urlRequest = try request.getURLRequest()
+            let (data, urlResponse) = try await session.urlSession.data(for: urlRequest)
+            try validator.validateStatus(from: urlResponse)
+            let validData = try validator.validateData(data)
+            return try decoder.decode(decodableObject, from: validData)
+        } catch {
+            throw mapError(error)
         }
     }
 
@@ -76,7 +75,7 @@ public struct RequestPerformer: RequestPerformable {
     private func mapError(_ error: Error) -> NetworkingError {
         if let networkError = error as? NetworkingError { return networkError }
         if let urlError = error as? URLError { return .urlError(urlError) }
-        return .internalError(.unknown)
+        return .internalError(.requestFailed(error))
     }
 
     private func getURLRequest(from request: Request) -> URLRequest? {
