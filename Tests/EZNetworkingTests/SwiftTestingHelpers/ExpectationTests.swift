@@ -24,17 +24,6 @@ struct ExpectationTests {
         await expectation.fulfillment(within: .seconds(1))
     }
 
-    @Test("Expectation not fulfilled within timeout records issue", .disabled())
-    func expectation_notFulfilledWithinTimeout_recordsIssue() async {
-        await withKnownIssue {
-            let expectation = Expectation()
-            // Never fulfill the expectation
-            await expectation.fulfillment(within: .milliseconds(100))
-        } matching: { issue in
-            issue.description.contains("Expectation was not fulfilled")
-        }
-    }
-
     @Test("Expectation fulfilled multiple times within timeout")
     func expectation_fulfilledMultipleTimes_succeeds() async {
         let expectation = Expectation()
@@ -63,23 +52,6 @@ struct ExpectationTests {
         await expectation.fulfillment(within: .seconds(1))
     }
 
-    @Test("Expectation with count of 3 fulfilled only 2 times records issue", .disabled())
-    func expectation_withCount3_fulfilled2Times_recordsIssue() async {
-        await withKnownIssue {
-            let expectation = Expectation(expectedFulfillmentCount: 3)
-
-            Task {
-                expectation.fulfill()
-                expectation.fulfill()
-                // Only fulfilled 2 times, expected 3
-            }
-
-            await expectation.fulfillment(within: .seconds(1))
-        } matching: { issue in
-            issue.description.contains("Fulfilled 2/3 times")
-        }
-    }
-
     @Test("Expectation with count of 5 fulfilled 5 times succeeds")
     func expectation_withCount5_fulfilled5Times_succeeds() async {
         let expectation = Expectation(expectedFulfillmentCount: 5)
@@ -106,25 +78,7 @@ struct ExpectationTests {
         await expectation.fulfillment(within: .seconds(1))
     }
 
-    @Test("Expectation with count of 1 not fulfilled records issue with correct count", .disabled())
-    func expectation_withCount1_notFulfilled_recordsIssueWithCorrectCount() async {
-        await withKnownIssue {
-            let expectation = Expectation(expectedFulfillmentCount: 1)
-            // Never fulfill
-            await expectation.fulfillment(within: .milliseconds(100))
-        } matching: { issue in
-            issue.description.contains("Fulfilled 0/1 times")
-        }
-    }
-
     // MARK: - Inverted Expectation Tests
-
-    @Test("Inverted expectation not fulfilled succeeds", .disabled())
-    func invertedExpectation_notFulfilled_succeeds() async {
-        let expectation = Expectation(isInverted: true)
-        // Don't fulfill the expectation
-        await expectation.fulfillment(within: .milliseconds(100))
-    }
 
     @Test("Inverted expectation fulfilled records issue")
     func invertedExpectation_fulfilled_recordsIssue() async {
@@ -135,18 +89,6 @@ struct ExpectationTests {
         } matching: { issue in
             issue.description.contains("Inverted expectation was fulfilled")
         }
-    }
-
-    @Test("Inverted expectation with count 2 fulfilled once succeeds", .disabled())
-    func invertedExpectation_withCount2_fulfilled1Time_succeeds() async {
-        let expectation = Expectation(expectedFulfillmentCount: 2, isInverted: true)
-
-        Task {
-            expectation.fulfill()
-            // Only fulfilled once, needed 2 to trigger inverted failure
-        }
-
-        await expectation.fulfillment(within: .milliseconds(100))
     }
 
     @Test("Inverted expectation with count 2 fulfilled 2 times records issue")
@@ -188,18 +130,6 @@ struct ExpectationTests {
         }
 
         await expectation.fulfillment(within: .seconds(10))
-    }
-
-    @Test("Expectation timeout message includes duration", .disabled())
-    func expectation_timeoutMessage_includesDuration() async {
-        await withKnownIssue {
-            let expectation = Expectation()
-            await expectation.fulfillment(within: .milliseconds(50))
-        } matching: { issue in
-            issue.description.contains("50000000 nanoseconds") ||
-                issue.description.contains("0.05") ||
-                issue.description.contains("milliseconds")
-        }
     }
 
     // MARK: - Concurrent Fulfillment Tests
