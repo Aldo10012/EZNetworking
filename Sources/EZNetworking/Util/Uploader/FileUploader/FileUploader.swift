@@ -112,35 +112,6 @@ public class FileUploader: FileUploadable {
         }
     }
 
-    // TODO: delete
-    @discardableResult
-    private func _uploadFileTask(_ fileURL: URL, with request: Request, progress: UploadProgressHandler?, completion: @escaping (UploadCompletionHandler)) -> URLSessionUploadTask? {
-        let request = request
-        configureProgressTracking(progress: progress)
-
-        guard let urlRequest = getURLRequest(from: request) else {
-            completion(.failure(.internalError(.noRequest)))
-            return nil
-        }
-
-        let task = session.urlSession.uploadTask(with: urlRequest, fromFile: fileURL) { [weak self] data, response, error in
-            guard let self else {
-                completion(.failure(.internalError(.lostReferenceOfSelf)))
-                return
-            }
-            do {
-                try validator.validateNoError(error)
-                try validator.validateStatus(from: response)
-                let validData = try validator.validateData(data)
-                completion(.success(validData))
-            } catch {
-                completion(.failure(mapError(error)))
-            }
-        }
-        task.resume()
-        return task
-    }
-
     private func mapError(_ error: Error) -> NetworkingError {
         if let networkError = error as? NetworkingError { return networkError }
         if let urlError = error as? URLError { return .urlError(urlError) }
@@ -153,10 +124,5 @@ public class FileUploader: FileUploadable {
             session.delegate.uploadTaskInterceptor = fallbackUploadTaskInterceptor
         }
         session.delegate.uploadTaskInterceptor?.progress = progress
-    }
-
-    // TODO: delete
-    private func getURLRequest(from request: Request) -> URLRequest? {
-        do { return try request.getURLRequest() } catch { return nil }
     }
 }
