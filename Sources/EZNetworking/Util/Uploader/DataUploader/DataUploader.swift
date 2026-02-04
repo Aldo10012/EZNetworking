@@ -90,8 +90,6 @@ public class DataUploader: DataUploadable {
 
     // MARK: Helpers
 
-    // MARK: Helpers
-
     private func createTaskAndPerform(
         _ data: Data,
         with request: Request,
