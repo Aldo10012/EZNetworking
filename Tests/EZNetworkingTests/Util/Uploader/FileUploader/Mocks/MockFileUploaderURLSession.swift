@@ -30,15 +30,6 @@ class MockFileUploaderURLSession: URLSessionProtocol {
         simulateDownloadProgress(for: .init())
         return (data, urlResponse)
     }
-    func uploadTask(with request: URLRequest, fromFile fileURL: URL, completionHandler: @escaping @Sendable (Data?, URLResponse?, (any Error)?) -> Void) -> URLSessionUploadTask {
-        self.completionHandler = completionHandler
-
-        simulateDownloadProgress(for: .init())
-
-        return MockURLSessionUploadTask {
-            completionHandler(self.data, self.urlResponse, self.error)
-        }
-    }
 }
 
 // MARK: Helpers
