@@ -110,35 +110,7 @@ public class DataUploader: DataUploadable {
         }
     }
 
-    // MARK: Core
-
-    @discardableResult
-    private func _uploadDataTask(_ data: Data, with request: Request, progress: UploadProgressHandler?, completion: @escaping (UploadCompletionHandler)) -> URLSessionUploadTask? {
-        let request = request
-        configureProgressTracking(progress: progress)
-
-        guard let urlRequest = getURLRequest(from: request) else {
-            completion(.failure(.internalError(.noRequest)))
-            return nil
-        }
-
-        let task = session.urlSession.uploadTask(with: urlRequest, from: data) { [weak self] data, response, error in
-            guard let self else {
-                completion(.failure(.internalError(.lostReferenceOfSelf)))
-                return
-            }
-            do {
-                try validator.validateNoError(error)
-                try validator.validateStatus(from: response)
-                let validData = try validator.validateData(data)
-                completion(.success(validData))
-            } catch {
-                completion(.failure(mapError(error)))
-            }
-        }
-        task.resume()
-        return task
-    }
+    // MARK: Helpers
 
     private func mapError(_ error: Error) -> NetworkingError {
         if let networkError = error as? NetworkingError { return networkError }
@@ -154,9 +126,5 @@ public class DataUploader: DataUploadable {
             fallbackUploadTaskInterceptor.progress = progress
             session.delegate.uploadTaskInterceptor = fallbackUploadTaskInterceptor
         }
-    }
-
-    private func getURLRequest(from request: Request) -> URLRequest? {
-        do { return try request.getURLRequest() } catch { return nil }
     }
 }
