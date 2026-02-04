@@ -22,33 +22,55 @@ public class FileDownloader: FileDownloadable {
 
     // MARK: Async Await
 
-    public func downloadFile(from serverUrl: URL, progress: DownloadProgressHandler? = nil) async throws -> URL {
-        try await withCheckedThrowingContinuation { continuation in
-            performDownloadTask(url: serverUrl, progress: progress) { result in
-                switch result {
-                case let .success(success):
-                    continuation.resume(returning: success)
-                case let .failure(error):
-                    continuation.resume(throwing: error)
-                }
+    public func downloadFile(
+        from serverUrl: URL,
+        progress: DownloadProgressHandler? = nil
+    ) async throws -> URL {
+        for await event in downloadFileStream(from: serverUrl) {
+            switch event {
+            case let .progress(value):
+                progress?(value)
+            case let .success(url):
+                return url
+            case let .failure(error):
+                throw error
             }
         }
+        throw NetworkingError.internalError(.unknown)
     }
 
     // MARK: Completion Handler
 
     @discardableResult
-    public func downloadFileTask(from serverUrl: URL, progress: DownloadProgressHandler?, completion: @escaping (DownloadCompletionHandler)) -> URLSessionDownloadTask {
-        performDownloadTask(url: serverUrl, progress: progress, completion: completion)
+    public func downloadFileTask(
+        from serverUrl: URL,
+        progress: DownloadProgressHandler?,
+        completion: @escaping (DownloadCompletionHandler)
+    ) -> CancellableRequest {
+        let taskBox = TaskBox()
+        let cancellableRequest = CancellableRequest { [weak self] in
+            taskBox.task = self?.createTaskAndPerform(from: serverUrl, progress: progress, completion: completion)
+        } onCancel: {
+            taskBox.task?.cancel()
+        }
+        cancellableRequest.resume()
+        return cancellableRequest
     }
 
     // MARK: Publisher
 
-    public func downloadFilePublisher(from serverUrl: URL, progress: DownloadProgressHandler?) -> AnyPublisher<URL, NetworkingError> {
-        Future { promise in
-            self.performDownloadTask(url: serverUrl, progress: progress) { result in
-                promise(result)
+    public func downloadFilePublisher(
+        from serverUrl: URL,
+        progress: DownloadProgressHandler?
+    ) -> AnyPublisher<URL, NetworkingError> {
+        Deferred {
+            let taskBox = TaskBox()
+            return Future<URL, NetworkingError> { [weak self] promise in
+                taskBox.task = self?.createTaskAndPerform(from: serverUrl, progress: progress, completion: { promise($0) })
             }
+            .handleEvents(receiveCancel: {
+                taskBox.task?.cancel()
+            })
         }
         .eraseToAnyPublisher()
     }
@@ -57,68 +79,64 @@ public class FileDownloader: FileDownloadable {
 
     public func downloadFileStream(from serverUrl: URL) -> AsyncStream<DownloadStreamEvent> {
         AsyncStream { continuation in
-            // Progress handler yields progress updates to the stream.
-            let progressHandler: DownloadProgressHandler = { progress in
+            configureProgressTracking { progress in
                 continuation.yield(.progress(progress))
             }
-            // Start the download task, yielding completion to the stream.
-            let task = self.performDownloadTask(url: serverUrl, progress: progressHandler) { result in
-                switch result {
-                case let .success(url):
+            let task = Task {
+                do {
+                    let (localURL, response) = try await session.urlSession.download(from: serverUrl, delegate: nil)
+                    try validator.validateStatus(from: response)
+                    let url = try validator.validateUrl(localURL)
                     continuation.yield(.success(url))
-                case let .failure(error):
-                    continuation.yield(.failure(error))
+                    continuation.finish()
+                } catch is CancellationError {
+                    // optional: silently finish or emit failure
+                } catch {
+                    continuation.yield(.failure(mapError(error)))
+                    continuation.finish()
                 }
-                continuation.finish()
             }
-            // Cancel the task if the stream is terminated.
             continuation.onTermination = { @Sendable _ in
                 task.cancel()
             }
         }
     }
 
-    // MARK: - Core
+    // MARK: - Helpers
 
-    @discardableResult
-    private func performDownloadTask(url: URL, progress: DownloadProgressHandler?, completion: @escaping (DownloadCompletionHandler)) -> URLSessionDownloadTask {
-        configureProgressTracking(progress: progress)
-
-        let task = session.urlSession.downloadTask(with: url) { [weak self] localURL, response, error in
-            guard let self else {
-                completion(.failure(.internalError(.lostReferenceOfSelf)))
-                return
-            }
-            do {
-                try validator.validateNoError(error)
-                try validator.validateStatus(from: response)
-                let localURL = try validator.validateUrl(localURL)
-
-                completion(.success(localURL))
-            } catch {
-                completion(.failure(mapError(error)))
+    private func createTaskAndPerform(
+        from serverUrl: URL,
+        progress: DownloadProgressHandler?,
+        completion: @escaping ((Result<URL, NetworkingError>) -> Void)
+    ) -> Task<Void, Never> {
+        Task {
+            for await event in downloadFileStream(from: serverUrl) {
+                switch event {
+                case let .progress(value):
+                    progress?(value)
+                case let .success(url):
+                    guard !Task.isCancelled else { return }
+                    completion(.success(url))
+                case let .failure(error):
+                    guard !Task.isCancelled else { return }
+                    completion(.failure(error))
+                }
             }
         }
-        task.resume()
-        return task
     }
 
     private func mapError(_ error: Error) -> NetworkingError {
         if let networkError = error as? NetworkingError { return networkError }
         if let urlError = error as? URLError { return .urlError(urlError) }
-        return .internalError(.unknown)
+        return .internalError(.requestFailed(error))
     }
 
     private func configureProgressTracking(progress: DownloadProgressHandler?) {
         guard let progress else { return }
 
-        if session.delegate.downloadTaskInterceptor != nil {
-            // Update existing interceptor's progress handler
-            session.delegate.downloadTaskInterceptor?.progress = progress
-        } else {
-            // Set up fallback interceptor with progress handler
-            fallbackDownloadTaskInterceptor.progress = progress
+        if session.delegate.downloadTaskInterceptor == nil {
             session.delegate.downloadTaskInterceptor = fallbackDownloadTaskInterceptor
         }
+        session.delegate.downloadTaskInterceptor?.progress = progress
     }
 }

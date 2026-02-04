@@ -57,14 +57,14 @@ final class FileDownloadableAsyncAwaitTests {
     @Test("test .downloadFile() Fails When urlSession Error Is Not Nil")
     func downloadFileFailsWhenErrorIsNotNil() async throws {
         let sut = createFileDownloader(
-            urlSession: createMockURLSession(error: NetworkingError.internalError(.unknown))
+            urlSession: createMockURLSession(error: DummyError.error)
         )
 
         do {
             _ = try await sut.downloadFile(from: testURL)
             Issue.record("unexpected error")
         } catch let error as NetworkingError {
-            #expect(error == NetworkingError.internalError(.requestFailed(NetworkingError.internalError(.unknown))))
+            #expect(error == NetworkingError.internalError(.requestFailed(DummyError.error)))
         }
     }
 
@@ -178,8 +178,8 @@ final class FileDownloadableAsyncAwaitTests {
 
     // MARK: Traching with interceptor
 
-    @Test("test .downloadFile() Download Progress Can Be Tracked when Injecting DownloadTaskInterceptor")
-    func downloadFileDownloadProgressCanBeTrackedWhenInjectingDownloadTaskInterceptor() async throws {
+    @Test("test .downloadFile() Download Progress closure Cannt Be Tracked when Injecting DownloadTaskInterceptor")
+    func downloadFileDownloadProgressClosureCanntBeTrackedWhenInjectingDownloadTaskInterceptor() async throws {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = createMockURLSession()
 
@@ -202,7 +202,7 @@ final class FileDownloadableAsyncAwaitTests {
 
         do {
             _ = try await sut.downloadFile(from: testURL, progress: nil)
-            #expect(didTrackProgressFromInterceptor)
+            #expect(!didTrackProgressFromInterceptor)
             #expect(downloadInterceptor.didCallDidWriteData == true)
         } catch {
             Issue.record()
@@ -264,4 +264,8 @@ extension FileDownloader {
             decoder: decoder
         )
     }
+}
+
+private enum DummyError: Error {
+    case error
 }

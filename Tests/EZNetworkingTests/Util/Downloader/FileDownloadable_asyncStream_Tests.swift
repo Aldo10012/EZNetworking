@@ -95,7 +95,7 @@ final class FileDownloadableAsyncStreamTests {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let sut = FileDownloader(
             session: MockSession(
-                urlSession: createMockURLSession(error: NetworkingError.internalError(.unknown))
+                urlSession: createMockURLSession(error: DummyError.error)
             )
         )
 
@@ -107,7 +107,7 @@ final class FileDownloadableAsyncStreamTests {
         #expect(events.count == 1)
         switch events[0] {
         case let .failure(error):
-            #expect(error == NetworkingError.internalError(.requestFailed(NetworkingError.internalError(.unknown))))
+            #expect(error == NetworkingError.internalError(.requestFailed(DummyError.error)))
         default:
             Issue.record()
         }
@@ -296,4 +296,8 @@ private func buildResponse(statusCode: Int) -> HTTPURLResponse {
         httpVersion: nil,
         headerFields: nil
     )!
+}
+
+private enum DummyError: Error {
+    case error
 }
