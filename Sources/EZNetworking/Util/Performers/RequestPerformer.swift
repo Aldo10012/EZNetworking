@@ -58,12 +58,12 @@ public struct RequestPerformer: RequestPerformable {
         decodeTo decodableObject: T.Type
     ) -> AnyPublisher<T, NetworkingError> {
         Deferred {
-            var task: Task<Void, Never>?
+            let taskBox = TaskBox()
             return Future<T, NetworkingError> { promise in
-                task = createTaskAndPerform(request: request, decodeTo: decodableObject, completion: { promise($0) })
+                taskBox.task = createTaskAndPerform(request: request, decodeTo: decodableObject, completion: { promise($0) })
             }
             .handleEvents(receiveCancel: {
-                task?.cancel()
+                taskBox.task?.cancel()
             })
         }
         .eraseToAnyPublisher()
