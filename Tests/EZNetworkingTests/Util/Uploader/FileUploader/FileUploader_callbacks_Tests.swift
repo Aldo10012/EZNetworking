@@ -175,7 +175,6 @@ final class FileUploaderCallbacksTests {
 
     @Test("test .uploadFileTask() Download Progress Can Be Tracked when Injecting SessionDelegat")
     func uploadFileTask_progressCanBeTrackedWhenInjectingSessionDelegate() async {
-        let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = createMockURLSession()
 
         let delegate = SessionDelegate()

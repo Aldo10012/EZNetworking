@@ -20,62 +20,7 @@ public class FileDownloader: FileDownloadable {
         self.decoder = decoder
     }
 
-    // MARK: Async Await
-
-    public func downloadFile(
-        from serverUrl: URL,
-        progress: DownloadProgressHandler? = nil
-    ) async throws -> URL {
-        for await event in downloadFileStream(from: serverUrl) {
-            switch event {
-            case let .progress(value):
-                progress?(value)
-            case let .success(url):
-                return url
-            case let .failure(error):
-                throw error
-            }
-        }
-        throw NetworkingError.internalError(.unknown)
-    }
-
-    // MARK: Completion Handler
-
-    @discardableResult
-    public func downloadFileTask(
-        from serverUrl: URL,
-        progress: DownloadProgressHandler?,
-        completion: @escaping (DownloadCompletionHandler)
-    ) -> CancellableRequest {
-        let taskBox = TaskBox()
-        let cancellableRequest = CancellableRequest { [weak self] in
-            taskBox.task = self?.createTaskAndPerform(from: serverUrl, progress: progress, completion: completion)
-        } onCancel: {
-            taskBox.task?.cancel()
-        }
-        cancellableRequest.resume()
-        return cancellableRequest
-    }
-
-    // MARK: Publisher
-
-    public func downloadFilePublisher(
-        from serverUrl: URL,
-        progress: DownloadProgressHandler?
-    ) -> AnyPublisher<URL, NetworkingError> {
-        Deferred {
-            let taskBox = TaskBox()
-            return Future<URL, NetworkingError> { [weak self] promise in
-                taskBox.task = self?.createTaskAndPerform(from: serverUrl, progress: progress, completion: { promise($0) })
-            }
-            .handleEvents(receiveCancel: {
-                taskBox.task?.cancel()
-            })
-        }
-        .eraseToAnyPublisher()
-    }
-
-    // MARK: AsyncStream
+    // MARK: - CORE - AsyncStream
 
     public func downloadFileStream(from serverUrl: URL) -> AsyncStream<DownloadStreamEvent> {
         AsyncStream { continuation in
@@ -100,6 +45,61 @@ public class FileDownloader: FileDownloadable {
                 task.cancel()
             }
         }
+    }
+
+    // MARK: - Adapter - async/await
+
+    public func downloadFile(
+        from serverUrl: URL,
+        progress: DownloadProgressHandler? = nil
+    ) async throws -> URL {
+        for await event in downloadFileStream(from: serverUrl) {
+            switch event {
+            case let .progress(value):
+                progress?(value)
+            case let .success(url):
+                return url
+            case let .failure(error):
+                throw error
+            }
+        }
+        throw NetworkingError.internalError(.unknown)
+    }
+
+    // MARK: - Adapter - callbacks
+
+    @discardableResult
+    public func downloadFileTask(
+        from serverUrl: URL,
+        progress: DownloadProgressHandler?,
+        completion: @escaping (DownloadCompletionHandler)
+    ) -> CancellableRequest {
+        let taskBox = TaskBox()
+        let cancellableRequest = CancellableRequest { [weak self] in
+            taskBox.task = self?.createTaskAndPerform(from: serverUrl, progress: progress, completion: completion)
+        } onCancel: {
+            taskBox.task?.cancel()
+        }
+        cancellableRequest.resume()
+        return cancellableRequest
+    }
+
+    // MARK: - Adapter - Publisher
+
+    public func downloadFilePublisher(
+        from serverUrl: URL,
+        progress: DownloadProgressHandler?
+    ) -> AnyPublisher<URL, NetworkingError> {
+        Deferred {
+            let taskBox = TaskBox()
+            return Future<URL, NetworkingError> { [weak self] promise in
+                taskBox.task = self?.createTaskAndPerform(from: serverUrl, progress: progress, completion: { promise($0) })
+            }
+            .handleEvents(receiveCancel: {
+                taskBox.task?.cancel()
+            })
+        }
+        .eraseToAnyPublisher()
     }
 
     // MARK: - Helpers
