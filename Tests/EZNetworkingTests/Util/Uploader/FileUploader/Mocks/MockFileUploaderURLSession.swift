@@ -20,6 +20,16 @@ class MockFileUploaderURLSession: URLSessionProtocol {
         self.error = error
     }
 
+    func upload(for request: URLRequest, fromFile fileURL: URL) async throws -> (Data, URLResponse) {
+        if let error {
+            throw error
+        }
+        guard let data, let urlResponse else {
+            fatalError("Could not configure return tyoe for MockFileUploaderURLSession.upload")
+        }
+        simulateDownloadProgress(for: .init())
+        return (data, urlResponse)
+    }
     func uploadTask(with request: URLRequest, fromFile fileURL: URL, completionHandler: @escaping @Sendable (Data?, URLResponse?, (any Error)?) -> Void) -> URLSessionUploadTask {
         self.completionHandler = completionHandler
 

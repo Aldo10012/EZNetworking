@@ -7,6 +7,7 @@ public protocol URLSessionProtocol {
 
     func upload(for request: URLRequest, from bodyData: Data) async throws -> (Data, URLResponse)
 
+    func upload(for request: URLRequest, fromFile fileURL: URL) async throws -> (Data, URLResponse)
     func uploadTask(with request: URLRequest, fromFile fileURL: URL, completionHandler: @escaping @Sendable (Data?, URLResponse?, (any Error)?) -> Void) -> URLSessionUploadTask
 
     func webSocketTaskInspectable(with request: URLRequest) -> URLSessionWebSocketTaskProtocol
