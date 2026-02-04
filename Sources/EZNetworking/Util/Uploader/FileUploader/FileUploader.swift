@@ -50,10 +50,14 @@ public class FileUploader: FileUploadable {
     // MARK: Publisher
 
     public func uploadFilePublisher(_ fileURL: URL, with request: any Request, progress: UploadProgressHandler?) -> AnyPublisher<Data, NetworkingError> {
-        Future { promise in
-            _ = self._uploadFileTask(fileURL, with: request, progress: progress) { result in
-                promise(result)
+        Deferred {
+            let taskBox = TaskBox()
+            return Future<Data, NetworkingError> { [weak self] promise in
+                taskBox.task = self?.createTaskAndPerform(fileURL, with: request, progress: progress, completion: { promise($0) })
             }
+            .handleEvents(receiveCancel: {
+                taskBox.task?.cancel()
+            })
         }
         .eraseToAnyPublisher()
     }
