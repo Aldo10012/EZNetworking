@@ -20,16 +20,17 @@ public class DataUploader: DataUploadable {
     // MARK: Async Await
 
     public func uploadData(_ data: Data, with request: Request, progress: UploadProgressHandler?) async throws -> Data {
-        try await withCheckedThrowingContinuation { continuation in
-            self._uploadDataTask(data, with: request, progress: progress) { result in
-                switch result {
-                case let .success(data):
-                    continuation.resume(returning: data)
-                case let .failure(error):
-                    continuation.resume(throwing: error)
-                }
+        for await event in uploadDataStream(data, with: request) {
+            switch event {
+            case .progress(let double):
+                progress?(double)
+            case .success(let data):
+                return data
+            case .failure(let error):
+                throw error
             }
         }
+        throw NetworkingError.internalError(.unknown)
     }
 
     // MARK: Completion Handler
