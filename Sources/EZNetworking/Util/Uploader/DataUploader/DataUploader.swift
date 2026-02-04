@@ -54,20 +54,24 @@ public class DataUploader: DataUploadable {
 
     public func uploadDataStream(_ data: Data, with request: Request) -> AsyncStream<UploadStreamEvent> {
         AsyncStream { continuation in
-            let progressHandler: UploadProgressHandler = { progress in
+            configureProgressTracking { progress in
                 continuation.yield(.progress(progress))
             }
-            let task = self._uploadDataTask(data, with: request, progress: progressHandler) { result in
-                switch result {
-                case let .success(data):
-                    continuation.yield(.success(data))
-                case let .failure(error):
-                    continuation.yield(.failure(error))
+            let task = Task {
+                do {
+                    let urlRequest = try request.getURLRequest()
+                    let (data, urlResponse) = try await session.urlSession.upload(for: urlRequest, from: data)
+                    try validator.validateStatus(from: urlResponse)
+                    let validData = try validator.validateData(data)
+                    continuation.yield(.success(validData))
+                    continuation.finish()
+                } catch {
+                    continuation.yield(.failure(mapError(error)))
+                    continuation.finish()
                 }
-                continuation.finish()
             }
             continuation.onTermination = { @Sendable _ in
-                task?.cancel()
+                task.cancel()
             }
         }
     }
@@ -85,9 +89,6 @@ public class DataUploader: DataUploadable {
         }
 
         let task = session.urlSession.uploadTask(with: urlRequest, from: data) { [weak self] data, response, error in
-
-
-
             guard let self else {
                 completion(.failure(.internalError(.lostReferenceOfSelf)))
                 return
@@ -108,7 +109,7 @@ public class DataUploader: DataUploadable {
     private func mapError(_ error: Error) -> NetworkingError {
         if let networkError = error as? NetworkingError { return networkError }
         if let urlError = error as? URLError { return .urlError(urlError) }
-        return .internalError(.unknown)
+        return .internalError(.requestFailed(error))
     }
 
     private func configureProgressTracking(progress: UploadProgressHandler?) {
