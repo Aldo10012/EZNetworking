@@ -120,11 +120,9 @@ public class DataUploader: DataUploadable {
 
     private func configureProgressTracking(progress: UploadProgressHandler?) {
         guard let progress else { return }
-        if session.delegate.uploadTaskInterceptor != nil {
-            session.delegate.uploadTaskInterceptor?.progress = progress
-        } else {
-            fallbackUploadTaskInterceptor.progress = progress
+        if session.delegate.uploadTaskInterceptor == nil {
             session.delegate.uploadTaskInterceptor = fallbackUploadTaskInterceptor
         }
+        session.delegate.uploadTaskInterceptor?.progress = progress
     }
 }
