@@ -20,32 +20,44 @@ public class DataUploader: DataUploadable {
     // MARK: Async Await
 
     public func uploadData(_ data: Data, with request: Request, progress: UploadProgressHandler?) async throws -> Data {
-        try await withCheckedThrowingContinuation { continuation in
-            self._uploadDataTask(data, with: request, progress: progress) { result in
-                switch result {
-                case let .success(data):
-                    continuation.resume(returning: data)
-                case let .failure(error):
-                    continuation.resume(throwing: error)
-                }
+        for await event in uploadDataStream(data, with: request) {
+            switch event {
+            case let .progress(double):
+                progress?(double)
+            case let .success(data):
+                return data
+            case let .failure(error):
+                throw error
             }
         }
+        throw NetworkingError.internalError(.unknown)
     }
 
     // MARK: Completion Handler
 
     @discardableResult
-    public func uploadDataTask(_ data: Data, with request: Request, progress: UploadProgressHandler?, completion: @escaping (UploadCompletionHandler)) -> URLSessionUploadTask? {
-        _uploadDataTask(data, with: request, progress: progress, completion: completion)
+    public func uploadDataTask(_ data: Data, with request: Request, progress: UploadProgressHandler?, completion: @escaping (UploadCompletionHandler)) -> CancellableRequest {
+        let taskBox = TaskBox()
+        let cancellableRequest = CancellableRequest { [weak self] in
+            taskBox.task = self?.createTaskAndPerform(data, with: request, progress: progress, completion: completion)
+        } onCancel: {
+            taskBox.task?.cancel()
+        }
+        cancellableRequest.resume()
+        return cancellableRequest
     }
 
     // MARK: Publisher
 
     public func uploadDataPublisher(_ data: Data, with request: Request, progress: UploadProgressHandler?) -> AnyPublisher<Data, NetworkingError> {
-        Future { promise in
-            _ = self._uploadDataTask(data, with: request, progress: progress) { result in
-                promise(result)
+        Deferred {
+            let taskBox = TaskBox()
+            return Future<Data, NetworkingError> { [weak self] promise in
+                taskBox.task = self?.createTaskAndPerform(data, with: request, progress: progress, completion: { promise($0) })
             }
+            .handleEvents(receiveCancel: {
+                taskBox.task?.cancel()
+            })
         }
         .eraseToAnyPublisher()
     }
@@ -54,71 +66,63 @@ public class DataUploader: DataUploadable {
 
     public func uploadDataStream(_ data: Data, with request: Request) -> AsyncStream<UploadStreamEvent> {
         AsyncStream { continuation in
-            let progressHandler: UploadProgressHandler = { progress in
+            configureProgressTracking { progress in
                 continuation.yield(.progress(progress))
             }
-            let task = self._uploadDataTask(data, with: request, progress: progressHandler) { result in
-                switch result {
-                case let .success(data):
-                    continuation.yield(.success(data))
-                case let .failure(error):
-                    continuation.yield(.failure(error))
+            let task = Task {
+                do {
+                    let urlRequest = try request.getURLRequest()
+                    let (data, urlResponse) = try await session.urlSession.upload(for: urlRequest, from: data)
+                    try validator.validateStatus(from: urlResponse)
+                    let validData = try validator.validateData(data)
+                    continuation.yield(.success(validData))
+                    continuation.finish()
+                } catch {
+                    continuation.yield(.failure(mapError(error)))
+                    continuation.finish()
                 }
-                continuation.finish()
             }
             continuation.onTermination = { @Sendable _ in
-                task?.cancel()
+                task.cancel()
             }
         }
     }
 
-    // MARK: Core
+    // MARK: Helpers
 
-    @discardableResult
-    private func _uploadDataTask(_ data: Data, with request: Request, progress: UploadProgressHandler?, completion: @escaping (UploadCompletionHandler)) -> URLSessionUploadTask? {
-        let request = request
-        configureProgressTracking(progress: progress)
-
-        guard let urlRequest = getURLRequest(from: request) else {
-            completion(.failure(.internalError(.noRequest)))
-            return nil
-        }
-
-        let task = session.urlSession.uploadTask(with: urlRequest, from: data) { [weak self] data, response, error in
-            guard let self else {
-                completion(.failure(.internalError(.lostReferenceOfSelf)))
-                return
-            }
-            do {
-                try validator.validateNoError(error)
-                try validator.validateStatus(from: response)
-                let validData = try validator.validateData(data)
-                completion(.success(validData))
-            } catch {
-                completion(.failure(mapError(error)))
+    private func createTaskAndPerform(
+        _ data: Data,
+        with request: Request,
+        progress: UploadProgressHandler?,
+        completion: @escaping ((Result<Data, NetworkingError>) -> Void)
+    ) -> Task<Void, Never> {
+        Task {
+            for await event in uploadDataStream(data, with: request) {
+                switch event {
+                case let .progress(double):
+                    progress?(double)
+                case let .success(data):
+                    guard !Task.isCancelled else { return }
+                    completion(.success(data))
+                case let .failure(error):
+                    guard !Task.isCancelled else { return }
+                    completion(.failure(error))
+                }
             }
         }
-        task.resume()
-        return task
     }
 
     private func mapError(_ error: Error) -> NetworkingError {
         if let networkError = error as? NetworkingError { return networkError }
         if let urlError = error as? URLError { return .urlError(urlError) }
-        return .internalError(.unknown)
+        return .internalError(.requestFailed(error))
     }
 
     private func configureProgressTracking(progress: UploadProgressHandler?) {
         guard let progress else { return }
-        if session.delegate.uploadTaskInterceptor != nil {
-            session.delegate.uploadTaskInterceptor?.progress = progress
-        } else {
-            fallbackUploadTaskInterceptor.progress = progress
+        if session.delegate.uploadTaskInterceptor == nil {
             session.delegate.uploadTaskInterceptor = fallbackUploadTaskInterceptor
         }
-    }
-
-    private func getURLRequest(from request: Request) -> URLRequest? {
-        do { return try request.getURLRequest() } catch { return nil }
+        session.delegate.uploadTaskInterceptor?.progress = progress
     }
 }

@@ -20,14 +20,16 @@ class MockDataUploaderURLSession: URLSessionProtocol {
         self.error = error
     }
 
-    func uploadTask(with request: URLRequest, from bodyData: Data?, completionHandler: @escaping @Sendable (Data?, URLResponse?, (any Error)?) -> Void) -> URLSessionUploadTask {
-        self.completionHandler = completionHandler
+    func upload(for request: URLRequest, from bodyData: Data) async throws -> (Data, URLResponse) {
+        if let error {
+            throw error
+        }
+        guard let data, let urlResponse else {
+            fatalError("Could not configure return type for MockDataUploaderURLSession.upload()")
+        }
 
         simulateDownloadProgress(for: .init())
-
-        return MockURLSessionUploadTask {
-            completionHandler(self.data, self.urlResponse, self.error)
-        }
+        return (data, urlResponse)
     }
 }
 

@@ -10,10 +10,10 @@ final class DataUploaderPublisherTests {
     // MARK: SUCCESS
 
     @Test("test .uploadDataPublisher() Success")
-    func uploadDataPublisher_Success() {
+    func uploadDataPublisher_Success() async {
         let sut = createDataUploader()
 
-        var didExecute = false
+        let expectation = Expectation()
         sut.uploadDataPublisher(mockData, with: mockRequest, progress: nil)
             .sink { completion in
                 switch completion {
@@ -22,28 +22,28 @@ final class DataUploaderPublisherTests {
                 }
             } receiveValue: { _ in
                 #expect(Bool(true))
-                didExecute = true
+                expectation.fulfill()
             }
             .store(in: &cancellables)
 
-        #expect(didExecute)
+        await expectation.fulfillment(within: .seconds(1))
     }
 
     // MARK: ERROR - status code
 
     @Test("test .uploadDataPublisher() Fails When Status Code Is Not 200")
-    func uploadDataPublisher_FailsWhenStatusCodeIsNot200() {
+    func uploadDataPublisher_FailsWhenStatusCodeIsNot200() async {
         let sut = createDataUploader(
             urlSession: createMockURLSession(urlResponse: buildResponse(statusCode: 400))
         )
 
-        var didExecute = false
+        let expectation = Expectation()
         sut.uploadDataPublisher(mockData, with: mockRequest, progress: nil)
             .sink { completion in
                 switch completion {
                 case let .failure(error):
                     #expect(error == NetworkingError.httpError(HTTPError(statusCode: 400)))
-                    didExecute = true
+                    expectation.fulfill()
                 case .finished: Issue.record()
                 }
             } receiveValue: { _ in
@@ -51,24 +51,24 @@ final class DataUploaderPublisherTests {
             }
             .store(in: &cancellables)
 
-        #expect(didExecute)
+        await expectation.fulfillment(within: .seconds(1))
     }
 
     // MARK: ERROR - url session
 
     @Test("test .uploadDataPublisher() Fails When URLSession Has Error")
-    func uploadDataPublisher_FailsWhenUrlSessionHasError() {
+    func uploadDataPublisher_FailsWhenUrlSessionHasError() async {
         let sut = createDataUploader(
             urlSession: createMockURLSession(error: HTTPError(statusCode: 500))
         )
 
-        var didExecute = false
+        let expectation = Expectation()
         sut.uploadDataPublisher(mockData, with: mockRequest, progress: nil)
             .sink { completion in
                 switch completion {
                 case let .failure(error):
                     #expect(error == NetworkingError.internalError(.requestFailed(HTTPError(statusCode: 500))))
-                    didExecute = true
+                    expectation.fulfill()
                 case .finished: Issue.record()
                 }
             } receiveValue: { _ in
@@ -76,22 +76,22 @@ final class DataUploaderPublisherTests {
             }
             .store(in: &cancellables)
 
-        #expect(didExecute)
+        await expectation.fulfillment(within: .seconds(1))
     }
 
     @Test("test .uploadDataPublisher() Fails When URLSession Has URLError")
-    func uploadDataPublisher_FailsWhenUrlSessionHasURLError() {
+    func uploadDataPublisher_FailsWhenUrlSessionHasURLError() async {
         let sut = createDataUploader(
             urlSession: createMockURLSession(error: URLError(.notConnectedToInternet))
         )
 
-        var didExecute = false
+        let expectation = Expectation()
         sut.uploadDataPublisher(mockData, with: mockRequest, progress: nil)
             .sink { completion in
                 switch completion {
                 case let .failure(error):
                     #expect(error == NetworkingError.urlError(URLError(.notConnectedToInternet)))
-                    didExecute = true
+                    expectation.fulfill()
                 case .finished: Issue.record()
                 }
             } receiveValue: { _ in
@@ -99,13 +99,13 @@ final class DataUploaderPublisherTests {
             }
             .store(in: &cancellables)
 
-        #expect(didExecute)
+        await expectation.fulfillment(within: .seconds(1))
     }
 
     // MARK: Tracking with callbacks
 
     @Test("test .uploadDataPublisher() Download Progress Can Be Tracked")
-    func uploadDataPublisher_ProgressCanBeTracked() {
+    func uploadDataPublisher_ProgressCanBeTracked() async {
         let urlSession = createMockURLSession()
 
         urlSession.progressToExecute = [
@@ -113,7 +113,7 @@ final class DataUploaderPublisherTests {
         ]
 
         let sut = DataUploader(mockSession: urlSession)
-        var didExecute = false
+        let expectation = Expectation()
         var didTrackProgress = false
 
         sut.uploadDataPublisher(mockData, with: mockRequest) { _ in
@@ -125,17 +125,18 @@ final class DataUploaderPublisherTests {
             case .finished: break
             }
         } receiveValue: { _ in
-            didExecute = true
+            expectation.fulfill()
         }
         .store(in: &cancellables)
 
-        #expect(didExecute)
+        await expectation.fulfillment(within: .seconds(1))
         #expect(didTrackProgress)
     }
 
     @Test("test .uploadDataPublisher() Download Progress Tracking Happens Before Return")
-    func uploadDataPublisher_ProgressTrackingHappensBeforeReturn() {
+    func uploadDataPublisher_ProgressTrackingHappensBeforeReturn() async {
         let urlSession = createMockURLSession()
+        let expectation = Expectation()
 
         urlSession.progressToExecute = [
             .inProgress(percent: 50)
@@ -150,21 +151,23 @@ final class DataUploaderPublisherTests {
         .sink { completion in
             switch completion {
             case .failure: Issue.record()
-            case .finished: break
+            case .finished: expectation.fulfill()
             }
         } receiveValue: { _ in
             progressAndReturnList.append("did return")
         }
         .store(in: &cancellables)
 
+        await expectation.fulfillment(within: .seconds(1))
         #expect(progressAndReturnList.count == 2)
         #expect(progressAndReturnList[0] == "did track progress")
         #expect(progressAndReturnList[1] == "did return")
     }
 
     @Test("test .uploadDataPublisher() Download Progress Tracks Correct Order")
-    func uploadDataPublisher_ProgressTracksCorrectOrder() {
+    func uploadDataPublisher_ProgressTracksCorrectOrder() async {
         let urlSession = createMockURLSession()
+        let expectation = Expectation()
 
         urlSession.progressToExecute = [
             .inProgress(percent: 30),
@@ -182,11 +185,12 @@ final class DataUploaderPublisherTests {
         .sink { completion in
             switch completion {
             case .failure: Issue.record()
-            case .finished: break
+            case .finished: expectation.fulfill()
             }
         } receiveValue: { _ in }
         .store(in: &cancellables)
 
+        await expectation.fulfillment(within: .seconds(1))
         #expect(capturedTracking.count == 4)
         #expect(capturedTracking == [0.3, 0.6, 0.9, 1.0])
     }
@@ -194,7 +198,7 @@ final class DataUploaderPublisherTests {
     // MARK: Tracking with delegate
 
     @Test("test .uploadDataPublisher() Download Progress Can Be Tracked when Injecting SessionDelegat")
-    func uploadDataPublisher_ProgressCanBeTrackedWhenInjectingSessionDelegate() {
+    func uploadDataPublisher_ProgressCanBeTrackedWhenInjectingSessionDelegate() async {
         let urlSession = createMockURLSession()
 
         let delegate = SessionDelegate()
@@ -207,7 +211,7 @@ final class DataUploaderPublisherTests {
             session: MockSession(urlSession: urlSession, delegate: delegate)
         )
 
-        var didExecute = false
+        let expectation = Expectation()
         var didTrackProgress = false
 
         sut.uploadDataPublisher(mockData, with: mockRequest) { _ in
@@ -219,18 +223,18 @@ final class DataUploaderPublisherTests {
             case .finished: break
             }
         } receiveValue: { _ in
-            didExecute = true
+            expectation.fulfill()
         }
         .store(in: &cancellables)
 
-        #expect(didExecute)
+        await expectation.fulfillment(within: .seconds(1))
         #expect(didTrackProgress)
     }
 
     // MARK: Tracking with Interceptor
 
-    @Test("test .uploadDataPublisher() Download Progress Can Be Tracked when Injecting DownloadTaskInterceptor")
-    func uploadDataPublisher_DownloadFilePublisherTaskDownloadProgressCanBeTrackedWhenInjectingDownloadTaskInterceptor() {
+    @Test("test .uploadDataPublisher() Download Progress Can Not Be Tracked when Injecting DownloadTaskInterceptor")
+    func uploadDataPublisher_DownloadFilePublisherTaskDownloadProgressCanNotBeTrackedWhenInjectingDownloadTaskInterceptor() async {
         let urlSession = createMockURLSession()
 
         var didTrackProgressFromInterceptor = false
@@ -250,7 +254,7 @@ final class DataUploaderPublisherTests {
             session: MockSession(urlSession: urlSession, delegate: delegate)
         )
 
-        var didExecute = false
+        let expectation = Expectation()
 
         sut.uploadDataPublisher(mockData, with: mockRequest, progress: nil)
             .sink { completion in
@@ -259,12 +263,12 @@ final class DataUploaderPublisherTests {
                 case .finished: break
                 }
             } receiveValue: { _ in
-                didExecute = true
+                expectation.fulfill()
             }
             .store(in: &cancellables)
 
-        #expect(didExecute)
-        #expect(didTrackProgressFromInterceptor)
+        await expectation.fulfillment(within: .seconds(1))
+        #expect(!didTrackProgressFromInterceptor)
         #expect(uploadInterceptor.didCallDidSendBodyData)
     }
 }

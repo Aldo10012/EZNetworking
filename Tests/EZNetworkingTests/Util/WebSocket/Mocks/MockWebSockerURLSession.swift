@@ -27,7 +27,7 @@ extension MockWebSockerURLSession {
         fatalError("Should not be using in this mock")
     }
 
-    func uploadTask(with request: URLRequest, from bodyData: Data?, completionHandler: @escaping @Sendable (Data?, URLResponse?, (any Error)?) -> Void) -> URLSessionUploadTask {
+    func upload(for request: URLRequest, from bodyData: Data) async throws -> (Data, URLResponse) {
         fatalError("Should not be using in this mock")
     }
 
