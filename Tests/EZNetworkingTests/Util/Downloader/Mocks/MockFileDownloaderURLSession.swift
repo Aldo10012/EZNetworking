@@ -28,14 +28,6 @@ class MockFileDownloaderURLSession: URLSessionProtocol {
         simulateDownloadProgress(for: .init())
         return (URL(fileURLWithPath: "/tmp/test.pdf"), urlResponse)
     }
-
-    func downloadTask(with url: URL, completionHandler: @escaping @Sendable (URL?, URLResponse?, Error?) -> Void) -> URLSessionDownloadTask {
-        simulateDownloadProgress(for: .init())
-
-        return MockURLSessionDownloadTask {
-            completionHandler(URL(fileURLWithPath: "/tmp/test.pdf"), self.urlResponse, self.error)
-        }
-    }
 }
 
 // MARK: Helpers

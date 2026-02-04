@@ -77,10 +77,6 @@ extension MockFileUploaderURLSession {
         fatalError("Should not be using in this mock")
     }
 
-    func downloadTask(with url: URL, completionHandler: @escaping @Sendable (URL?, URLResponse?, (any Error)?) -> Void) -> URLSessionDownloadTask {
-        fatalError("Should not be using in this mock")
-    }
-
     func uploadTask(with request: URLRequest, from bodyData: Data?, completionHandler: @escaping @Sendable (Data?, URLResponse?, (any Error)?) -> Void) -> URLSessionUploadTask {
         fatalError("Should not be using in this mock")
     }
