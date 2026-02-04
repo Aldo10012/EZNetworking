@@ -109,30 +109,7 @@ public class FileDownloader: FileDownloadable {
         }
     }
 
-    // MARK: - Core
-
-    @discardableResult
-    private func performDownloadTask(url: URL, progress: DownloadProgressHandler?, completion: @escaping (DownloadCompletionHandler)) -> URLSessionDownloadTask {
-        configureProgressTracking(progress: progress)
-
-        let task = session.urlSession.downloadTask(with: url) { [weak self] localURL, response, error in
-            guard let self else {
-                completion(.failure(.internalError(.lostReferenceOfSelf)))
-                return
-            }
-            do {
-                try validator.validateNoError(error)
-                try validator.validateStatus(from: response)
-                let localURL = try validator.validateUrl(localURL)
-
-                completion(.success(localURL))
-            } catch {
-                completion(.failure(mapError(error)))
-            }
-        }
-        task.resume()
-        return task
-    }
+    // MARK: - Helpers
 
     private func mapError(_ error: Error) -> NetworkingError {
         if let networkError = error as? NetworkingError { return networkError }
