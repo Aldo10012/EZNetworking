@@ -38,19 +38,8 @@ public class DataUploader: DataUploadable {
     @discardableResult
     public func uploadDataTask(_ data: Data, with request: Request, progress: UploadProgressHandler?, completion: @escaping (UploadCompletionHandler)) -> CancellableRequest {
         let taskBox = TaskBox()
-        let cancellableRequest = CancellableRequest {
-            taskBox.task = Task {
-                for await event in self.uploadDataStream(data, with: request) {
-                    switch event {
-                    case .progress(let double):
-                        progress?(double)
-                    case .success(let data):
-                        completion(.success(data))
-                    case .failure(let error):
-                        completion(.failure(error))
-                    }
-                }
-            }
+        let cancellableRequest = CancellableRequest { [weak self] in
+            taskBox.task = self?.createTaskAndPerform(data, with: request, progress: progress, completion: completion)
         } onCancel: {
             taskBox.task?.cancel()
         }
@@ -63,19 +52,8 @@ public class DataUploader: DataUploadable {
     public func uploadDataPublisher(_ data: Data, with request: Request, progress: UploadProgressHandler?) -> AnyPublisher<Data, NetworkingError> {
         Deferred {
             let taskBox = TaskBox()
-            return Future<Data, NetworkingError> { promise in
-                taskBox.task = Task {
-                    for await event in self.uploadDataStream(data, with: request) {
-                        switch event {
-                        case .progress(let double):
-                            progress?(double)
-                        case .success(let data):
-                            promise(.success(data))
-                        case .failure(let error):
-                            promise(.failure(error))
-                        }
-                    }
-                }
+            return Future<Data, NetworkingError> { [weak self] promise in
+                taskBox.task = self?.createTaskAndPerform(data, with: request, progress: progress, completion: { promise($0) })
             }
             .handleEvents(receiveCancel: {
                 taskBox.task?.cancel()
@@ -111,6 +89,30 @@ public class DataUploader: DataUploadable {
     }
 
     // MARK: Helpers
+
+    // MARK: Helpers
+
+    private func createTaskAndPerform(
+        _ data: Data,
+        with request: Request,
+        progress: UploadProgressHandler?,
+        completion: @escaping ((Result<Data, NetworkingError>) -> Void)
+    ) -> Task<Void, Never> {
+        Task {
+            for await event in uploadDataStream(data, with: request) {
+                switch event {
+                case .progress(let double):
+                    progress?(double)
+                case .success(let data):
+                    guard !Task.isCancelled else { return }
+                    completion(.success(data))
+                case .failure(let error):
+                    guard !Task.isCancelled else { return }
+                    completion(.failure(error))
+                }
+            }
+        }
+    }
 
     private func mapError(_ error: Error) -> NetworkingError {
         if let networkError = error as? NetworkingError { return networkError }
