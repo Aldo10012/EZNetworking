@@ -54,20 +54,24 @@ public class FileUploader: FileUploadable {
 
     public func uploadFileStream(_ fileURL: URL, with request: any Request) -> AsyncStream<UploadStreamEvent> {
         AsyncStream { continuation in
-            let progressHandler: UploadProgressHandler = { progress in
+            configureProgressTracking { progress in
                 continuation.yield(.progress(progress))
             }
-            let task = self._uploadFileTask(fileURL, with: request, progress: progressHandler) { result in
-                switch result {
-                case let .success(data):
-                    continuation.yield(.success(data))
-                case let .failure(error):
-                    continuation.yield(.failure(error))
+            let task = Task {
+                do {
+                    let urlRequest = try request.getURLRequest()
+                    let (data, urlResponse) = try await session.urlSession.upload(for: urlRequest, fromFile: fileURL)
+                    try validator.validateStatus(from: urlResponse)
+                    let validData = try validator.validateData(data)
+                    continuation.yield(.success(validData))
+                    continuation.finish()
+                } catch {
+                    continuation.yield(.failure(mapError(error)))
+                    continuation.finish()
                 }
-                continuation.finish()
             }
             continuation.onTermination = { @Sendable _ in
-                task?.cancel()
+                task.cancel()
             }
         }
     }
