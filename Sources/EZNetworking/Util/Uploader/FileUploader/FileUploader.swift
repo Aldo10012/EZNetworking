@@ -20,16 +20,17 @@ public class FileUploader: FileUploadable {
     // MARK: Async Await
 
     public func uploadFile(_ fileURL: URL, with request: any Request, progress: UploadProgressHandler?) async throws -> Data {
-        try await withCheckedThrowingContinuation { continuation in
-            self._uploadFileTask(fileURL, with: request, progress: progress) { result in
-                switch result {
-                case let .success(data):
-                    continuation.resume(returning: data)
-                case let .failure(error):
-                    continuation.resume(throwing: error)
-                }
+        for await event in uploadFileStream(fileURL, with: request) {
+            switch event {
+            case let .progress(double):
+                progress?(double)
+            case let .success(data):
+                return data
+            case let .failure(error):
+                throw error
             }
         }
+        throw NetworkingError.internalError(.unknown)
     }
 
     // MARK: Completion Handler
