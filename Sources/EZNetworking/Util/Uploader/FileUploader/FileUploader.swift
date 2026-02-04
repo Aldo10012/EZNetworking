@@ -36,8 +36,15 @@ public class FileUploader: FileUploadable {
     // MARK: Completion Handler
 
     @discardableResult
-    public func uploadFileTask(_ fileURL: URL, with request: any Request, progress: UploadProgressHandler?, completion: @escaping UploadCompletionHandler) -> URLSessionUploadTask? {
-        _uploadFileTask(fileURL, with: request, progress: progress, completion: completion)
+    public func uploadFileTask(_ fileURL: URL, with request: any Request, progress: UploadProgressHandler?, completion: @escaping UploadCompletionHandler) -> CancellableRequest? {
+        let taskBox = TaskBox()
+        let cancellableRequest = CancellableRequest { [weak self] in
+            taskBox.task = self?.createTaskAndPerform(fileURL, with: request, progress: progress, completion: completion)
+        } onCancel: {
+            taskBox.task?.cancel()
+        }
+        cancellableRequest.resume()
+        return cancellableRequest
     }
 
     // MARK: Publisher
@@ -77,8 +84,31 @@ public class FileUploader: FileUploadable {
         }
     }
 
-    // MARK: - Core
+    // MARK: - Helpers
 
+    private func createTaskAndPerform(
+        _ fileURL: URL,
+        with request: Request,
+        progress: UploadProgressHandler?,
+        completion: @escaping ((Result<Data, NetworkingError>) -> Void)
+    ) -> Task<Void, Never> {
+        Task {
+            for await event in uploadFileStream(fileURL, with: request) {
+                switch event {
+                case let .progress(double):
+                    progress?(double)
+                case let .success(data):
+                    guard !Task.isCancelled else { return }
+                    completion(.success(data))
+                case let .failure(error):
+                    guard !Task.isCancelled else { return }
+                    completion(.failure(error))
+                }
+            }
+        }
+    }
+
+    // TODO: delete
     @discardableResult
     private func _uploadFileTask(_ fileURL: URL, with request: Request, progress: UploadProgressHandler?, completion: @escaping (UploadCompletionHandler)) -> URLSessionUploadTask? {
         let request = request
@@ -121,6 +151,7 @@ public class FileUploader: FileUploadable {
         session.delegate.uploadTaskInterceptor?.progress = progress
     }
 
+    // TODO: delete
     private func getURLRequest(from request: Request) -> URLRequest? {
         do { return try request.getURLRequest() } catch { return nil }
     }
