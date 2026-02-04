@@ -17,52 +17,7 @@ public class FileUploader: FileUploadable {
         self.validator = validator
     }
 
-    // MARK: Async Await
-
-    public func uploadFile(_ fileURL: URL, with request: any Request, progress: UploadProgressHandler?) async throws -> Data {
-        for await event in uploadFileStream(fileURL, with: request) {
-            switch event {
-            case let .progress(double):
-                progress?(double)
-            case let .success(data):
-                return data
-            case let .failure(error):
-                throw error
-            }
-        }
-        throw NetworkingError.internalError(.unknown)
-    }
-
-    // MARK: Completion Handler
-
-    @discardableResult
-    public func uploadFileTask(_ fileURL: URL, with request: any Request, progress: UploadProgressHandler?, completion: @escaping UploadCompletionHandler) -> CancellableRequest? {
-        let taskBox = TaskBox()
-        let cancellableRequest = CancellableRequest { [weak self] in
-            taskBox.task = self?.createTaskAndPerform(fileURL, with: request, progress: progress, completion: completion)
-        } onCancel: {
-            taskBox.task?.cancel()
-        }
-        cancellableRequest.resume()
-        return cancellableRequest
-    }
-
-    // MARK: Publisher
-
-    public func uploadFilePublisher(_ fileURL: URL, with request: any Request, progress: UploadProgressHandler?) -> AnyPublisher<Data, NetworkingError> {
-        Deferred {
-            let taskBox = TaskBox()
-            return Future<Data, NetworkingError> { [weak self] promise in
-                taskBox.task = self?.createTaskAndPerform(fileURL, with: request, progress: progress, completion: { promise($0) })
-            }
-            .handleEvents(receiveCancel: {
-                taskBox.task?.cancel()
-            })
-        }
-        .eraseToAnyPublisher()
-    }
-
-    // MARK: AsyncStream
+    // MARK: - CORE - AsyncStream
 
     public func uploadFileStream(_ fileURL: URL, with request: any Request) -> AsyncStream<UploadStreamEvent> {
         AsyncStream { continuation in
@@ -86,6 +41,51 @@ public class FileUploader: FileUploadable {
                 task.cancel()
             }
         }
+    }
+
+    // MARK: - Adapter - async/await
+
+    public func uploadFile(_ fileURL: URL, with request: any Request, progress: UploadProgressHandler?) async throws -> Data {
+        for await event in uploadFileStream(fileURL, with: request) {
+            switch event {
+            case let .progress(double):
+                progress?(double)
+            case let .success(data):
+                return data
+            case let .failure(error):
+                throw error
+            }
+        }
+        throw NetworkingError.internalError(.unknown)
+    }
+
+    // MARK: - Adapter - callbacks
+
+    @discardableResult
+    public func uploadFileTask(_ fileURL: URL, with request: any Request, progress: UploadProgressHandler?, completion: @escaping UploadCompletionHandler) -> CancellableRequest? {
+        let taskBox = TaskBox()
+        let cancellableRequest = CancellableRequest { [weak self] in
+            taskBox.task = self?.createTaskAndPerform(fileURL, with: request, progress: progress, completion: completion)
+        } onCancel: {
+            taskBox.task?.cancel()
+        }
+        cancellableRequest.resume()
+        return cancellableRequest
+    }
+
+    // MARK: - Adapter - Publisher
+
+    public func uploadFilePublisher(_ fileURL: URL, with request: any Request, progress: UploadProgressHandler?) -> AnyPublisher<Data, NetworkingError> {
+        Deferred {
+            let taskBox = TaskBox()
+            return Future<Data, NetworkingError> { [weak self] promise in
+                taskBox.task = self?.createTaskAndPerform(fileURL, with: request, progress: progress, completion: { promise($0) })
+            }
+            .handleEvents(receiveCancel: {
+                taskBox.task?.cancel()
+            })
+        }
+        .eraseToAnyPublisher()
     }
 
     // MARK: - Helpers

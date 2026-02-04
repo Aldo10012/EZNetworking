@@ -16,7 +16,7 @@ public struct RequestPerformer: RequestPerformable {
         self.decoder = decoder
     }
 
-    // MARK: Async Await
+    // MARK: - CORE - async/await
 
     public func perform<T: Decodable & Sendable>(
         request: Request,
@@ -33,7 +33,7 @@ public struct RequestPerformer: RequestPerformable {
         }
     }
 
-    // MARK: Completion Handler
+    // MARK: - Adapter - callbacks
 
     @discardableResult
     public func performTask<T: Decodable & Sendable>(
@@ -51,7 +51,7 @@ public struct RequestPerformer: RequestPerformable {
         return cancellableRequest
     }
 
-    // MARK: Publisher
+    // MARK: - Adapter - Publisher
 
     public func performPublisher<T: Decodable & Sendable>(
         request: Request,
@@ -69,7 +69,7 @@ public struct RequestPerformer: RequestPerformable {
         .eraseToAnyPublisher()
     }
 
-    // MARK: Helpers
+    // MARK: - Helpers
 
     private func createTaskAndPerform<T: Decodable & Sendable>(
         request: Request,
