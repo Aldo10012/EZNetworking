@@ -76,6 +76,7 @@ extension MockDataUploaderURLSession {
     func download(from url: URL, delegate: (any URLSessionTaskDelegate)?) async throws -> (URL, URLResponse) {
         fatalError("Should not be using in this mock")
     }
+
     func downloadTask(with url: URL, completionHandler: @escaping @Sendable (URL?, URLResponse?, (any Error)?) -> Void) -> URLSessionDownloadTask {
         fatalError("Should not be using in this mock")
     }

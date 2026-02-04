@@ -28,11 +28,11 @@ public class FileDownloader: FileDownloadable {
     ) async throws -> URL {
         for await event in downloadFileStream(from: serverUrl) {
             switch event {
-            case .progress(let value):
+            case let .progress(value):
                 progress?(value)
-            case .success(let url):
+            case let .success(url):
                 return url
-            case .failure(let error):
+            case let .failure(error):
                 throw error
             }
         }
@@ -112,12 +112,12 @@ public class FileDownloader: FileDownloadable {
         Task {
             for await event in downloadFileStream(from: serverUrl) {
                 switch event {
-                case .progress(let value):
+                case let .progress(value):
                     progress?(value)
-                case .success(let url):
+                case let .success(url):
                     guard !Task.isCancelled else { return }
                     completion(.success(url))
-                case .failure(let error):
+                case let .failure(error):
                     guard !Task.isCancelled else { return }
                     completion(.failure(error))
                 }
