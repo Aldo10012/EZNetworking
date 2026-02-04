@@ -40,20 +40,11 @@ public class FileDownloader: FileDownloadable {
 
     @discardableResult
     public func downloadFileTask(from serverUrl: URL, progress: DownloadProgressHandler?, completion: @escaping (DownloadCompletionHandler)) -> CancellableRequest {
-        var task: Task<Void, Never>?
+        let taskBox = TaskBox()
         let cancellableRequest = CancellableRequest { [weak self] in
-            task = Task {
-                guard let self else { return }
-                for await event in self.downloadFileStream(from: serverUrl) {
-                    switch event {
-                    case .progress(let value): progress?(value)
-                    case .success(let url): completion(.success(url))
-                    case .failure(let error): completion(.failure(error))
-                    }
-                }
-            }
+            taskBox.task = self?.createTaskAndPerform(from: serverUrl, progress: progress, completion: completion)
         } onCancel: {
-            task?.cancel()
+            taskBox.task?.cancel()
         }
         cancellableRequest.resume()
         return cancellableRequest
@@ -63,20 +54,12 @@ public class FileDownloader: FileDownloadable {
 
     public func downloadFilePublisher(from serverUrl: URL, progress: DownloadProgressHandler?) -> AnyPublisher<URL, NetworkingError> {
         Deferred {
-            var task: Task<Void, Never>?
-            return Future<URL, NetworkingError> { promise in
-                task = Task {
-                    for await event in self.downloadFileStream(from: serverUrl) {
-                        switch event {
-                        case .progress(let value): progress?(value)
-                        case .success(let url): promise(.success(url))
-                        case .failure(let error): promise(.failure(error))
-                        }
-                    }
-                }
+            let taskBox = TaskBox()
+            return Future<URL, NetworkingError> { [weak self] promise in
+                taskBox.task = self?.createTaskAndPerform(from: serverUrl, progress: progress, completion: { promise($0) })
             }
             .handleEvents(receiveCancel: {
-                task?.cancel()
+                taskBox.task?.cancel()
             })
         }
         .eraseToAnyPublisher()
@@ -110,6 +93,27 @@ public class FileDownloader: FileDownloadable {
     }
 
     // MARK: - Helpers
+
+    private func createTaskAndPerform(
+        from serverUrl: URL,
+        progress: DownloadProgressHandler?,
+        completion: @escaping ((Result<URL, NetworkingError>) -> Void)
+    ) -> Task<Void, Never> {
+        Task {
+            for await event in downloadFileStream(from: serverUrl) {
+                switch event {
+                case .progress(let value):
+                    progress?(value)
+                case .success(let url):
+                    guard !Task.isCancelled else { return }
+                    completion(.success(url))
+                case .failure(let error):
+                    guard !Task.isCancelled else { return }
+                    completion(.failure(error))
+                }
+            }
+        }
+    }
 
     private func mapError(_ error: Error) -> NetworkingError {
         if let networkError = error as? NetworkingError { return networkError }
