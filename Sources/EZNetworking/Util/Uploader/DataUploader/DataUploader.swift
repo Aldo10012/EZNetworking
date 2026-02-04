@@ -36,8 +36,26 @@ public class DataUploader: DataUploadable {
     // MARK: Completion Handler
 
     @discardableResult
-    public func uploadDataTask(_ data: Data, with request: Request, progress: UploadProgressHandler?, completion: @escaping (UploadCompletionHandler)) -> URLSessionUploadTask? {
-        _uploadDataTask(data, with: request, progress: progress, completion: completion)
+    public func uploadDataTask(_ data: Data, with request: Request, progress: UploadProgressHandler?, completion: @escaping (UploadCompletionHandler)) -> CancellableRequest {
+        let taskBox = TaskBox()
+        let cancellableRequest = CancellableRequest {
+            taskBox.task = Task {
+                for await event in self.uploadDataStream(data, with: request) {
+                    switch event {
+                    case .progress(let double):
+                        progress?(double)
+                    case .success(let data):
+                        completion(.success(data))
+                    case .failure(let error):
+                        completion(.failure(error))
+                    }
+                }
+            }
+        } onCancel: {
+            taskBox.task?.cancel()
+        }
+        cancellableRequest.resume()
+        return cancellableRequest
     }
 
     // MARK: Publisher
