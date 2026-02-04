@@ -27,10 +27,8 @@ public class FileDownloader: FileDownloadable {
             switch event {
             case .progress(let value):
                 progress?(value)
-
             case .success(let url):
                 return url
-
             case .failure(let error):
                 throw error
             }
@@ -41,8 +39,25 @@ public class FileDownloader: FileDownloadable {
     // MARK: Completion Handler
 
     @discardableResult
-    public func downloadFileTask(from serverUrl: URL, progress: DownloadProgressHandler?, completion: @escaping (DownloadCompletionHandler)) -> URLSessionDownloadTask {
+    public func downloadFileTask(from serverUrl: URL, progress: DownloadProgressHandler?, completion: @escaping (DownloadCompletionHandler)) -> CancellableRequest {
         performDownloadTask(url: serverUrl, progress: progress, completion: completion)
+        var task: Task<Void, Never>?
+        let cancellableRequest = CancellableRequest { [weak self] in
+            task = Task {
+                guard let self else { return }
+                for await event in self.downloadFileStream(from: serverUrl) {
+                    switch event {
+                    case .progress(let value): progress?(value)
+                    case .success(let url): completion(.success(url))
+                    case .failure(let error): completion(.failure(error))
+                    }
+                }
+            }
+        } onCancel: {
+            task?.cancel()
+        }
+        cancellableRequest.resume()
+        return cancellableRequest
     }
 
     // MARK: Publisher

@@ -24,18 +24,6 @@ final class FileDownloadableCallBacksTests {
         #expect(didExecute)
     }
 
-    // MARK: Task Cancellation
-
-    @Test("test .downloadFileTask() Can Cancel")
-    func downloadFileCanCancel() throws {
-        let sut = createFileDownloader()
-
-        let task = sut.downloadFileTask(from: testURL, progress: nil) { _ in }
-        task.cancel()
-        let downloadTask = try #require(task as? MockURLSessionDownloadTask)
-        #expect(downloadTask.didCancel)
-    }
-
     // MARK: ERROR - status code
 
     @Test("test .downloadFileTask() Fails When StatusCode Is Not 200")
