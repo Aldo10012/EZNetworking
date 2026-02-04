@@ -61,10 +61,25 @@ public class DataUploader: DataUploadable {
     // MARK: Publisher
 
     public func uploadDataPublisher(_ data: Data, with request: Request, progress: UploadProgressHandler?) -> AnyPublisher<Data, NetworkingError> {
-        Future { promise in
-            _ = self._uploadDataTask(data, with: request, progress: progress) { result in
-                promise(result)
+        Deferred {
+            let taskBox = TaskBox()
+            return Future<Data, NetworkingError> { promise in
+                taskBox.task = Task {
+                    for await event in self.uploadDataStream(data, with: request) {
+                        switch event {
+                        case .progress(let double):
+                            progress?(double)
+                        case .success(let data):
+                            promise(.success(data))
+                        case .failure(let error):
+                            promise(.failure(error))
+                        }
+                    }
+                }
             }
+            .handleEvents(receiveCancel: {
+                taskBox.task?.cancel()
+            })
         }
         .eraseToAnyPublisher()
     }
