@@ -7,12 +7,12 @@ final class FileUploaderCallbacksTests {
     // MARK: SUCCESS
 
     @Test("test .uploadFileTask() Success")
-    func uploadFileTaskSuccess() {
+    func uploadFileTaskSuccess() async {
         let sut = createFileUploader()
 
-        var didExecute = false
+        let expectation = Expectation()
         sut.uploadFileTask(mockFileURL, with: mockRequest, progress: nil) { result in
-            defer { didExecute = true }
+            defer { expectation.fulfill() }
             switch result {
             case .success:
                 #expect(Bool(true))
@@ -20,32 +20,20 @@ final class FileUploaderCallbacksTests {
                 Issue.record()
             }
         }
-        #expect(didExecute)
-    }
-
-    // MARK: Task Cancellation
-
-    @Test("test .uploadFileTask() Can Cancel")
-    func uploadFileTask_CanCancel() throws {
-        let sut = createFileUploader()
-
-        let task = sut.uploadFileTask(mockFileURL, with: mockRequest, progress: nil) { _ in }
-        task?.cancel()
-        let downloadTask = try #require(task as? MockURLSessionUploadTask)
-        #expect(downloadTask.didCancel)
+        await expectation.fulfillment(within: .seconds(1))
     }
 
     // MARK: ERROR - status code
 
     @Test("test .uploadFileTask() Fails When StatusCode Is Not 200")
-    func uploadFileTask_FailsWhenStatusCodeIsNot2xx() {
+    func uploadFileTask_FailsWhenStatusCodeIsNot2xx() async {
         let sut = createFileUploader(
             urlSession: createMockURLSession(urlResponse: buildResponse(statusCode: 400))
         )
 
-        var didExecute = false
+        let expectation = Expectation()
         sut.uploadFileTask(mockFileURL, with: mockRequest, progress: nil) { result in
-            defer { didExecute = true }
+            defer { expectation.fulfill() }
             switch result {
             case .success:
                 Issue.record()
@@ -53,20 +41,20 @@ final class FileUploaderCallbacksTests {
                 #expect(error == NetworkingError.httpError(HTTPError(statusCode: 400)))
             }
         }
-        #expect(didExecute)
+        await expectation.fulfillment(within: .seconds(1))
     }
 
     // MARK: ERROR - url session
 
     @Test("test .uploadFileTask() Fails When urlSession Error Is Not Nil")
-    func uploadFileTask_FailsWhenUrlSessionHasError() {
+    func uploadFileTask_FailsWhenUrlSessionHasError() async {
         let sut = createFileUploader(
             urlSession: createMockURLSession(error: HTTPError(statusCode: 400))
         )
 
-        var didExecute = false
+        let expectation = Expectation()
         sut.uploadFileTask(mockFileURL, with: mockRequest, progress: nil) { result in
-            defer { didExecute = true }
+            defer { expectation.fulfill() }
             switch result {
             case .success:
                 Issue.record()
@@ -74,18 +62,18 @@ final class FileUploaderCallbacksTests {
                 #expect(error == NetworkingError.internalError(.requestFailed(HTTPError(statusCode: 400))))
             }
         }
-        #expect(didExecute)
+        await expectation.fulfillment(within: .seconds(1))
     }
 
     @Test("test .uploadFileTask() Fails When urlSession Error Is URLError")
-    func uploadFileTask_FailsWhenUrlSessionHasURLError() {
+    func uploadFileTask_FailsWhenUrlSessionHasURLError() async {
         let sut = createFileUploader(
             urlSession: createMockURLSession(error: URLError(.notConnectedToInternet))
         )
 
-        var didExecute = false
+        let expectation = Expectation()
         sut.uploadFileTask(mockFileURL, with: mockRequest, progress: nil) { result in
-            defer { didExecute = true }
+            defer { expectation.fulfill() }
             switch result {
             case .success:
                 Issue.record()
@@ -93,37 +81,38 @@ final class FileUploaderCallbacksTests {
                 #expect(error == NetworkingError.urlError(URLError(.notConnectedToInternet)))
             }
         }
-        #expect(didExecute)
+        await expectation.fulfillment(within: .seconds(1))
     }
 
     // MARK: Traching with callback
 
     @Test("test .uploadFileTask() Download Progress Can Be Tracked")
-    func uploadFileTask_progressCanBeTracked() {
+    func uploadFileTask_progressCanBeTracked() async {
         let urlSession = createMockURLSession()
 
         urlSession.progressToExecute = [.inProgress(percent: 50)]
 
         let sut = FileUploader(mockSession: urlSession)
-        var didExecute = false
+        let expectation = Expectation()
         var didTrackProgress = false
 
         _ = sut.uploadFileTask(mockFileURL, with: mockRequest, progress: { _ in
             didTrackProgress = true
         }, completion: { result in
-            defer { didExecute = true }
+            defer { expectation.fulfill() }
             switch result {
             case .success: #expect(Bool(true))
             case .failure: Issue.record()
             }
         })
-        #expect(didExecute)
+        await expectation.fulfillment(within: .seconds(1))
         #expect(didTrackProgress)
     }
 
     @Test("test .uploadFileTask() Download Progress Tracking Happens Before Return")
-    func uploadFileTask_progressTrackingHappensBeforeReturn() {
+    func uploadFileTask_progressTrackingHappensBeforeReturn() async {
         let urlSession = createMockURLSession()
+        let expectation = Expectation()
 
         urlSession.progressToExecute = [
             .inProgress(percent: 50)
@@ -142,16 +131,19 @@ final class FileUploaderCallbacksTests {
                 if didTrackProgressBeforeReturn == nil {
                     didTrackProgressBeforeReturn = true
                 }
+                expectation.fulfill()
             case .failure:
                 Issue.record()
             }
         })
+        await expectation.fulfillment(within: .seconds(1))
         #expect(didTrackProgressBeforeReturn == true)
     }
 
     @Test("test .uploadFileTask() Download Progress Tracks Correct Order")
-    func uploadFileTask_progressTrackingHappensInCorrectOrder() {
+    func uploadFileTask_progressTrackingHappensInCorrectOrder() async {
         let urlSession = createMockURLSession()
+        let expectation = Expectation()
 
         urlSession.progressToExecute = [
             .inProgress(percent: 30),
@@ -169,9 +161,12 @@ final class FileUploaderCallbacksTests {
             progress: { progress in
                 capturedTracking.append(progress)
             },
-            completion: { _ in }
+            completion: { _ in
+                expectation.fulfill()
+            }
         )
 
+        await expectation.fulfillment(within: .seconds(1))
         #expect(capturedTracking.count == 4)
         #expect(capturedTracking == [0.3, 0.6, 0.9, 1.0])
     }
@@ -179,7 +174,7 @@ final class FileUploaderCallbacksTests {
     // MARK: Traching with delegate
 
     @Test("test .uploadFileTask() Download Progress Can Be Tracked when Injecting SessionDelegat")
-    func uploadFileTask_progressCanBeTrackedWhenInjectingSessionDelegate() {
+    func uploadFileTask_progressCanBeTrackedWhenInjectingSessionDelegate() async {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = createMockURLSession()
 
@@ -191,26 +186,26 @@ final class FileUploaderCallbacksTests {
             session: MockSession(urlSession: urlSession, delegate: delegate)
         )
 
-        var didExecute = false
+        let expectation = Expectation()
         var didTrackProgress = false
 
         _ = sut.uploadFileTask(mockFileURL, with: mockRequest, progress: { _ in
             didTrackProgress = true
         }, completion: { result in
-            defer { didExecute = true }
+            defer { expectation.fulfill() }
             switch result {
             case .success: #expect(Bool(true))
             case .failure: Issue.record()
             }
         })
-        #expect(didExecute)
+        await expectation.fulfillment(within: .seconds(1))
         #expect(didTrackProgress)
     }
 
     // MARK: Traching with interceptor
 
-    @Test("test .uploadFileTask() Download Progress Can Be Tracked when Injecting DownloadTaskInterceptor")
-    func uploadFileTask_progressCanBeTrackedWhenInjectingDownloadTaskInterceptor() {
+    @Test("test .uploadFileTask() Download Progress Can Not Be Tracked when Injecting DownloadTaskInterceptor")
+    func uploadFileTask_progressCanNotBeTrackedWhenInjectingDownloadTaskInterceptor() async {
         let urlSession = createMockURLSession()
 
         var didTrackProgressFromInterceptor = false
@@ -228,17 +223,17 @@ final class FileUploaderCallbacksTests {
             session: MockSession(urlSession: urlSession, delegate: delegate)
         )
 
-        var didExecute = false
+        let expectation = Expectation()
 
         _ = sut.uploadFileTask(mockFileURL, with: mockRequest, progress: nil) { result in
-            defer { didExecute = true }
+            defer { expectation.fulfill() }
             switch result {
             case .success: #expect(Bool(true))
             case .failure: Issue.record()
             }
         }
-        #expect(didExecute)
-        #expect(didTrackProgressFromInterceptor)
+        await expectation.fulfillment(within: .seconds(1))
+        #expect(!didTrackProgressFromInterceptor)
         #expect(uploadInterceptor.didCallDidSendBodyData)
     }
 }

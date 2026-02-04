@@ -79,7 +79,7 @@ extension MockDataUploaderURLSession {
         fatalError("Should not be using in this mock")
     }
 
-    func uploadTask(with request: URLRequest, fromFile fileURL: URL, completionHandler: @escaping @Sendable (Data?, URLResponse?, (any Error)?) -> Void) -> URLSessionUploadTask {
+    func upload(for request: URLRequest, fromFile fileURL: URL) async throws -> (Data, URLResponse) {
         fatalError("Should not be using in this mock")
     }
 
