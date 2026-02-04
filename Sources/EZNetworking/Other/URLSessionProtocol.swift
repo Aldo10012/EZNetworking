@@ -5,6 +5,7 @@ public protocol URLSessionProtocol {
 
     func download(from url: URL, delegate: URLSessionTaskDelegate?) async throws -> (URL, URLResponse)
 
+    func upload(for request: URLRequest, from bodyData: Data) async throws -> (Data, URLResponse)
     func uploadTask(with request: URLRequest, from bodyData: Data?, completionHandler: @escaping @Sendable (Data?, URLResponse?, (any Error)?) -> Void) -> URLSessionUploadTask
 
     func uploadTask(with request: URLRequest, fromFile fileURL: URL, completionHandler: @escaping @Sendable (Data?, URLResponse?, (any Error)?) -> Void) -> URLSessionUploadTask

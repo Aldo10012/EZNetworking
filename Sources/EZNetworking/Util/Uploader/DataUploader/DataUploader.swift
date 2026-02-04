@@ -85,6 +85,9 @@ public class DataUploader: DataUploadable {
         }
 
         let task = session.urlSession.uploadTask(with: urlRequest, from: data) { [weak self] data, response, error in
+
+
+
             guard let self else {
                 completion(.failure(.internalError(.lostReferenceOfSelf)))
                 return
