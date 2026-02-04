@@ -20,15 +20,15 @@ final class RequestTests {
         let parameters = try #require(sut.parameters)
         #expect(parameters.count == 3)
 
-        let firstParam = try #require(parameters[0])
+        let firstParam = parameters[0]
         #expect(firstParam.key == "key_1")
         #expect(firstParam.key == "key_1")
 
-        let secondParam = try #require(parameters[1])
+        let secondParam = parameters[1]
         #expect(secondParam.key == "key_2")
         #expect(secondParam.key == "key_2")
 
-        let thirdParam = try #require(parameters[2])
+        let thirdParam = parameters[2]
         #expect(thirdParam.key == "key_3")
         #expect(thirdParam.key == "key_3")
     }
@@ -39,15 +39,15 @@ final class RequestTests {
         let headers = try #require(sut.headers)
         #expect(headers.count == 3)
 
-        let firstHeader = try #require(headers[0])
+        let firstHeader = headers[0]
         #expect(firstHeader.key == "Accept")
         #expect(firstHeader.value == "application/json")
 
-        let secondHeader = try #require(headers[1])
+        let secondHeader = headers[1]
         #expect(secondHeader.key == "Content-Type")
         #expect(secondHeader.value == "application/json")
 
-        let thirdHeader = try #require(headers[2])
+        let thirdHeader = headers[2]
         #expect(thirdHeader.key == "Authorization")
         #expect(thirdHeader.value == "Bearer api_key")
     }

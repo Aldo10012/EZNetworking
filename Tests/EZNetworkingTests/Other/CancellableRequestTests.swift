@@ -6,52 +6,52 @@ import Testing
 final class CancellableRequestTests {
     @Test("test resume callsOnResumeOnce")
     func resumeCallsOnResumeOnce() {
-        var resumeCalled = 0
-        var cancelCalled = 0
+        let resumeCalled = Counter()
+        let cancelCalled = Counter()
 
         let request = CancellableRequest(
-            onResume: { resumeCalled += 1 },
-            onCancel: { cancelCalled += 1 }
+            onResume: { resumeCalled.increment() },
+            onCancel: { cancelCalled.increment() }
         )
 
         request.resume()
         request.resume() // should not call again
 
-        #expect(resumeCalled == 1, "resume should only call onResume once")
-        #expect(cancelCalled == 0, "cancel should not be called yet")
+        #expect(resumeCalled.value == 1, "resume should only call onResume once")
+        #expect(cancelCalled.value == 0, "cancel should not be called yet")
     }
 
     @Test("test cancel callsOnCancel")
     func cancelCallsOnCancel() {
-        var resumeCalled = 0
-        var cancelCalled = 0
+        let resumeCalled = Counter()
+        let cancelCalled = Counter()
 
         let request = CancellableRequest(
-            onResume: { resumeCalled += 1 },
-            onCancel: { cancelCalled += 1 }
+            onResume: { resumeCalled.increment() },
+            onCancel: { cancelCalled.increment() }
         )
 
         request.cancel()
 
-        #expect(cancelCalled == 1, "cancel should call onCancel once")
-        #expect(resumeCalled == 0, "resume should not be called")
+        #expect(cancelCalled.value == 1, "cancel should call onCancel once")
+        #expect(resumeCalled.value == 0, "resume should not be called")
     }
 
     @Test("test resume then cancel")
     func resumeThenCancel() {
-        var resumeCalled = false
-        var cancelCalled = false
+        let resumeCalled = Flag()
+        let cancelCalled = Flag()
 
         let request = CancellableRequest(
-            onResume: { resumeCalled = true },
-            onCancel: { cancelCalled = true }
+            onResume: { resumeCalled.set() },
+            onCancel: { cancelCalled.set() }
         )
 
         request.resume()
         request.cancel()
 
-        #expect(resumeCalled, "resume should have been called")
-        #expect(cancelCalled, "cancel should have been called")
+        #expect(resumeCalled.isSet, "resume should have been called")
+        #expect(cancelCalled.isSet, "cancel should have been called")
     }
 
     @Test("test hasStarted flag")
@@ -64,5 +64,43 @@ final class CancellableRequestTests {
         #expect(!request.hasStarted)
         request.resume()
         #expect(request.hasStarted)
+    }
+}
+
+// MARK: - Test Helpers
+
+/// Thread-safe counter for testing @Sendable closures
+private final class Counter: @unchecked Sendable {
+    private let lock = NSLock()
+    private var _value: Int = 0
+
+    var value: Int {
+        lock.lock()
+        defer { lock.unlock() }
+        return _value
+    }
+
+    func increment() {
+        lock.lock()
+        defer { lock.unlock() }
+        _value += 1
+    }
+}
+
+/// Thread-safe boolean flag for testing @Sendable closures
+private final class Flag: @unchecked Sendable {
+    private let lock = NSLock()
+    private var _isSet: Bool = false
+
+    var isSet: Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        return _isSet
+    }
+
+    func set() {
+        lock.lock()
+        defer { lock.unlock() }
+        _isSet = true
     }
 }

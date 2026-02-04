@@ -29,7 +29,6 @@ final class RequestFactoryTests {
             timeoutInterval: timeoutInterval
         )
 
-        #expect(request != nil)
         #expect(request.baseUrl == "https://example.com/api")
         #expect(request.httpMethod == httpMethod)
         #expect(request.parameters == parameters)
@@ -54,7 +53,6 @@ final class RequestFactoryTests {
             timeoutInterval: 60
         )
 
-        #expect(request != nil)
         #expect(request.baseUrl == "https://example.com/api")
         #expect(request.httpMethod == httpMethod)
         #expect(request.parameters == nil)
