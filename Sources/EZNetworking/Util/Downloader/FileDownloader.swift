@@ -63,10 +63,22 @@ public class FileDownloader: FileDownloadable {
     // MARK: Publisher
 
     public func downloadFilePublisher(from serverUrl: URL, progress: DownloadProgressHandler?) -> AnyPublisher<URL, NetworkingError> {
-        Future { promise in
-            self.performDownloadTask(url: serverUrl, progress: progress) { result in
-                promise(result)
+        Deferred {
+            var task: Task<Void, Never>?
+            return Future<URL, NetworkingError> { promise in
+                task = Task {
+                    for await event in self.downloadFileStream(from: serverUrl) {
+                        switch event {
+                        case .progress(let value): progress?(value)
+                        case .success(let url): promise(.success(url))
+                        case .failure(let error): promise(.failure(error))
+                        }
+                    }
+                }
             }
+            .handleEvents(receiveCancel: {
+                task?.cancel()
+            })
         }
         .eraseToAnyPublisher()
     }

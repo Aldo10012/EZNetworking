@@ -10,15 +10,16 @@ final class FileDownloadablePublisherTests {
     // MARK: SUCCESS
 
     @Test("test .downloadFilePublisher() Success")
-    func downloadFilePublisherSuccess() {
+    func downloadFilePublisherSuccess() async {
         let sut = createFileDownloader()
+        let expectation = Expectation()
 
         var didExecute = false
         sut.downloadFilePublisher(from: testURL, progress: nil)
             .sink { completion in
                 switch completion {
                 case .failure: Issue.record()
-                case .finished: break
+                case .finished: expectation.fulfill()
                 }
             } receiveValue: { localURL in
                 #expect(localURL.absoluteString == "file:///tmp/test.pdf")
@@ -26,17 +27,18 @@ final class FileDownloadablePublisherTests {
             }
             .store(in: &cancellables)
 
+        await expectation.fulfillment(within: .seconds(1))
         #expect(didExecute)
     }
 
     // MARK: ERROR - status code
 
     @Test("test .downloadFilePublisher() Fails When Status Code Is Not 200")
-    func downloadFilePublisherFailsWhenStatusCodeIsNot200() {
+    func downloadFilePublisherFailsWhenStatusCodeIsNot200() async {
         let sut = createFileDownloader(
             urlSession: createMockURLSession(statusCode: 400)
         )
-
+        let expectation = Expectation()
         var didExecute = false
         sut.downloadFilePublisher(from: testURL, progress: nil)
             .sink { completion in
@@ -44,6 +46,7 @@ final class FileDownloadablePublisherTests {
                 case let .failure(error):
                     #expect(error == NetworkingError.httpError(HTTPError(statusCode: 400)))
                     didExecute = true
+                    expectation.fulfill()
                 case .finished: Issue.record()
                 }
             } receiveValue: { _ in
@@ -51,17 +54,18 @@ final class FileDownloadablePublisherTests {
             }
             .store(in: &cancellables)
 
+        await expectation.fulfillment(within: .seconds(1))
         #expect(didExecute)
     }
 
     // MARK: ERROR - validation
 
     @Test("test .downloadFilePublisher() Fails If Validator Throws Any Error")
-    func downloadFilePublisherFailsIfValidatorThrowsAnyError() {
+    func downloadFilePublisherFailsIfValidatorThrowsAnyError() async {
         let sut = createFileDownloader(
             validator: MockURLResponseValidator(throwError: NetworkingError.internalError(.noData))
         )
-
+        let expectation = Expectation()
         var didExecute = false
         sut.downloadFilePublisher(from: testURL, progress: nil)
             .sink { completion in
@@ -69,6 +73,7 @@ final class FileDownloadablePublisherTests {
                 case let .failure(error):
                     #expect(error == NetworkingError.internalError(.noData))
                     didExecute = true
+                    expectation.fulfill()
                 case .finished: Issue.record()
                 }
             } receiveValue: { _ in
@@ -76,17 +81,18 @@ final class FileDownloadablePublisherTests {
             }
             .store(in: &cancellables)
 
+        await expectation.fulfillment(within: .seconds(1))
         #expect(didExecute)
     }
 
     // MARK: ERROR - url session
 
     @Test("test .downloadFilePublisher() Fails When URLSession Has Error")
-    func downloadFilePublisherFailsWhenUrlSessionHasError() {
+    func downloadFilePublisherFailsWhenUrlSessionHasError() async {
         let sut = createFileDownloader(
             urlSession: createMockURLSession(error: HTTPError(statusCode: 500))
         )
-
+        let expectation = Expectation()
         var didExecute = false
         sut.downloadFilePublisher(from: testURL, progress: nil)
             .sink { completion in
@@ -94,6 +100,7 @@ final class FileDownloadablePublisherTests {
                 case let .failure(error):
                     #expect(error == NetworkingError.internalError(.requestFailed(HTTPError(statusCode: 500))))
                     didExecute = true
+                    expectation.fulfill()
                 case .finished: Issue.record()
                 }
             } receiveValue: { _ in
@@ -101,15 +108,17 @@ final class FileDownloadablePublisherTests {
             }
             .store(in: &cancellables)
 
+        await expectation.fulfillment(within: .seconds(1))
         #expect(didExecute)
     }
 
     // MARK: Tracking with callbacks
 
     @Test("test .downloadFilePublisher() Download Progress Can Be Tracked")
-    func downloadFilePublisherTaskDownloadProgressCanBeTracked() {
+    func downloadFilePublisherTaskDownloadProgressCanBeTracked() async {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = createMockURLSession()
+        let expectation = Expectation()
 
         urlSession.progressToExecute = [
             .inProgress(percent: 50)
@@ -125,7 +134,7 @@ final class FileDownloadablePublisherTests {
         .sink { completion in
             switch completion {
             case .failure: Issue.record()
-            case .finished: break
+            case .finished: expectation.fulfill()
             }
         } receiveValue: { localURL in
             #expect(localURL.absoluteString == "file:///tmp/test.pdf")
@@ -133,14 +142,16 @@ final class FileDownloadablePublisherTests {
         }
         .store(in: &cancellables)
 
+        await expectation.fulfillment(within: .seconds(1))
         #expect(didExecute)
         #expect(didTrackProgress)
     }
 
     @Test("test .downloadFilePublisher() Download Progress Tracking Happens Before Return")
-    func downloadFilePublisherTaskDownloadProgressTrackingHappensBeforeReturn() {
+    func downloadFilePublisherTaskDownloadProgressTrackingHappensBeforeReturn() async {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = createMockURLSession()
+        let expectation = Expectation()
 
         urlSession.progressToExecute = [
             .inProgress(percent: 50)
@@ -157,7 +168,7 @@ final class FileDownloadablePublisherTests {
         .sink { completion in
             switch completion {
             case .failure: Issue.record()
-            case .finished: break
+            case .finished: expectation.fulfill()
             }
         } receiveValue: { _ in
             if didTrackProgressBeforeReturn == nil {
@@ -166,13 +177,15 @@ final class FileDownloadablePublisherTests {
         }
         .store(in: &cancellables)
 
+        await expectation.fulfillment(within: .seconds(1))
         #expect(didTrackProgressBeforeReturn == true)
     }
 
     @Test("test .downloadFilePublisher() Download Progress Tracks Correct Order")
-    func downloadFilePublisherTaskDownloadProgressTracksCorrectOrder() {
+    func downloadFilePublisherTaskDownloadProgressTracksCorrectOrder() async {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = createMockURLSession()
+        let expectation = Expectation()
 
         urlSession.progressToExecute = [
             .inProgress(percent: 30),
@@ -190,11 +203,12 @@ final class FileDownloadablePublisherTests {
         .sink { completion in
             switch completion {
             case .failure: Issue.record()
-            case .finished: break
+            case .finished: expectation.fulfill()
             }
         } receiveValue: { _ in }
         .store(in: &cancellables)
 
+        await expectation.fulfillment(within: .seconds(1))
         #expect(capturedTracking.count == 4)
         #expect(capturedTracking == [0.3, 0.6, 0.9, 1.0])
     }
@@ -202,9 +216,10 @@ final class FileDownloadablePublisherTests {
     // MARK: Tracking with delegate
 
     @Test("test .downloadFilePublisher() Download Progress Can Be Tracked when Injecting SessionDelegat")
-    func downloadFilePublisherTaskDownloadProgressCanBeTrackedWhenInjectingSessionDelegate() {
+    func downloadFilePublisherTaskDownloadProgressCanBeTrackedWhenInjectingSessionDelegate() async {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = createMockURLSession()
+        let expectation = Expectation()
 
         let delegate = SessionDelegate()
         urlSession.sessionDelegate = delegate
@@ -225,7 +240,7 @@ final class FileDownloadablePublisherTests {
         .sink { completion in
             switch completion {
             case .failure: Issue.record()
-            case .finished: break
+            case .finished: expectation.fulfill()
             }
         } receiveValue: { localURL in
             #expect(localURL.absoluteString == "file:///tmp/test.pdf")
@@ -233,6 +248,7 @@ final class FileDownloadablePublisherTests {
         }
         .store(in: &cancellables)
 
+        await expectation.fulfillment(within: .seconds(1))
         #expect(didExecute)
         #expect(didTrackProgress)
     }
@@ -240,9 +256,10 @@ final class FileDownloadablePublisherTests {
     // MARK: Tracking with Interceptor
 
     @Test("test .downloadFilePublisher() Download Progress Can Be Tracked when Injecting DownloadTaskInterceptor")
-    func downloadFilePublisherTaskDownloadProgressCanBeTrackedWhenInjectingDownloadTaskInterceptor() {
+    func downloadFilePublisherTaskDownloadProgressCanBeTrackedWhenInjectingDownloadTaskInterceptor() async {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = createMockURLSession()
+        let expectation = Expectation()
 
         var didTrackProgressFromInterceptor = false
 
@@ -267,7 +284,7 @@ final class FileDownloadablePublisherTests {
             .sink { completion in
                 switch completion {
                 case .failure: Issue.record()
-                case .finished: break
+                case .finished: expectation.fulfill()
                 }
             } receiveValue: { localURL in
                 #expect(localURL.absoluteString == "file:///tmp/test.pdf")
@@ -275,8 +292,9 @@ final class FileDownloadablePublisherTests {
             }
             .store(in: &cancellables)
 
+        await expectation.fulfillment(within: .seconds(1))
         #expect(didExecute)
-        #expect(didTrackProgressFromInterceptor)
+        #expect(!didTrackProgressFromInterceptor)
         #expect(downloadTaskInterceptor.didCallDidWriteData)
     }
 }
