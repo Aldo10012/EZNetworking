@@ -40,7 +40,6 @@ public class FileDownloader: FileDownloadable {
 
     @discardableResult
     public func downloadFileTask(from serverUrl: URL, progress: DownloadProgressHandler?, completion: @escaping (DownloadCompletionHandler)) -> CancellableRequest {
-        performDownloadTask(url: serverUrl, progress: progress, completion: completion)
         var task: Task<Void, Never>?
         let cancellableRequest = CancellableRequest { [weak self] in
             task = Task {
