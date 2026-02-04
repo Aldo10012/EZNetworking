@@ -22,11 +22,11 @@ public class DataUploader: DataUploadable {
     public func uploadData(_ data: Data, with request: Request, progress: UploadProgressHandler?) async throws -> Data {
         for await event in uploadDataStream(data, with: request) {
             switch event {
-            case .progress(let double):
+            case let .progress(double):
                 progress?(double)
-            case .success(let data):
+            case let .success(data):
                 return data
-            case .failure(let error):
+            case let .failure(error):
                 throw error
             }
         }
@@ -99,12 +99,12 @@ public class DataUploader: DataUploadable {
         Task {
             for await event in uploadDataStream(data, with: request) {
                 switch event {
-                case .progress(let double):
+                case let .progress(double):
                     progress?(double)
-                case .success(let data):
+                case let .success(data):
                     guard !Task.isCancelled else { return }
                     completion(.success(data))
-                case .failure(let error):
+                case let .failure(error):
                     guard !Task.isCancelled else { return }
                     completion(.failure(error))
                 }
