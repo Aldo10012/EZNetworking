@@ -105,17 +105,15 @@ public class FileUploader: FileUploadable {
     private func mapError(_ error: Error) -> NetworkingError {
         if let networkError = error as? NetworkingError { return networkError }
         if let urlError = error as? URLError { return .urlError(urlError) }
-        return .internalError(.unknown)
+        return .internalError(.requestFailed(error))
     }
 
     private func configureProgressTracking(progress: UploadProgressHandler?) {
         guard let progress else { return }
-        if session.delegate.uploadTaskInterceptor != nil {
-            session.delegate.uploadTaskInterceptor?.progress = progress
-        } else {
-            fallbackUploadTaskInterceptor.progress = progress
+        if session.delegate.uploadTaskInterceptor == nil {
             session.delegate.uploadTaskInterceptor = fallbackUploadTaskInterceptor
         }
+        session.delegate.uploadTaskInterceptor?.progress = progress
     }
 
     private func getURLRequest(from request: Request) -> URLRequest? {
