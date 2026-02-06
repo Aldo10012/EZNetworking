@@ -72,7 +72,7 @@ final class CancellableRequestTests {
 /// Thread-safe counter for testing @Sendable closures
 private final class Counter: @unchecked Sendable {
     private let lock = NSLock()
-    private var _value: Int = 0
+    private var _value = 0
 
     var value: Int {
         lock.lock()
@@ -90,7 +90,7 @@ private final class Counter: @unchecked Sendable {
 /// Thread-safe boolean flag for testing @Sendable closures
 private final class Flag: @unchecked Sendable {
     private let lock = NSLock()
-    private var _isSet: Bool = false
+    private var _isSet = false
 
     var isSet: Bool {
         lock.lock()
