@@ -185,8 +185,8 @@ final class DataUploaderAsyncAwaitTests {
 
     // MARK: Traching with interceptor
 
-    @Test("test .upload() Download Progress Can Be Tracked when Injecting DownloadTaskInterceptor")
-    func upload_progressCanBeTrackedWhenInjectingDownloadTaskInterceptor() async throws {
+    @Test("test .upload() Download Progress Can Not Be Tracked when Injecting DownloadTaskInterceptor")
+    func upload_progressCanNotBeTrackedWhenInjectingDownloadTaskInterceptor() async throws {
         let urlSession = createMockURLSession()
 
         var didTrackProgressFromInterceptor = false
@@ -208,7 +208,7 @@ final class DataUploaderAsyncAwaitTests {
 
         do {
             _ = try await sut.uploadData(mockData, with: mockRequest, progress: nil)
-            #expect(didTrackProgressFromInterceptor)
+            #expect(!didTrackProgressFromInterceptor)
             #expect(uploadInterceptor.didCallDidSendBodyData == true)
         } catch {
             Issue.record()

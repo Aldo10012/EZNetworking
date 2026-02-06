@@ -20,7 +20,10 @@ public class DataUploader: DataUploadable {
     // MARK: - CORE - async/await
 
     public func uploadData(_ data: Data, with request: Request, progress: UploadProgressHandler?) async throws -> Data {
-        configureProgressTracking(progress: progress)
+        configureProgressTracking { percentage in
+            guard !Task.isCancelled else { return }
+            progress?(percentage)
+        }
         do {
             let urlRequest = try request.getURLRequest()
             let (data, urlResponse) = try await session.urlSession.upload(for: urlRequest, from: data)

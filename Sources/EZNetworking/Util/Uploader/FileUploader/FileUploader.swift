@@ -20,7 +20,10 @@ public class FileUploader: FileUploadable {
     // MARK: - CORE - async/await
 
     public func uploadFile(_ fileURL: URL, with request: any Request, progress: UploadProgressHandler?) async throws -> Data {
-        configureProgressTracking(progress: progress)
+        configureProgressTracking { percentage in
+            guard !Task.isCancelled else { return }
+            progress?(percentage)
+        }
         do {
             let urlRequest = try request.getURLRequest()
             let (data, urlResponse) = try await session.urlSession.upload(for: urlRequest, fromFile: fileURL)

@@ -26,7 +26,10 @@ public class FileDownloader: FileDownloadable {
         from serverUrl: URL,
         progress: DownloadProgressHandler? = nil
     ) async throws -> URL {
-        configureProgressTracking(progress: progress)
+        configureProgressTracking { percentage in
+            guard !Task.isCancelled else { return }
+            progress?(percentage)
+        }
         do {
             let (localURL, response) = try await session.urlSession.download(from: serverUrl, delegate: nil)
             try Task.checkCancellation()
