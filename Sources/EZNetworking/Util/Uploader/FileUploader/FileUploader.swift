@@ -24,6 +24,7 @@ public class FileUploader: FileUploadable {
         do {
             let urlRequest = try request.getURLRequest()
             let (data, urlResponse) = try await session.urlSession.upload(for: urlRequest, fromFile: fileURL)
+            try Task.checkCancellation()
             try validator.validateStatus(from: urlResponse)
             let validData = try validator.validateData(data)
             return validData

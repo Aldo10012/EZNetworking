@@ -29,6 +29,7 @@ public class FileDownloader: FileDownloadable {
         configureProgressTracking(progress: progress)
         do {
             let (localURL, response) = try await session.urlSession.download(from: serverUrl, delegate: nil)
+            try Task.checkCancellation()
             try validator.validateStatus(from: response)
             let url = try validator.validateUrl(localURL)
             return url
