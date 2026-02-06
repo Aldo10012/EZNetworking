@@ -26,7 +26,7 @@ public struct URLBuilder {
             throw NetworkingError.internalError(.noURL)
         }
         guard let url = URL(string: urlString) else {
-            throw NetworkingError.internalError(.invalidURL)
+            throw NetworkingError.couldNotBuildURLRequest(reason: .invalidURL)
         }
         guard let scheme = url.scheme?.lowercased(), allowedSchemes.values.contains(scheme) else {
             throw NetworkingError.couldNotBuildURLRequest(reason: .invalidScheme(url.scheme))

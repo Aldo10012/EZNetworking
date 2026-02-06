@@ -3,7 +3,6 @@ import Foundation
 public enum InternalError: Error {
     // URL error
     case noURL
-    case invalidURL
 
     case couldNotParse(underlying: Error)
     case requestFailed(Error)
@@ -14,7 +13,6 @@ extension InternalError: Equatable {
     public static func == (lhs: InternalError, rhs: InternalError) -> Bool {
         switch (lhs, rhs) {
         case (.noURL, .noURL),
-             (.invalidURL, .invalidURL),
              (.noHTTPURLResponse, .noHTTPURLResponse):
             true
 

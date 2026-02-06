@@ -11,12 +11,11 @@ final class InternalErrorTests {
 
     @Test("test Different InternalError Are Not Equatable")
     func differentInternalErrorAreNotEquatable() {
-        #expect(InternalError.noHTTPURLResponse != InternalError.invalidURL)
+        #expect(InternalError.noHTTPURLResponse != InternalError.couldNotParse(underlying: NSError(domain: "test", code: -1)))
     }
 
     private static let InternalErrorList: [InternalError] = [
         InternalError.noURL,
-        InternalError.invalidURL,
         InternalError.couldNotParse(underlying: NSError(domain: "test", code: -1)),
         InternalError.requestFailed(NetworkingError.httpError(.init(statusCode: 400, headers: [:]))),
         InternalError.noHTTPURLResponse
