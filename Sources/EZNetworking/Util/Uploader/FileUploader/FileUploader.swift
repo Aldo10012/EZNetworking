@@ -17,7 +17,22 @@ public class FileUploader: FileUploadable {
         self.validator = validator
     }
 
-    // MARK: - CORE - AsyncStream
+    // MARK: - CORE - async/await
+
+    public func uploadFile(_ fileURL: URL, with request: any Request, progress: UploadProgressHandler?) async throws -> Data {
+        configureProgressTracking(progress: progress)
+        do {
+            let urlRequest = try request.getURLRequest()
+            let (data, urlResponse) = try await session.urlSession.upload(for: urlRequest, fromFile: fileURL)
+            try validator.validateStatus(from: urlResponse)
+            let validData = try validator.validateData(data)
+            return validData
+        } catch {
+            throw mapError(error)
+        }
+    }
+
+    // MARK: - Adapter - AsyncStream
 
     public func uploadFileStream(_ fileURL: URL, with request: any Request) -> AsyncStream<UploadStreamEvent> {
         AsyncStream { continuation in
@@ -36,21 +51,6 @@ public class FileUploader: FileUploadable {
             continuation.onTermination = { @Sendable _ in
                 task.cancel()
             }
-        }
-    }
-
-    // MARK: - Adapter - async/await
-
-    public func uploadFile(_ fileURL: URL, with request: any Request, progress: UploadProgressHandler?) async throws -> Data {
-        configureProgressTracking(progress: progress)
-        do {
-            let urlRequest = try request.getURLRequest()
-            let (data, urlResponse) = try await session.urlSession.upload(for: urlRequest, fromFile: fileURL)
-            try validator.validateStatus(from: urlResponse)
-            let validData = try validator.validateData(data)
-            return validData
-        } catch {
-            throw mapError(error)
         }
     }
 
