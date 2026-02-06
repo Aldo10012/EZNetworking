@@ -4,12 +4,6 @@ import Foundation
 struct MockURLResponseValidator: ResponseValidator {
     var throwError: NetworkingError?
 
-    func validateNoError(_ error: (any Error)?) throws {
-        if let throwError {
-            throw throwError
-        }
-    }
-
     func validateStatus(from urlResponse: URLResponse?) throws {
         if let throwError {
             throw throwError

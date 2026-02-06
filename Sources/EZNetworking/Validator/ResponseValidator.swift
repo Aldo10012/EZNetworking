@@ -1,7 +1,6 @@
 import Foundation
 
 public protocol ResponseValidator {
-    func validateNoError(_ error: Error?) throws
     func validateStatus(from urlResponse: URLResponse?) throws
     func validateData(_ data: Data?) throws -> Data
     func validateUrl(_ url: URL?) throws -> URL
@@ -9,15 +8,6 @@ public protocol ResponseValidator {
 
 public struct ResponseValidatorImpl: ResponseValidator {
     public init() {}
-
-    public func validateNoError(_ error: Error?) throws {
-        if let error {
-            if let urlError = error as? URLError {
-                throw NetworkingError.urlError(urlError)
-            }
-            throw NetworkingError.internalError(.requestFailed(error))
-        }
-    }
 
     public func validateStatus(from urlResponse: URLResponse?) throws {
         guard let urlResponse else {
