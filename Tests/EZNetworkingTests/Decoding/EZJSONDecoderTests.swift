@@ -22,10 +22,15 @@ final class EZJSONDecoderTests {
             _ = try sut.decode(Person.self, from: MockData.invalidMockPersonJsonData)
             Issue.record("Unexpected error)")
         } catch let error as NetworkingError {
-            if case let .internalError(.couldNotParse(underlying)) = error {
-                #expect(underlying is DecodingError)
-            } else {
-                Issue.record("expected couldNotParse")
+            switch error {
+            case let .decodingFailed(reason):
+                if case .decodingError = reason {
+                    #expect(Bool(true))
+                } else {
+                    Issue.record("expected DecodingError")
+                }
+            default:
+                Issue.record("expected to throw error")
             }
         }
     }
