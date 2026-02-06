@@ -1,6 +1,8 @@
 import Foundation
 
 public enum NetworkingError: Error {
+    case couldNotBuildURLRequest(reason: URLBuildFailureReason)
+
     case internalError(InternalError) /// any internal error
     case httpError(HTTPError) /// any HRRP error
     case urlError(URLError) /// any URL error
@@ -9,6 +11,9 @@ public enum NetworkingError: Error {
 extension NetworkingError: Equatable {
     public static func == (lhs: NetworkingError, rhs: NetworkingError) -> Bool {
         switch (lhs, rhs) {
+        case let (.couldNotBuildURLRequest(reason: reason1), .couldNotBuildURLRequest(reason: reason2)):
+            reason1 == reason2
+
         case let (.internalError(error1), .internalError(error2)):
             error1 == error2
 

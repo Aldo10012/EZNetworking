@@ -71,7 +71,7 @@ final class FileDownloadableAsyncStreamTests {
             session: MockSession(
                 urlSession: createMockURLSession()
             ),
-            validator: MockURLResponseValidator(throwError: NetworkingError.internalError(.invalidURL))
+            validator: MockURLResponseValidator(throwError: NetworkingError.couldNotBuildURLRequest(reason: .invalidURL))
         )
 
         var events: [DownloadStreamEvent] = []
@@ -82,7 +82,7 @@ final class FileDownloadableAsyncStreamTests {
         #expect(events.count == 1)
         switch events[0] {
         case let .failure(error):
-            #expect(error == NetworkingError.internalError(.invalidURL))
+            #expect(error == NetworkingError.couldNotBuildURLRequest(reason: .invalidURL))
         default:
             Issue.record()
         }

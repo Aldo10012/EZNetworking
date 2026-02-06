@@ -9,20 +9,20 @@ final class URLBuilderTests {
 
     @Test("test URLBuilder with empty url")
     func uRLBuilderWithEmptyURL() throws {
-        #expect(throws: NetworkingError.internalError(.noURL)) {
+        #expect(throws: NetworkingError.couldNotBuildURLRequest(reason: .noURL)) {
             _ = try httpURLBuilder.buildAndValidate("")
         }
-        #expect(throws: NetworkingError.internalError(.noURL)) {
+        #expect(throws: NetworkingError.couldNotBuildURLRequest(reason: .noURL)) {
             _ = try wsURLBuilder.buildAndValidate("")
         }
     }
 
     @Test("test URLBuilder with invalid url")
     func uRLBuilderWithInvalidURL() throws {
-        #expect(throws: NetworkingError.internalError(.invalidScheme(nil))) {
+        #expect(throws: NetworkingError.couldNotBuildURLRequest(reason: .invalidScheme(nil))) {
             _ = try httpURLBuilder.buildAndValidate("not a url")
         }
-        #expect(throws: NetworkingError.internalError(.invalidScheme(nil))) {
+        #expect(throws: NetworkingError.couldNotBuildURLRequest(reason: .invalidScheme(nil))) {
             _ = try wsURLBuilder.buildAndValidate("not a url")
         }
     }
@@ -30,19 +30,19 @@ final class URLBuilderTests {
     @Test("test URLBuilder with invalid scheme")
     func uRLBuilderWithInvalidScheme() throws {
         // test http url when expecting ws or wss scheme
-        #expect(throws: NetworkingError.internalError(.invalidScheme("http"))) {
+        #expect(throws: NetworkingError.couldNotBuildURLRequest(reason: .invalidScheme("http"))) {
             _ = try wsURLBuilder.buildAndValidate("http://www.example.com")
         }
         // test https url when expecting ws or wss scheme
-        #expect(throws: NetworkingError.internalError(.invalidScheme("https"))) {
+        #expect(throws: NetworkingError.couldNotBuildURLRequest(reason: .invalidScheme("https"))) {
             _ = try wsURLBuilder.buildAndValidate("https://www.example.com")
         }
         // test ws url when expecting http or https scheme
-        #expect(throws: NetworkingError.internalError(.invalidScheme("ws"))) {
+        #expect(throws: NetworkingError.couldNotBuildURLRequest(reason: .invalidScheme("ws"))) {
             _ = try httpURLBuilder.buildAndValidate("ws://www.example.coml")
         }
         // test wss url when expecting http or https scheme
-        #expect(throws: NetworkingError.internalError(.invalidScheme("wss"))) {
+        #expect(throws: NetworkingError.couldNotBuildURLRequest(reason: .invalidScheme("wss"))) {
             _ = try httpURLBuilder.buildAndValidate("wss://www.example.com")
         }
     }
@@ -50,19 +50,19 @@ final class URLBuilderTests {
     @Test("test URLBuilder when url is missing host")
     func uRLBuilderWhenUrlIsMissingHost() throws {
         // test http url when expecting http or https scheme but host is missing
-        #expect(throws: NetworkingError.internalError(.missingHost)) {
+        #expect(throws: NetworkingError.couldNotBuildURLRequest(reason: .missingHost)) {
             _ = try httpURLBuilder.buildAndValidate("http://")
         }
         // test https url when expecting http or https scheme but host is missing
-        #expect(throws: NetworkingError.internalError(.missingHost)) {
+        #expect(throws: NetworkingError.couldNotBuildURLRequest(reason: .missingHost)) {
             _ = try httpURLBuilder.buildAndValidate("https://")
         }
         // test ws url when expecting ws or wss scheme but host is missing
-        #expect(throws: NetworkingError.internalError(.missingHost)) {
+        #expect(throws: NetworkingError.couldNotBuildURLRequest(reason: .missingHost)) {
             _ = try wsURLBuilder.buildAndValidate("ws://")
         }
         // test wss url when expecting ws or wss scheme but host is missing
-        #expect(throws: NetworkingError.internalError(.missingHost)) {
+        #expect(throws: NetworkingError.couldNotBuildURLRequest(reason: .missingHost)) {
             _ = try wsURLBuilder.buildAndValidate("wss://")
         }
     }
