@@ -29,7 +29,7 @@ public struct URLBuilder {
             throw NetworkingError.internalError(.invalidURL)
         }
         guard let scheme = url.scheme?.lowercased(), allowedSchemes.values.contains(scheme) else {
-            throw NetworkingError.internalError(.invalidScheme(url.scheme))
+            throw NetworkingError.couldNotBuildURLRequest(reason: .invalidScheme(url.scheme))
         }
         guard url.host != nil else {
             throw NetworkingError.couldNotBuildURLRequest(reason: .missingHost)

@@ -4,7 +4,6 @@ public enum InternalError: Error {
     // URL error
     case noURL
     case invalidURL
-    case invalidScheme(String?)
 
     case couldNotParse(underlying: Error)
     case requestFailed(Error)
@@ -22,9 +21,6 @@ extension InternalError: Equatable {
         case let (.requestFailed(lhsError), .requestFailed(rhsError)),
              let (.couldNotParse(underlying: lhsError), .couldNotParse(underlying: rhsError)):
             (lhsError as NSError) == (rhsError as NSError)
-
-        case let (.invalidScheme(lhsScheme), .invalidScheme(rhsScheme)):
-            lhsScheme == rhsScheme
 
         default:
             false
