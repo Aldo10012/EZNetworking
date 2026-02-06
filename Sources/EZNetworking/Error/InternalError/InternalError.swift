@@ -8,31 +8,17 @@ public enum InternalError: Error {
     case missingHost
 
     case couldNotParse(underlying: Error)
-    case invalidError
-    case noData
-    case noResponse
     case requestFailed(Error)
-    case noRequest
     case noHTTPURLResponse
-    case invalidImageData
-    case lostReferenceOfSelf
-    case unknown
 }
 
 extension InternalError: Equatable {
     public static func == (lhs: InternalError, rhs: InternalError) -> Bool {
         switch (lhs, rhs) {
-        case (.unknown, .unknown),
-             (.noURL, .noURL),
+        case (.noURL, .noURL),
              (.invalidURL, .invalidURL),
              (.missingHost, .missingHost),
-             (.invalidError, .invalidError),
-             (.noData, .noData),
-             (.noResponse, .noResponse),
-             (.noRequest, .noRequest),
-             (.noHTTPURLResponse, .noHTTPURLResponse),
-             (.invalidImageData, .invalidImageData),
-             (.lostReferenceOfSelf, .lostReferenceOfSelf):
+             (.noHTTPURLResponse, .noHTTPURLResponse):
             true
 
         case let (.requestFailed(lhsError), .requestFailed(rhsError)),
