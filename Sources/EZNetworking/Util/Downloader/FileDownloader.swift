@@ -20,22 +20,41 @@ public class FileDownloader: FileDownloadable {
         self.decoder = decoder
     }
 
-    // MARK: - CORE - AsyncStream
+    // MARK: - CORE - async/await
+
+    public func downloadFile(
+        from serverUrl: URL,
+        progress: DownloadProgressHandler? = nil
+    ) async throws -> URL {
+        try Task.checkCancellation()
+        configureProgressTracking { percentage in
+            guard !Task.isCancelled else { return }
+            progress?(percentage)
+        }
+        do {
+            let (localURL, response) = try await session.urlSession.download(from: serverUrl, delegate: nil)
+            try Task.checkCancellation()
+            try validator.validateStatus(from: response)
+            let url = try validator.validateUrl(localURL)
+            return url
+        } catch {
+            throw mapError(error)
+        }
+    }
+
+    // MARK: - Adapter - AsyncStream
 
     public func downloadFileStream(from serverUrl: URL) -> AsyncStream<DownloadStreamEvent> {
         AsyncStream { continuation in
-            configureProgressTracking { progress in
-                continuation.yield(.progress(progress))
-            }
             let task = Task {
                 do {
-                    let (localURL, response) = try await session.urlSession.download(from: serverUrl, delegate: nil)
-                    try validator.validateStatus(from: response)
-                    let url = try validator.validateUrl(localURL)
+                    let url = try await downloadFile(from: serverUrl) {
+                        continuation.yield(.progress($0))
+                    }
                     continuation.yield(.success(url))
                     continuation.finish()
                 } catch is CancellationError {
-                    // optional: silently finish or emit failure
+                    continuation.finish()
                 } catch {
                     continuation.yield(.failure(mapError(error)))
                     continuation.finish()
@@ -45,25 +64,6 @@ public class FileDownloader: FileDownloadable {
                 task.cancel()
             }
         }
-    }
-
-    // MARK: - Adapter - async/await
-
-    public func downloadFile(
-        from serverUrl: URL,
-        progress: DownloadProgressHandler? = nil
-    ) async throws -> URL {
-        for await event in downloadFileStream(from: serverUrl) {
-            switch event {
-            case let .progress(value):
-                progress?(value)
-            case let .success(url):
-                return url
-            case let .failure(error):
-                throw error
-            }
-        }
-        throw NetworkingError.internalError(.unknown)
     }
 
     // MARK: - Adapter - callbacks
@@ -110,17 +110,13 @@ public class FileDownloader: FileDownloadable {
         completion: @escaping ((Result<URL, NetworkingError>) -> Void)
     ) -> Task<Void, Never> {
         Task {
-            for await event in downloadFileStream(from: serverUrl) {
-                switch event {
-                case let .progress(value):
-                    progress?(value)
-                case let .success(url):
-                    guard !Task.isCancelled else { return }
-                    completion(.success(url))
-                case let .failure(error):
-                    guard !Task.isCancelled else { return }
-                    completion(.failure(error))
-                }
+            do {
+                let url = try await downloadFile(from: serverUrl, progress: progress)
+                completion(.success(url))
+            } catch is CancellationError {
+                // Do nothing, task has been cancelled
+            } catch {
+                completion(.failure(mapError(error)))
             }
         }
     }

@@ -17,20 +17,38 @@ public class FileUploader: FileUploadable {
         self.validator = validator
     }
 
-    // MARK: - CORE - AsyncStream
+    // MARK: - CORE - async/await
+
+    public func uploadFile(_ fileURL: URL, with request: any Request, progress: UploadProgressHandler?) async throws -> Data {
+        try Task.checkCancellation()
+        configureProgressTracking { percentage in
+            guard !Task.isCancelled else { return }
+            progress?(percentage)
+        }
+        do {
+            let urlRequest = try request.getURLRequest()
+            let (data, urlResponse) = try await session.urlSession.upload(for: urlRequest, fromFile: fileURL)
+            try Task.checkCancellation()
+            try validator.validateStatus(from: urlResponse)
+            let validData = try validator.validateData(data)
+            return validData
+        } catch {
+            throw mapError(error)
+        }
+    }
+
+    // MARK: - Adapter - AsyncStream
 
     public func uploadFileStream(_ fileURL: URL, with request: any Request) -> AsyncStream<UploadStreamEvent> {
         AsyncStream { continuation in
-            configureProgressTracking { progress in
-                continuation.yield(.progress(progress))
-            }
             let task = Task {
                 do {
-                    let urlRequest = try request.getURLRequest()
-                    let (data, urlResponse) = try await session.urlSession.upload(for: urlRequest, fromFile: fileURL)
-                    try validator.validateStatus(from: urlResponse)
-                    let validData = try validator.validateData(data)
-                    continuation.yield(.success(validData))
+                    let data = try await uploadFile(fileURL, with: request) {
+                        continuation.yield(.progress($0))
+                    }
+                    continuation.yield(.success(data))
+                    continuation.finish()
+                } catch is CancellationError {
                     continuation.finish()
                 } catch {
                     continuation.yield(.failure(mapError(error)))
@@ -41,22 +59,6 @@ public class FileUploader: FileUploadable {
                 task.cancel()
             }
         }
-    }
-
-    // MARK: - Adapter - async/await
-
-    public func uploadFile(_ fileURL: URL, with request: any Request, progress: UploadProgressHandler?) async throws -> Data {
-        for await event in uploadFileStream(fileURL, with: request) {
-            switch event {
-            case let .progress(double):
-                progress?(double)
-            case let .success(data):
-                return data
-            case let .failure(error):
-                throw error
-            }
-        }
-        throw NetworkingError.internalError(.unknown)
     }
 
     // MARK: - Adapter - callbacks
@@ -97,17 +99,13 @@ public class FileUploader: FileUploadable {
         completion: @escaping ((Result<Data, NetworkingError>) -> Void)
     ) -> Task<Void, Never> {
         Task {
-            for await event in uploadFileStream(fileURL, with: request) {
-                switch event {
-                case let .progress(double):
-                    progress?(double)
-                case let .success(data):
-                    guard !Task.isCancelled else { return }
-                    completion(.success(data))
-                case let .failure(error):
-                    guard !Task.isCancelled else { return }
-                    completion(.failure(error))
-                }
+            do {
+                let data = try await uploadFile(fileURL, with: request, progress: progress)
+                completion(.success(data))
+            } catch is CancellationError {
+                // Do nothing, task has been cancelled
+            } catch {
+                completion(.failure(mapError(error)))
             }
         }
     }

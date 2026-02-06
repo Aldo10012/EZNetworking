@@ -6,9 +6,9 @@ public typealias DownloadCompletionHandler = (Result<URL, NetworkingError>) -> V
 
 public protocol FileDownloadable {
     func downloadFile(from serverUrl: URL, progress: DownloadProgressHandler?) async throws -> URL
+    func downloadFileStream(from serverUrl: URL) -> AsyncStream<DownloadStreamEvent>
     func downloadFileTask(from serverUrl: URL, progress: DownloadProgressHandler?, completion: @escaping (DownloadCompletionHandler)) -> CancellableRequest
     func downloadFilePublisher(from serverUrl: URL, progress: DownloadProgressHandler?) -> AnyPublisher<URL, NetworkingError>
-    func downloadFileStream(from serverUrl: URL) -> AsyncStream<DownloadStreamEvent>
 }
 
 public enum DownloadStreamEvent {
