@@ -11,10 +11,6 @@ public struct ResponseValidatorImpl: ResponseValidator {
         guard let httpURLResponse = urlResponse as? HTTPURLResponse else {
             throw NetworkingError.internalError(.noHTTPURLResponse)
         }
-        try validateStatusCodeAccepability(from: httpURLResponse)
-    }
-
-    private func validateStatusCodeAccepability(from httpURLResponse: HTTPURLResponse) throws {
         let statusCode = HTTPError(
             statusCode: httpURLResponse.statusCode,
             headers: httpURLResponse.allHeaderFields
