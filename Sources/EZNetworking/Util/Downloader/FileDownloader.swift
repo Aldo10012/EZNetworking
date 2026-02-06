@@ -20,7 +20,24 @@ public class FileDownloader: FileDownloadable {
         self.decoder = decoder
     }
 
-    // MARK: - CORE - AsyncStream
+    // MARK: - CORE - async/await
+
+    public func downloadFile(
+        from serverUrl: URL,
+        progress: DownloadProgressHandler? = nil
+    ) async throws -> URL {
+        configureProgressTracking(progress: progress)
+        do {
+            let (localURL, response) = try await session.urlSession.download(from: serverUrl, delegate: nil)
+            try validator.validateStatus(from: response)
+            let url = try validator.validateUrl(localURL)
+            return url
+        } catch {
+            throw mapError(error)
+        }
+    }
+
+    // MARK: - Adapter - AsyncStream
 
     public func downloadFileStream(from serverUrl: URL) -> AsyncStream<DownloadStreamEvent> {
         AsyncStream { continuation in
@@ -41,23 +58,6 @@ public class FileDownloader: FileDownloadable {
             continuation.onTermination = { @Sendable _ in
                 task.cancel()
             }
-        }
-    }
-
-    // MARK: - Adapter - async/await
-
-    public func downloadFile(
-        from serverUrl: URL,
-        progress: DownloadProgressHandler? = nil
-    ) async throws -> URL {
-        configureProgressTracking(progress: progress)
-        do {
-            let (localURL, response) = try await session.urlSession.download(from: serverUrl, delegate: nil)
-            try validator.validateStatus(from: response)
-            let url = try validator.validateUrl(localURL)
-            return url
-        } catch {
-            throw mapError(error)
         }
     }
 
