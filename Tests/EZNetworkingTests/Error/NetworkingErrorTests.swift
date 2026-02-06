@@ -4,7 +4,6 @@ import Testing
 
 @Suite("Test NetworkingError")
 final class NetworkingErrorTests {
-
     // MARK: .couldNotBuildURLRequest(reason:_)
 
     @Test("test NetworkingError.couldNotBuildURLRequest(_) equatability")

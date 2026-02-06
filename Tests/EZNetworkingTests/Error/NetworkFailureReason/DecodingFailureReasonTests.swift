@@ -50,11 +50,11 @@ private class MockCodingKey: CodingKey {
 
     required init?(stringValue: String) {
         self.stringValue = ""
-        self.intValue = 0
+        intValue = 0
     }
 
     required init?(intValue: Int) {
-        self.stringValue = ""
+        stringValue = ""
         self.intValue = 0
     }
 }
