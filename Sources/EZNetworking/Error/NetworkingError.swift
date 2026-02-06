@@ -13,8 +13,14 @@ public enum NetworkingError: Error {
 extension NetworkingError: Equatable {
     public static func == (lhs: NetworkingError, rhs: NetworkingError) -> Bool {
         switch (lhs, rhs) {
-        case let (.couldNotBuildURLRequest(reason: error1), .couldNotBuildURLRequest(reason: error2)):
-            error1 == error2
+        case let (.couldNotBuildURLRequest(reason: reason1), .couldNotBuildURLRequest(reason: reason2)):
+            reason1 == reason2
+        case let (.decodingFailed(reason: reason1), .decodingFailed(reason: reason2)):
+            reason1 == reason2
+        case let (.responseValidationFailed(reason: reason1), .responseValidationFailed(reason: reason2)):
+            reason1 == reason2
+        case let (.requestFailedReason(reason: reason1), .requestFailedReason(reason: reason2)):
+            reason1 == reason2
 
         case let (.internalError(error1), .internalError(error2)):
             error1 == error2
