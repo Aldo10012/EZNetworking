@@ -8,20 +8,6 @@ final class URLResponseValidatorTests {
 
     private struct SomeUnknownError: Error {}
 
-    // MARK: - test validateData()
-
-    @Test("test validateData givenData NoThrow")
-    func validateData_givenData_NoThrow() throws {
-        #expect(throws: Never.self) { try sut.validateData(MockData.mockPersonJsonData) }
-    }
-
-    @Test("test validateData givenNilData Throws")
-    func validateData_givenNilData_Throws() throws {
-        #expect(throws: NetworkingError.internalError(.noData).self) {
-            try sut.validateData(nil)
-        }
-    }
-
     // MARK: - test validateUrl()
 
     @Test("test validateUrl givenData NoThrow")
