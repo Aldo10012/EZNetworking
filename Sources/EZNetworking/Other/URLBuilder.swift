@@ -23,7 +23,7 @@ public struct URLBuilder {
 
     public func buildAndValidate(_ urlString: String) throws -> URL {
         guard !urlString.isEmpty else {
-            throw NetworkingError.internalError(.noURL)
+            throw NetworkingError.couldNotBuildURLRequest(reason: .noURL)
         }
         guard let url = URL(string: urlString) else {
             throw NetworkingError.couldNotBuildURLRequest(reason: .invalidURL)

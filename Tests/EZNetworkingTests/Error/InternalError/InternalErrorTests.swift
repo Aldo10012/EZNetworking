@@ -15,7 +15,6 @@ final class InternalErrorTests {
     }
 
     private static let InternalErrorList: [InternalError] = [
-        InternalError.noURL,
         InternalError.couldNotParse(underlying: NSError(domain: "test", code: -1)),
         InternalError.requestFailed(NetworkingError.httpError(.init(statusCode: 400, headers: [:]))),
         InternalError.noHTTPURLResponse

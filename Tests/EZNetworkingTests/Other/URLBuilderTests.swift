@@ -9,10 +9,10 @@ final class URLBuilderTests {
 
     @Test("test URLBuilder with empty url")
     func uRLBuilderWithEmptyURL() throws {
-        #expect(throws: NetworkingError.internalError(.noURL)) {
+        #expect(throws: NetworkingError.couldNotBuildURLRequest(reason: .noURL)) {
             _ = try httpURLBuilder.buildAndValidate("")
         }
-        #expect(throws: NetworkingError.internalError(.noURL)) {
+        #expect(throws: NetworkingError.couldNotBuildURLRequest(reason: .noURL)) {
             _ = try wsURLBuilder.buildAndValidate("")
         }
     }
