@@ -10,7 +10,6 @@ public enum InternalError: Error {
     case couldNotParse(underlying: Error)
     case requestFailed(Error)
     case noHTTPURLResponse
-    case lostReferenceOfSelf
     case unknown
 }
 
@@ -21,8 +20,7 @@ extension InternalError: Equatable {
              (.noURL, .noURL),
              (.invalidURL, .invalidURL),
              (.missingHost, .missingHost),
-             (.noHTTPURLResponse, .noHTTPURLResponse),
-             (.lostReferenceOfSelf, .lostReferenceOfSelf):
+             (.noHTTPURLResponse, .noHTTPURLResponse):
             true
 
         case let (.requestFailed(lhsError), .requestFailed(rhsError)),
