@@ -71,7 +71,7 @@ final class DataUploaderPublisherTests {
             .sink { completion in
                 switch completion {
                 case let .failure(error):
-                    #expect(error == NetworkingError.internalError(.requestFailed(HTTPError(statusCode: 500))))
+                    #expect(error == NetworkingError.internalError(.requestFailed(underlying: HTTPError(statusCode: 500))))
                     expectation.fulfill()
                 case .finished: Issue.record()
                 }

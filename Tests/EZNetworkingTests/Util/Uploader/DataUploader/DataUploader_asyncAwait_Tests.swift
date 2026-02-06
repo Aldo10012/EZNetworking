@@ -79,7 +79,7 @@ final class DataUploaderAsyncAwaitTests {
     func upload_withHTTPError300_throwsError() async throws {
         let session = createMockURLSession(error: HTTPError(statusCode: 300))
         let sut = createDataUploader(urlSession: session)
-        await #expect(throws: NetworkingError.internalError(.requestFailed(HTTPError(statusCode: 300)))) {
+        await #expect(throws: NetworkingError.internalError(.requestFailed(underlying: HTTPError(statusCode: 300)))) {
             try await sut.uploadData(mockData, with: mockRequest, progress: nil)
         }
     }
@@ -88,7 +88,7 @@ final class DataUploaderAsyncAwaitTests {
     func upload_withHTTPError400_throwsError() async throws {
         let session = createMockURLSession(error: HTTPError(statusCode: 400))
         let sut = createDataUploader(urlSession: session)
-        await #expect(throws: NetworkingError.internalError(.requestFailed(HTTPError(statusCode: 400)))) {
+        await #expect(throws: NetworkingError.internalError(.requestFailed(underlying: HTTPError(statusCode: 400)))) {
             try await sut.uploadData(mockData, with: mockRequest, progress: nil)
         }
     }
@@ -97,7 +97,7 @@ final class DataUploaderAsyncAwaitTests {
     func upload_withHTTPError500_throwsError() async throws {
         let session = createMockURLSession(error: HTTPError(statusCode: 500))
         let sut = createDataUploader(urlSession: session)
-        await #expect(throws: NetworkingError.internalError(.requestFailed(HTTPError(statusCode: 500)))) {
+        await #expect(throws: NetworkingError.internalError(.requestFailed(underlying: HTTPError(statusCode: 500)))) {
             try await sut.uploadData(mockData, with: mockRequest, progress: nil)
         }
     }

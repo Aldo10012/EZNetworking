@@ -10,6 +10,6 @@ final class InternalErrorTests {
     }
 
     private static let errorList: [InternalError] = [
-        InternalError.requestFailed(NSError(domain: "", code: 0, userInfo: nil))
+        InternalError.requestFailed(underlying: NSError(domain: "", code: 0, userInfo: nil))
     ]
 }

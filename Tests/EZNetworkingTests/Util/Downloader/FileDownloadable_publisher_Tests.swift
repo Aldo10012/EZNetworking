@@ -106,7 +106,7 @@ final class FileDownloadablePublisherTests {
             .sink { completion in
                 switch completion {
                 case let .failure(error):
-                    #expect(error == NetworkingError.internalError(.requestFailed(HTTPError(statusCode: 500))))
+                    #expect(error == NetworkingError.internalError(.requestFailed(underlying: HTTPError(statusCode: 500))))
                     didExecute = true
                     expectation.fulfill()
                 case .finished: Issue.record()

@@ -89,7 +89,7 @@ final class RequestPerformableAsyncAwaitTests {
         let sut = createRequestPerformer(
             urlSession: createMockURLSession(error: HTTPError(statusCode: 400))
         )
-        await #expect(throws: NetworkingError.internalError(.requestFailed(HTTPError(statusCode: 400)))) {
+        await #expect(throws: NetworkingError.internalError(.requestFailed(underlying: HTTPError(statusCode: 400)))) {
             try await sut.perform(request: MockRequest(), decodeTo: Person.self)
         }
     }
@@ -99,7 +99,7 @@ final class RequestPerformableAsyncAwaitTests {
         let sut = createRequestPerformer(
             urlSession: createMockURLSession(error: HTTPError(statusCode: 500))
         )
-        await #expect(throws: NetworkingError.internalError(.requestFailed(HTTPError(statusCode: 500)))) {
+        await #expect(throws: NetworkingError.internalError(.requestFailed(underlying: HTTPError(statusCode: 500)))) {
             try await sut.perform(request: MockRequest(), decodeTo: Person.self)
         }
     }
@@ -122,7 +122,7 @@ final class RequestPerformableAsyncAwaitTests {
         let sut = createRequestPerformer(
             urlSession: createMockURLSession(error: UnknownError.unknownError)
         )
-        await #expect(throws: NetworkingError.internalError(.requestFailed(UnknownError.unknownError))) {
+        await #expect(throws: NetworkingError.internalError(.requestFailed(underlying: UnknownError.unknownError))) {
             try await sut.perform(request: MockRequest(), decodeTo: Person.self)
         }
     }

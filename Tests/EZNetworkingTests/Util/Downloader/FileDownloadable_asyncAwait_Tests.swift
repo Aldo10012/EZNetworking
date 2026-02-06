@@ -72,7 +72,7 @@ final class FileDownloadableAsyncAwaitTests {
             _ = try await sut.downloadFile(from: testURL)
             Issue.record("unexpected error")
         } catch let error as NetworkingError {
-            #expect(error == NetworkingError.internalError(.requestFailed(DummyError.error)))
+            #expect(error == NetworkingError.internalError(.requestFailed(underlying: DummyError.error)))
         }
     }
 

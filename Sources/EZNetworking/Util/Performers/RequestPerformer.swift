@@ -96,6 +96,6 @@ public struct RequestPerformer: RequestPerformable {
     private func mapError(_ error: Error) -> NetworkingError {
         if let networkError = error as? NetworkingError { return networkError }
         if let urlError = error as? URLError { return .urlError(urlError) }
-        return .internalError(.requestFailed(error))
+        return .internalError(.requestFailed(underlying: error))
     }
 }

@@ -143,7 +143,7 @@ final class RequestPerformableCallbacksTests {
             case .success:
                 Issue.record()
             case let .failure(error):
-                #expect(error == NetworkingError.internalError(.requestFailed(UnknownError.error)))
+                #expect(error == NetworkingError.internalError(.requestFailed(underlying: UnknownError.error)))
             }
         }
         await expectation.fulfillment(within: .seconds(1))

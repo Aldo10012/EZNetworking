@@ -148,7 +148,7 @@ final class RequestPerformablepublisherTests {
             .sink(receiveCompletion: { completion in
                 switch completion {
                 case let .failure(error):
-                    #expect(error == NetworkingError.internalError(.requestFailed(UnknownError.error)))
+                    #expect(error == NetworkingError.internalError(.requestFailed(underlying: UnknownError.error)))
                     expectation.fulfill()
                 case .finished: Issue.record()
                 }

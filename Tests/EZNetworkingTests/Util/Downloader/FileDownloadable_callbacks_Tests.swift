@@ -89,7 +89,7 @@ final class FileDownloadableCallBacksTests {
             case .success:
                 Issue.record()
             case let .failure(error):
-                #expect(error == NetworkingError.internalError(.requestFailed(HTTPError(statusCode: 500))))
+                #expect(error == NetworkingError.internalError(.requestFailed(underlying: HTTPError(statusCode: 500))))
             }
         }
         await expectation.fulfillment(within: .seconds(1))

@@ -63,7 +63,7 @@ final class FileUploaderCallbacksTests {
             case .success:
                 Issue.record()
             case let .failure(error):
-                #expect(error == NetworkingError.internalError(.requestFailed(HTTPError(statusCode: 400))))
+                #expect(error == NetworkingError.internalError(.requestFailed(underlying: HTTPError(statusCode: 400))))
             }
         }
         await expectation.fulfillment(within: .seconds(1))

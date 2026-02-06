@@ -1,7 +1,7 @@
 import Foundation
 
 public enum InternalError: Equatable, Sendable {
-    case requestFailed(Error)
+    case requestFailed(underlying: Error)
 
     public static func == (lhs: InternalError, rhs: InternalError) -> Bool {
         switch (lhs, rhs) {
