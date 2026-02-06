@@ -203,8 +203,8 @@ final class FileUploaderCallbacksTests {
 
     // MARK: Traching with interceptor
 
-    @Test("test .uploadFileTask() Download Progress Can Not Be Tracked when Injecting DownloadTaskInterceptor")
-    func uploadFileTask_progressCanNotBeTrackedWhenInjectingDownloadTaskInterceptor() async {
+    @Test("test .uploadFileTask() Download Progress Can Be Tracked when Injecting DownloadTaskInterceptor")
+    func uploadFileTask_progressCanBeTrackedWhenInjectingDownloadTaskInterceptor() async {
         let urlSession = createMockURLSession()
 
         var didTrackProgressFromInterceptor = false
@@ -232,7 +232,7 @@ final class FileUploaderCallbacksTests {
             }
         }
         await expectation.fulfillment(within: .seconds(1))
-        #expect(!didTrackProgressFromInterceptor)
+        #expect(didTrackProgressFromInterceptor)
         #expect(uploadInterceptor.didCallDidSendBodyData)
     }
 }
