@@ -8,63 +8,7 @@ final class URLResponseValidatorTests {
 
     private struct SomeUnknownError: Error {}
 
-    // MARK: - test validateNoError()
-
-    @Test("test validateNoError givenNilError NoThrow")
-    func validateNoError_givenNilError_NoThrow() throws {
-        #expect(throws: Never.self) { try sut.validateNoError(nil) }
-    }
-
-    @Test("test validateNoError givenURLError Throws")
-    func validateNoError_givenURLError_Throws() throws {
-        #expect(throws: NetworkingError.urlError(URLError(.notConnectedToInternet)).self) {
-            try sut.validateNoError(URLError(.notConnectedToInternet))
-        }
-    }
-
-    @Test("test validateNoError givenClientError Throws")
-    func validateNoError_givenClientError_Throws() throws {
-        #expect(throws: NetworkingError.internalError(.requestFailed(SomeUnknownError())).self) {
-            try sut.validateNoError(SomeUnknownError())
-        }
-    }
-
-    // MARK: - test validateData()
-
-    @Test("test validateData givenData NoThrow")
-    func validateData_givenData_NoThrow() throws {
-        #expect(throws: Never.self) { try sut.validateData(MockData.mockPersonJsonData) }
-    }
-
-    @Test("test validateData givenNilData Throws")
-    func validateData_givenNilData_Throws() throws {
-        #expect(throws: NetworkingError.internalError(.noData).self) {
-            try sut.validateData(nil)
-        }
-    }
-
-    // MARK: - test validateUrl()
-
-    @Test("test validateUrl givenData NoThrow")
-    func validateUrl_givenData_NoThrow() throws {
-        #expect(throws: Never.self) { try sut.validateUrl(URL(string: "https://www.example.com")!) }
-    }
-
-    @Test("test validateUrl givenNilData Throws")
-    func validateUrl_givenNilData_Throws() throws {
-        #expect(throws: NetworkingError.internalError(.noURL).self) {
-            try sut.validateUrl(nil)
-        }
-    }
-
     // MARK: - test validateStatus()
-
-    @Test("test validateStatus givenNilResponse Throws")
-    func validateStatus_givenNilResponse_Throws() throws {
-        #expect(throws: NetworkingError.internalError(.noResponse).self) {
-            try sut.validateStatus(from: nil)
-        }
-    }
 
     @Test("test validateStatus givenURLResponse Throws")
     func validateStatus_givenURLResponse_Throws() throws {

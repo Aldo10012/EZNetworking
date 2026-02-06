@@ -28,8 +28,7 @@ public struct RequestPerformer: RequestPerformable {
             let (data, urlResponse) = try await session.urlSession.data(for: urlRequest)
             try Task.checkCancellation()
             try validator.validateStatus(from: urlResponse)
-            let validData = try validator.validateData(data)
-            return try decoder.decode(decodableObject, from: validData)
+            return try decoder.decode(decodableObject, from: data)
         } catch let cancellationError as CancellationError {
             throw cancellationError
         } catch {

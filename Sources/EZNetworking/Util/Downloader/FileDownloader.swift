@@ -35,8 +35,7 @@ public class FileDownloader: FileDownloadable {
             let (localURL, response) = try await session.urlSession.download(from: serverUrl, delegate: nil)
             try Task.checkCancellation()
             try validator.validateStatus(from: response)
-            let url = try validator.validateUrl(localURL)
-            return url
+            return localURL
         } catch let cancellationError as CancellationError {
             throw cancellationError
         } catch {

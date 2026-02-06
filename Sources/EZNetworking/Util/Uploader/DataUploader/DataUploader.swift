@@ -30,8 +30,7 @@ public class DataUploader: DataUploadable {
             let (data, urlResponse) = try await session.urlSession.upload(for: urlRequest, from: data)
             try Task.checkCancellation()
             try validator.validateStatus(from: urlResponse)
-            let validData = try validator.validateData(data)
-            return validData
+            return data
         } catch let cancellationError as CancellationError {
             throw cancellationError
         } catch {
