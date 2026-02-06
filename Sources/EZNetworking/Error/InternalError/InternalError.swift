@@ -10,14 +10,12 @@ public enum InternalError: Error {
     case couldNotParse(underlying: Error)
     case requestFailed(Error)
     case noHTTPURLResponse
-    case unknown
 }
 
 extension InternalError: Equatable {
     public static func == (lhs: InternalError, rhs: InternalError) -> Bool {
         switch (lhs, rhs) {
-        case (.unknown, .unknown),
-             (.noURL, .noURL),
+        case (.noURL, .noURL),
              (.invalidURL, .invalidURL),
              (.missingHost, .missingHost),
              (.noHTTPURLResponse, .noHTTPURLResponse):
