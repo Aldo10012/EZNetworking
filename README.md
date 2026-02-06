@@ -78,14 +78,14 @@ Add EZNetworking to your project using Swift Package Manager:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/Aldo10012/EZNetworking.git", from: "4.1.0")
+    .package(url: "https://github.com/Aldo10012/EZNetworking.git", from: "5.1.0")
 ]
 ```
 
 Or through Xcode:
 1. Go to File > Add Packages
 2. Enter: `https://github.com/Aldo10012/EZNetworking.git`
-3. Select version: 3.1.0 or later
+3. Select version: 5.1.0 or later
 
 ## Quick Start Guide 🚀
 
