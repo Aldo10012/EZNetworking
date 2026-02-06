@@ -23,16 +23,16 @@ public struct URLBuilder {
 
     public func buildAndValidate(_ urlString: String) throws -> URL {
         guard !urlString.isEmpty else {
-            throw NetworkingError.internalError(.noURL)
+            throw NetworkingError.couldNotBuildURLRequest(reason: .noURL)
         }
         guard let url = URL(string: urlString) else {
-            throw NetworkingError.internalError(.invalidURL)
+            throw NetworkingError.couldNotBuildURLRequest(reason: .invalidURL)
         }
         guard let scheme = url.scheme?.lowercased(), allowedSchemes.values.contains(scheme) else {
-            throw NetworkingError.internalError(.invalidScheme(url.scheme))
+            throw NetworkingError.couldNotBuildURLRequest(reason: .invalidScheme(url.scheme))
         }
         guard url.host != nil else {
-            throw NetworkingError.internalError(.missingHost)
+            throw NetworkingError.couldNotBuildURLRequest(reason: .missingHost)
         }
         return url
     }
