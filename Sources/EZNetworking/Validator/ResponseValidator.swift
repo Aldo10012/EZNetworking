@@ -9,7 +9,7 @@ public struct ResponseValidatorImpl: ResponseValidator {
 
     public func validateStatus(from urlResponse: URLResponse) throws {
         guard let httpURLResponse = urlResponse as? HTTPURLResponse else {
-            throw NetworkingError.responseValidationFailure(reason: .noHTTPURLResponse)
+            throw NetworkingError.responseValidationFailed(reason: .noHTTPURLResponse)
         }
         let httpError = HTTPError(
             statusCode: httpURLResponse.statusCode,
@@ -19,7 +19,7 @@ public struct ResponseValidatorImpl: ResponseValidator {
         if httpError.category == .success {
             return // successful http response (2xx) do not throw error
         }
-        throw NetworkingError.responseValidationFailure(reason: .badHTTPResponse(underlying: httpError))
+        throw NetworkingError.responseValidationFailed(reason: .badHTTPResponse(underlying: httpError))
     }
 }
 

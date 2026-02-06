@@ -56,7 +56,7 @@ final class FileDownloadableAsyncStreamTests {
         #expect(events.count == 1)
         switch events[0] {
         case let .failure(error):
-            if case .responseValidationFailure(reason: .badHTTPResponse(underlying: let httpError)) = error {
+            if case .responseValidationFailed(reason: .badHTTPResponse(underlying: let httpError)) = error {
                 #expect(httpError.statusCode == 400)
             } else {
                 Issue.record("Unexpected error")
@@ -75,7 +75,7 @@ final class FileDownloadableAsyncStreamTests {
             session: MockSession(
                 urlSession: createMockURLSession()
             ),
-            validator: MockURLResponseValidator(throwError: NetworkingError.responseValidationFailure(reason: .noHTTPURLResponse))
+            validator: MockURLResponseValidator(throwError: NetworkingError.responseValidationFailed(reason: .noHTTPURLResponse))
         )
 
         var events: [DownloadStreamEvent] = []
@@ -86,7 +86,7 @@ final class FileDownloadableAsyncStreamTests {
         #expect(events.count == 1)
         switch events[0] {
         case let .failure(error):
-            if case .responseValidationFailure = error {
+            if case .responseValidationFailed = error {
                 #expect(Bool(true))
             } else {
                 #expect(Bool(false))

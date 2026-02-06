@@ -47,7 +47,7 @@ final class RequestPerformablepublisherTests {
             .sink(receiveCompletion: { completion in
                 switch completion {
                 case let .failure(error):
-                    if case .responseValidationFailure(reason: .badHTTPResponse(underlying: let httpError)) = error {
+                    if case .responseValidationFailed(reason: .badHTTPResponse(underlying: let httpError)) = error {
                         #expect(httpError.statusCode == 300)
                     } else {
                         Issue.record("Unexpected error")
@@ -72,7 +72,7 @@ final class RequestPerformablepublisherTests {
             .sink(receiveCompletion: { completion in
                 switch completion {
                 case let .failure(error):
-                   if case .responseValidationFailure(reason: .badHTTPResponse(underlying: let httpError)) = error {
+                   if case .responseValidationFailed(reason: .badHTTPResponse(underlying: let httpError)) = error {
                 #expect(httpError.statusCode == 400)
             } else {
                 Issue.record("Unexpected error")
@@ -97,7 +97,7 @@ final class RequestPerformablepublisherTests {
             .sink(receiveCompletion: { completion in
                 switch completion {
                 case let .failure(error):
-                   if case .responseValidationFailure(reason: .badHTTPResponse(underlying: let httpError)) = error {
+                   if case .responseValidationFailed(reason: .badHTTPResponse(underlying: let httpError)) = error {
                 #expect(httpError.statusCode == 500)
             } else {
                 Issue.record("Unexpected error")
@@ -171,7 +171,7 @@ final class RequestPerformablepublisherTests {
             .sink(receiveCompletion: { completion in
                 switch completion {
                 case let .failure(error):
-                    if case .decodingFailure = error {
+                    if case .decodingFailed = error {
                         #expect(Bool(true))
                     } else {
                         Issue.record()

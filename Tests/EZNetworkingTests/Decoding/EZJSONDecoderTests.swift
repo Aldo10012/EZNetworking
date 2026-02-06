@@ -23,7 +23,7 @@ final class EZJSONDecoderTests {
             Issue.record("Unexpected error)")
         } catch let error as NetworkingError {
             switch error {
-            case .decodingFailure(let reason):
+            case .decodingFailed(let reason):
                 switch reason {
                 case let .decodingError(underlying: error):
                     #expect(Bool(true))

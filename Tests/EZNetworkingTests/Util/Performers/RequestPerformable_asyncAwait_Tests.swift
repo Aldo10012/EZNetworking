@@ -42,7 +42,7 @@ final class RequestPerformableAsyncAwaitTests {
         do {
             _ = try await sut.perform(request: MockRequest(), decodeTo: EmptyResponse.self)
         } catch let error as NetworkingError {
-            if case .responseValidationFailure(reason: .badHTTPResponse(underlying: let httpError)) = error {
+            if case .responseValidationFailed(reason: .badHTTPResponse(underlying: let httpError)) = error {
                 #expect(httpError.statusCode == 300)
             } else {
                 Issue.record("Unexpected error")
@@ -58,7 +58,7 @@ final class RequestPerformableAsyncAwaitTests {
         do {
             _ = try await sut.perform(request: MockRequest(), decodeTo: EmptyResponse.self)
         } catch let error as NetworkingError {
-            if case .responseValidationFailure(reason: .badHTTPResponse(underlying: let httpError)) = error {
+            if case .responseValidationFailed(reason: .badHTTPResponse(underlying: let httpError)) = error {
                 #expect(httpError.statusCode == 400)
             } else {
                 Issue.record("Unexpected error")
@@ -74,7 +74,7 @@ final class RequestPerformableAsyncAwaitTests {
         do {
             _ = try await sut.perform(request: MockRequest(), decodeTo: EmptyResponse.self)
         } catch let error as NetworkingError {
-            if case .responseValidationFailure(reason: .badHTTPResponse(underlying: let httpError)) = error {
+            if case .responseValidationFailed(reason: .badHTTPResponse(underlying: let httpError)) = error {
                 #expect(httpError.statusCode == 500)
             } else {
                 Issue.record("Unexpected error")
@@ -137,7 +137,7 @@ final class RequestPerformableAsyncAwaitTests {
         do {
             _ = try await sut.perform(request: MockRequest(), decodeTo: Person.self)
         } catch {
-            if case NetworkingError.decodingFailure = error {
+            if case NetworkingError.decodingFailed = error {
                 #expect(Bool(true))
             } else {
                 Issue.record()

@@ -44,7 +44,7 @@ final class FileUploaderAsyncStreamTests {
         #expect(events.count == 1)
         switch events[0] {
         case let .failure(error):
-           if case .responseValidationFailure(reason: .badHTTPResponse(underlying: let httpError)) = error {
+           if case .responseValidationFailed(reason: .badHTTPResponse(underlying: let httpError)) = error {
                 #expect(httpError.statusCode == 400)
             } else {
                 Issue.record("Unexpected error")

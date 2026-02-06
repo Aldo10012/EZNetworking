@@ -16,7 +16,7 @@ final class URLResponseValidatorTests {
             try sut.validateStatus(from: createHttpUrlResponse(statusCode: 100))
             Issue.record("Unexpected success")
         } catch let error as NetworkingError {
-            if case .responseValidationFailure(reason: .badHTTPResponse(underlying: let httpError)) = error {
+            if case .responseValidationFailed(reason: .badHTTPResponse(underlying: let httpError)) = error {
                 #expect(httpError.statusCode == 100)
             } else {
                 Issue.record("Expected .responseValidationFailure(reason: .badHTTPResponse(_))")
@@ -41,7 +41,7 @@ final class URLResponseValidatorTests {
             try sut.validateStatus(from: createHttpUrlResponse(statusCode: 300))
             Issue.record("Unexpected success")
         } catch let error as NetworkingError {
-            if case .responseValidationFailure(reason: .badHTTPResponse(underlying: let httpError)) = error {
+            if case .responseValidationFailed(reason: .badHTTPResponse(underlying: let httpError)) = error {
                 #expect(httpError.statusCode == 300)
             } else {
                 Issue.record("Expected .responseValidationFailure(reason: .badHTTPResponse(_))")
@@ -59,7 +59,7 @@ final class URLResponseValidatorTests {
             try sut.validateStatus(from: createHttpUrlResponse(statusCode: 400))
             Issue.record("Unexpected success")
         } catch let error as NetworkingError {
-            if case .responseValidationFailure(reason: .badHTTPResponse(underlying: let httpError)) = error {
+            if case .responseValidationFailed(reason: .badHTTPResponse(underlying: let httpError)) = error {
                 #expect(httpError.statusCode == 400)
             } else {
                 Issue.record("Expected .responseValidationFailure(reason: .badHTTPResponse(_))")
@@ -77,7 +77,7 @@ final class URLResponseValidatorTests {
             try sut.validateStatus(from: createHttpUrlResponse(statusCode: 500))
             Issue.record("Unexpected success")
         } catch let error as NetworkingError {
-            if case .responseValidationFailure(reason: .badHTTPResponse(underlying: let httpError)) = error {
+            if case .responseValidationFailed(reason: .badHTTPResponse(underlying: let httpError)) = error {
                 #expect(httpError.statusCode == 500)
             } else {
                 Issue.record("Expected .responseValidationFailure(reason: .badHTTPResponse(_))")
