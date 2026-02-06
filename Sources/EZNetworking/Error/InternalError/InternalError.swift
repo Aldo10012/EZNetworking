@@ -1,5 +1,13 @@
 import Foundation
 
+// TODO: move to another file
+public enum URLBuildFailureReason: Equatable, Sendable {
+    case noURL
+    case invalidURL
+    case invalidScheme(String?)
+    case missingHost
+}
+
 public enum InternalError: Error {
     // URL error
     case noURL
