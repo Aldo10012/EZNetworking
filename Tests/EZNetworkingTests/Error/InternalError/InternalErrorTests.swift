@@ -22,7 +22,6 @@ final class InternalErrorTests {
         InternalError.couldNotParse(underlying: NSError(domain: "test", code: -1)),
         InternalError.requestFailed(NetworkingError.httpError(.init(statusCode: 400, headers: [:]))),
         InternalError.noHTTPURLResponse,
-        InternalError.invalidImageData,
         InternalError.lostReferenceOfSelf,
         InternalError.unknown
     ]
