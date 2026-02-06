@@ -4,7 +4,7 @@ public enum NetworkingError: Error {
     case couldNotBuildURLRequest(reason: URLBuildFailureReason)
     case decodingFailed(reason: DecodingFailureReason)
     case responseValidationFailed(reason: ResponseValidationFailureReason)
-    case requestFailedReason(reason: RequestFailureReason)
+    case requestFailed(reason: RequestFailureReason)
 
     case internalError(InternalError) /// any internal error
     case urlError(URLError) /// any URL error
@@ -19,7 +19,7 @@ extension NetworkingError: Equatable {
             reason1 == reason2
         case let (.responseValidationFailed(reason: reason1), .responseValidationFailed(reason: reason2)):
             reason1 == reason2
-        case let (.requestFailedReason(reason: reason1), .requestFailedReason(reason: reason2)):
+        case let (.requestFailed(reason: reason1), .requestFailed(reason: reason2)):
             reason1 == reason2
 
         case let (.internalError(error1), .internalError(error2)):
