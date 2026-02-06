@@ -152,7 +152,7 @@ final class RequestPerformableCallbacksTests {
             case .success:
                 Issue.record()
             case let .failure(error):
-                if case .internalError(.couldNotParse) = error {
+                if case .decodingFailed = error {
                     #expect(Bool(true))
                 } else {
                     Issue.record()
