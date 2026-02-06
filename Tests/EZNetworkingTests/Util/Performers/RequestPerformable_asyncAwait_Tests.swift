@@ -119,7 +119,7 @@ final class RequestPerformableAsyncAwaitTests {
         do {
             _ = try await sut.perform(request: MockRequest(), decodeTo: Person.self)
         } catch {
-            if case NetworkingError.decodingFailureReason = error {
+            if case NetworkingError.decodingFailure = error {
                 #expect(Bool(true))
             } else {
                 Issue.record()

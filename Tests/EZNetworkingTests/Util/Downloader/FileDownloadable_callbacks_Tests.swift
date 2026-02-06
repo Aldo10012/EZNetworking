@@ -50,7 +50,7 @@ final class FileDownloadableCallBacksTests {
     @Test("test .downloadFileTask() Fails When Validator Throws Any Error")
     func downloadFileFailsIfValidatorThrowsAnyError() async {
         let sut = createFileDownloader(
-            validator: MockURLResponseValidator(throwError: NetworkingError.responseValidationFailureReason(reason: .noHTTPURLResponse))
+            validator: MockURLResponseValidator(throwError: NetworkingError.responseValidationFailure(reason: .noHTTPURLResponse))
         )
 
         let expectation = Expectation()
@@ -60,7 +60,7 @@ final class FileDownloadableCallBacksTests {
             case .success:
                 Issue.record()
             case let .failure(error):
-                if case .responseValidationFailureReason = error {
+                if case .responseValidationFailure = error {
                     #expect(Bool(true))
                 } else {
                     #expect(Bool(false))

@@ -63,7 +63,7 @@ final class FileDownloadablePublisherTests {
     @Test("test .downloadFilePublisher() Fails If Validator Throws Any Error")
     func downloadFilePublisherFailsIfValidatorThrowsAnyError() async {
         let sut = createFileDownloader(
-            validator: MockURLResponseValidator(throwError: NetworkingError.responseValidationFailureReason(reason: .noHTTPURLResponse))
+            validator: MockURLResponseValidator(throwError: NetworkingError.responseValidationFailure(reason: .noHTTPURLResponse))
         )
         let expectation = Expectation()
         var didExecute = false
@@ -71,7 +71,7 @@ final class FileDownloadablePublisherTests {
             .sink { completion in
                 switch completion {
                 case let .failure(error):
-                    if case .responseValidationFailureReason = error {
+                    if case .responseValidationFailure = error {
                         #expect(Bool(true))
                     } else {
                         #expect(Bool(false))
