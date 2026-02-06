@@ -26,6 +26,7 @@ public class FileDownloader: FileDownloadable {
         from serverUrl: URL,
         progress: DownloadProgressHandler? = nil
     ) async throws -> URL {
+        try Task.checkCancellation()
         configureProgressTracking { percentage in
             guard !Task.isCancelled else { return }
             progress?(percentage)

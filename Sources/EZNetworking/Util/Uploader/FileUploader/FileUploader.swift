@@ -20,6 +20,7 @@ public class FileUploader: FileUploadable {
     // MARK: - CORE - async/await
 
     public func uploadFile(_ fileURL: URL, with request: any Request, progress: UploadProgressHandler?) async throws -> Data {
+        try Task.checkCancellation()
         configureProgressTracking { percentage in
             guard !Task.isCancelled else { return }
             progress?(percentage)
