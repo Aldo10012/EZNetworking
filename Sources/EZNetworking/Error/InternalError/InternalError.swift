@@ -1,7 +1,6 @@
 import Foundation
 
 public enum InternalError: Error {
-    case couldNotParse(underlying: Error)
     case requestFailed(Error)
     case noHTTPURLResponse
 }
@@ -12,8 +11,7 @@ extension InternalError: Equatable {
         case (.noHTTPURLResponse, .noHTTPURLResponse):
             true
 
-        case let (.requestFailed(lhsError), .requestFailed(rhsError)),
-             let (.couldNotParse(underlying: lhsError), .couldNotParse(underlying: rhsError)):
+        case let (.requestFailed(lhsError), .requestFailed(rhsError)):
             (lhsError as NSError) == (rhsError as NSError)
 
         default:

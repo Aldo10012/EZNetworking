@@ -159,7 +159,7 @@ final class RequestPerformablepublisherTests {
             .sink(receiveCompletion: { completion in
                 switch completion {
                 case let .failure(error):
-                    if case .internalError(.couldNotParse) = error {
+                    if case .decodingFailureReason = error {
                         #expect(Bool(true))
                     } else {
                         Issue.record()

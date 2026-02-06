@@ -4,18 +4,20 @@ import Testing
 
 @Suite("Test InternalError")
 final class InternalErrorTests {
-    @Test("test InternalError Is Equatable", arguments: zip(InternalErrorList, InternalErrorList))
+    @Test("test InternalError Is Equatable", arguments: zip(errorList, errorList))
     func couldNotParseIsEquatable(inputA: InternalError, inputB: InternalError) {
         #expect(inputA == inputB)
     }
 
     @Test("test Different InternalError Are Not Equatable")
     func differentInternalErrorAreNotEquatable() {
-        #expect(InternalError.noHTTPURLResponse != InternalError.couldNotParse(underlying: NSError(domain: "", code: -1)))
+        let errA = InternalError.requestFailed(NetworkingError.httpError(.init(statusCode: 400, headers: [:])))
+        let errB = InternalError.noHTTPURLResponse
+        #expect(errA != errB)
+
     }
 
-    private static let InternalErrorList: [InternalError] = [
-        InternalError.couldNotParse(underlying: NSError(domain: "test", code: -1)),
+    private static let errorList: [InternalError] = [
         InternalError.requestFailed(NetworkingError.httpError(.init(statusCode: 400, headers: [:]))),
         InternalError.noHTTPURLResponse
     ]
