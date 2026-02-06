@@ -5,7 +5,6 @@ public enum InternalError: Error {
     case noURL
     case invalidURL
     case invalidScheme(String?)
-    case missingHost
 
     case couldNotParse(underlying: Error)
     case requestFailed(Error)
@@ -17,7 +16,6 @@ extension InternalError: Equatable {
         switch (lhs, rhs) {
         case (.noURL, .noURL),
              (.invalidURL, .invalidURL),
-             (.missingHost, .missingHost),
              (.noHTTPURLResponse, .noHTTPURLResponse):
             true
 

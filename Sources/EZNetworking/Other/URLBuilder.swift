@@ -32,7 +32,7 @@ public struct URLBuilder {
             throw NetworkingError.internalError(.invalidScheme(url.scheme))
         }
         guard url.host != nil else {
-            throw NetworkingError.internalError(.missingHost)
+            throw NetworkingError.couldNotBuildURLRequest(reason: .missingHost)
         }
         return url
     }

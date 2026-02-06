@@ -50,19 +50,19 @@ final class URLBuilderTests {
     @Test("test URLBuilder when url is missing host")
     func uRLBuilderWhenUrlIsMissingHost() throws {
         // test http url when expecting http or https scheme but host is missing
-        #expect(throws: NetworkingError.internalError(.missingHost)) {
+        #expect(throws: NetworkingError.couldNotBuildURLRequest(reason: .missingHost)) {
             _ = try httpURLBuilder.buildAndValidate("http://")
         }
         // test https url when expecting http or https scheme but host is missing
-        #expect(throws: NetworkingError.internalError(.missingHost)) {
+        #expect(throws: NetworkingError.couldNotBuildURLRequest(reason: .missingHost)) {
             _ = try httpURLBuilder.buildAndValidate("https://")
         }
         // test ws url when expecting ws or wss scheme but host is missing
-        #expect(throws: NetworkingError.internalError(.missingHost)) {
+        #expect(throws: NetworkingError.couldNotBuildURLRequest(reason: .missingHost)) {
             _ = try wsURLBuilder.buildAndValidate("ws://")
         }
         // test wss url when expecting ws or wss scheme but host is missing
-        #expect(throws: NetworkingError.internalError(.missingHost)) {
+        #expect(throws: NetworkingError.couldNotBuildURLRequest(reason: .missingHost)) {
             _ = try wsURLBuilder.buildAndValidate("wss://")
         }
     }
