@@ -4,6 +4,7 @@ public enum NetworkingError: Error {
     case couldNotBuildURLRequest(reason: URLBuildFailureReason)
     case decodingFailed(reason: DecodingFailureReason)
     case responseValidationFailed(reason: ResponseValidationFailureReason)
+    case requestFailedReason(reason: RequestFailedReason)
 
     case internalError(InternalError) /// any internal error
     case urlError(URLError) /// any URL error
