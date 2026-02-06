@@ -1,10 +1,10 @@
 import Foundation
 
-public enum RequestFailedReason: Equatable, Sendable {
+public enum RequestFailureReason: Equatable, Sendable {
     case urlError(underlying: URLError)
     case unknownError(underlying: Error)
 
-    public static func == (lhs: RequestFailedReason, rhs: RequestFailedReason) -> Bool {
+    public static func == (lhs: RequestFailureReason, rhs: RequestFailureReason) -> Bool {
         switch (lhs, rhs) {
         case let (.urlError(underlying: L), .urlError(underlying: R)):
             (L as NSError) == (R as NSError)

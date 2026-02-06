@@ -10,9 +10,9 @@ struct RequestFailedReasonTests {
         let error2 = URLError(.badURL)
         let error3 = URLError(.notConnectedToInternet)
 
-        let reason1 = RequestFailedReason.urlError(underlying: error1)
-        let reason2 = RequestFailedReason.urlError(underlying: error2)
-        let reason3 = RequestFailedReason.urlError(underlying: error3)
+        let reason1 = RequestFailureReason.urlError(underlying: error1)
+        let reason2 = RequestFailureReason.urlError(underlying: error2)
+        let reason3 = RequestFailureReason.urlError(underlying: error3)
 
         #expect(reason1 == reason2)
         #expect(reason1 != reason3)
@@ -24,9 +24,9 @@ struct RequestFailedReasonTests {
         let error2 = NSError(domain: "Test", code: 1, userInfo: nil)
         let error3 = NSError(domain: "Test", code: 2, userInfo: nil)
 
-        let reason1 = RequestFailedReason.unknownError(underlying: error1)
-        let reason2 = RequestFailedReason.unknownError(underlying: error2)
-        let reason3 = RequestFailedReason.unknownError(underlying: error3)
+        let reason1 = RequestFailureReason.unknownError(underlying: error1)
+        let reason2 = RequestFailureReason.unknownError(underlying: error2)
+        let reason3 = RequestFailureReason.unknownError(underlying: error3)
 
         #expect(reason1 == reason2)
         #expect(reason1 != reason3)
@@ -37,8 +37,8 @@ struct RequestFailedReasonTests {
         let urlError = URLError(.badURL)
         let otherError = NSError(domain: "Test", code: 1, userInfo: nil)
 
-        let reason1 = RequestFailedReason.urlError(underlying: urlError)
-        let reason2 = RequestFailedReason.unknownError(underlying: otherError)
+        let reason1 = RequestFailureReason.urlError(underlying: urlError)
+        let reason2 = RequestFailureReason.unknownError(underlying: otherError)
 
         #expect(reason1 != reason2)
     }
@@ -48,8 +48,8 @@ struct RequestFailedReasonTests {
         let urlError = URLError(.badURL)
         let nsError = urlError as NSError
 
-        let reason1 = RequestFailedReason.urlError(underlying: urlError)
-        let reason2 = RequestFailedReason.unknownError(underlying: nsError)
+        let reason1 = RequestFailureReason.urlError(underlying: urlError)
+        let reason2 = RequestFailureReason.unknownError(underlying: nsError)
 
         #expect(reason1 != reason2)
     }
@@ -59,8 +59,8 @@ struct RequestFailedReasonTests {
         let error1 = URLError(.badURL)
         let error2 = URLError(.badURL)
 
-        let reason1 = RequestFailedReason.urlError(underlying: error1)
-        let reason2 = RequestFailedReason.urlError(underlying: error2)
+        let reason1 = RequestFailureReason.urlError(underlying: error1)
+        let reason2 = RequestFailureReason.urlError(underlying: error2)
 
         #expect(reason1 == reason2)
     }
@@ -70,8 +70,8 @@ struct RequestFailedReasonTests {
         let error1 = NSError(domain: "Test", code: 1, userInfo: nil)
         let error2 = NSError(domain: "Test", code: 1, userInfo: nil)
 
-        let reason1 = RequestFailedReason.unknownError(underlying: error1)
-        let reason2 = RequestFailedReason.unknownError(underlying: error2)
+        let reason1 = RequestFailureReason.unknownError(underlying: error1)
+        let reason2 = RequestFailureReason.unknownError(underlying: error2)
 
         #expect(reason1 == reason2)
     }
