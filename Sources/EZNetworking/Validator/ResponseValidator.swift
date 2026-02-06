@@ -2,7 +2,6 @@ import Foundation
 
 public protocol ResponseValidator {
     func validateStatus(from urlResponse: URLResponse?) throws
-    func validateUrl(_ url: URL?) throws -> URL
 }
 
 public struct ResponseValidatorImpl: ResponseValidator {
@@ -16,13 +15,6 @@ public struct ResponseValidatorImpl: ResponseValidator {
             throw NetworkingError.internalError(.noHTTPURLResponse)
         }
         try validateStatusCodeAccepability(from: httpURLResponse)
-    }
-
-    public func validateUrl(_ url: URL?) throws -> URL {
-        guard let url else {
-            throw NetworkingError.internalError(.noURL)
-        }
-        return url
     }
 
     private func validateStatusCodeAccepability(from httpURLResponse: HTTPURLResponse) throws {

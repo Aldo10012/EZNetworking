@@ -9,14 +9,4 @@ struct MockURLResponseValidator: ResponseValidator {
             throw throwError
         }
     }
-
-    func validateUrl(_ url: URL?) throws -> URL {
-        if let throwError {
-            throw throwError
-        }
-        guard let url else {
-            throw NetworkingError.internalError(.noURL)
-        }
-        return url
-    }
 }
