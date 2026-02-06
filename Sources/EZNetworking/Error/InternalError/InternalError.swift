@@ -8,7 +8,6 @@ public enum InternalError: Error {
     case missingHost
 
     case couldNotParse(underlying: Error)
-    case invalidError
     case noData
     case noResponse
     case requestFailed(Error)
@@ -26,7 +25,6 @@ extension InternalError: Equatable {
              (.noURL, .noURL),
              (.invalidURL, .invalidURL),
              (.missingHost, .missingHost),
-             (.invalidError, .invalidError),
              (.noData, .noData),
              (.noResponse, .noResponse),
              (.noRequest, .noRequest),

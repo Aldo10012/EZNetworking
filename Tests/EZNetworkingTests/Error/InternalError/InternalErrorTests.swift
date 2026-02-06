@@ -20,7 +20,6 @@ final class InternalErrorTests {
         InternalError.missingHost,
         InternalError.invalidScheme(""),
         InternalError.couldNotParse(underlying: NSError(domain: "test", code: -1)),
-        InternalError.invalidError,
         InternalError.noData,
         InternalError.noResponse,
         InternalError.requestFailed(NetworkingError.httpError(.init(statusCode: 400, headers: [:]))),
