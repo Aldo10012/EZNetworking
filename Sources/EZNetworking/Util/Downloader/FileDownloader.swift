@@ -37,6 +37,8 @@ public class FileDownloader: FileDownloadable {
             try validator.validateStatus(from: response)
             let url = try validator.validateUrl(localURL)
             return url
+        } catch let cancellationError as CancellationError {
+            throw cancellationError
         } catch {
             throw mapError(error)
         }

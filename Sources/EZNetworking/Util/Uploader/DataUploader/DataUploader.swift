@@ -32,6 +32,8 @@ public class DataUploader: DataUploadable {
             try validator.validateStatus(from: urlResponse)
             let validData = try validator.validateData(data)
             return validData
+        } catch let cancellationError as CancellationError {
+            throw cancellationError
         } catch {
             throw mapError(error)
         }

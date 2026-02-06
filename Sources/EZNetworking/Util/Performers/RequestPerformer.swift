@@ -22,12 +22,16 @@ public struct RequestPerformer: RequestPerformable {
         request: Request,
         decodeTo decodableObject: T.Type
     ) async throws -> T {
+        try Task.checkCancellation()
         do {
             let urlRequest = try request.getURLRequest()
             let (data, urlResponse) = try await session.urlSession.data(for: urlRequest)
+            try Task.checkCancellation()
             try validator.validateStatus(from: urlResponse)
             let validData = try validator.validateData(data)
             return try decoder.decode(decodableObject, from: validData)
+        } catch let cancellationError as CancellationError {
+            throw cancellationError
         } catch {
             throw mapError(error)
         }
