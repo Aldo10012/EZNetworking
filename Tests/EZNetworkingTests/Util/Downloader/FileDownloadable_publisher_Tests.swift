@@ -294,7 +294,7 @@ final class FileDownloadablePublisherTests {
 
         await expectation.fulfillment(within: .seconds(1))
         #expect(didExecute)
-        #expect(!didTrackProgressFromInterceptor)
+        #expect(didTrackProgressFromInterceptor)
         #expect(downloadTaskInterceptor.didCallDidWriteData)
     }
 }

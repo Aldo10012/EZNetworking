@@ -210,8 +210,8 @@ final class FileDownloadableCallBacksTests {
 
     // MARK: Traching with interceptor
 
-    @Test("test .downloadFileTask() Download Progress Can not Be Tracked when Injecting DownloadTaskInterceptor")
-    func downloadFileTaskDownloadProgressCanNotBeTrackedWhenInjectingDownloadTaskInterceptor() async {
+    @Test("test .downloadFileTask() Download Progress Can Be Tracked when Injecting DownloadTaskInterceptor")
+    func downloadFileTaskDownloadProgressCanBeTrackedWhenInjectingDownloadTaskInterceptor() async {
         let testURL = URL(string: "https://example.com/example.pdf")!
         let urlSession = createMockURLSession()
 
@@ -240,7 +240,7 @@ final class FileDownloadableCallBacksTests {
             }
         }
         await expectation.fulfillment(within: .seconds(1))
-        #expect(!didTrackProgressFromInterceptor)
+        #expect(didTrackProgressFromInterceptor)
         #expect(downloadTaskInterceptor.didCallDidWriteData)
     }
 }

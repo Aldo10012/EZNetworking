@@ -24,14 +24,11 @@ public class FileDownloader: FileDownloadable {
 
     public func downloadFileStream(from serverUrl: URL) -> AsyncStream<DownloadStreamEvent> {
         AsyncStream { continuation in
-            configureProgressTracking { progress in
-                continuation.yield(.progress(progress))
-            }
             let task = Task {
                 do {
-                    let (localURL, response) = try await session.urlSession.download(from: serverUrl, delegate: nil)
-                    try validator.validateStatus(from: response)
-                    let url = try validator.validateUrl(localURL)
+                    let url = try await downloadFile(from: serverUrl) {
+                        continuation.yield(.progress($0))
+                    }
                     continuation.yield(.success(url))
                     continuation.finish()
                 } catch is CancellationError {
@@ -53,17 +50,15 @@ public class FileDownloader: FileDownloadable {
         from serverUrl: URL,
         progress: DownloadProgressHandler? = nil
     ) async throws -> URL {
-        for await event in downloadFileStream(from: serverUrl) {
-            switch event {
-            case let .progress(value):
-                progress?(value)
-            case let .success(url):
-                return url
-            case let .failure(error):
-                throw error
-            }
+        configureProgressTracking(progress: progress)
+        do {
+            let (localURL, response) = try await session.urlSession.download(from: serverUrl, delegate: nil)
+            try validator.validateStatus(from: response)
+            let url = try validator.validateUrl(localURL)
+            return url
+        } catch {
+            throw mapError(error)
         }
-        throw NetworkingError.internalError(.unknown)
     }
 
     // MARK: - Adapter - callbacks
@@ -110,17 +105,11 @@ public class FileDownloader: FileDownloadable {
         completion: @escaping ((Result<URL, NetworkingError>) -> Void)
     ) -> Task<Void, Never> {
         Task {
-            for await event in downloadFileStream(from: serverUrl) {
-                switch event {
-                case let .progress(value):
-                    progress?(value)
-                case let .success(url):
-                    guard !Task.isCancelled else { return }
-                    completion(.success(url))
-                case let .failure(error):
-                    guard !Task.isCancelled else { return }
-                    completion(.failure(error))
-                }
+            do {
+                let url = try await downloadFile(from: serverUrl, progress: progress)
+                completion(.success(url))
+            } catch {
+                completion(.failure(mapError(error)))
             }
         }
     }
