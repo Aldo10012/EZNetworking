@@ -49,7 +49,7 @@ public class FileDownloader: FileDownloadable {
                     continuation.yield(.success(url))
                     continuation.finish()
                 } catch is CancellationError {
-                    // optional: silently finish or emit failure
+                    continuation.finish()
                 } catch {
                     continuation.yield(.failure(mapError(error)))
                     continuation.finish()
@@ -108,6 +108,8 @@ public class FileDownloader: FileDownloadable {
             do {
                 let url = try await downloadFile(from: serverUrl, progress: progress)
                 completion(.success(url))
+            } catch is CancellationError {
+                // Do nothing, task has been cancelled
             } catch {
                 completion(.failure(mapError(error)))
             }

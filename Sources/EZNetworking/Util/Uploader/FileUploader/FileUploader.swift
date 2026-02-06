@@ -43,6 +43,8 @@ public class FileUploader: FileUploadable {
                     }
                     continuation.yield(.success(data))
                     continuation.finish()
+                } catch is CancellationError {
+                    continuation.finish()
                 } catch {
                     continuation.yield(.failure(mapError(error)))
                     continuation.finish()
@@ -95,6 +97,8 @@ public class FileUploader: FileUploadable {
             do {
                 let data = try await uploadFile(fileURL, with: request, progress: progress)
                 completion(.success(data))
+            } catch is CancellationError {
+                // Do nothing, task has been cancelled
             } catch {
                 completion(.failure(mapError(error)))
             }
