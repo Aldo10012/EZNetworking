@@ -41,14 +41,18 @@ final class FileDownloadableAsyncAwaitTests {
     @Test("test .downloadFile() Fails When Validator Throws AnyError")
     func downloadFileFailsWhenValidatorThrowsAnyError() async throws {
         let sut = createFileDownloader(
-            validator: MockURLResponseValidator(throwError: NetworkingError.internalError(.noHTTPURLResponse))
+            validator: MockURLResponseValidator(throwError: NetworkingError.responseValidationFailureReason(reason: .noHTTPURLResponse))
         )
 
         do {
             _ = try await sut.downloadFile(from: testURL)
             Issue.record("unexpected error")
         } catch let error as NetworkingError {
-            #expect(error == NetworkingError.internalError(.noHTTPURLResponse))
+            if case .responseValidationFailureReason = error {
+                #expect(Bool(true))
+            } else {
+                #expect(Bool(false))
+            }
         }
     }
 

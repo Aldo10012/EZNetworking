@@ -3,6 +3,7 @@ import Foundation
 public enum NetworkingError: Error {
     case couldNotBuildURLRequest(reason: URLBuildFailureReason)
     case decodingFailureReason(reason: DecodingFailureReason)
+    case responseValidationFailureReason(reason: ResponseValidationFailureReason)
 
     case internalError(InternalError) /// any internal error
     case httpError(HTTPError) /// any HRRP error

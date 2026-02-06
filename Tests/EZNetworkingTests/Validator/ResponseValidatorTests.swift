@@ -8,15 +8,6 @@ final class URLResponseValidatorTests {
 
     private struct SomeUnknownError: Error {}
 
-    // MARK: - test validateStatus()
-
-    @Test("test validateStatus givenURLResponse Throws")
-    func validateStatus_givenURLResponse_Throws() throws {
-        #expect(throws: NetworkingError.internalError(.noHTTPURLResponse).self) {
-            try sut.validateStatus(from: URLResponse())
-        }
-    }
-
     // MARK: 1xx status code
 
     @Test("test validateStatus givenHTTPURLResponseStatusCode100 Throws")

@@ -2,7 +2,7 @@ import EZNetworking
 import Foundation
 
 struct MockURLResponseValidator: ResponseValidator {
-    var throwError: NetworkingError?
+    var throwError: Error?
 
     func validateStatus(from urlResponse: URLResponse) throws {
         if let throwError {
