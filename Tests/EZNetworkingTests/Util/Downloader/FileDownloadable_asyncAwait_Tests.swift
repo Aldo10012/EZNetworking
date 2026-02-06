@@ -32,7 +32,11 @@ final class FileDownloadableAsyncAwaitTests {
             _ = try await sut.downloadFile(from: testURL)
             Issue.record("unexpected error")
         } catch let error as NetworkingError {
-            #expect(error == NetworkingError.httpError(HTTPError(statusCode: 400)))
+            if case .responseValidationFailure(reason: .badHTTPResponse(underlying: let httpError)) = error {
+                #expect(httpError.statusCode == 400)
+            } else {
+                Issue.record("Unexpected error")
+            }
         }
     }
 

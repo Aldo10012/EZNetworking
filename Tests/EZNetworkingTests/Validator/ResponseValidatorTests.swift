@@ -12,8 +12,17 @@ final class URLResponseValidatorTests {
 
     @Test("test validateStatus givenHTTPURLResponseStatusCode100 Throws")
     func validateStatus_givenHTTPURLResponseStatusCode100_Throws() throws {
-        #expect(throws: NetworkingError.httpError(HTTPError(statusCode: 100)).self) {
+        do {
             try sut.validateStatus(from: createHttpUrlResponse(statusCode: 100))
+            Issue.record("Unexpected success")
+        } catch let error as NetworkingError {
+            if case .responseValidationFailure(reason: .badHTTPResponse(underlying: let httpError)) = error {
+                #expect(httpError.statusCode == 100)
+            } else {
+                Issue.record("Expected .responseValidationFailure(reason: .badHTTPResponse(_))")
+            }
+        } catch {
+            Issue.record("Expected Networking Error")
         }
     }
 
@@ -28,8 +37,17 @@ final class URLResponseValidatorTests {
 
     @Test("test validateStatus givenHTTPURLResponseStatusCode300 Throws")
     func validateStatus_givenHTTPURLResponseStatusCode300_Throws() throws {
-        #expect(throws: NetworkingError.httpError(HTTPError(statusCode: 300)).self) {
+        do {
             try sut.validateStatus(from: createHttpUrlResponse(statusCode: 300))
+            Issue.record("Unexpected success")
+        } catch let error as NetworkingError {
+            if case .responseValidationFailure(reason: .badHTTPResponse(underlying: let httpError)) = error {
+                #expect(httpError.statusCode == 300)
+            } else {
+                Issue.record("Expected .responseValidationFailure(reason: .badHTTPResponse(_))")
+            }
+        } catch {
+            Issue.record("Expected Networking Error")
         }
     }
 
@@ -37,8 +55,17 @@ final class URLResponseValidatorTests {
 
     @Test("test validateStatus givenHTTPURLResponseStatusCode400 Throws")
     func validateStatus_givenHTTPURLResponseStatusCode400_Throws() throws {
-        #expect(throws: NetworkingError.httpError(HTTPError(statusCode: 400)).self) {
+        do {
             try sut.validateStatus(from: createHttpUrlResponse(statusCode: 400))
+            Issue.record("Unexpected success")
+        } catch let error as NetworkingError {
+            if case .responseValidationFailure(reason: .badHTTPResponse(underlying: let httpError)) = error {
+                #expect(httpError.statusCode == 400)
+            } else {
+                Issue.record("Expected .responseValidationFailure(reason: .badHTTPResponse(_))")
+            }
+        } catch {
+            Issue.record("Expected Networking Error")
         }
     }
 
@@ -46,8 +73,17 @@ final class URLResponseValidatorTests {
 
     @Test("test validateStatus givenHTTPURLResponseStatusCode500 Throws")
     func validateStatus_givenHTTPURLResponseStatusCode500_Throws() throws {
-        #expect(throws: NetworkingError.httpError(HTTPError(statusCode: 500)).self) {
+        do {
             try sut.validateStatus(from: createHttpUrlResponse(statusCode: 500))
+            Issue.record("Unexpected success")
+        } catch let error as NetworkingError {
+            if case .responseValidationFailure(reason: .badHTTPResponse(underlying: let httpError)) = error {
+                #expect(httpError.statusCode == 500)
+            } else {
+                Issue.record("Expected .responseValidationFailure(reason: .badHTTPResponse(_))")
+            }
+        } catch {
+            Issue.record("Expected Networking Error")
         }
     }
 }

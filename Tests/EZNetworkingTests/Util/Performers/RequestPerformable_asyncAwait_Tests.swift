@@ -39,8 +39,14 @@ final class RequestPerformableAsyncAwaitTests {
         let sut = createRequestPerformer(
             urlSession: createMockURLSession(statusCode: 300)
         )
-        await #expect(throws: NetworkingError.httpError(HTTPError(statusCode: 300))) {
-            try await sut.perform(request: MockRequest(), decodeTo: EmptyResponse.self)
+        do {
+            _ = try await sut.perform(request: MockRequest(), decodeTo: EmptyResponse.self)
+        } catch let error as NetworkingError {
+            if case .responseValidationFailure(reason: .badHTTPResponse(underlying: let httpError)) = error {
+                #expect(httpError.statusCode == 300)
+            } else {
+                Issue.record("Unexpected error")
+            }
         }
     }
 
@@ -49,8 +55,14 @@ final class RequestPerformableAsyncAwaitTests {
         let sut = createRequestPerformer(
             urlSession: createMockURLSession(statusCode: 400)
         )
-        await #expect(throws: NetworkingError.httpError(HTTPError(statusCode: 400))) {
-            try await sut.perform(request: MockRequest(), decodeTo: EmptyResponse.self)
+        do {
+            _ = try await sut.perform(request: MockRequest(), decodeTo: EmptyResponse.self)
+        } catch let error as NetworkingError {
+            if case .responseValidationFailure(reason: .badHTTPResponse(underlying: let httpError)) = error {
+                #expect(httpError.statusCode == 400)
+            } else {
+                Issue.record("Unexpected error")
+            }
         }
     }
 
@@ -59,8 +71,14 @@ final class RequestPerformableAsyncAwaitTests {
         let sut = createRequestPerformer(
             urlSession: createMockURLSession(statusCode: 500)
         )
-        await #expect(throws: NetworkingError.httpError(HTTPError(statusCode: 500))) {
-            try await sut.perform(request: MockRequest(), decodeTo: EmptyResponse.self)
+        do {
+            _ = try await sut.perform(request: MockRequest(), decodeTo: EmptyResponse.self)
+        } catch let error as NetworkingError {
+            if case .responseValidationFailure(reason: .badHTTPResponse(underlying: let httpError)) = error {
+                #expect(httpError.statusCode == 500)
+            } else {
+                Issue.record("Unexpected error")
+            }
         }
     }
 

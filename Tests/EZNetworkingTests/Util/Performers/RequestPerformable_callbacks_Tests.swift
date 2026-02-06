@@ -54,7 +54,11 @@ final class RequestPerformableCallbacksTests {
             case .success:
                 Issue.record()
             case let .failure(error):
-                #expect(error == NetworkingError.httpError(HTTPError(statusCode: 300)))
+                if case .responseValidationFailure(reason: .badHTTPResponse(underlying: let httpError)) = error {
+                    #expect(httpError.statusCode == 300)
+                } else {
+                    Issue.record("Unexpected error")
+                }
             }
         }
         await expectation.fulfillment(within: .seconds(1))
@@ -72,7 +76,11 @@ final class RequestPerformableCallbacksTests {
             case .success:
                 Issue.record()
             case let .failure(error):
-                #expect(error == NetworkingError.httpError(HTTPError(statusCode: 400)))
+                if case .responseValidationFailure(reason: .badHTTPResponse(underlying: let httpError)) = error {
+                    #expect(httpError.statusCode == 400)
+                } else {
+                    Issue.record("Unexpected error")
+                }
             }
         }
         await expectation.fulfillment(within: .seconds(1))
@@ -90,7 +98,11 @@ final class RequestPerformableCallbacksTests {
             case .success:
                 Issue.record()
             case let .failure(error):
-                #expect(error == NetworkingError.httpError(HTTPError(statusCode: 500)))
+                if case .responseValidationFailure(reason: .badHTTPResponse(underlying: let httpError)) = error {
+                    #expect(httpError.statusCode == 500)
+                } else {
+                    Issue.record("Unexpected error")
+                }
             }
         }
         await expectation.fulfillment(within: .seconds(1))

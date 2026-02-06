@@ -22,8 +22,17 @@ final class FileUploaderAsyncAwaitTests {
     func uploadFile_withRedirectStatusCode_throwsError() async throws {
         let session = createMockURLSession(urlResponse: buildResponse(statusCode: 300))
         let sut = createFileUploader(urlSession: session)
-        await #expect(throws: NetworkingError.httpError(HTTPError(statusCode: 300))) {
-            try await sut.uploadFile(mockFileURL, with: mockRequest, progress: nil)
+        do {
+            _ = try await sut.uploadFile(mockFileURL, with: mockRequest, progress: nil)
+            Issue.record("Unexpected success")
+        } catch let error as NetworkingError {
+            if case .responseValidationFailure(reason: .badHTTPResponse(underlying: let httpError)) = error {
+                #expect(httpError.statusCode == 300)
+            } else {
+                Issue.record("Expected .responseValidationFailure(reason: .badHTTPResponse(_))")
+            }
+        } catch {
+            Issue.record("Expected Networking Error")
         }
     }
 
@@ -31,8 +40,17 @@ final class FileUploaderAsyncAwaitTests {
     func uploadFile_withClientErrorStatusCode_throwsError() async throws {
         let session = createMockURLSession(urlResponse: buildResponse(statusCode: 400))
         let sut = createFileUploader(urlSession: session)
-        await #expect(throws: NetworkingError.httpError(HTTPError(statusCode: 400))) {
-            try await sut.uploadFile(mockFileURL, with: mockRequest, progress: nil)
+        do {
+            _ = try await sut.uploadFile(mockFileURL, with: mockRequest, progress: nil)
+            Issue.record("Unexpected success")
+        } catch let error as NetworkingError {
+            if case .responseValidationFailure(reason: .badHTTPResponse(underlying: let httpError)) = error {
+                #expect(httpError.statusCode == 400)
+            } else {
+                Issue.record("Expected .responseValidationFailure(reason: .badHTTPResponse(_))")
+            }
+        } catch {
+            Issue.record("Expected Networking Error")
         }
     }
 
@@ -40,8 +58,17 @@ final class FileUploaderAsyncAwaitTests {
     func uploadFile_withServerErrorStatusCode_throwsError() async throws {
         let session = createMockURLSession(urlResponse: buildResponse(statusCode: 500))
         let sut = createFileUploader(urlSession: session)
-        await #expect(throws: NetworkingError.httpError(HTTPError(statusCode: 500))) {
-            try await sut.uploadFile(mockFileURL, with: mockRequest, progress: nil)
+        do {
+            _ = try await sut.uploadFile(mockFileURL, with: mockRequest, progress: nil)
+            Issue.record("Unexpected success")
+        } catch let error as NetworkingError {
+            if case .responseValidationFailure(reason: .badHTTPResponse(underlying: let httpError)) = error {
+                #expect(httpError.statusCode == 500)
+            } else {
+                Issue.record("Expected .responseValidationFailure(reason: .badHTTPResponse(_))")
+            }
+        } catch {
+            Issue.record("Expected Networking Error")
         }
     }
 

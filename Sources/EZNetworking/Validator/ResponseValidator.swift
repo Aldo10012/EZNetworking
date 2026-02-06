@@ -11,15 +11,15 @@ public struct ResponseValidatorImpl: ResponseValidator {
         guard let httpURLResponse = urlResponse as? HTTPURLResponse else {
             throw NetworkingError.responseValidationFailure(reason: .noHTTPURLResponse)
         }
-        let statusCode = HTTPError(
+        let httpError = HTTPError(
             statusCode: httpURLResponse.statusCode,
             headers: httpURLResponse.allHeaderFields
         )
 
-        if statusCode.category == .success {
+        if httpError.category == .success {
             return // successful http response (2xx) do not throw error
         }
-        throw NetworkingError.httpError(statusCode)
+        throw NetworkingError.responseValidationFailure(reason: .badHTTPResponse(underlying: httpError))
     }
 }
 

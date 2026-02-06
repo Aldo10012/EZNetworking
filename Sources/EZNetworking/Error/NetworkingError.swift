@@ -6,7 +6,6 @@ public enum NetworkingError: Error {
     case responseValidationFailure(reason: ResponseValidationFailureReason)
 
     case internalError(InternalError) /// any internal error
-    case httpError(HTTPError) /// any HRRP error
     case urlError(URLError) /// any URL error
 }
 
@@ -18,9 +17,6 @@ extension NetworkingError: Equatable {
 
         case let (.internalError(error1), .internalError(error2)):
             error1 == error2
-
-        case let (.httpError(error1), .httpError(error2)):
-            error1.statusCode == error2.statusCode
 
         case let (.urlError(error), .urlError(error2)):
             error == error2

@@ -44,7 +44,11 @@ final class FileDownloadablePublisherTests {
             .sink { completion in
                 switch completion {
                 case let .failure(error):
-                    #expect(error == NetworkingError.httpError(HTTPError(statusCode: 400)))
+                    if case .responseValidationFailure(reason: .badHTTPResponse(underlying: let httpError)) = error {
+                        #expect(httpError.statusCode == 400)
+                    } else {
+                        Issue.record("Unexpected error")
+                    }
                     didExecute = true
                     expectation.fulfill()
                 case .finished: Issue.record()

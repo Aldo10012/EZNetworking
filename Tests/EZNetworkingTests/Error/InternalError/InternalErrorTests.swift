@@ -10,6 +10,6 @@ final class InternalErrorTests {
     }
 
     private static let errorList: [InternalError] = [
-        InternalError.requestFailed(NetworkingError.httpError(.init(statusCode: 400, headers: [:])))
+        InternalError.requestFailed(NSError(domain: "", code: 0, userInfo: nil))
     ]
 }
