@@ -92,7 +92,7 @@ final class FileUploaderAsyncStreamTests {
         #expect(events.count == 1)
         switch events[0] {
         case let .failure(error):
-            #expect(error == NetworkingError.urlError(URLError(.notConnectedToInternet)))
+            #expect(error == NetworkingError.requestFailed(reason: .urlError(underlying: URLError(.notConnectedToInternet))))
         default:
             Issue.record()
         }

@@ -3,12 +3,12 @@ import Foundation
 public struct HTTPResponse: Sendable {
     public let statusCode: Int
     public let headers: [String: String]
-    public let category: HTTPErrorCategory
+    public let category: HTTPResponseCategory
 
     public init(statusCode: Int, headers: [String: String] = [:]) {
         self.statusCode = statusCode
         self.headers = headers
-        category = HTTPErrorCategory.from(statusCode: statusCode)
+        category = HTTPResponseCategory.from(statusCode: statusCode)
     }
 
     public var description: String {
@@ -28,7 +28,7 @@ public struct HTTPResponse: Sendable {
         }
     }
 
-    public enum HTTPErrorCategory: Sendable {
+    public enum HTTPResponseCategory: Sendable {
         case informational // 1xx
         case success // 2xx
         case redirection // 3xx
@@ -36,7 +36,7 @@ public struct HTTPResponse: Sendable {
         case serverError // 5xx
         case unknown // Other
 
-        static func from(statusCode: Int) -> HTTPErrorCategory {
+        static func from(statusCode: Int) -> HTTPResponseCategory {
             switch statusCode {
             case 100 ... 199: .informational
             case 200 ... 299: .success

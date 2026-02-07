@@ -107,7 +107,7 @@ final class FileDownloadableAsyncStreamTests {
         #expect(events.count == 1)
         switch events[0] {
         case let .failure(error):
-            #expect(error == NetworkingError.internalError(.requestFailed(DummyError.error)))
+            #expect(error == NetworkingError.requestFailed(reason: .unknownError(underlying: DummyError.error)))
         default:
             Issue.record()
         }

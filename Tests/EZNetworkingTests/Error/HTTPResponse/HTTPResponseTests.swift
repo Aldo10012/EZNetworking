@@ -3,15 +3,15 @@ import Testing
 
 @Suite("Test HTTPResponse")
 final class HTTPResponseTests {
-    private static let statusCodeToCategoryMap: [Int: HTTPResponse.HTTPErrorCategory] = [
-        100: HTTPResponse.HTTPErrorCategory.informational,
-        200: HTTPResponse.HTTPErrorCategory.success,
-        300: HTTPResponse.HTTPErrorCategory.redirection,
-        400: HTTPResponse.HTTPErrorCategory.clientError,
-        500: HTTPResponse.HTTPErrorCategory.serverError
+    private static let statusCodeToCategoryMap: [Int: HTTPResponse.HTTPResponseCategory] = [
+        100: HTTPResponse.HTTPResponseCategory.informational,
+        200: HTTPResponse.HTTPResponseCategory.success,
+        300: HTTPResponse.HTTPResponseCategory.redirection,
+        400: HTTPResponse.HTTPResponseCategory.clientError,
+        500: HTTPResponse.HTTPResponseCategory.serverError
     ]
     @Test("test HTTPError category given status code", arguments: zip(statusCodeToCategoryMap.keys, statusCodeToCategoryMap.values))
-    func hTTPErrorCategoryGivenStatusCode(statusCode: Int, expectedCategory: HTTPResponse.HTTPErrorCategory) {
+    func hTTPErrorCategoryGivenStatusCode(statusCode: Int, expectedCategory: HTTPResponse.HTTPResponseCategory) {
         let sut = HTTPResponse(statusCode: statusCode, headers: [:])
         #expect(sut.category == expectedCategory)
     }
