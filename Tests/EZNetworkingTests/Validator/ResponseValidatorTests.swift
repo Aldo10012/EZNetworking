@@ -59,13 +59,30 @@ final class URLResponseValidatorTests {
             try sut.validateStatus(from: createHttpUrlResponse(statusCode: 500))
         }
     }
+
+    // MARK: headerFields
+
+    @Test("test HTTPResponse.headerFields")
+    func validateHTTPResponseHeaderFields() {
+        do {
+            try sut.validateStatus(from: createHttpUrlResponse(statusCode: 400, headerFields: ["foo": "bar"]))
+        } catch let error as NetworkingError {
+            if case .responseValidationFailed(reason: .badHTTPResponse(underlying: let response)) = error {
+                #expect(response.headers == ["foo": "bar"])
+            } else {
+                Issue.record("Expected NetworkingError.responseValidationFailed(reason: .badHTTPResponse(_))")
+            }
+        } catch {
+            Issue.record("Expected NetworkingError.responseValidationFailed")
+        }
+    }
 }
 
 // MARK: - Test Helpers
 
 extension URLResponseValidatorTests {
-    func createHttpUrlResponse(statusCode: Int) -> HTTPURLResponse {
-        HTTPURLResponse(url: url, statusCode: statusCode, httpVersion: nil, headerFields: nil)!
+    func createHttpUrlResponse(statusCode: Int, headerFields: [String: String]? = nil) -> HTTPURLResponse {
+        HTTPURLResponse(url: url, statusCode: statusCode, httpVersion: nil, headerFields: headerFields)!
     }
 
     var url: URL {
