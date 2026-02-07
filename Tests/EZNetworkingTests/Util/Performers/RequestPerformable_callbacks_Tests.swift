@@ -54,7 +54,7 @@ final class RequestPerformableCallbacksTests {
             case .success:
                 Issue.record()
             case let .failure(error):
-                #expect(error == NetworkingError.httpError(HTTPError(statusCode: 300)))
+                #expect(error == NetworkingError.httpError(HTTPResponse(statusCode: 300)))
             }
         }
         await expectation.fulfillment(within: .seconds(1))
@@ -72,7 +72,7 @@ final class RequestPerformableCallbacksTests {
             case .success:
                 Issue.record()
             case let .failure(error):
-                #expect(error == NetworkingError.httpError(HTTPError(statusCode: 400)))
+                #expect(error == NetworkingError.httpError(HTTPResponse(statusCode: 400)))
             }
         }
         await expectation.fulfillment(within: .seconds(1))
@@ -90,7 +90,7 @@ final class RequestPerformableCallbacksTests {
             case .success:
                 Issue.record()
             case let .failure(error):
-                #expect(error == NetworkingError.httpError(HTTPError(statusCode: 500)))
+                #expect(error == NetworkingError.httpError(HTTPResponse(statusCode: 500)))
             }
         }
         await expectation.fulfillment(within: .seconds(1))

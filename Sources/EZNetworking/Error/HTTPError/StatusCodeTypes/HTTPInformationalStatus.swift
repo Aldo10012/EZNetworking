@@ -1,6 +1,6 @@
 import Foundation
 
-enum HTTPInformationalStatus: Error {
+enum HTTPInformationalStatus {
     static func description(from statusCode: Int) -> String {
         HTTPInformationalStatus.descriptions[statusCode] ?? "Unknown Informational Status"
     }

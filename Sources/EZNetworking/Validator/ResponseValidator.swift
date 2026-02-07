@@ -11,7 +11,7 @@ public struct ResponseValidatorImpl: ResponseValidator {
         guard let httpURLResponse = urlResponse as? HTTPURLResponse else {
             throw NetworkingError.internalError(.noHTTPURLResponse)
         }
-        let statusCode = HTTPError(
+        let statusCode = HTTPResponse(
             statusCode: httpURLResponse.statusCode,
             headers: httpURLResponse.allHeaderFields
         )

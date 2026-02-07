@@ -1,6 +1,6 @@
 import Foundation
 
-enum HTTPClientErrorStatus: Error {
+enum HTTPClientErrorStatus {
     static func description(from statusCode: Int) -> String {
         HTTPClientErrorStatus.descriptions[statusCode] ?? "Unknown Client Error"
     }

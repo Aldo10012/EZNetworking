@@ -44,7 +44,7 @@ final class FileDownloadablePublisherTests {
             .sink { completion in
                 switch completion {
                 case let .failure(error):
-                    #expect(error == NetworkingError.httpError(HTTPError(statusCode: 400)))
+                    #expect(error == NetworkingError.httpError(HTTPResponse(statusCode: 400)))
                     didExecute = true
                     expectation.fulfill()
                 case .finished: Issue.record()
@@ -90,7 +90,7 @@ final class FileDownloadablePublisherTests {
     @Test("test .downloadFilePublisher() Fails When URLSession Has Error")
     func downloadFilePublisherFailsWhenUrlSessionHasError() async {
         let sut = createFileDownloader(
-            urlSession: createMockURLSession(error: HTTPError(statusCode: 500))
+            urlSession: createMockURLSession(error: NetworkingError.httpError(HTTPResponse(statusCode: 500)))
         )
         let expectation = Expectation()
         var didExecute = false
@@ -98,7 +98,7 @@ final class FileDownloadablePublisherTests {
             .sink { completion in
                 switch completion {
                 case let .failure(error):
-                    #expect(error == NetworkingError.internalError(.requestFailed(HTTPError(statusCode: 500))))
+                    #expect(error == NetworkingError.httpError(HTTPResponse(statusCode: 500)))
                     didExecute = true
                     expectation.fulfill()
                 case .finished: Issue.record()
