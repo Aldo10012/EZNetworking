@@ -80,7 +80,7 @@ final class DataUploaderAsyncAwaitTests {
         let networkError = URLError(.notConnectedToInternet)
         let session = createMockURLSession(error: networkError)
         let sut = createDataUploader(urlSession: session)
-        await #expect(throws: NetworkingError.urlError(URLError(.notConnectedToInternet))) {
+        await #expect(throws: NetworkingError.requestFailed(reason: .urlError(underlying: URLError(.notConnectedToInternet)))) {
             try await sut.uploadData(mockData, with: mockRequest, progress: nil)
         }
     }

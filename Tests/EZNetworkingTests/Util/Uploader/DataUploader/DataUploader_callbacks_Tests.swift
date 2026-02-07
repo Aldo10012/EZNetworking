@@ -78,7 +78,7 @@ final class DataUploaderCallbacksTests {
             case .success:
                 Issue.record()
             case let .failure(error):
-                #expect(error == NetworkingError.urlError(URLError(.notConnectedToInternet)))
+                #expect(error == NetworkingError.requestFailed(reason: .urlError(underlying: URLError(.notConnectedToInternet))))
             }
         }
         await expectation.fulfillment(within: .seconds(1))

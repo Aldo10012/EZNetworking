@@ -79,7 +79,7 @@ final class FileUploaderAsyncAwaitTests {
         let networkError = URLError(.notConnectedToInternet)
         let session = createMockURLSession(error: networkError)
         let sut = createFileUploader(urlSession: session)
-        await #expect(throws: NetworkingError.urlError(URLError(.notConnectedToInternet))) {
+        await #expect(throws: NetworkingError.requestFailed(reason: .urlError(underlying: URLError(.notConnectedToInternet)))) {
             try await sut.uploadFile(mockFileURL, with: mockRequest, progress: nil)
         }
     }

@@ -91,7 +91,7 @@ final class RequestPerformableAsyncAwaitTests {
         let sut = createRequestPerformer(
             urlSession: createMockURLSession(error: URLError(.networkConnectionLost))
         )
-        await #expect(throws: NetworkingError.urlError(URLError(.networkConnectionLost))) {
+        await #expect(throws: NetworkingError.requestFailed(reason: .urlError(underlying: URLError(.networkConnectionLost)))) {
             try await sut.perform(request: MockRequest(), decodeTo: Person.self)
         }
     }

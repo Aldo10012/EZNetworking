@@ -112,7 +112,7 @@ final class RequestPerformablepublisherTests {
             .sink(receiveCompletion: { completion in
                 switch completion {
                 case let .failure(error):
-                    #expect(error == NetworkingError.urlError(URLError(.networkConnectionLost)))
+                    #expect(error == NetworkingError.requestFailed(reason: .urlError(underlying: URLError(.networkConnectionLost))))
                     expectation.fulfill()
                 case .finished: Issue.record()
                 }
