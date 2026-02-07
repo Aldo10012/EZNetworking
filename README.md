@@ -78,14 +78,14 @@ Add EZNetworking to your project using Swift Package Manager:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/Aldo10012/EZNetworking.git", from: "5.1.0")
+    .package(url: "https://github.com/Aldo10012/EZNetworking.git", from: "5.2.0")
 ]
 ```
 
 Or through Xcode:
 1. Go to File > Add Packages
 2. Enter: `https://github.com/Aldo10012/EZNetworking.git`
-3. Select version: 5.1.0 or later
+3. Select version: 5.2.0 or later
 
 ## Quick Start Guide 🚀
 
@@ -1046,12 +1046,14 @@ do {
     // do something with the response
 } catch let error as NetworkingError {
     switch error {
-    case .internalError(let internalError):
-        // some internal error, such as failed to decode or the URL is not valid
-    case .httpError(let httpError):
-        // some HTTP error, such as status code 404
-    case .urlError(let uRLError):
-        // some error of type URLError
+    case .couldNotBuildURLRequest(reason: let reason):
+        // url inside of your Request is invalid
+    case .decodingFailed(reason: let reason):
+        // could not decode data into your Decodable type
+    case .responseValidationFailed(reason: let reason):
+        // bad URLResponse
+    case .requestFailed(reason: let reason):
+        // api request failed
     }
 }
 ```
