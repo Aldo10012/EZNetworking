@@ -3,6 +3,7 @@ import Foundation
 public enum NetworkingError: Error {
     case couldNotBuildURLRequest(reason: URLBuildFailureReason)
     case decodingFailed(reason: DecodingFailureReason)
+    case responseValidationFailed(reason: ResponseValidationFailureReason)
 
     case internalError(InternalError) /// any internal error
     case httpError(HTTPResponse) /// any HRRP error
@@ -16,6 +17,9 @@ extension NetworkingError: Equatable {
             reason1 == reason2
 
         case let (.decodingFailed(reason: reason1), .decodingFailed(reason: reason2)):
+            reason1 == reason2
+
+        case let (.responseValidationFailed(reason: reason1), .responseValidationFailed(reason: reason2)):
             reason1 == reason2
 
         case let (.internalError(error1), .internalError(error2)):
