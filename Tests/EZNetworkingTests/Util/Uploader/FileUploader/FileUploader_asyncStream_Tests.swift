@@ -44,7 +44,7 @@ final class FileUploaderAsyncStreamTests {
         #expect(events.count == 1)
         switch events[0] {
         case let .failure(error):
-            #expect(error == NetworkingError.httpError(HTTPError(statusCode: 400)))
+            #expect(error == NetworkingError.httpError(HTTPResponse(statusCode: 400)))
         default:
             Issue.record()
         }
@@ -57,7 +57,7 @@ final class FileUploaderAsyncStreamTests {
         let sut = FileUploader(
             session: MockSession(
                 urlSession: createMockURLSession(
-                    error: HTTPError(statusCode: 500)
+                    error: HTTPResponse(statusCode: 500)
                 )
             )
         )
@@ -69,7 +69,7 @@ final class FileUploaderAsyncStreamTests {
         #expect(events.count == 1)
         switch events[0] {
         case let .failure(error):
-            #expect(error == NetworkingError.internalError(.requestFailed(HTTPError(statusCode: 500))))
+            #expect(error == NetworkingError.internalError(.requestFailed(HTTPResponse(statusCode: 500))))
         default:
             Issue.record()
         }

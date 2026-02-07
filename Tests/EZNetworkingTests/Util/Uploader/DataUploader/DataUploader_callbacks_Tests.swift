@@ -38,7 +38,7 @@ final class DataUploaderCallbacksTests {
             case .success:
                 Issue.record()
             case let .failure(error):
-                #expect(error == NetworkingError.httpError(HTTPError(statusCode: 400)))
+                #expect(error == NetworkingError.httpError(HTTPResponse(statusCode: 400)))
             }
         }
         await expectation.fulfillment(within: .seconds(1))
@@ -49,7 +49,7 @@ final class DataUploaderCallbacksTests {
     @Test("test .uploadDataTask() Fails When urlSession Error Is Not Nil")
     func uploadDataTask_FailsWhenUrlSessionHasError() async {
         let sut = createDataUploader(
-            urlSession: createMockURLSession(error: HTTPError(statusCode: 400))
+            urlSession: createMockURLSession(error: HTTPResponse(statusCode: 400))
         )
 
         let expectation = Expectation()
@@ -59,7 +59,7 @@ final class DataUploaderCallbacksTests {
             case .success:
                 Issue.record()
             case let .failure(error):
-                #expect(error == NetworkingError.internalError(.requestFailed(HTTPError(statusCode: 400))))
+                #expect(error == NetworkingError.internalError(.requestFailed(HTTPResponse(statusCode: 400))))
             }
         }
         await expectation.fulfillment(within: .seconds(1))

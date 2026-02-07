@@ -1,18 +1,18 @@
 @testable import EZNetworking
 import Testing
 
-@Suite("Test HTTPErrorTests")
-final class HTTPErrorTests {
-    private static let statusCodeToCategoryMap: [Int: HTTPError.HTTPErrorCategory] = [
-        100: HTTPError.HTTPErrorCategory.informational,
-        200: HTTPError.HTTPErrorCategory.success,
-        300: HTTPError.HTTPErrorCategory.redirection,
-        400: HTTPError.HTTPErrorCategory.clientError,
-        500: HTTPError.HTTPErrorCategory.serverError
+@Suite("Test HTTPResponse")
+final class HTTPResponseTests {
+    private static let statusCodeToCategoryMap: [Int: HTTPResponse.HTTPErrorCategory] = [
+        100: HTTPResponse.HTTPErrorCategory.informational,
+        200: HTTPResponse.HTTPErrorCategory.success,
+        300: HTTPResponse.HTTPErrorCategory.redirection,
+        400: HTTPResponse.HTTPErrorCategory.clientError,
+        500: HTTPResponse.HTTPErrorCategory.serverError
     ]
     @Test("test HTTPError category given status code", arguments: zip(statusCodeToCategoryMap.keys, statusCodeToCategoryMap.values))
-    func hTTPErrorCategoryGivenStatusCode(statusCode: Int, expectedCategory: HTTPError.HTTPErrorCategory) {
-        let sut = HTTPError(statusCode: statusCode, headers: [:])
+    func hTTPErrorCategoryGivenStatusCode(statusCode: Int, expectedCategory: HTTPResponse.HTTPErrorCategory) {
+        let sut = HTTPResponse(statusCode: statusCode, headers: [:])
         #expect(sut.category == expectedCategory)
     }
 
@@ -25,7 +25,7 @@ final class HTTPErrorTests {
     ]
     @Test("test HTTPError description given status code", arguments: zip(statusCodeToDescriptionMap.keys, statusCodeToDescriptionMap.values))
     func hTTPErrorDescriptionGivenStatusCode(statusCode: Int, expectedDescription: String) {
-        let sut = HTTPError(statusCode: statusCode, headers: [:])
+        let sut = HTTPResponse(statusCode: statusCode, headers: [:])
         #expect(sut.description == expectedDescription)
     }
 }

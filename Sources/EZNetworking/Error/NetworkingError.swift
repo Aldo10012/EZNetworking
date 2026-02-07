@@ -5,7 +5,7 @@ public enum NetworkingError: Error {
     case decodingFailed(reason: DecodingFailureReason)
 
     case internalError(InternalError) /// any internal error
-    case httpError(HTTPError) /// any HRRP error
+    case httpError(HTTPResponse) /// any HRRP error
     case urlError(URLError) /// any URL error
 }
 

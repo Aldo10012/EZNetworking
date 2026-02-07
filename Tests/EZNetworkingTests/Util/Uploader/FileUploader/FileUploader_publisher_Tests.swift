@@ -42,7 +42,7 @@ final class FileUploaderPublisherTests {
             .sink { completion in
                 switch completion {
                 case let .failure(error):
-                    #expect(error == NetworkingError.httpError(HTTPError(statusCode: 400)))
+                    #expect(error == NetworkingError.httpError(HTTPResponse(statusCode: 400)))
                     expectation.fulfill()
                 case .finished: Issue.record()
                 }
@@ -59,7 +59,7 @@ final class FileUploaderPublisherTests {
     @Test("test .uploadFilePublisher() Fails When URLSession Has Error")
     func uploadFilePublisher_FailsWhenUrlSessionHasError() async {
         let sut = createFileUploader(
-            urlSession: createMockURLSession(error: HTTPError(statusCode: 500))
+            urlSession: createMockURLSession(error: HTTPResponse(statusCode: 500))
         )
 
         let expectation = Expectation()
@@ -67,7 +67,7 @@ final class FileUploaderPublisherTests {
             .sink { completion in
                 switch completion {
                 case let .failure(error):
-                    #expect(error == NetworkingError.internalError(.requestFailed(HTTPError(statusCode: 500))))
+                    #expect(error == NetworkingError.internalError(.requestFailed(HTTPResponse(statusCode: 500))))
                     expectation.fulfill()
                 case .finished: Issue.record()
                 }

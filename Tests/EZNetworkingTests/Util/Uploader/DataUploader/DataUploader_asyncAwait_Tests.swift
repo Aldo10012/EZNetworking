@@ -23,7 +23,7 @@ final class DataUploaderAsyncAwaitTests {
     func upload_withRedirectStatusCode_throwsError() async throws {
         let session = createMockURLSession(urlResponse: buildResponse(statusCode: 300))
         let sut = createDataUploader(urlSession: session)
-        await #expect(throws: NetworkingError.httpError(HTTPError(statusCode: 300))) {
+        await #expect(throws: NetworkingError.httpError(HTTPResponse(statusCode: 300))) {
             try await sut.uploadData(mockData, with: mockRequest, progress: nil)
         }
     }
@@ -32,7 +32,7 @@ final class DataUploaderAsyncAwaitTests {
     func upload_withClientErrorStatusCode_throwsError() async throws {
         let session = createMockURLSession(urlResponse: buildResponse(statusCode: 400))
         let sut = createDataUploader(urlSession: session)
-        await #expect(throws: NetworkingError.httpError(HTTPError(statusCode: 400))) {
+        await #expect(throws: NetworkingError.httpError(HTTPResponse(statusCode: 400))) {
             try await sut.uploadData(mockData, with: mockRequest, progress: nil)
         }
     }
@@ -41,7 +41,7 @@ final class DataUploaderAsyncAwaitTests {
     func upload_withServerErrorStatusCode_throwsError() async throws {
         let session = createMockURLSession(urlResponse: buildResponse(statusCode: 500))
         let sut = createDataUploader(urlSession: session)
-        await #expect(throws: NetworkingError.httpError(HTTPError(statusCode: 500))) {
+        await #expect(throws: NetworkingError.httpError(HTTPResponse(statusCode: 500))) {
             try await sut.uploadData(mockData, with: mockRequest, progress: nil)
         }
     }
@@ -50,27 +50,27 @@ final class DataUploaderAsyncAwaitTests {
 
     @Test("test .uploadData() throws when URLSession returns a 300 error")
     func upload_withHTTPError300_throwsError() async throws {
-        let session = createMockURLSession(error: HTTPError(statusCode: 300))
+        let session = createMockURLSession(error: HTTPResponse(statusCode: 300))
         let sut = createDataUploader(urlSession: session)
-        await #expect(throws: NetworkingError.internalError(.requestFailed(HTTPError(statusCode: 300)))) {
+        await #expect(throws: NetworkingError.internalError(.requestFailed(HTTPResponse(statusCode: 300)))) {
             try await sut.uploadData(mockData, with: mockRequest, progress: nil)
         }
     }
 
     @Test("test .uploadData() throws when URLSession returns a 400 error")
     func upload_withHTTPError400_throwsError() async throws {
-        let session = createMockURLSession(error: HTTPError(statusCode: 400))
+        let session = createMockURLSession(error: HTTPResponse(statusCode: 400))
         let sut = createDataUploader(urlSession: session)
-        await #expect(throws: NetworkingError.internalError(.requestFailed(HTTPError(statusCode: 400)))) {
+        await #expect(throws: NetworkingError.internalError(.requestFailed(HTTPResponse(statusCode: 400)))) {
             try await sut.uploadData(mockData, with: mockRequest, progress: nil)
         }
     }
 
     @Test("test .uploadData() throws when URLSession returns a 500 error")
     func upload_withHTTPError500_throwsError() async throws {
-        let session = createMockURLSession(error: HTTPError(statusCode: 500))
+        let session = createMockURLSession(error: HTTPResponse(statusCode: 500))
         let sut = createDataUploader(urlSession: session)
-        await #expect(throws: NetworkingError.internalError(.requestFailed(HTTPError(statusCode: 500)))) {
+        await #expect(throws: NetworkingError.internalError(.requestFailed(HTTPResponse(statusCode: 500)))) {
             try await sut.uploadData(mockData, with: mockRequest, progress: nil)
         }
     }

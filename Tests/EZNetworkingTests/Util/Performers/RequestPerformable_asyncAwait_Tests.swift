@@ -39,7 +39,7 @@ final class RequestPerformableAsyncAwaitTests {
         let sut = createRequestPerformer(
             urlSession: createMockURLSession(statusCode: 300)
         )
-        await #expect(throws: NetworkingError.httpError(HTTPError(statusCode: 300))) {
+        await #expect(throws: NetworkingError.httpError(HTTPResponse(statusCode: 300))) {
             try await sut.perform(request: MockRequest(), decodeTo: EmptyResponse.self)
         }
     }
@@ -49,7 +49,7 @@ final class RequestPerformableAsyncAwaitTests {
         let sut = createRequestPerformer(
             urlSession: createMockURLSession(statusCode: 400)
         )
-        await #expect(throws: NetworkingError.httpError(HTTPError(statusCode: 400))) {
+        await #expect(throws: NetworkingError.httpError(HTTPResponse(statusCode: 400))) {
             try await sut.perform(request: MockRequest(), decodeTo: EmptyResponse.self)
         }
     }
@@ -59,7 +59,7 @@ final class RequestPerformableAsyncAwaitTests {
         let sut = createRequestPerformer(
             urlSession: createMockURLSession(statusCode: 500)
         )
-        await #expect(throws: NetworkingError.httpError(HTTPError(statusCode: 500))) {
+        await #expect(throws: NetworkingError.httpError(HTTPResponse(statusCode: 500))) {
             try await sut.perform(request: MockRequest(), decodeTo: EmptyResponse.self)
         }
     }
@@ -69,9 +69,9 @@ final class RequestPerformableAsyncAwaitTests {
     @Test("test perform(request:_) fails when URLSession throws HTTPClientError")
     func perform_throwsErrorWhen_urlSessionThrowsHTTPClientError() async throws {
         let sut = createRequestPerformer(
-            urlSession: createMockURLSession(error: HTTPError(statusCode: 400))
+            urlSession: createMockURLSession(error: HTTPResponse(statusCode: 400))
         )
-        await #expect(throws: NetworkingError.internalError(.requestFailed(HTTPError(statusCode: 400)))) {
+        await #expect(throws: NetworkingError.internalError(.requestFailed(HTTPResponse(statusCode: 400)))) {
             try await sut.perform(request: MockRequest(), decodeTo: Person.self)
         }
     }
@@ -79,9 +79,9 @@ final class RequestPerformableAsyncAwaitTests {
     @Test("test perform(request:_) fails when URLSession throws HTTPServerError")
     func perform_throwsErrorWhen_urlSessionThrowsHTTPServerError() async throws {
         let sut = createRequestPerformer(
-            urlSession: createMockURLSession(error: HTTPError(statusCode: 500))
+            urlSession: createMockURLSession(error: HTTPResponse(statusCode: 500))
         )
-        await #expect(throws: NetworkingError.internalError(.requestFailed(HTTPError(statusCode: 500)))) {
+        await #expect(throws: NetworkingError.internalError(.requestFailed(HTTPResponse(statusCode: 500)))) {
             try await sut.perform(request: MockRequest(), decodeTo: Person.self)
         }
     }
