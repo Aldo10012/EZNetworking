@@ -1035,9 +1035,10 @@ EZNetworking provides comprehensive error handling:
 
 ```swift
 public enum NetworkingError: Error {
-    case internalError(InternalError)     /// any internal error
-    case httpError(HTTPError)             /// any HTTP status code error
-    case urlError(URLError)               /// any URL error
+    case couldNotBuildURLRequest(reason: URLBuildFailureReason)
+    case decodingFailed(reason: DecodingFailureReason)
+    case responseValidationFailed(reason: ResponseValidationFailureReason)
+    case requestFailed(reason: RequestFailureReason)
 }
 
 // Error handling example
