@@ -1,6 +1,6 @@
 import Foundation
 
-public struct HTTPResponse: Error {
+public struct HTTPResponse {
     public let statusCode: Int
     public let headers: [AnyHashable: Any]
     public let category: HTTPErrorCategory

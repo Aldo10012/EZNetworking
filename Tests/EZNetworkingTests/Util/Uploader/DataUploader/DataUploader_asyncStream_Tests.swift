@@ -61,7 +61,7 @@ final class DataUploaderAsyncStreamTests {
         let sut = DataUploader(
             session: MockSession(
                 urlSession: createMockURLSession(
-                    error: HTTPResponse(statusCode: 500)
+                    error: NetworkingError.httpError(HTTPResponse(statusCode: 500))
                 )
             )
         )
@@ -73,7 +73,7 @@ final class DataUploaderAsyncStreamTests {
         #expect(events.count == 1)
         switch events[0] {
         case let .failure(error):
-            #expect(error == NetworkingError.internalError(.requestFailed(HTTPResponse(statusCode: 500))))
+            #expect(error == NetworkingError.httpError(HTTPResponse(statusCode: 500)))
         default:
             Issue.record()
         }
