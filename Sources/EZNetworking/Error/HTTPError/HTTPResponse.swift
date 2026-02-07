@@ -1,11 +1,11 @@
 import Foundation
 
-public struct HTTPResponse {
+public struct HTTPResponse: Sendable {
     public let statusCode: Int
-    public let headers: [AnyHashable: Any]
+    public let headers: [String: String]
     public let category: HTTPErrorCategory
 
-    public init(statusCode: Int, headers: [AnyHashable: Any] = [:]) {
+    public init(statusCode: Int, headers: [String: String] = [:]) {
         self.statusCode = statusCode
         self.headers = headers
         category = HTTPErrorCategory.from(statusCode: statusCode)
@@ -28,7 +28,7 @@ public struct HTTPResponse {
         }
     }
 
-    public enum HTTPErrorCategory {
+    public enum HTTPErrorCategory: Sendable {
         case informational // 1xx
         case success // 2xx
         case redirection // 3xx
