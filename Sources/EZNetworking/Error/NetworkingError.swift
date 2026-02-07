@@ -1,6 +1,6 @@
 import Foundation
 
-public enum NetworkingError: Error {
+public enum NetworkingError: Error, Sendable {
     case couldNotBuildURLRequest(reason: URLBuildFailureReason)
     case decodingFailed(reason: DecodingFailureReason)
     case responseValidationFailed(reason: ResponseValidationFailureReason)
