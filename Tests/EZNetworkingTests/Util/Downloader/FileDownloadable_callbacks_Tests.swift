@@ -71,7 +71,7 @@ final class FileDownloadableCallBacksTests {
     @Test("test .downloadFileTask() Fails When urlSession Error Is Not Nil")
     func downloadFileFailsWhenUrlSessionHasError() async {
         let sut = createFileDownloader(
-            urlSession: createMockURLSession(error: NetworkingError.httpError( HTTPResponse(statusCode: 500)))
+            urlSession: createMockURLSession(error: NetworkingError.httpError(HTTPResponse(statusCode: 500)))
         )
 
         let expectation = Expectation()
@@ -81,7 +81,7 @@ final class FileDownloadableCallBacksTests {
             case .success:
                 Issue.record()
             case let .failure(error):
-                #expect(error == NetworkingError.httpError( HTTPResponse(statusCode: 500)))
+                #expect(error == NetworkingError.httpError(HTTPResponse(statusCode: 500)))
             }
         }
         await expectation.fulfillment(within: .seconds(1))
