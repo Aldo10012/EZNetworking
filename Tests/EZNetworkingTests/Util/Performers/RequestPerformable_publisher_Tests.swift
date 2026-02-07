@@ -47,7 +47,7 @@ final class RequestPerformablepublisherTests {
             .sink(receiveCompletion: { completion in
                 switch completion {
                 case let .failure(error):
-                    #expect(error == NetworkingError.httpError(HTTPResponse(statusCode: 300)))
+                    #expect(error == NetworkingError.responseValidationFailed(reason: .badHTTPResponse(underlying: .init(statusCode: 300))))
                     expectation.fulfill()
                 case .finished: Issue.record()
                 }
@@ -68,7 +68,7 @@ final class RequestPerformablepublisherTests {
             .sink(receiveCompletion: { completion in
                 switch completion {
                 case let .failure(error):
-                    #expect(error == NetworkingError.httpError(HTTPResponse(statusCode: 400)))
+                    #expect(error == NetworkingError.responseValidationFailed(reason: .badHTTPResponse(underlying: .init(statusCode: 400))))
                     expectation.fulfill()
                 case .finished: Issue.record()
                 }
@@ -89,7 +89,7 @@ final class RequestPerformablepublisherTests {
             .sink(receiveCompletion: { completion in
                 switch completion {
                 case let .failure(error):
-                    #expect(error == NetworkingError.httpError(HTTPResponse(statusCode: 500)))
+                    #expect(error == NetworkingError.responseValidationFailed(reason: .badHTTPResponse(underlying: .init(statusCode: 500))))
                     expectation.fulfill()
                 case .finished: Issue.record()
                 }

@@ -12,7 +12,7 @@ final class URLResponseValidatorTests {
 
     @Test("test validateStatus givenURLResponse Throws")
     func validateStatus_givenURLResponse_Throws() throws {
-        #expect(throws: NetworkingError.internalError(.noHTTPURLResponse).self) {
+        #expect(throws: NetworkingError.responseValidationFailed(reason: .noHTTPURLResponse).self) {
             try sut.validateStatus(from: URLResponse())
         }
     }
@@ -21,7 +21,7 @@ final class URLResponseValidatorTests {
 
     @Test("test validateStatus givenHTTPURLResponseStatusCode100 Throws")
     func validateStatus_givenHTTPURLResponseStatusCode100_Throws() throws {
-        #expect(throws: NetworkingError.httpError(HTTPResponse(statusCode: 100)).self) {
+        #expect(throws: NetworkingError.responseValidationFailed(reason: .badHTTPResponse(underlying: .init(statusCode: 100))).self) {
             try sut.validateStatus(from: createHttpUrlResponse(statusCode: 100))
         }
     }
@@ -37,7 +37,7 @@ final class URLResponseValidatorTests {
 
     @Test("test validateStatus givenHTTPURLResponseStatusCode300 Throws")
     func validateStatus_givenHTTPURLResponseStatusCode300_Throws() throws {
-        #expect(throws: NetworkingError.httpError(HTTPResponse(statusCode: 300)).self) {
+        #expect(throws: NetworkingError.responseValidationFailed(reason: .badHTTPResponse(underlying: .init(statusCode: 300))).self) {
             try sut.validateStatus(from: createHttpUrlResponse(statusCode: 300))
         }
     }
@@ -46,7 +46,7 @@ final class URLResponseValidatorTests {
 
     @Test("test validateStatus givenHTTPURLResponseStatusCode400 Throws")
     func validateStatus_givenHTTPURLResponseStatusCode400_Throws() throws {
-        #expect(throws: NetworkingError.httpError(HTTPResponse(statusCode: 400)).self) {
+        #expect(throws: NetworkingError.responseValidationFailed(reason: .badHTTPResponse(underlying: .init(statusCode: 400))).self) {
             try sut.validateStatus(from: createHttpUrlResponse(statusCode: 400))
         }
     }
@@ -55,7 +55,7 @@ final class URLResponseValidatorTests {
 
     @Test("test validateStatus givenHTTPURLResponseStatusCode500 Throws")
     func validateStatus_givenHTTPURLResponseStatusCode500_Throws() throws {
-        #expect(throws: NetworkingError.httpError(HTTPResponse(statusCode: 500)).self) {
+        #expect(throws: NetworkingError.responseValidationFailed(reason: .badHTTPResponse(underlying: .init(statusCode: 500))).self) {
             try sut.validateStatus(from: createHttpUrlResponse(statusCode: 500))
         }
     }

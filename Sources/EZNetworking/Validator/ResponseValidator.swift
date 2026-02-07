@@ -9,17 +9,25 @@ public struct ResponseValidatorImpl: ResponseValidator {
 
     public func validateStatus(from urlResponse: URLResponse) throws {
         guard let httpURLResponse = urlResponse as? HTTPURLResponse else {
-            throw NetworkingError.internalError(.noHTTPURLResponse)
+            throw NetworkingError.responseValidationFailed(reason: .noHTTPURLResponse)
         }
-        let statusCode = HTTPResponse(
+
+        // Convert headers from [AnyHashable: Any] to [String: String]
+        let headers = httpURLResponse.allHeaderFields.reduce(into: [String: String]()) { result, pair in
+            if let key = pair.key as? String, let value = pair.value as? String {
+                result[key] = value
+            }
+        }
+
+        let httpResponse = HTTPResponse(
             statusCode: httpURLResponse.statusCode,
-            headers: httpURLResponse.allHeaderFields
+            headers: headers
         )
 
-        if statusCode.category == .success {
+        if httpResponse.category == .success {
             return // successful http response (2xx) do not throw error
         }
-        throw NetworkingError.httpError(statusCode)
+        throw NetworkingError.responseValidationFailed(reason: .badHTTPResponse(underlying: httpResponse))
     }
 }
 

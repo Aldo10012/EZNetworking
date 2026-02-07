@@ -22,7 +22,7 @@ final class FileUploaderAsyncAwaitTests {
     func uploadFile_withRedirectStatusCode_throwsError() async throws {
         let session = createMockURLSession(urlResponse: buildResponse(statusCode: 300))
         let sut = createFileUploader(urlSession: session)
-        await #expect(throws: NetworkingError.httpError(HTTPResponse(statusCode: 300))) {
+        await #expect(throws: NetworkingError.responseValidationFailed(reason: .badHTTPResponse(underlying: .init(statusCode: 300)))) {
             try await sut.uploadFile(mockFileURL, with: mockRequest, progress: nil)
         }
     }
@@ -31,7 +31,7 @@ final class FileUploaderAsyncAwaitTests {
     func uploadFile_withClientErrorStatusCode_throwsError() async throws {
         let session = createMockURLSession(urlResponse: buildResponse(statusCode: 400))
         let sut = createFileUploader(urlSession: session)
-        await #expect(throws: NetworkingError.httpError(HTTPResponse(statusCode: 400))) {
+        await #expect(throws: NetworkingError.responseValidationFailed(reason: .badHTTPResponse(underlying: .init(statusCode: 400)))) {
             try await sut.uploadFile(mockFileURL, with: mockRequest, progress: nil)
         }
     }
@@ -40,7 +40,7 @@ final class FileUploaderAsyncAwaitTests {
     func uploadFile_withServerErrorStatusCode_throwsError() async throws {
         let session = createMockURLSession(urlResponse: buildResponse(statusCode: 500))
         let sut = createFileUploader(urlSession: session)
-        await #expect(throws: NetworkingError.httpError(HTTPResponse(statusCode: 500))) {
+        await #expect(throws: NetworkingError.responseValidationFailed(reason: .badHTTPResponse(underlying: .init(statusCode: 500)))) {
             try await sut.uploadFile(mockFileURL, with: mockRequest, progress: nil)
         }
     }
@@ -49,27 +49,27 @@ final class FileUploaderAsyncAwaitTests {
 
     @Test("test .uploadFile() throws when URLSession returns a 300 error")
     func uploadFile_withHTTPError300_throwsError() async throws {
-        let session = createMockURLSession(error: NetworkingError.httpError(HTTPResponse(statusCode: 300)))
+        let session = createMockURLSession(error: NetworkingError.responseValidationFailed(reason: .badHTTPResponse(underlying: .init(statusCode: 300))))
         let sut = createFileUploader(urlSession: session)
-        await #expect(throws: NetworkingError.httpError(HTTPResponse(statusCode: 300))) {
+        await #expect(throws: NetworkingError.responseValidationFailed(reason: .badHTTPResponse(underlying: .init(statusCode: 300)))) {
             try await sut.uploadFile(mockFileURL, with: mockRequest, progress: nil)
         }
     }
 
     @Test("test .uploadFile() throws when URLSession returns a 400 error")
     func uploadFile_withHTTPError400_throwsError() async throws {
-        let session = createMockURLSession(error: NetworkingError.httpError(HTTPResponse(statusCode: 400)))
+        let session = createMockURLSession(error: NetworkingError.responseValidationFailed(reason: .badHTTPResponse(underlying: .init(statusCode: 400))))
         let sut = createFileUploader(urlSession: session)
-        await #expect(throws: NetworkingError.httpError(HTTPResponse(statusCode: 400))) {
+        await #expect(throws: NetworkingError.responseValidationFailed(reason: .badHTTPResponse(underlying: .init(statusCode: 400)))) {
             try await sut.uploadFile(mockFileURL, with: mockRequest, progress: nil)
         }
     }
 
     @Test("test .uploadFile() throws when URLSession returns a 500 error")
     func uploadFile_withHTTPError500_throwsError() async throws {
-        let session = createMockURLSession(error: NetworkingError.httpError(HTTPResponse(statusCode: 500)))
+        let session = createMockURLSession(error: NetworkingError.responseValidationFailed(reason: .badHTTPResponse(underlying: .init(statusCode: 500))))
         let sut = createFileUploader(urlSession: session)
-        await #expect(throws: NetworkingError.httpError(HTTPResponse(statusCode: 500))) {
+        await #expect(throws: NetworkingError.responseValidationFailed(reason: .badHTTPResponse(underlying: .init(statusCode: 500)))) {
             try await sut.uploadFile(mockFileURL, with: mockRequest, progress: nil)
         }
     }

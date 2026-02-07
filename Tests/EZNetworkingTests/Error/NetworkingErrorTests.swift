@@ -38,4 +38,20 @@ final class NetworkingErrorTests {
         let err2 = NetworkingError.decodingFailed(reason: .other(underlying: otherError))
         #expect(err1 != err2)
     }
+
+    // MARK: .responseValidationFailed(reason:_)
+
+    @Test("test NetworkingError.responseValidationFailed(_) equatability")
+    func networkingErrorResponseValidationFailedEquatability() {
+        let err1 = NetworkingError.responseValidationFailed(reason: .noHTTPURLResponse)
+        let err2 = NetworkingError.responseValidationFailed(reason: .noHTTPURLResponse)
+        #expect(err1 == err2)
+    }
+
+    @Test("test NetworkingError.responseValidationFailed(_) non equatability")
+    func networkingErrorResponseValidationFailedNonEquatability() {
+        let err1 = NetworkingError.responseValidationFailed(reason: .noHTTPURLResponse)
+        let err2 = NetworkingError.responseValidationFailed(reason: .badHTTPResponse(underlying: .init(statusCode: 400)))
+        #expect(err1 != err2)
+    }
 }
