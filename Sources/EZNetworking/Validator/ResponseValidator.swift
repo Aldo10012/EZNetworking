@@ -9,7 +9,7 @@ public struct ResponseValidatorImpl: ResponseValidator {
 
     public func validateStatus(from urlResponse: URLResponse) throws {
         guard let httpURLResponse = urlResponse as? HTTPURLResponse else {
-            throw NetworkingError.internalError(.noHTTPURLResponse)
+            throw NetworkingError.responseValidationFailed(reason: .noHTTPURLResponse)
         }
 
         // Convert headers from [AnyHashable: Any] to [String: String]

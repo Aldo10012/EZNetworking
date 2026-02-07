@@ -12,7 +12,7 @@ final class URLResponseValidatorTests {
 
     @Test("test validateStatus givenURLResponse Throws")
     func validateStatus_givenURLResponse_Throws() throws {
-        #expect(throws: NetworkingError.internalError(.noHTTPURLResponse).self) {
+        #expect(throws: NetworkingError.responseValidationFailed(reason: .noHTTPURLResponse).self) {
             try sut.validateStatus(from: URLResponse())
         }
     }
