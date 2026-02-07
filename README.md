@@ -14,8 +14,10 @@ EZNetworking is a powerful, lightweight Swift networking library that simplifies
 - **Flexible Request Building**: Multiple approaches to creating requests
 - **Comprehensive Interceptors**: Full request/response pipeline control
 - **Built-in Caching**: Efficient response caching system
-- **File & Image Downloads**: Easy-to-use download utilities
-- **WebSocket**: Real-time, bi-directional client to server communication
+- **File Download**: Easy-to-use file downloader
+- **File Upload**: Easy-to-use file uploader
+- **Data Upload**: Easy-to-use data uploader
+- **WebSocket**: Real-time, bi-directional client-to-server communication
 - **Extensive Testing**: 100% unit test coverage
 
 ## Table of Contents 📑
