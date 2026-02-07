@@ -73,4 +73,13 @@ final class NetworkingErrorTests {
         let err2 = NetworkingError.requestFailed(reason: .unknownError(underlying: DummyError.error))
         #expect(err1 != err2)
     }
+
+    // MARK: different cases
+
+    @Test("test NetworkingError different cases are non equatability")
+    func networkingErrorDifferentCasesNotEquatability() {
+        let err1 = NetworkingError.couldNotBuildURLRequest(reason: .noURL)
+        let err2 = NetworkingError.responseValidationFailed(reason: .noHTTPURLResponse)
+        #expect(err1 != err2)
+    }
 }
