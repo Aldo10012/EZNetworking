@@ -54,4 +54,23 @@ final class NetworkingErrorTests {
         let err2 = NetworkingError.responseValidationFailed(reason: .badHTTPResponse(underlying: .init(statusCode: 400)))
         #expect(err1 != err2)
     }
+
+    // MARK: .requestFailed(reason:_)
+
+    @Test("test NetworkingError.requestFailed(_) equatability")
+    func networkingErrorRequestFailedEquatability() {
+        let err1 = NetworkingError.requestFailed(reason: .urlError(underlying: URLError(.badURL)))
+        let err2 = NetworkingError.requestFailed(reason: .urlError(underlying: URLError(.badURL)))
+        #expect(err1 == err2)
+    }
+
+    @Test("test NetworkingError.responseValidationFailed(_) non equatability")
+    func networkingErrorRequestFailedNonEquatability() {
+        enum DummyError: Error {
+            case error
+        }
+        let err1 = NetworkingError.requestFailed(reason: .urlError(underlying: URLError(.badURL)))
+        let err2 = NetworkingError.requestFailed(reason: .unknownError(underlying: DummyError.error))
+        #expect(err1 != err2)
+    }
 }
