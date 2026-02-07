@@ -56,7 +56,7 @@ final class FileDownloadableAsyncStreamTests {
         #expect(events.count == 1)
         switch events[0] {
         case let .failure(error):
-            #expect(error == NetworkingError.httpError(HTTPResponse(statusCode: 400)))
+            #expect(error == NetworkingError.responseValidationFailed(reason: .badHTTPResponse(underlying: .init(statusCode: 400))))
         default:
             Issue.record()
         }

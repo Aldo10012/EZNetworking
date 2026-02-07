@@ -19,15 +19,15 @@ public struct ResponseValidatorImpl: ResponseValidator {
             }
         }
 
-        let statusCode = HTTPResponse(
+        let httpResponse = HTTPResponse(
             statusCode: httpURLResponse.statusCode,
             headers: headers
         )
 
-        if statusCode.category == .success {
+        if httpResponse.category == .success {
             return // successful http response (2xx) do not throw error
         }
-        throw NetworkingError.httpError(statusCode)
+        throw NetworkingError.responseValidationFailed(reason: .badHTTPResponse(underlying: httpResponse))
     }
 }
 
