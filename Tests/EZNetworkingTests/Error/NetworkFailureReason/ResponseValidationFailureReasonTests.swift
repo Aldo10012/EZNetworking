@@ -4,7 +4,6 @@ import Testing
 
 @Suite("Test ResponseValidationFailureReason")
 final class ResponseValidationFailureReasonTests {
-
     @Test("test ResponseValidationFailureReason is equatable", arguments: zip(list, list))
     func urlResponseValidationFailureReasoneIsEquatable(inputA: ResponseValidationFailureReason, inputB: ResponseValidationFailureReason) {
         #expect(inputA == inputB)
