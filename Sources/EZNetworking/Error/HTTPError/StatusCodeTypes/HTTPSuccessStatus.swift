@@ -1,6 +1,6 @@
 import Foundation
 
-enum HTTPSuccessStatus: Error {
+enum HTTPSuccessStatus {
     static func description(from statusCode: Int) -> String {
         HTTPSuccessStatus.descriptions[statusCode] ?? "Unknown Success Status"
     }

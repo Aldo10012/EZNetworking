@@ -1,6 +1,6 @@
 import Foundation
 
-enum HTTPRedirectionStatus: Error {
+enum HTTPRedirectionStatus {
     static func description(from statusCode: Int) -> String {
         HTTPRedirectionStatus.descriptions[statusCode] ?? "Unknown Redirection Status"
     }
