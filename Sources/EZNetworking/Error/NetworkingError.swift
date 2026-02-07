@@ -5,8 +5,6 @@ public enum NetworkingError: Error {
     case decodingFailed(reason: DecodingFailureReason)
     case responseValidationFailed(reason: ResponseValidationFailureReason)
     case requestFailed(reason: RequestFailureReason)
-
-    case internalError(InternalError) /// any internal error
 }
 
 extension NetworkingError: Equatable {
@@ -23,9 +21,6 @@ extension NetworkingError: Equatable {
 
         case let (.requestFailed(reason: reason1), .requestFailed(reason: reason2)):
             reason1 == reason2
-
-        case let (.internalError(error1), .internalError(error2)):
-            error1 == error2
 
         default:
             false

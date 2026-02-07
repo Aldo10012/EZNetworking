@@ -125,7 +125,7 @@ public class FileDownloader: FileDownloadable {
     private func mapError(_ error: Error) -> NetworkingError {
         if let networkError = error as? NetworkingError { return networkError }
         if let urlError = error as? URLError { return .requestFailed(reason: .urlError(underlying: urlError)) }
-        return .internalError(.requestFailed(error))
+        return .requestFailed(reason: .unknownError(underlying: error))
     }
 
     private func configureProgressTracking(progress: DownloadProgressHandler?) {
