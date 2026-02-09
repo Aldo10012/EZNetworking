@@ -1,3 +1,4 @@
+// swiftlint:disable:next file_length
 @testable import EZNetworking
 import Foundation
 import Testing
