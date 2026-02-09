@@ -7,6 +7,7 @@ public enum HTTPHeader: Equatable {
     case acceptLanguage(String)
     case authorization(AuthorizationType)
     case cacheControl(String)
+    case connection(String)
     case contentLength(String)
     case contentType(MimeType)
     case cookie(String)
@@ -27,6 +28,7 @@ public enum HTTPHeader: Equatable {
         case .acceptLanguage: "Accept-Language"
         case .authorization: "Authorization"
         case .cacheControl: "Cache-Control"
+        case .connection: "Connection"
         case .contentLength: "Content-Length"
         case .contentType: "Content-Type"
         case .cookie: "Cookie"
@@ -49,6 +51,7 @@ public enum HTTPHeader: Equatable {
         case let .acceptLanguage(value): value
         case let .authorization(authentication): authentication.value
         case let .cacheControl(value): value
+        case let .connection(value): value
         case let .contentLength(value): value
         case let .contentType(contentType): contentType.value
         case let .cookie(value): value

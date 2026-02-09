@@ -20,6 +20,7 @@ final class HTTPHeaderTests {
         (header: HTTPHeader.acceptLanguage("en-US"), key: "Accept-Language", value: "en-US"),
         (header: HTTPHeader.authorization(.bearer("abcde")), key: "Authorization", value: "Bearer abcde"),
         (header: HTTPHeader.cacheControl("no-cache"), key: "Cache-Control", value: "no-cache"),
+        (header: HTTPHeader.connection("keep-alive"), key: "Connection", value: "keep-alive"),
         (header: HTTPHeader.contentLength("1024"), key: "Content-Length", value: "1024"),
         (header: HTTPHeader.contentType(.json), key: "Content-Type", value: "application/json"),
         (header: HTTPHeader.contentType(.xml), key: "Content-Type", value: "application/xml"),
