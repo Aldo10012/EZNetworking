@@ -172,15 +172,18 @@ struct ServerSentEventTests {
     }
 
     @Test("test empty strings for optional fields")
-    func emptyStringsForOptionalFields() {
+    func emptyStringsForOptionalFields() throws {
         let event = ServerSentEvent(
             id: "",
             event: "",
             data: "data"
         )
 
-        #expect(event.id .isEmpty)
-        #expect(event.event .isEmpty)
+        let unwrappedEventId = try #require(event.id)
+        let unwrappedEventString = try #require(event.event)
+
+        #expect(unwrappedEventId.isEmpty)
+        #expect(unwrappedEventString.isEmpty)
     }
 
     @Test("test Unicode and special characters in data")

@@ -241,7 +241,7 @@ struct SSEParserTests {
     }
 
     @Test("test Handle line with only field name")
-    func handleLineWithOnlyFieldName() async {
+    func handleLineWithOnlyFieldName() async throws {
         let parser = SSEParser()
 
         _ = await parser.parseLine("data:")
@@ -249,7 +249,8 @@ struct SSEParserTests {
         let event = await parser.parseLine("")
 
         // Empty value after colon should result in empty string
-        #expect(event?.data .isEmpty)
+        let unwrappedEvent = try #require(event)
+        #expect(unwrappedEvent.data.isEmpty)
     }
 
     @Test("test Malformed line treated as comment - various formats")
@@ -375,14 +376,15 @@ struct SSEParserTests {
     // MARK: - Edge Cases
 
     @Test("test Empty data value is valid")
-    func emptyDataValueIsValid() async {
+    func emptyDataValueIsValid() async throws{
         let parser = SSEParser()
 
         _ = await parser.parseLine("data:")
 
         let event = await parser.parseLine("")
 
-        #expect(event?.data .isEmpty)
+        let unwrappedEvent = try #require(event)
+        #expect(unwrappedEvent.data.isEmpty)
     }
 
     @Test("test Multiple empty lines")
@@ -479,7 +481,7 @@ struct SSEParserTests {
     }
 
     @Test("test Known field without colon gets empty value")
-    func knownFieldWithoutColonGetsEmptyValue() async {
+    func knownFieldWithoutColonGetsEmptyValue() async throws {
         let parser = SSEParser()
 
         // "data" field with no colon = empty data value
@@ -488,11 +490,12 @@ struct SSEParserTests {
         let event = await parser.parseLine("")
 
         // Empty string is valid data
-        #expect(event?.data .isEmpty)
+        let unwrappedEvent = try #require(event)
+        #expect(unwrappedEvent.data.isEmpty)
     }
 
     @Test("test Event field without colon gets empty value")
-    func eventFieldWithoutColonGetsEmptyValue() async {
+    func eventFieldWithoutColonGetsEmptyValue() async throws {
         let parser = SSEParser()
 
         _ = await parser.parseLine("event")
@@ -500,12 +503,15 @@ struct SSEParserTests {
 
         let event = await parser.parseLine("")
 
-        #expect(event?.event .isEmpty)
-        #expect(event?.data == "test")
+        let unwrappedEvent = try #require(event)
+        let unwrappedEventString = try #require(unwrappedEvent.event)
+
+        #expect(unwrappedEventString.isEmpty)
+        #expect(unwrappedEvent.data == "test")
     }
 
     @Test("test ID field without colon gets empty value")
-    func idFieldWithoutColonGetsEmptyValue() async {
+    func idFieldWithoutColonGetsEmptyValue() async throws {
         let parser = SSEParser()
 
         _ = await parser.parseLine("id")
@@ -513,8 +519,11 @@ struct SSEParserTests {
 
         let event = await parser.parseLine("")
 
-        #expect(event?.id .isEmpty)
-        #expect(event?.data == "test")
+        let unwrappedEvent = try #require(event)
+        let unwrappedEventId = try #require(unwrappedEvent.id)
+
+        #expect(unwrappedEventId.isEmpty)
+        #expect(unwrappedEvent.data == "test")
     }
 
     // MARK: - Null Character Handling (Spec Compliance)
@@ -732,7 +741,7 @@ struct SSEParserTests {
     }
 
     @Test("test Event with empty data field is valid")
-    func eventWithEmptyDataFieldIsValid() async {
+    func eventWithEmptyDataFieldIsValid() async throws {
         let parser = SSEParser()
 
         _ = await parser.parseLine("id: 999")
@@ -742,6 +751,7 @@ struct SSEParserTests {
 
         // Empty string is valid data
         #expect(event?.id == "999")
-        #expect(event?.data .isEmpty)
+        let unwrappedEvent = try #require(event)
+        #expect(unwrappedEvent.data.isEmpty)
     }
 }
