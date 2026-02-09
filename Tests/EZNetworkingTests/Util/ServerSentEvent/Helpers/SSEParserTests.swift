@@ -1,4 +1,4 @@
-// swiftlint:disable:next file_length
+// swiftlint:disable file_length
 @testable import EZNetworking
 import Foundation
 import Testing
@@ -756,3 +756,4 @@ struct SSEParserTests {
         #expect(unwrappedEvent.data.isEmpty)
     }
 }
+// swiftlint:enable file_length
