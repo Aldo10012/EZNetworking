@@ -249,7 +249,7 @@ struct SSEParserTests {
         let event = await parser.parseLine("")
 
         // Empty value after colon should result in empty string
-        #expect(event?.data == "")
+        #expect(event?.data .isEmpty)
     }
 
     @Test("test Malformed line treated as comment - various formats")
@@ -382,7 +382,7 @@ struct SSEParserTests {
 
         let event = await parser.parseLine("")
 
-        #expect(event?.data == "")
+        #expect(event?.data .isEmpty)
     }
 
     @Test("test Multiple empty lines")
@@ -488,7 +488,7 @@ struct SSEParserTests {
         let event = await parser.parseLine("")
 
         // Empty string is valid data
-        #expect(event?.data == "")
+        #expect(event?.data .isEmpty)
     }
 
     @Test("test Event field without colon gets empty value")
@@ -500,7 +500,7 @@ struct SSEParserTests {
 
         let event = await parser.parseLine("")
 
-        #expect(event?.event == "")
+        #expect(event?.event .isEmpty)
         #expect(event?.data == "test")
     }
 
@@ -513,7 +513,7 @@ struct SSEParserTests {
 
         let event = await parser.parseLine("")
 
-        #expect(event?.id == "")
+        #expect(event?.id .isEmpty)
         #expect(event?.data == "test")
     }
 
@@ -742,6 +742,6 @@ struct SSEParserTests {
 
         // Empty string is valid data
         #expect(event?.id == "999")
-        #expect(event?.data == "")
+        #expect(event?.data .isEmpty)
     }
 }

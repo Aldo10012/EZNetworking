@@ -142,7 +142,7 @@ struct ServerSentEventTests {
     func emptyData() {
         let event = ServerSentEvent(data: "")
 
-        #expect(event.data == "")
+        #expect(event.data .isEmpty)
     }
 
     @Test("test multiline data")
@@ -179,8 +179,8 @@ struct ServerSentEventTests {
             data: "data"
         )
 
-        #expect(event.id == "")
-        #expect(event.event == "")
+        #expect(event.id .isEmpty)
+        #expect(event.event .isEmpty)
     }
 
     @Test("test Unicode and special characters in data")
