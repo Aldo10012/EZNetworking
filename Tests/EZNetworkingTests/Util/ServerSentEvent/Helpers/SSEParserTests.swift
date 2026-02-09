@@ -3,6 +3,7 @@
 import Foundation
 import Testing
 
+// swiftlint:disable type_body_length
 @Suite("SSEParser Tests")
 struct SSEParserTests {
     // MARK: - Basic Parsing Tests
@@ -377,7 +378,7 @@ struct SSEParserTests {
     // MARK: - Edge Cases
 
     @Test("test Empty data value is valid")
-    func emptyDataValueIsValid() async throws{
+    func emptyDataValueIsValid() async throws {
         let parser = SSEParser()
 
         _ = await parser.parseLine("data:")
@@ -756,4 +757,5 @@ struct SSEParserTests {
         #expect(unwrappedEvent.data.isEmpty)
     }
 }
+// swiftlint:enable type_body_length
 // swiftlint:enable file_length
