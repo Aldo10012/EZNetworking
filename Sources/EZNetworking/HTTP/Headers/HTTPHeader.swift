@@ -14,6 +14,7 @@ public enum HTTPHeader: Equatable {
     case host(String)
     case ifModifiedSince(String)
     case ifNoneMatch(String)
+    case lastEventID(String)
     case origin(String)
     case referer(String)
     case userAgent(String)
@@ -35,6 +36,7 @@ public enum HTTPHeader: Equatable {
         case .host: "Host"
         case .ifModifiedSince: "If-Modified-Since"
         case .ifNoneMatch: "If-None-Match"
+        case .lastEventID: "Last-Event-ID"
         case .origin: "Origin"
         case .referer: "Referer"
         case .userAgent: "User-Agent"
@@ -58,6 +60,7 @@ public enum HTTPHeader: Equatable {
         case let .host(value): value
         case let .ifModifiedSince(value): value
         case let .ifNoneMatch(value): value
+        case let .lastEventID(value): value
         case let .origin(value): value
         case let .referer(value): value
         case let .userAgent(value): value

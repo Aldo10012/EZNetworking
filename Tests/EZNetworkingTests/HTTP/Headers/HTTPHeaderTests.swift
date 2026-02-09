@@ -30,6 +30,7 @@ final class HTTPHeaderTests {
         (header: HTTPHeader.host("example.com"), key: "Host", value: "example.com"),
         (header: HTTPHeader.ifModifiedSince(sampleDate), key: "If-Modified-Since", value: sampleDate),
         (header: HTTPHeader.ifNoneMatch("W/\"123456789\""), key: "If-None-Match", value: "W/\"123456789\""),
+        (header: HTTPHeader.lastEventID("event-123"), key: "Last-Event-ID", value: "event-123"),
         (header: HTTPHeader.origin("https://example.com"), key: "Origin", value: "https://example.com"),
         (header: HTTPHeader.referer("https://example.com/previous-page"), key: "Referer", value: "https://example.com/previous-page"),
         (header: HTTPHeader.userAgent(sampleUserAgent), key: "User-Agent", value: sampleUserAgent),
