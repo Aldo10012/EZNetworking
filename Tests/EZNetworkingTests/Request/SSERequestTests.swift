@@ -4,7 +4,6 @@ import Testing
 
 @Suite("Test SSERequest")
 final class SSERequestTests {
-
     private let sseURL = "https://api.example.com/events"
 
     // MARK: - Default Values

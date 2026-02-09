@@ -4,7 +4,6 @@ import Testing
 
 @Suite("SSEConnectionState Tests")
 struct SSEConnectionStateTests {
-
     // MAR: - SSEConnectionState
 
     @Test("test SSEConnectionState equality", arguments: zip(connectionStateList, connectionStateList))
@@ -28,7 +27,7 @@ struct SSEConnectionStateTests {
 
     @Test("test SSEConnectionState.DisconnectReason equality", arguments: zip(disconnectReasonList, disconnectReasonList))
     func sseConnectionStateDisconnectReasonEquality(reasonA: SSEConnectionState.DisconnectReason, reasonB: SSEConnectionState.DisconnectReason) {
-        #expect(reasonA == reasonB) 
+        #expect(reasonA == reasonB)
     }
 
     @Test("test SSEConnectionState.DisconnectReason inequality with different cases", arguments: zip(disconnectReasonList, disconnectReasonList.reversed()))
@@ -54,7 +53,7 @@ struct SSEConnectionStateTests {
         .disconnected(.terminated),
         .disconnected(.streamError(NSError(domain: "SSE", code: 100))),
         .disconnected(.streamError(NSError(domain: "Server", code: 500)))
-    ]  
+    ]
 
     private static let disconnectReasonList: [SSEConnectionState.DisconnectReason] = [
         SSEConnectionState.DisconnectReason.streamEnded,

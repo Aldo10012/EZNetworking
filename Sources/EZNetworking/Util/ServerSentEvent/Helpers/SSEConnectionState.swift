@@ -26,34 +26,34 @@ public enum SSEConnectionState: Sendable, Equatable {
 
 // MARK: Equatable conformance
 
-public extension SSEConnectionState {
-    static func == (lhs: SSEConnectionState, rhs: SSEConnectionState) -> Bool {
+extension SSEConnectionState {
+    public static func == (lhs: SSEConnectionState, rhs: SSEConnectionState) -> Bool {
         switch (lhs, rhs) {
-            case (.notConnected, .notConnected),
-                 (.connecting, .connecting), 
-                 (.connected, .connected):
-                return true
-            case let (.disconnected(reasonA), .disconnected(reasonB)):
-                return reasonA == reasonB
-            default:
-                return false
+        case (.notConnected, .notConnected),
+             (.connecting, .connecting),
+             (.connected, .connected):
+            true
+        case let (.disconnected(reasonA), .disconnected(reasonB)):
+            reasonA == reasonB
+        default:
+            false
         }
     }
 }
 
-public extension SSEConnectionState.DisconnectReason {
-    static func == (lhs: SSEConnectionState.DisconnectReason, rhs: SSEConnectionState.DisconnectReason) -> Bool {
+extension SSEConnectionState.DisconnectReason {
+    public static func == (lhs: SSEConnectionState.DisconnectReason, rhs: SSEConnectionState.DisconnectReason) -> Bool {
         switch (lhs, rhs) {
-            case (.streamEnded, .streamEnded),
-                 (.manuallyDisconnected, .manuallyDisconnected),
-                 (.terminated, .terminated):
-                return true
-            case let (.streamError(e1), .streamError(e2)):
-                let n1 = e1 as NSError
-                let n2 = e2 as NSError
-                return n1.domain == n2.domain && n1.code == n2.code
-            default:
-                return false
+        case (.streamEnded, .streamEnded),
+             (.manuallyDisconnected, .manuallyDisconnected),
+             (.terminated, .terminated):
+            return true
+        case let (.streamError(e1), .streamError(e2)):
+            let n1 = e1 as NSError
+            let n2 = e2 as NSError
+            return n1.domain == n2.domain && n1.code == n2.code
+        default:
+            return false
         }
     }
 }
