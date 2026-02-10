@@ -77,7 +77,18 @@ public actor ServerSentEventManager: ServerSentEventClient {
             throw SSEError.alreadyConnected
         }
         connectionState = .connecting
-        // TODO: Create URLRequest and add Last-Event-ID header if needed
+
+        let urlRequest: URLRequest
+        do {
+            var baseRequest = try sseRequest.getURLRequest()
+            if let lastEventId {
+                baseRequest.setValue(lastEventId, forHTTPHeaderField: "Last-Event-ID")
+            }
+            urlRequest = baseRequest
+        } catch {
+            connectionState = .disconnected(.streamError(error))
+            throw error
+        }
         // TODO: Start session.bytes(from:), validate response, set .connected, start streaming loop
     }
 
