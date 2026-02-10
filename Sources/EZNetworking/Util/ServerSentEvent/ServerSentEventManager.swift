@@ -50,7 +50,15 @@ public actor ServerSentEventManager: ServerSentEventClient {
     // MARK: Pubic API
 
     public func connect() async throws {
-        // TODO: implement
+        if case .connecting = connectionState {
+            throw SSEError.stillConnecting
+        }
+        if case .connected = connectionState {
+            throw SSEError.alreadyConnected
+        }
+        connectionState = .connecting
+
+        // TODO: implement connection logic
     }
 
     public func disconnect() async throws {
