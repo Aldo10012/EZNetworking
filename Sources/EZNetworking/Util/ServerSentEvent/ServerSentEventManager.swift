@@ -178,4 +178,12 @@ public actor ServerSentEventManager: ServerSentEventClient {
         connectionState = .disconnected(reason)
         // Note: Do NOT finish continuations here - allows reconnection
     }
+
+    /// Permanently terminates the SSE client: performs final cleanup and finishes all streams.
+    /// After calling this, the client instance should not be reused.
+    public func terminate() async {
+        cleanup(reason: .terminated)
+        eventsContinuation.finish()
+        stateEventContinuation.finish()
+    }
 }
