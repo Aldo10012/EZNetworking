@@ -21,6 +21,7 @@ public enum MimeType: Equatable {
     case csv
     case rtf
     case xmlText
+    case eventStream
 
     // MARK: - Image Types
 
@@ -85,6 +86,7 @@ public enum MimeType: Equatable {
         case .csv: "text/csv"
         case .rtf: "text/rtf"
         case .xmlText: "text/xml"
+        case .eventStream: "text/event-stream"
         // Image Types
         case .jpeg: "image/jpeg"
         case .png: "image/png"

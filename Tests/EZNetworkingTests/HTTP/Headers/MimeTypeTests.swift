@@ -28,6 +28,7 @@ final class MimeTypeTests {
         #expect(MimeType.csv.value == "text/csv")
         #expect(MimeType.rtf.value == "text/rtf")
         #expect(MimeType.xmlText.value == "text/xml")
+        #expect(MimeType.eventStream.value == "text/event-stream")
     }
 
     // MARK: - Image Types Tests

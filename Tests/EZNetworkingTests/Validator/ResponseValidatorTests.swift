@@ -67,7 +67,7 @@ final class URLResponseValidatorTests {
         do {
             try sut.validateStatus(from: createHttpUrlResponse(statusCode: 400, headerFields: ["foo": "bar"]))
         } catch let error as NetworkingError {
-            if case .responseValidationFailed(reason: .badHTTPResponse(underlying: let response)) = error {
+            if case let .responseValidationFailed(reason: .badHTTPResponse(underlying: response)) = error {
                 #expect(response.headers == ["foo": "bar"])
             } else {
                 Issue.record("Expected NetworkingError.responseValidationFailed(reason: .badHTTPResponse(_))")
