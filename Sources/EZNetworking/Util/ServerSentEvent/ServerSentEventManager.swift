@@ -65,7 +65,7 @@ public actor ServerSentEventManager: ServerSentEventClient {
         do {
             sseRequest.setLastEventId(lastEventId)
             let request = try sseRequest.getURLRequest()
-            let (bytesStream, response) = try await session.urlSession.bytes(for: request, delegate: nil)
+            let (bytesStream, response) = try await session.urlSession.bytes(for: request)
 
             try responseValidator.validateStatus(from: response)
             connectionState = .connected

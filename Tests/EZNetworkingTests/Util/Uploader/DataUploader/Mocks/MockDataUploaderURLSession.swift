@@ -87,7 +87,7 @@ extension MockDataUploaderURLSession {
         fatalError("Should not be using in this mock")
     }
 
-    func bytes(for request: URLRequest, delegate: URLSessionTaskDelegate?) async throws -> (URLSession.AsyncBytes, URLResponse) {
+    func bytes(for request: URLRequest) async throws -> (AsyncStream<UInt8>, URLResponse) {
         fatalError("Should not be using in this mock")
     }
 }

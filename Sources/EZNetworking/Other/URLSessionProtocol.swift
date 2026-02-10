@@ -11,12 +11,33 @@ public protocol URLSessionProtocol {
 
     func webSocketTaskInspectable(with request: URLRequest) -> URLSessionWebSocketTaskProtocol
 
-    func bytes(for request: URLRequest, delegate: URLSessionTaskDelegate?) async throws -> (URLSession.AsyncBytes, URLResponse)
+    func bytes(for request: URLRequest) async throws -> (AsyncStream<UInt8>, URLResponse)
 }
 
 extension URLSession: URLSessionProtocol {
     public func webSocketTaskInspectable(with request: URLRequest) -> URLSessionWebSocketTaskProtocol {
         let task: URLSessionWebSocketTask = webSocketTask(with: request)
         return task as URLSessionWebSocketTaskProtocol
+    }
+
+    public func bytes(for request: URLRequest) async throws -> (AsyncStream<UInt8>, URLResponse) {
+        let (bytes, response) = try await self.bytes(for: request, delegate: nil)
+
+        let stream = AsyncStream<UInt8> { continuation in
+            let task = Task {
+                do {
+                    for try await byte in bytes {
+                        continuation.yield(byte)
+                    }
+                    continuation.finish()
+                } catch {
+                    continuation.finish()
+                }
+            }
+            // Ensure the task is cancelled if the stream is cancelled
+            continuation.onTermination = { _ in task.cancel() }
+        }
+
+        return (stream, response)
     }
 }
