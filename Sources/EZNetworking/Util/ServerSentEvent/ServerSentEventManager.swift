@@ -66,6 +66,21 @@ public actor ServerSentEventManager: ServerSentEventClient {
         self.stateEventContinuation = stateEventContinuation
     }
 
+    // MARK: - Connect
+
+    /// Initiates the SSE connection: validates state, builds the request, starts the byte stream, and runs the streaming loop in a background task.
+    public func connect() async throws {
+        if case .connecting = connectionState {
+            throw SSEError.stillConnecting
+        }
+        if case .connected = connectionState {
+            throw SSEError.alreadyConnected
+        }
+        connectionState = .connecting
+        // TODO: Create URLRequest and add Last-Event-ID header if needed
+        // TODO: Start session.bytes(from:), validate response, set .connected, start streaming loop
+    }
+
     // MARK: - deinit
 
     /// Cleans up streams and the streaming task on deallocation so consumers are finished and the background task stops.
