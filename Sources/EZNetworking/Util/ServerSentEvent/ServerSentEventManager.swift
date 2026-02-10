@@ -82,11 +82,16 @@ public actor ServerSentEventManager: ServerSentEventClient {
     }
 
     public func disconnect() async throws {
-        // TODO: implement
+        guard case .connected = connectionState else {
+            throw SSEError.notConnected
+        }
+        cleanup(reason: SSEConnectionState.DisconnectReason.manuallyDisconnected)
     }
 
     public func terminate() async {
-        // TODO: implement
+        cleanup(reason: .terminated)
+        eventsContinuation.finish()
+        stateEventContinuation.finish()
     }
 
     public var events: AsyncStream<ServerSentEvent> {
@@ -126,7 +131,17 @@ public actor ServerSentEventManager: ServerSentEventClient {
     }
 
     private func handleDisconnection(reason: SSEConnectionState.DisconnectReason) {
-        // TODO: implement disconnect
+        guard case .connected = connectionState else { return }
+        cleanup(reason: reason)
+    }
+
+    /// Cancels the streaming task and transitions to disconnected state.
+    /// Does NOT finish continuations, allowing the client to reconnect later.
+    private func cleanup(reason: SSEConnectionState.DisconnectReason) {
+        streamingTask?.cancel()
+        streamingTask = nil
+        connectionState = .disconnected(reason)
+        // Note: Do NOT finish continuations here - allows reconnection
     }
 }
 
