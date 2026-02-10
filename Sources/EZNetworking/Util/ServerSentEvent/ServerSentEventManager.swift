@@ -1,0 +1,49 @@
+import Foundation
+
+public actor ServerSentEventManager: ServerSentEventClient {
+
+    // MARK: Properties
+
+    private let eventsStream: AsyncStream<ServerSentEvent>
+    private let eventsContinuation: AsyncStream<ServerSentEvent>.Continuation
+
+    private let stateEventStream: AsyncStream<SSEConnectionState>
+    private let stateEventContinuation: AsyncStream<SSEConnectionState>.Continuation
+
+    // MARK: init 
+
+    public init() {
+        let (eventsStream, eventsContinuation) = AsyncStream<ServerSentEvent>.makeStream()
+        self.eventsStream = eventsStream
+        self.eventsContinuation = eventsContinuation
+
+        let (stateEventStream, stateEventContinuation) = AsyncStream<SSEConnectionState>.makeStream()
+        self.stateEventStream = stateEventStream
+        self.stateEventContinuation = stateEventContinuation
+    }
+
+    // MARK: Pubic API
+
+    public func connect() async throws {
+        // TODO: implement
+    }
+
+    public func disconnect() async throws {
+        // TODO: implement
+    }
+
+    public func terminate() async {
+        // TODO: implement
+    }
+
+    public var events: AsyncStream<ServerSentEvent> {
+        eventsStream
+    }
+
+    public var stateEvents: AsyncStream<SSEConnectionState> {
+        stateEventStream
+    }
+
+    // MARK: Helpers
+
+}
