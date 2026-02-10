@@ -40,6 +40,13 @@ public actor ServerSentEventManager: ServerSentEventClient {
         self.stateEventContinuation = stateEventContinuation
     }
 
+    // MARK: Deinit
+
+    deinit {
+        eventsContinuation.finish()
+        stateEventContinuation.finish()
+    }
+
     // MARK: Pubic API
 
     public func connect() async throws {
