@@ -7,6 +7,7 @@ public actor ServerSentEventManager: ServerSentEventClient {
     // Dependencies 
     private let session: NetworkSession
     private var sseRequest: SSERequest
+    private let responseValidator = SSEResponseValidator()
 
     // State
     private var connectionState: SSEConnectionState = .notConnected {
@@ -65,9 +66,11 @@ public actor ServerSentEventManager: ServerSentEventClient {
             sseRequest.setLastEventId(lastEventId)
             let request = try sseRequest.getURLRequest()
             let (bytesStream, response) = try await session.urlSession.bytes(for: request, delegate: nil)
-            
-            // TODO: implement
+
+            try responseValidator.validateStatus(from: response)
             connectionState = .connected
+
+            // TODO: Start streaming loop in background task
         } catch {
             connectionState = .disconnected(.streamError(error))
             throw error
