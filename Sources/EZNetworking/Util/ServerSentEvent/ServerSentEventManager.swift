@@ -186,4 +186,12 @@ public actor ServerSentEventManager: ServerSentEventClient {
         eventsContinuation.finish()
         stateEventContinuation.finish()
     }
+
+    // MARK: - Public API
+
+    /// Stream of Server-Sent Events received from the server.
+    /// The stream remains active across reconnections until `terminate()` is called.
+    public var events: AsyncStream<ServerSentEvent> {
+        eventsStream
+    }
 }
