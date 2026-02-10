@@ -757,5 +757,6 @@ struct SSEParserTests {
         #expect(unwrappedEvent.data.isEmpty)
     }
 }
+
 // swiftlint:enable type_body_length
 // swiftlint:enable file_length

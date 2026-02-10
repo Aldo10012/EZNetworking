@@ -142,7 +142,7 @@ struct ServerSentEventTests {
     func emptyData() {
         let event = ServerSentEvent(data: "")
 
-        #expect(event.data .isEmpty)
+        #expect(event.data.isEmpty)
     }
 
     @Test("test multiline data")
