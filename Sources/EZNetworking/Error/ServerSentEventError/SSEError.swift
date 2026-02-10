@@ -1,6 +1,6 @@
 import Foundation
 
-public enum SSEError: Error, LocalizedError, Sendable {
+public enum SSEError: Error, Sendable {
     // Connection state errors
     case notConnected
     case stillConnecting
@@ -14,9 +14,11 @@ public enum SSEError: Error, LocalizedError, Sendable {
 
     // Disconnection errors
     case unexpectedDisconnection
+}
 
-    // MARK: - LocalizedError
+// MARK: LocalizedError
 
+extension SSEError: LocalizedError {
     public var errorDescription: String? {
         switch self {
         case .notConnected:
@@ -39,6 +41,33 @@ public enum SSEError: Error, LocalizedError, Sendable {
             }
         case .unexpectedDisconnection:
             "The SSE connection was unexpectedly closed."
+        }
+    }
+}
+
+// MARK: Equatable
+
+extension SSEError: Equatable {
+    public static func == (lhs: SSEError, rhs: SSEError) -> Bool {
+        switch (lhs, rhs) {
+        case (.notConnected, .notConnected),
+             (.stillConnecting, .stillConnecting),
+             (.alreadyConnected, .alreadyConnected),
+             (.invalidResponse, .invalidResponse),
+             (.unexpectedDisconnection, .unexpectedDisconnection):
+            true
+
+        case let (.connectionFailed(errorA), .connectionFailed(errorB)):
+            (errorA as NSError) == (errorB as NSError)
+
+        case let (.invalidStatusCode(statusCodeA), .invalidStatusCode(statusCodeB)):
+            statusCodeA == statusCodeB
+
+        case let (.invalidContentType(contentTypeA), .invalidContentType(contentTypeB)):
+            contentTypeA == contentTypeB
+
+        default:
+            false
         }
     }
 }
