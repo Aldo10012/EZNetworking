@@ -89,7 +89,21 @@ public actor ServerSentEventManager: ServerSentEventClient {
             connectionState = .disconnected(.streamError(error))
             throw error
         }
-        // TODO: Start session.bytes(from:), validate response, set .connected, start streaming loop
+
+        let bytes: URLSession.AsyncBytes
+        let httpResponse: HTTPURLResponse
+        do {
+            let (stream, response) = try await session.urlSession.bytes(for: urlRequest)
+            bytes = stream
+            guard let response = response as? HTTPURLResponse else {
+                throw SSEError.invalidResponse
+            }
+            httpResponse = response
+        } catch {
+            connectionState = .disconnected(.streamError(error))
+            throw error
+        }
+        // TODO: Validate status code and Content-Type, set .connected, start streaming loop
     }
 
     // MARK: - deinit
