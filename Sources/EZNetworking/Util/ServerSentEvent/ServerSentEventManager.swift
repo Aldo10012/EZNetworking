@@ -38,6 +38,10 @@ public actor ServerSentEventManager: ServerSentEventClient {
     /// Custom retry interval from SSE `retry` field, in seconds.
     /// When set, overrides reconnectionConfig's delay calculation.
     private var customRetryInterval: TimeInterval?
+
+    /// Task that monitors connection timeout. Cancelled when first event arrives or connection fails.
+    private var connectionTimeoutTask: Task<Void, Never>?
+
     // MARK: - Init
 
     /// Convenience initializer using a URL string and optional headers.
@@ -93,6 +97,20 @@ public actor ServerSentEventManager: ServerSentEventClient {
         }
         connectionState = .connecting
 
+        // Start connection timeout monitoring
+        let timeoutInterval = sseRequest.timeoutInterval
+        connectionTimeoutTask = Task {
+            try? await Task.sleep(nanoseconds: UInt64(timeoutInterval * 1_000_000_000))
+            guard !Task.isCancelled else { return }
+            
+            // Timeout expired before connection established
+            cleanup(reason: .streamError(SSEError.connectionFailed(underlying: NSError(
+                domain: "SSETimeout",
+                code: -1,
+                userInfo: [NSLocalizedDescriptionKey: "Connection timeout after \(timeoutInterval) seconds"]
+            ))))
+        }
+
         let urlRequest: URLRequest
         do {
             var baseRequest = try sseRequest.getURLRequest()
@@ -132,6 +150,10 @@ public actor ServerSentEventManager: ServerSentEventClient {
         connectionState = .connected
         // State change automatically yielded via connectionState didSet.
 
+        // Cancel timeout task - connection succeeded
+        connectionTimeoutTask?.cancel()
+        connectionTimeoutTask = nil
+
         // Streaming continues in a background task; connect() returns once the loop is started.
         startStreamingLoop(bytes: bytes)
     }
@@ -169,6 +191,10 @@ public actor ServerSentEventManager: ServerSentEventClient {
                     guard !Task.isCancelled else { break }
                     let event = await parser.parseLine(line)
                     if let event {
+                        // Cancel timeout on first event
+                        connectionTimeoutTask?.cancel()
+                        connectionTimeoutTask = nil
+
                         eventsContinuation.yield(event)
                         if let id = event.id {
                             lastEventId = id
@@ -203,6 +229,8 @@ public actor ServerSentEventManager: ServerSentEventClient {
     private func cleanup(reason: SSEConnectionState.DisconnectReason) {
         streamingTask?.cancel()
         streamingTask = nil
+        connectionTimeoutTask?.cancel()
+        connectionTimeoutTask = nil
         connectionState = .disconnected(reason)
         // Note: Do NOT finish continuations here - allows reconnection
     }
