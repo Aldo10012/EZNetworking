@@ -127,7 +127,13 @@ public actor ServerSentEventManager: ServerSentEventClient {
             do {
                 for try await line in bytes.lines {
                     guard !Task.isCancelled else { break }
-                    // TODO: Parse line, yield event if complete, update lastEventId
+                    let event = await parser.parseLine(line)
+                    if let event {
+                        eventsContinuation.yield(event)
+                        if let id = event.id {
+                            lastEventId = id
+                        }
+                    }
                 }
             } catch {
                 // TODO: Handle stream error (e.g. handleDisconnection)
