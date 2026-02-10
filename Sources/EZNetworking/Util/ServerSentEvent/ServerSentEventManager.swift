@@ -35,6 +35,9 @@ public actor ServerSentEventManager: ServerSentEventClient {
     /// Tracks the current reconnection attempt number for exponential backoff calculation.
     private var reconnectionAttempt: Int = 0
 
+    /// Custom retry interval from SSE `retry` field, in seconds.
+    /// When set, overrides reconnectionConfig's delay calculation.
+    private var customRetryInterval: TimeInterval?
     // MARK: - Init
 
     /// Convenience initializer using a URL string and optional headers.
@@ -170,6 +173,10 @@ public actor ServerSentEventManager: ServerSentEventClient {
                         if let id = event.id {
                             lastEventId = id
                         }
+                        // Capture custom retry interval from event (convert milliseconds to seconds)
+                        if let retryMs = event.retry {
+                            customRetryInterval = Double(retryMs) / 1000.0
+                        }
                     }
                 }
                 // Loop exited normally (stream ended); notify and cleanup.
@@ -234,11 +241,16 @@ public actor ServerSentEventManager: ServerSentEventClient {
             return
         }
         
-        // Calculate delay with exponential backoff
-        let delay = min(
-            config.initialDelay * pow(config.backoffMultiplier, Double(reconnectionAttempt)),
-            config.maxDelay
-        )
+        // Calculate delay: use custom retry interval if set, otherwise exponential backoff
+        let delay: TimeInterval
+        if let customRetry = customRetryInterval {
+            delay = customRetry
+        } else {
+            delay = min(
+                config.initialDelay * pow(config.backoffMultiplier, Double(reconnectionAttempt)),
+                config.maxDelay
+            )
+        }
         
         // Wait before attempting reconnection
         try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
