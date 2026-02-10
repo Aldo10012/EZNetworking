@@ -121,6 +121,17 @@ public actor ServerSentEventManager: ServerSentEventClient {
         startStreamingLoop(bytes: bytes)
     }
 
+    /// Consumes the byte stream line-by-line, parses SSE events, and yields them to `events`; runs in a high-priority background task.
+    private func startStreamingLoop(bytes: URLSession.AsyncBytes) {
+        streamingTask = Task(priority: .high) {
+            do {
+                // TODO: Iterate over bytes.lines, parse each line, yield events and update lastEventId
+            } catch {
+                // TODO: Handle stream error (e.g. handleDisconnection)
+            }
+        }
+    }
+
     // MARK: - deinit
 
     /// Cleans up streams and the streaming task on deallocation so consumers are finished and the background task stops.
