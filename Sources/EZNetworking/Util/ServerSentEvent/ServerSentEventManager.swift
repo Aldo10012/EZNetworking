@@ -131,6 +131,12 @@ public actor ServerSentEventManager: ServerSentEventClient {
         cleanup(reason: SSEConnectionState.DisconnectReason.manuallyDisconnected)
     }
 
+    /// Called when the stream ends unexpectedly (e.g. error or server close). Guards against double-disconnect by returning if not currently connected.
+    private func handleDisconnection(reason: SSEConnectionState.DisconnectReason) {
+        guard case .connected = connectionState else { return }
+        cleanup(reason: reason)
+    }
+
     /// Consumes the byte stream line-by-line, parses SSE events, and yields them to `events`; runs in a high-priority background task.
     private func startStreamingLoop(bytes: URLSession.AsyncBytes) {
         streamingTask = Task(priority: .high) {
