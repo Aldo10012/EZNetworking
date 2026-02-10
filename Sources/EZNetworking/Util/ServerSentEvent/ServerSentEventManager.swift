@@ -125,7 +125,10 @@ public actor ServerSentEventManager: ServerSentEventClient {
     private func startStreamingLoop(bytes: URLSession.AsyncBytes) {
         streamingTask = Task(priority: .high) {
             do {
-                // TODO: Iterate over bytes.lines, parse each line, yield events and update lastEventId
+                for try await line in bytes.lines {
+                    guard !Task.isCancelled else { break }
+                    // TODO: Parse line, yield event if complete, update lastEventId
+                }
             } catch {
                 // TODO: Handle stream error (e.g. handleDisconnection)
             }
