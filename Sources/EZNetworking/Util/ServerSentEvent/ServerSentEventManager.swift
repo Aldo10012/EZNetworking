@@ -58,7 +58,16 @@ public actor ServerSentEventManager: ServerSentEventClient {
         }
         connectionState = .connecting
 
-        // TODO: implement connection logic
+        do {
+            let request = try sseRequest.getURLRequest()
+            let (bytesStream, response) = try await session.urlSession.bytes(for: request, delegate: nil)
+            
+            // TODO: implement
+            connectionState = .connected
+        } catch {
+            connectionState = .disconnected(.streamError(error))
+            throw error
+        }
     }
 
     public func disconnect() async throws {
