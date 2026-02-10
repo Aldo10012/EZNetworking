@@ -10,6 +10,8 @@ public protocol URLSessionProtocol {
     func upload(for request: URLRequest, fromFile fileURL: URL) async throws -> (Data, URLResponse)
 
     func webSocketTaskInspectable(with request: URLRequest) -> URLSessionWebSocketTaskProtocol
+
+    func bytes(for request: URLRequest, delegate: URLSessionTaskDelegate?) async throws -> (URLSession.AsyncBytes, URLResponse)
 }
 
 extension URLSession: URLSessionProtocol {

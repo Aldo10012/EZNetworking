@@ -86,4 +86,8 @@ extension MockDataUploaderURLSession {
     func webSocketTaskInspectable(with request: URLRequest) -> URLSessionWebSocketTaskProtocol {
         fatalError("Should not be using in this mock")
     }
+
+    func bytes(for request: URLRequest, delegate: URLSessionTaskDelegate?) async throws -> (URLSession.AsyncBytes, URLResponse) {
+        fatalError("Should not be using in this mock")
+    }
 }
