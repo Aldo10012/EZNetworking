@@ -65,4 +65,13 @@ public actor ServerSentEventManager: ServerSentEventClient {
         self.stateEventStream = stateEventStream
         self.stateEventContinuation = stateEventContinuation
     }
+
+    // MARK: - deinit
+
+    /// Cleans up streams and the streaming task on deallocation so consumers are finished and the background task stops.
+    deinit {
+        eventsContinuation.finish()
+        stateEventContinuation.finish()
+        streamingTask?.cancel()
+    }
 }
