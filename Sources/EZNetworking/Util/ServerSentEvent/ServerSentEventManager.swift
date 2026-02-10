@@ -194,4 +194,10 @@ public actor ServerSentEventManager: ServerSentEventClient {
     public var events: AsyncStream<ServerSentEvent> {
         eventsStream
     }
+
+    /// Stream of connection state changes.
+    /// Subscribe to monitor the connection lifecycle: notConnected -> connecting -> connected -> disconnected.
+    public var stateEvents: AsyncStream<SSEConnectionState> {
+        stateEventStream
+    }
 }
