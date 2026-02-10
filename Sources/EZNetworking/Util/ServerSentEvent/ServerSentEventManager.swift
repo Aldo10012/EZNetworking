@@ -8,6 +8,7 @@ public actor ServerSentEventManager: ServerSentEventClient {
     private let session: NetworkSession
     private var sseRequest: SSERequest
     private let responseValidator = SSEResponseValidator()
+    private let parser = SSEParser()
 
     // State
     private var connectionState: SSEConnectionState = .notConnected {
@@ -25,6 +26,9 @@ public actor ServerSentEventManager: ServerSentEventClient {
 
     private let stateEventStream: AsyncStream<SSEConnectionState>
     private let stateEventContinuation: AsyncStream<SSEConnectionState>.Continuation
+
+    /// Tracks the background task that consumes the byte stream and parses SSE events.
+    private var streamingTask: Task<Void, Never>?
 
     // MARK: init 
 
@@ -70,7 +74,7 @@ public actor ServerSentEventManager: ServerSentEventClient {
             try responseValidator.validateStatus(from: response)
             connectionState = .connected
 
-            // TODO: Start streaming loop in background task
+            startStreamingLoop(bytes: bytesStream)
         } catch {
             connectionState = .disconnected(.streamError(error))
             throw error
@@ -95,4 +99,68 @@ public actor ServerSentEventManager: ServerSentEventClient {
 
     // MARK: Helpers
 
+    private func startStreamingLoop(bytes: AsyncStream<UInt8>) {
+        streamingTask = Task(priority: .userInitiated) {
+            do {
+                // Using our new extension to keep the logic identical to your original intent
+                for try await line in bytes.lines {
+                    guard !Task.isCancelled else { break }
+
+                    // Since SSEParser is an actor, we await the result
+                    let event = await parser.parseLine(line)
+
+                    if let event {
+                        eventsContinuation.yield(event)
+                        if let id = event.id {
+                            lastEventId = id
+                        }
+                    }
+                }
+
+                handleDisconnection(reason: .streamEnded)
+            } catch {
+                guard !Task.isCancelled else { return }
+                handleDisconnection(reason: .streamError(error))
+            }
+        }
+    }
+
+    private func handleDisconnection(reason: SSEConnectionState.DisconnectReason) {
+        // TODO: implement disconnect
+    }
+}
+
+// TODO: move to another file
+
+extension AsyncSequence where Element == UInt8 {
+    /// Mimics the behavior of URLSession.AsyncBytes.lines
+    var lines: AsyncThrowingStream<String, Error> {
+        AsyncThrowingStream { continuation in
+            Task {
+                var buffer = Data()
+                do {
+                    for try await byte in self {
+                        if byte == 10 { // '\n'
+                            let line = String(decoding: buffer, as: UTF8.self)
+                            continuation.yield(line)
+                            buffer.removeAll()
+                        } else if byte == 13 { // '\r'
+                            // Peek is complex in AsyncSequence;
+                            // for SSE, we usually just ignore \r and wait for \n
+                            continue
+                        } else {
+                            buffer.append(byte)
+                        }
+                    }
+                    // Yield any trailing data if the stream ends without a final newline
+                    if !buffer.isEmpty {
+                        continuation.yield(String(decoding: buffer, as: UTF8.self))
+                    }
+                    continuation.finish()
+                } catch {
+                    continuation.finish(throwing: error)
+                }
+            }
+        }
+    }
 }
