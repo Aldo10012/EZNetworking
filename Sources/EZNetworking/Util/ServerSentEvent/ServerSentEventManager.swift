@@ -29,20 +29,29 @@ public actor ServerSentEventManager: ServerSentEventClient {
     /// Last event ID received; sent as `Last-Event-ID` header on reconnect per SSE spec.
     private var lastEventId: String?
 
+    /// Configuration for automatic reconnection behavior.
+    private let reconnectionConfig: ReconnectionConfig?
+
+    /// Tracks the current reconnection attempt number for exponential backoff calculation.
+    private var reconnectionAttempt: Int = 0
+
     // MARK: - Init
 
     /// Convenience initializer using a URL string and optional headers.
     /// - Parameters:
     ///   - url: The SSE endpoint URL.
     ///   - additionalHeaders: Optional HTTP headers to include in the request.
+    ///   - reconnectionConfig: Optional reconnection configuration (default: nil, no auto-reconnect).
     ///   - session: The network session to use; defaults to a shared `Session()`.
     public init(
         url: String,
         additionalHeaders: [HTTPHeader]? = nil,
+        reconnectionConfig: ReconnectionConfig? = nil,
         session: NetworkSession = Session()
     ) {
         self.init(
             request: SSERequest(url: url, additionalheaders: additionalHeaders),
+            reconnectionConfig: reconnectionConfig,
             session: session
         )
     }
@@ -50,13 +59,16 @@ public actor ServerSentEventManager: ServerSentEventClient {
     /// Primary initializer using an `SSERequest` and optional session.
     /// - Parameters:
     ///   - request: The SSE request configuration.
+    ///   - reconnectionConfig: Optional reconnection configuration (default: nil, no auto-reconnect).
     ///   - session: The network session to use; defaults to a shared `Session()`.
     public init(
         request: SSERequest,
+        reconnectionConfig: ReconnectionConfig? = nil,
         session: NetworkSession = Session()
     ) {
         self.sseRequest = request
         self.session = session
+        self.reconnectionConfig = reconnectionConfig
         self.parser = SSEParser()
         let (eventsStream, eventsContinuation) = AsyncStream<ServerSentEvent>.makeStream()
         self.eventsStream = eventsStream
