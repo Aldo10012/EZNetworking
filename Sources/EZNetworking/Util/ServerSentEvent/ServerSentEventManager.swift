@@ -143,10 +143,19 @@ public actor ServerSentEventManager: ServerSentEventClient {
         cleanup(reason: SSEConnectionState.DisconnectReason.manuallyDisconnected)
     }
 
-    /// Called when the stream ends unexpectedly (e.g. error or server close). Guards against double-disconnect by returning if not currently connected.
+    /// Called when the stream ends unexpectedly (e.g. error or server close). 
+    /// Guards against double-disconnect by returning if not currently connected.
+    /// Triggers automatic reconnection if configured and the disconnection was due to a stream error.
     private func handleDisconnection(reason: SSEConnectionState.DisconnectReason) {
         guard case .connected = connectionState else { return }
         cleanup(reason: reason)
+        
+        // Trigger reconnection only for stream errors, not manual disconnects or termination
+        if case .streamError = reason, reconnectionConfig?.enabled == true {
+            Task {
+                await attemptReconnection()
+            }
+        }
     }
 
     /// Consumes the byte stream line-by-line, parses SSE events, and yields them to `events`; runs in a high-priority background task.
