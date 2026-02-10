@@ -8,6 +8,13 @@ public actor ServerSentEventManager: ServerSentEventClient {
     private let session: NetworkSession
     private let sseRequest: SSERequest
 
+    // State
+    private var connectionState: SSEConnectionState = .notConnected {
+        didSet {
+            stateEventContinuation.yield(connectionState)
+        }
+    }
+
     // Streams
     private let eventsStream: AsyncStream<ServerSentEvent>
     private let eventsContinuation: AsyncStream<ServerSentEvent>.Continuation
