@@ -6,7 +6,7 @@ public actor ServerSentEventManager: ServerSentEventClient {
 
     // Dependencies 
     private let session: NetworkSession
-    private let sseRequest: SSERequest
+    private var sseRequest: SSERequest
 
     // State
     private var connectionState: SSEConnectionState = .notConnected {
@@ -14,6 +14,9 @@ public actor ServerSentEventManager: ServerSentEventClient {
             stateEventContinuation.yield(connectionState)
         }
     }
+
+    /// Last event ID received; sent as `Last-Event-ID` header on reconnect per SSE spec.
+    private var lastEventId: String?
 
     // Streams
     private let eventsStream: AsyncStream<ServerSentEvent>
@@ -59,6 +62,7 @@ public actor ServerSentEventManager: ServerSentEventClient {
         connectionState = .connecting
 
         do {
+            sseRequest.setLastEventId(lastEventId)
             let request = try sseRequest.getURLRequest()
             let (bytesStream, response) = try await session.urlSession.bytes(for: request, delegate: nil)
             

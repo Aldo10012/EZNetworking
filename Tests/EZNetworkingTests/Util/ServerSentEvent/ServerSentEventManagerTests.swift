@@ -24,7 +24,7 @@ struct ServerSentEventManagerTests {
             try await manager.connect()
             Issue.record("Expected to throw, but did not throw")
         } catch let err as SSEError {
-            #expect(err == .stillConnecting)
+            #expect(err == .alreadyConnected)
         } catch {
             Issue.record("Expected SSEError")
         }

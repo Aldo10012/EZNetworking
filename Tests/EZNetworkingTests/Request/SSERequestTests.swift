@@ -122,6 +122,21 @@ final class SSERequestTests {
         ])
     }
 
+    // MARK: - Last-Event-ID
+
+    @Test("test SSERequest lastEventId header is set when lastEventId is set")
+    func sseRequestLastEventIdHeaderIsSetWhenLastEventIdIsSet() {
+        var sut = SSERequest(url: sseURL)
+        sut.setLastEventId("123")
+
+        #expect(sut.headers == [
+            .accept(.eventStream),
+            .cacheControl("no_cache"),
+            .connection("keep_alive"),
+            .lastEventID("123")
+        ])
+    }
+
     // MARK: - Cache Policy
 
     @Test("test SSERequest uses reloadIgnoringLocalCacheData")
