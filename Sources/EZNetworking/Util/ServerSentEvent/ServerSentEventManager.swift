@@ -121,6 +121,16 @@ public actor ServerSentEventManager: ServerSentEventClient {
         startStreamingLoop(bytes: bytes)
     }
 
+    // MARK: - Disconnect
+
+    /// Gracefully closes the active SSE connection without finishing the event/state streams, so the client can reconnect later.
+    public func disconnect() async throws {
+        guard case .connected = connectionState else {
+            throw SSEError.notConnected
+        }
+        cleanup(reason: SSEConnectionState.DisconnectReason.manuallyDisconnected)
+    }
+
     /// Consumes the byte stream line-by-line, parses SSE events, and yields them to `events`; runs in a high-priority background task.
     private func startStreamingLoop(bytes: URLSession.AsyncBytes) {
         streamingTask = Task(priority: .high) {
