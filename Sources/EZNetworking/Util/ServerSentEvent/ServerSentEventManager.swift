@@ -42,6 +42,9 @@ public actor ServerSentEventManager: ServerSentEventClient {
     /// Task that monitors connection timeout. Cancelled when first event arrives or connection fails.
     private var connectionTimeoutTask: Task<Void, Never>?
 
+    /// Optional filter for event types. When set, only events matching these types are yielded.
+    private let eventTypeFilter: Set<String>?
+
     // MARK: - Init
 
     /// Convenience initializer using a URL string and optional headers.
@@ -49,16 +52,19 @@ public actor ServerSentEventManager: ServerSentEventClient {
     ///   - url: The SSE endpoint URL.
     ///   - additionalHeaders: Optional HTTP headers to include in the request.
     ///   - reconnectionConfig: Optional reconnection configuration (default: nil, no auto-reconnect).
+    ///   - eventTypeFilter: Optional set of event types to filter. Only events with these types are yielded.
     ///   - session: The network session to use; defaults to a shared `Session()`.
     public init(
         url: String,
         additionalHeaders: [HTTPHeader]? = nil,
         reconnectionConfig: ReconnectionConfig? = nil,
+        eventTypeFilter: Set<String>? = nil,
         session: NetworkSession = Session()
     ) {
         self.init(
             request: SSERequest(url: url, additionalheaders: additionalHeaders),
             reconnectionConfig: reconnectionConfig,
+            eventTypeFilter: eventTypeFilter,
             session: session
         )
     }
@@ -67,15 +73,18 @@ public actor ServerSentEventManager: ServerSentEventClient {
     /// - Parameters:
     ///   - request: The SSE request configuration.
     ///   - reconnectionConfig: Optional reconnection configuration (default: nil, no auto-reconnect).
+    ///   - eventTypeFilter: Optional set of event types to filter. Only events with these types are yielded.
     ///   - session: The network session to use; defaults to a shared `Session()`.
     public init(
         request: SSERequest,
         reconnectionConfig: ReconnectionConfig? = nil,
+        eventTypeFilter: Set<String>? = nil,
         session: NetworkSession = Session()
     ) {
         self.sseRequest = request
         self.session = session
         self.reconnectionConfig = reconnectionConfig
+        self.eventTypeFilter = eventTypeFilter
         self.parser = SSEParser()
         let (eventsStream, eventsContinuation) = AsyncStream<ServerSentEvent>.makeStream()
         self.eventsStream = eventsStream
@@ -195,7 +204,22 @@ public actor ServerSentEventManager: ServerSentEventClient {
                         connectionTimeoutTask?.cancel()
                         connectionTimeoutTask = nil
 
-                        eventsContinuation.yield(event)
+                        // Apply event type filter if configured
+                        let shouldYield: Bool
+                        if let filter = eventTypeFilter {
+                            // If filter is set, only yield events that match the filter
+                            // Events with no type are treated as "message" events per SSE spec
+                            let eventType = event.event ?? "message"
+                            shouldYield = filter.contains(eventType)
+                        } else {
+                            // No filter - yield all events
+                            shouldYield = true
+                        }
+                        
+                        if shouldYield {
+                            eventsContinuation.yield(event)
+                        }
+
                         if let id = event.id {
                             lastEventId = id
                         }
