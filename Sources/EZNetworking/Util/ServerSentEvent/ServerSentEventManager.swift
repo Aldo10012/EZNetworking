@@ -212,4 +212,39 @@ public actor ServerSentEventManager: ServerSentEventClient {
     public var stateEvents: AsyncStream<SSEConnectionState> {
         stateEventStream
     }
+
+    /// Attempts to reconnect with exponential backoff based on reconnectionConfig.
+    /// Resets attempt counter on successful connection.
+    private func attemptReconnection() async {
+        guard let config = reconnectionConfig, config.enabled else {
+            return
+        }
+        
+        // Check if max attempts reached
+        if let maxAttempts = config.maxAttempts, reconnectionAttempt >= maxAttempts {
+            return
+        }
+        
+        // Calculate delay with exponential backoff
+        let delay = min(
+            config.initialDelay * pow(config.backoffMultiplier, Double(reconnectionAttempt)),
+            config.maxDelay
+        )
+        
+        // Wait before attempting reconnection
+        try? await Task.sleep(for: .seconds(delay))
+        
+        // Increment attempt counter
+        reconnectionAttempt += 1
+        
+        // Attempt to reconnect
+        do {
+            try await connect()
+            // Success! Reset attempt counter
+            reconnectionAttempt = 0
+        } catch {
+            // Reconnection failed, will retry on next disconnection or manual retry
+            // Could log error here if needed
+        }
+    }
 }
