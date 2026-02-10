@@ -4,6 +4,11 @@ public actor ServerSentEventManager: ServerSentEventClient {
 
     // MARK: Properties
 
+    // Dependencies 
+    private let session: NetworkSession
+    private let sseRequest: SSERequest
+
+    // Streams
     private let eventsStream: AsyncStream<ServerSentEvent>
     private let eventsContinuation: AsyncStream<ServerSentEvent>.Continuation
 
@@ -12,7 +17,13 @@ public actor ServerSentEventManager: ServerSentEventClient {
 
     // MARK: init 
 
-    public init() {
+    public init(
+        request: SSERequest,
+        session: NetworkSession = Session()
+    ) {
+        self.sseRequest = request
+        self.session = session
+
         let (eventsStream, eventsContinuation) = AsyncStream<ServerSentEvent>.makeStream()
         self.eventsStream = eventsStream
         self.eventsContinuation = eventsContinuation
