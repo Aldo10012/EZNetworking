@@ -135,8 +135,12 @@ public actor ServerSentEventManager: ServerSentEventClient {
                         }
                     }
                 }
+                // Loop exited normally (stream ended); notify and cleanup.
+                handleDisconnection(reason: SSEConnectionState.DisconnectReason.streamEnded)
             } catch {
-                // TODO: Handle stream error (e.g. handleDisconnection)
+                // Only treat as error if we weren’t cancelled (e.g. disconnect or terminate).
+                guard !Task.isCancelled else { return }
+                handleDisconnection(reason: .streamError(error))
             }
         }
     }
