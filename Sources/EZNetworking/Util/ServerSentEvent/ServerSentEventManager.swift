@@ -117,7 +117,8 @@ public actor ServerSentEventManager: ServerSentEventClient {
         connectionState = .connected
         // State change automatically yielded via connectionState didSet.
 
-        // TODO: Start streaming loop in background task
+        // Streaming continues in a background task; connect() returns once the loop is started.
+        startStreamingLoop(bytes: bytes)
     }
 
     // MARK: - deinit
