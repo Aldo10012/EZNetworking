@@ -169,4 +169,13 @@ public actor ServerSentEventManager: ServerSentEventClient {
         stateEventContinuation.finish()
         streamingTask?.cancel()
     }
+
+    /// Cancels the streaming task and transitions to disconnected state.
+    /// Does NOT finish continuations, allowing the client to reconnect later.
+    private func cleanup(reason: SSEConnectionState.DisconnectReason) {
+        streamingTask?.cancel()
+        streamingTask = nil
+        connectionState = .disconnected(reason)
+        // Note: Do NOT finish continuations here - allows reconnection
+    }
 }
