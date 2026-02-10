@@ -103,7 +103,21 @@ public actor ServerSentEventManager: ServerSentEventClient {
             connectionState = .disconnected(.streamError(error))
             throw error
         }
-        // TODO: Validate status code and Content-Type, set .connected, start streaming loop
+
+        // Validate HTTP status and Content-Type per SSE spec.
+        guard httpResponse.statusCode == 200 else {
+            connectionState = .disconnected(.streamError(SSEError.invalidStatusCode(httpResponse.statusCode)))
+            throw SSEError.invalidStatusCode(httpResponse.statusCode)
+        }
+        let contentType = httpResponse.value(forHTTPHeaderField: "Content-Type")
+        guard let contentType, contentType.lowercased().contains("text/event-stream") else {
+            connectionState = .disconnected(.streamError(SSEError.invalidContentType(contentType)))
+            throw SSEError.invalidContentType(contentType)
+        }
+        connectionState = .connected
+        // State change automatically yielded via connectionState didSet.
+
+        // TODO: Start streaming loop in background task
     }
 
     // MARK: - deinit
