@@ -133,7 +133,15 @@ public actor ServerSentEventManager: ServerSentEventClient {
 // TODO: move to another file
 
 extension AsyncSequence where Element == UInt8 {
-    /// Mimics the behavior of URLSession.AsyncBytes.lines
+    /// A custom implementation of line-buffering that mimics `URLSession.AsyncBytes.lines`.
+    ///
+    /// This extension bridges raw byte streams to the line-based requirements of the SSE spec.
+    ///
+    /// ### Delimiter Handling:
+    /// * **LF (\n)**: The primary line terminator.
+    /// * **CR (\r)**: Ignored to handle `\r\n` sequences gracefully.
+    ///
+    /// - Returns: An `AsyncThrowingStream<String, Error>` of UTF-8 strings.
     var lines: AsyncThrowingStream<String, Error> {
         AsyncThrowingStream { continuation in
             Task {

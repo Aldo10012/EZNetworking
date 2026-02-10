@@ -20,6 +20,17 @@ extension URLSession: URLSessionProtocol {
         return task as URLSessionWebSocketTaskProtocol
     }
 
+    /// Wraps the native `URLSession.AsyncBytes` into an `AsyncStream<UInt8>`.
+    ///
+    /// ### Why this wrapper exists:
+    /// 1. **Testability**: `URLSession.AsyncBytes` has no public initializer. Returning `AsyncStream`
+    ///    allows us to inject mock data in unit tests.
+    /// 2. **Decoupling**: Abstracts the transport layer, allowing `ServerSentEventManager`
+    ///    to remain agnostic of the underlying networking stack.
+    /// 3. **Control**: Provides a `Continuation` to simulate fragmented packets or
+    ///    disconnections.
+    ///
+    /// - Note: Cancelling the stream propagates cancellation to the underlying `URLSessionTask`.
     public func bytes(for request: URLRequest) async throws -> (AsyncStream<UInt8>, URLResponse) {
         let (bytes, response) = try await self.bytes(for: request, delegate: nil)
 
