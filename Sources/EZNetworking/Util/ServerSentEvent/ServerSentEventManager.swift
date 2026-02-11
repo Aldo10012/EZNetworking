@@ -41,6 +41,11 @@ public actor ServerSentEventManager: ServerSentEventClient {
         self.session = session
         self.responseValidator = responseValidator
 
+        self.session.configuration.timeoutIntervalForRequest = 60 // Connection timeout 1 minute
+        self.session.configuration.timeoutIntervalForResource = 86400 // 24-hour stream timeout
+        self.session.configuration.httpShouldUsePipelining = false
+        self.session.configuration.requestCachePolicy = .reloadIgnoringLocalCacheData
+
         let (eventsStream, eventsContinuation) = AsyncStream<ServerSentEvent>.makeStream()
         self.eventsStream = eventsStream
         self.eventsContinuation = eventsContinuation

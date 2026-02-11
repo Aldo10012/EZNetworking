@@ -28,7 +28,7 @@ final class SSERequestTests {
         #expect(sut.additionalheaders == nil)
         #expect(sut.cachePolicy == .reloadIgnoringLocalCacheData)
 
-        #expect(sut.timeoutInterval == 3600)
+        #expect(sut.timeoutInterval == 60)
     }
 
     // MARK: - Base SSE Headers Always Present

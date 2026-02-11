@@ -31,7 +31,7 @@ public struct SSERequest: Request {
     public var parameters: [HTTPParameter]? { nil }
     public var body: (any HTTPBody)? { nil }
     public var cachePolicy: URLRequest.CachePolicy { .reloadIgnoringLocalCacheData }
-    public var timeoutInterval: TimeInterval { 3600 } // 1 hour
+    public var timeoutInterval: TimeInterval { 60 } // 1 minute
 
     mutating func setLastEventId(_ id: String?) {
         self.lastEventId = id

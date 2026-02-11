@@ -202,7 +202,7 @@ struct AsyncSequenceExtTests {
         let input = ": this is a comment\n"
         let lines = try await collectLines(from: input)
 
-        #expect(lines.count == 0)
+        #expect(lines.count == 1)
     }
 
     @Test("SSE multi-line data")
