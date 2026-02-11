@@ -115,7 +115,7 @@ public actor ServerSentEventManager: ServerSentEventClient {
         streamingTask = Task(priority: .high) {
             do {
                 // Using our new extension to keep the logic identical to your original intent
-                for try await line in bytes.lines {
+                for try await line in bytes.sseLines {
                     guard !Task.isCancelled else { break }
 
                     // Since SSEParser is an actor, we await the result

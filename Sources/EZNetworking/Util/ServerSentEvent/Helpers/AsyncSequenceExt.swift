@@ -10,17 +10,17 @@ extension AsyncSequence where Element == UInt8 {
     /// * **CR (\r)**: Ignored to handle `\r\n` sequences gracefully.
     ///
     /// - Returns: An `AsyncThrowingStream<String, Error>` of UTF-8 strings.
-    var lines: AsyncThrowingStream<String, Error> {
+    public var sseLines: AsyncThrowingStream<String, Error> {
         AsyncThrowingStream { continuation in
             let task = Task {
                 var buffer = Data()
                 do {
                     for try await byte in self {
-                        if byte == 10 { // '\n'
+                        if byte == ASCII.lineFeed.rawValue {
                             let line = String(decoding: buffer, as: UTF8.self)
                             continuation.yield(line)
                             buffer.removeAll()
-                        } else if byte == 13 { // '\r'
+                        } else if byte == ASCII.carriageReturn.rawValue {
                             // Peek is complex in AsyncSequence;
                             // for SSE, we usually just ignore \r and wait for \n
                             continue
@@ -42,4 +42,9 @@ extension AsyncSequence where Element == UInt8 {
             }
         }
     }
+}
+
+enum ASCII: UInt8 {
+    case lineFeed = 10 // '\n'
+    case carriageReturn = 13 // '\r'
 }
