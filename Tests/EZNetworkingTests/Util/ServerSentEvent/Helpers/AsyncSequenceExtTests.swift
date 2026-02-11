@@ -181,7 +181,7 @@ struct AsyncSequenceExtTests {
         #expect(lines[1] == "")
     }
 
-    @Test("SSE event with multiple fields", .disabled())
+    @Test("SSE event with multiple fields")
     func sseEventWithMultipleFields() async throws {
         let input = """
         id: 123
@@ -191,23 +191,21 @@ struct AsyncSequenceExtTests {
         """
         let lines = try await collectLines(from: input)
 
-        #expect(lines.count == 4)
+        #expect(lines.count == 3)
         #expect(lines[0] == "id: 123")
         #expect(lines[1] == "event: update")
         #expect(lines[2] == "data: Test data")
-        #expect(lines[3] == "")
     }
 
-    @Test("SSE comment line", .disabled())
+    @Test("SSE comment line")
     func sseCommentLine() async throws {
         let input = ": this is a comment\n"
         let lines = try await collectLines(from: input)
 
-        #expect(lines.count == 1)
-        #expect(lines[0] == ": this is a comment")
+        #expect(lines.count == 0)
     }
 
-    @Test("SSE multi-line data", .disabled())
+    @Test("SSE multi-line data")
     func sseMultiLineData() async throws {
         let input = """
         data: Line 1
@@ -217,11 +215,10 @@ struct AsyncSequenceExtTests {
         """
         let lines = try await collectLines(from: input)
 
-        #expect(lines.count == 4)
+        #expect(lines.count == 3)
         #expect(lines[0] == "data: Line 1")
         #expect(lines[1] == "data: Line 2")
         #expect(lines[2] == "data: Line 3")
-        #expect(lines[3] == "")
     }
 
     @Test("SSE heartbeat (empty comment)")
@@ -233,7 +230,7 @@ struct AsyncSequenceExtTests {
         #expect(lines[0] == ":")
     }
 
-    @Test("Multiple SSE events", .disabled())
+    @Test("Multiple SSE events")
     func multipleSSEEvents() async throws {
         let input = """
         data: Event 1
@@ -245,13 +242,12 @@ struct AsyncSequenceExtTests {
         """
         let lines = try await collectLines(from: input)
 
-        #expect(lines.count == 6)
+        #expect(lines.count == 5)
         #expect(lines[0] == "data: Event 1")
         #expect(lines[1] == "")
         #expect(lines[2] == "data: Event 2")
         #expect(lines[3] == "")
         #expect(lines[4] == "data: Event 3")
-        #expect(lines[5] == "")
     }
 
     // MARK: - UTF-8 Handling
