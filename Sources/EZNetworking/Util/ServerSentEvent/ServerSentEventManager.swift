@@ -114,13 +114,10 @@ public actor ServerSentEventManager: ServerSentEventClient {
     private func startStreamingLoop(bytes: AsyncStream<UInt8>) {
         streamingTask = Task(priority: .high) {
             do {
-                // Using our new extension to keep the logic identical to your original intent
                 for try await line in bytes.sseLines {
                     guard !Task.isCancelled else { break }
 
-                    // Since SSEParser is an actor, we await the result
                     let event = await parser.parseLine(line)
-
                     if let event {
                         eventsContinuation.yield(event)
                         if let id = event.id {
@@ -128,7 +125,6 @@ public actor ServerSentEventManager: ServerSentEventClient {
                         }
                     }
                 }
-
                 handleDisconnection(reason: .streamEnded)
             } catch {
                 guard !Task.isCancelled else { return }
