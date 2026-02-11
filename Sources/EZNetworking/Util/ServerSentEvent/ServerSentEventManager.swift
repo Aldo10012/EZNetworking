@@ -161,7 +161,7 @@ extension AsyncSequence where Element == UInt8 {
     /// - Returns: An `AsyncThrowingStream<String, Error>` of UTF-8 strings.
     var lines: AsyncThrowingStream<String, Error> {
         AsyncThrowingStream { continuation in
-            Task {
+            let task = Task {
                 var buffer = Data()
                 do {
                     for try await byte in self {
@@ -185,6 +185,9 @@ extension AsyncSequence where Element == UInt8 {
                 } catch {
                     continuation.finish(throwing: error)
                 }
+            }
+            continuation.onTermination = { _ in
+                task.cancel()
             }
         }
     }
