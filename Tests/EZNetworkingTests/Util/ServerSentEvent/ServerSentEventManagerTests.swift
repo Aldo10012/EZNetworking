@@ -51,6 +51,15 @@ struct ServerSentEventManagerTests {
         }
     }
 
+    @Test("Throws notConnected when disconnect is called on a not connected manager")
+    func testDisconnectNotConnectedError() async throws {
+        let manager = createSSEManager(request: .init(url: "https://x.com"))
+
+        await #expect(throws: SSEError.notConnected) {
+            try await manager.disconnect()
+        }
+    }
+
     // MARK: - State Machine Tests
 
     @Test("Transitions through states correctly: notConnected -> connecting -> connected")
