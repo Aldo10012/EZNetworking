@@ -105,7 +105,7 @@ public actor ServerSentEventManager: ServerSentEventClient {
     // MARK: Helpers
 
     private func startStreamingLoop(bytes: AsyncStream<UInt8>) {
-        streamingTask = Task(priority: .userInitiated) {
+        streamingTask = Task(priority: .high) {
             do {
                 // Using our new extension to keep the logic identical to your original intent
                 for try await line in bytes.lines {
