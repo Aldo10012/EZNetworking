@@ -78,9 +78,13 @@ public actor ServerSentEventManager: ServerSentEventClient {
             connectionState = .connected
 
             startStreamingLoop(bytes: bytesStream)
+        } catch let sseError as SSEError {
+            connectionState = .disconnected(.streamError(sseError))
+            throw sseError
         } catch {
-            connectionState = .disconnected(.streamError(error))
-            throw error
+            let sseError = SSEError.connectionFailed(underlying: error)
+            connectionState = .disconnected(.streamError(sseError))
+            throw sseError
         }
     }
 
