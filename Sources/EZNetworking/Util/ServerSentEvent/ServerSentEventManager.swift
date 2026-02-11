@@ -55,6 +55,7 @@ public actor ServerSentEventManager: ServerSentEventClient {
     deinit {
         eventsContinuation.finish()
         stateEventContinuation.finish()
+        streamingTask?.cancel()
     }
 
     // MARK: Pubic API
