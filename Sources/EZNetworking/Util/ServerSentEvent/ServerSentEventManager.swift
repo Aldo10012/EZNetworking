@@ -7,7 +7,7 @@ public actor ServerSentEventManager: ServerSentEventClient {
     // Dependencies 
     private let session: NetworkSession
     private var sseRequest: SSERequest
-    private let responseValidator = SSEResponseValidator()
+    private let responseValidator: ResponseValidator
     private let parser = SSEParser()
 
     // State
@@ -34,10 +34,12 @@ public actor ServerSentEventManager: ServerSentEventClient {
 
     public init(
         request: SSERequest,
-        session: NetworkSession = Session()
+        session: NetworkSession = Session(),
+        responseValidator: ResponseValidator = SSEResponseValidator()
     ) {
         self.sseRequest = request
         self.session = session
+        self.responseValidator = responseValidator
 
         let (eventsStream, eventsContinuation) = AsyncStream<ServerSentEvent>.makeStream()
         self.eventsStream = eventsStream
