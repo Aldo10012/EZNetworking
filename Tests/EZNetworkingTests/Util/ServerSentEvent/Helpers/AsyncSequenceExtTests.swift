@@ -75,7 +75,7 @@ struct AsyncSequenceExtTests {
         let lines = try await collectLines(from: "\n")
 
         #expect(lines.count == 1)
-        #expect(lines[0] == "")
+        #expect(lines[0].isEmpty)
     }
 
     @Test("Multiple empty lines")
@@ -83,9 +83,9 @@ struct AsyncSequenceExtTests {
         let lines = try await collectLines(from: "\n\n\n")
 
         #expect(lines.count == 3)
-        #expect(lines[0] == "")
-        #expect(lines[1] == "")
-        #expect(lines[2] == "")
+        #expect(lines[0].isEmpty)
+        #expect(lines[1].isEmpty)
+        #expect(lines[2].isEmpty)
     }
 
     @Test("Empty stream")
@@ -130,7 +130,7 @@ struct AsyncSequenceExtTests {
         let lines = try await collectLines(from: "\r\n")
 
         #expect(lines.count == 1)
-        #expect(lines[0] == "")
+        #expect(lines[0].isEmpty)
     }
 
     @Test("Multiple CRLFs")
@@ -138,9 +138,9 @@ struct AsyncSequenceExtTests {
         let lines = try await collectLines(from: "\r\n\r\n\r\n")
 
         #expect(lines.count == 3)
-        #expect(lines[0] == "")
-        #expect(lines[1] == "")
-        #expect(lines[2] == "")
+        #expect(lines[0].isEmpty)
+        #expect(lines[1].isEmpty)
+        #expect(lines[2].isEmpty)
     }
 
     // MARK: - Lone CR Handling
@@ -178,7 +178,7 @@ struct AsyncSequenceExtTests {
 
         #expect(lines.count == 2)
         #expect(lines[0] == "data: Hello, World!")
-        #expect(lines[1] == "")
+        #expect(lines[1].isEmpty)
     }
 
     @Test("SSE event with multiple fields")
@@ -244,9 +244,9 @@ struct AsyncSequenceExtTests {
 
         #expect(lines.count == 5)
         #expect(lines[0] == "data: Event 1")
-        #expect(lines[1] == "")
+        #expect(lines[1].isEmpty)
         #expect(lines[2] == "data: Event 2")
-        #expect(lines[3] == "")
+        #expect(lines[3].isEmpty)
         #expect(lines[4] == "data: Event 3")
     }
 
@@ -591,8 +591,8 @@ struct AsyncSequenceExtTests {
 
         #expect(lines.count == 4)
         #expect(lines[0] == "Line1")
-        #expect(lines[1] == "")
-        #expect(lines[2] == "")
+        #expect(lines[1].isEmpty)
+        #expect(lines[2].isEmpty)
         #expect(lines[3] == "Line2")
     }
 
