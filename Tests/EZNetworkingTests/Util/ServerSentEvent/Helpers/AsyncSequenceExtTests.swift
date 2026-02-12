@@ -1,7 +1,9 @@
+// swiftlint:disable file_length
 @testable import EZNetworking
 import Foundation
 import Testing
 
+// swiftlint:disable type_body_length
 @Suite("Test AsyncSequence.sseLines() extension method")
 struct AsyncSequenceExtTests {
     // MARK: - Helper Methods
@@ -615,3 +617,6 @@ struct AsyncSequenceExtTests {
         #expect(lines[0].contains("�"))
     }
 }
+
+// swiftlint:enable type_body_length
+// swiftlint:enable file_length
