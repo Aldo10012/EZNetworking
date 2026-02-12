@@ -17,6 +17,7 @@ extension AsyncSequence where Element == UInt8 {
                 do {
                     for try await byte in self {
                         if byte == ASCII.lineFeed.rawValue {
+                            // swiftlint:disable:next optional_data_string_conversion
                             let line = String(decoding: buffer, as: UTF8.self)
                             continuation.yield(line)
                             buffer.removeAll()
@@ -30,6 +31,7 @@ extension AsyncSequence where Element == UInt8 {
                     }
                     // Yield any trailing data if the stream ends without a final newline
                     if !buffer.isEmpty {
+                        // swiftlint:disable:next optional_data_string_conversion
                         continuation.yield(String(decoding: buffer, as: UTF8.self))
                     }
                     continuation.finish()
