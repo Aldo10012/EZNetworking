@@ -319,7 +319,7 @@ final class SSEResponseValidatorTests {
             try validator.validateStatus(from: response)
             Issue.record("Expected error to be thrown")
         } catch let error as SSEError {
-            if case .invalidHTTPResponse(let httpResponse) = error {
+            if case let .invalidHTTPResponse(httpResponse) = error {
                 #expect(httpResponse.statusCode == 404)
                 #expect(httpResponse.headers["Content-Type"] == "text/event-stream")
             } else {
@@ -409,7 +409,7 @@ final class SSEResponseValidatorTests {
             try validator.validateStatus(from: response)
             Issue.record("Expected error to be thrown")
         } catch let error as SSEError {
-            if case .invalidHTTPResponse(let httpResponse) = error {
+            if case let .invalidHTTPResponse(httpResponse) = error {
                 #expect(httpResponse.statusCode == 200)
                 #expect(httpResponse.headers["Content-Type"] == "application/json")
             } else {

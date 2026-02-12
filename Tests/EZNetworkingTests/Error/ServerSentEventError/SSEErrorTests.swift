@@ -6,8 +6,8 @@ import Testing
 struct SSEErrorTests {
     // MARK: - Equality
 
-    @Test("Verifies basic cases without associated values")
-    func testBasicEquality() {
+    @Test("test Verifies basic cases without associated values")
+    func basicEquality() {
         #expect(SSEError.notConnected == .notConnected)
         #expect(SSEError.stillConnecting == .stillConnecting)
         #expect(SSEError.alreadyConnected == .alreadyConnected)
@@ -18,14 +18,14 @@ struct SSEErrorTests {
         #expect(SSEError.notConnected != .stillConnecting)
     }
 
-    @Test("Verifies invalidStatusCode equality and inequality")
-    func testStatusCodeEquality() {
+    @Test("test Verifies invalidStatusCode equality and inequality")
+    func statusCodeEquality() {
         #expect(SSEError.invalidHTTPResponse(HTTPResponse(statusCode: 404)) == .invalidHTTPResponse(HTTPResponse(statusCode: 404)))
         #expect(SSEError.invalidHTTPResponse(HTTPResponse(statusCode: 500)) != .invalidHTTPResponse(HTTPResponse(statusCode: 501)))
     }
 
-    @Test("Verifies connectionFailed equality by bridging to NSError")
-    func testConnectionFailedEquality() {
+    @Test("test Verifies connectionFailed equality by bridging to NSError")
+    func connectionFailedEquality() {
         let error1 = NSError(domain: "test", code: 1, userInfo: nil)
         let error2 = NSError(domain: "test", code: 1, userInfo: nil)
         let differentError = NSError(domain: "test", code: 2, userInfo: nil)
@@ -34,18 +34,18 @@ struct SSEErrorTests {
         #expect(SSEError.connectionFailed(underlying: error1) != .connectionFailed(underlying: differentError))
     }
 
-    @Test("Verifies inequality across different enum cases", arguments: [
+    @Test("test Verifies inequality across different enum cases", arguments: [
         (SSEError.notConnected, SSEError.invalidResponse),
         (SSEError.invalidHTTPResponse(HTTPResponse(statusCode: 200)), SSEError.notConnected),
         (SSEError.stillConnecting, SSEError.unexpectedDisconnection)
     ])
-    func testMismatchedCases(lhs: SSEError, rhs: SSEError) {
+    func mismatchedCases(lhs: SSEError, rhs: SSEError) {
         #expect(lhs != rhs)
     }
 
     // MARK: - LocalizedError Tests
 
-    @Test("Not connected error description")
+    @Test("test Not connected error description")
     func notConnectedErrorDescription() {
         let error: SSEError = .notConnected
 
@@ -53,7 +53,7 @@ struct SSEErrorTests {
         #expect(error.errorDescription?.contains("not currently established") == true)
     }
 
-    @Test("Already connected error description")
+    @Test("test Already connected error description")
     func alreadyConnectedErrorDescription() {
         let error: SSEError = .alreadyConnected
 
@@ -61,7 +61,7 @@ struct SSEErrorTests {
         #expect(error.errorDescription?.contains("already established") == true)
     }
 
-    @Test("Still connecting error description")
+    @Test("test Still connecting error description")
     func stillConnectingErrorDescription() {
         let error: SSEError = .stillConnecting
 
@@ -69,7 +69,7 @@ struct SSEErrorTests {
         #expect(error.errorDescription?.contains("in progress") == true)
     }
 
-    @Test("Connection failed error description")
+    @Test("test Connection failed error description")
     func connectionFailedErrorDescription() {
         let underlyingError = NSError(
             domain: "TestDomain",
@@ -83,7 +83,7 @@ struct SSEErrorTests {
         #expect(error.errorDescription?.contains("Network unavailable") == true)
     }
 
-    @Test("Invalid response error description")
+    @Test("test Invalid response error description")
     func invalidResponseErrorDescription() {
         let error: SSEError = .invalidResponse
 
@@ -91,7 +91,7 @@ struct SSEErrorTests {
         #expect(error.errorDescription?.contains("not a valid HTTP response") == true)
     }
 
-    @Test("Invalid status code error description")
+    @Test("test Invalid status code error description")
     func invalidStatusCodeErrorDescription() {
         let error: SSEError = .invalidHTTPResponse(HTTPResponse(statusCode: 500))
 
@@ -99,7 +99,7 @@ struct SSEErrorTests {
         #expect(error.errorDescription?.contains("500") == true)
     }
 
-    @Test("Unexpected disconnection error description")
+    @Test("test Unexpected disconnection error description")
     func unexpectedDisconnectionErrorDescription() {
         let error: SSEError = .unexpectedDisconnection
 
@@ -109,7 +109,7 @@ struct SSEErrorTests {
 
     // MARK: - Error Protocol Conformance
 
-    @Test("Error protocol conformance")
+    @Test("test Error protocol conformance")
     func errorProtocolConformance() {
         let error: SSEError = .notConnected
         let anyError: Error = error
@@ -117,7 +117,7 @@ struct SSEErrorTests {
         #expect(anyError is SSEError)
     }
 
-    @Test("LocalizedError protocol conformance")
+    @Test("test LocalizedError protocol conformance")
     func localizedErrorProtocolConformance() {
         let error: SSEError = .invalidHTTPResponse(HTTPResponse(statusCode: 404))
         let localizedError: LocalizedError = error
@@ -127,7 +127,7 @@ struct SSEErrorTests {
 
     // MARK: - Pattern Matching Tests
 
-    @Test("Pattern matching all error cases")
+    @Test("test Pattern matching all error cases")
     func patternMatchingAllErrorCases() {
         let errors: [SSEError] = [
             .notConnected,
@@ -150,7 +150,7 @@ struct SSEErrorTests {
 
     // MARK: - Edge Cases
 
-    @Test("Multiple status codes")
+    @Test("test Multiple status codes")
     func multipleStatusCodes() {
         let statusCodes = [400, 401, 403, 404, 500, 502, 503]
 
@@ -165,7 +165,7 @@ struct SSEErrorTests {
         }
     }
 
-    @Test("Error description is not empty")
+    @Test("test Error description is not empty")
     func errorDescriptionIsNotEmpty() {
         let errors: [SSEError] = [
             .notConnected,

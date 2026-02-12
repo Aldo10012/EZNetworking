@@ -4,7 +4,6 @@ import Testing
 
 @Suite("Test ServerSentEventManager")
 struct ServerSentEventManagerTests {
-
     // MARK: - Connection & Validation Tests
 
     @Test("test connect does not throw")
@@ -30,7 +29,7 @@ struct ServerSentEventManagerTests {
     }
 
     @Test("Throws invalidStatusCode when response is not 200")
-    func testConnectInvalidStatusCode() async throws {
+    func connectInvalidStatusCode() async throws {
         let errorResponse = buildResponse(statusCode: 404)
         let mockSession = createMockURLSession(urlResponse: errorResponse)
         let manager = createSSEManager(request: .init(url: "https://x.com"), urlSession: mockSession)
@@ -41,7 +40,7 @@ struct ServerSentEventManagerTests {
     }
 
     @Test("Throws error when URLSession fails immediately")
-    func testConnectSessionError() async throws {
+    func connectSessionError() async throws {
         let underlyingError = NSError(domain: "NSURLErrorDomain", code: -1009)
         let mockSession = createMockURLSession(error: underlyingError)
         let manager = createSSEManager(request: .init(url: "https://x.com"), urlSession: mockSession)
@@ -52,7 +51,7 @@ struct ServerSentEventManagerTests {
     }
 
     @Test("Throws notConnected when disconnect is called on a not connected manager")
-    func testDisconnectNotConnectedError() async throws {
+    func disconnectNotConnectedError() async throws {
         let manager = createSSEManager(request: .init(url: "https://x.com"))
 
         await #expect(throws: SSEError.notConnected) {
@@ -63,7 +62,7 @@ struct ServerSentEventManagerTests {
     // MARK: - State Machine Tests
 
     @Test("Transitions through states correctly: notConnected -> connecting -> connected")
-    func testStateTransitionsFromNotConnectedToConnected() async throws {
+    func stateTransitionsFromNotConnectedToConnected() async throws {
         let manager = createSSEManager(request: .init(url: "https://x.com"))
         var states: [SSEConnectionState] = []
 
@@ -86,7 +85,7 @@ struct ServerSentEventManagerTests {
     }
 
     @Test("Transitions through states correctly: notConnected -> connecting -> connected -> disconnected")
-    func testStateTransitionsFromNotCOnnectedToDisconnected() async throws {
+    func stateTransitionsFromNotCOnnectedToDisconnected() async throws {
         let manager = createSSEManager(request: .init(url: "https://x.com"))
         var states: [SSEConnectionState] = []
 
@@ -111,7 +110,7 @@ struct ServerSentEventManagerTests {
     }
 
     @Test("Transitions through states correctly: notConnected -> connecting -> connected -> terminated")
-    func testStateTransitionsFromNotCOnnectedToTerminateded() async throws {
+    func stateTransitionsFromNotCOnnectedToTerminateded() async throws {
         let manager = createSSEManager(request: .init(url: "https://x.com"))
         var states: [SSEConnectionState] = []
 
@@ -138,7 +137,7 @@ struct ServerSentEventManagerTests {
     // MARK: - Data & Parsing Tests
 
     @Test("Emits ServerSentEvent when valid data is yielded by the session")
-    func testEventEmission() async throws {
+    func eventEmission() async throws {
         let mockSession = createMockURLSession()
         let manager = createSSEManager(request: .init(url: "https://x.com"), urlSession: mockSession)
 
@@ -158,7 +157,7 @@ struct ServerSentEventManagerTests {
     }
 
     @Test("Updates lastEventId when event with ID is received")
-    func testLastEventIdTracking() async throws {
+    func lastEventIdTracking() async throws {
         let mockSession = createMockURLSession()
         let manager = createSSEManager(request: .init(url: "https://x.com"), urlSession: mockSession)
 
@@ -176,7 +175,7 @@ struct ServerSentEventManagerTests {
     }
 
     @Test("Handles stream ended by server")
-    func testStreamEndedByServer() async throws {
+    func streamEndedByServer() async throws {
         let mockSession = createMockURLSession()
         let manager = createSSEManager(request: .init(url: "https://x.com"), urlSession: mockSession)
 

@@ -34,6 +34,6 @@ public struct SSERequest: Request {
     public var timeoutInterval: TimeInterval { 60 } // 1 minute
 
     mutating func setLastEventId(_ id: String?) {
-        self.lastEventId = id
+        lastEventId = id
     }
 }

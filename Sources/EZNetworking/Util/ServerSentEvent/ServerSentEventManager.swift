@@ -1,10 +1,9 @@
 import Foundation
 
 public actor ServerSentEventManager: ServerSentEventClient {
-
     // MARK: Properties
 
-    // Dependencies 
+    // Dependencies
     private let session: NetworkSession
     private var sseRequest: SSERequest
     private let responseValidator: ResponseValidator
@@ -30,14 +29,14 @@ public actor ServerSentEventManager: ServerSentEventClient {
     /// Tracks the background task that consumes the byte stream and parses SSE events.
     private var streamingTask: Task<Void, Never>?
 
-    // MARK: init 
+    // MARK: init
 
     public init(
         request: SSERequest,
         session: NetworkSession = Session(),
         responseValidator: ResponseValidator = SSEResponseValidator()
     ) {
-        self.sseRequest = request
+        sseRequest = request
         self.session = session
         self.responseValidator = responseValidator
 

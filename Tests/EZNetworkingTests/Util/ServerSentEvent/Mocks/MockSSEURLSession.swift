@@ -13,7 +13,7 @@ class MockSSEURLSession: URLSessionProtocol {
     }
 
     func bytes(for request: URLRequest) async throws -> (AsyncStream<UInt8>, URLResponse) {
-        if let error = error { throw error }
+        if let error { throw error }
 
         let stream = AsyncStream<UInt8> { continuation in
             self.continuation = continuation

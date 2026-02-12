@@ -187,7 +187,7 @@ struct AsyncSequenceExtTests {
         id: 123
         event: update
         data: Test data
-        
+
         """
         let lines = try await collectLines(from: input)
 
@@ -211,7 +211,7 @@ struct AsyncSequenceExtTests {
         data: Line 1
         data: Line 2
         data: Line 3
-        
+
         """
         let lines = try await collectLines(from: input)
 
@@ -234,11 +234,11 @@ struct AsyncSequenceExtTests {
     func multipleSSEEvents() async throws {
         let input = """
         data: Event 1
-        
+
         data: Event 2
-        
+
         data: Event 3
-        
+
         """
         let lines = try await collectLines(from: input)
 
@@ -425,18 +425,18 @@ struct AsyncSequenceExtTests {
 
     @Test("Very long line (10KB)")
     func veryLongLine() async throws {
-        let longLine = String(repeating: "A", count: 10_000)
+        let longLine = String(repeating: "A", count: 10000)
         let lines = try await collectLines(from: "\(longLine)\n")
 
         #expect(lines.count == 1)
-        #expect(lines[0].count == 10_000)
+        #expect(lines[0].count == 10000)
         #expect(lines[0] == longLine)
     }
 
     @Test("Many lines (1000 lines)")
     func manyLines() async throws {
         var input = ""
-        for i in 0..<1000 {
+        for i in 0 ..< 1000 {
             input += "Line \(i)\n"
         }
 
@@ -537,7 +537,7 @@ struct AsyncSequenceExtTests {
         let stream = AsyncStream<UInt8> { continuation in
             Task {
                 // Send infinite data
-                for i in 0..<10000 {
+                for i in 0 ..< 10000 {
                     continuation.yield(UInt8(i % 256))
                     try? await Task.sleep(for: .milliseconds(1))
                 }
