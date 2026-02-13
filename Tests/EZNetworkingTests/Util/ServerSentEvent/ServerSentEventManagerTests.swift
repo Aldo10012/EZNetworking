@@ -4,22 +4,22 @@ import Testing
 
 @Suite("Test ServerSentEventManager")
 struct ServerSentEventManagerTests {
-    // MARK: - Connection & Validation Tests
+    private let sseRequest = SSERequest(url: "https://example.com/sse")
+
+    // MARK: - .connect()
 
     @Test("test connect does not throw")
     func connectDoesNotThrow() async throws {
-        let request = SSERequest(url: "https://example.com/sse")
-        let manager = createSSEManager(request: request)
+        let manager = createSSEManager(request: sseRequest)
 
         await #expect(throws: Never.self) {
             try await manager.connect()
         }
     }
 
-    @Test("test connect while connecting throws")
-    func connectWileConnectedThrows() async throws {
-        let request = SSERequest(url: "https://example.com/sse")
-        let manager = createSSEManager(request: request)
+    @Test("test connect throws when already connected")
+    func connectThrowsWhenAlreadyConnected() async throws {
+        let manager = createSSEManager(request: sseRequest)
 
         try await manager.connect()
 
@@ -28,49 +28,60 @@ struct ServerSentEventManagerTests {
         }
     }
 
-    @Test("Throws invalidStatusCode when response is not 200")
-    func connectInvalidStatusCode() async throws {
+    @Test("test connect throws when response is not 200")
+    func connectThrowsWhenResponseIsNot200() async throws {
         let errorResponse = buildResponse(statusCode: 404)
         let mockSession = createMockURLSession(urlResponse: errorResponse)
-        let manager = createSSEManager(request: .init(url: "https://x.com"), urlSession: mockSession)
+        let manager = createSSEManager(request: sseRequest, urlSession: mockSession)
 
         await #expect(throws: SSEError.invalidHTTPResponse(HTTPResponse(statusCode: 404))) {
             try await manager.connect()
         }
     }
 
-    @Test("Throws error when URLSession fails immediately")
-    func connectSessionError() async throws {
-        let underlyingError = NSError(domain: "NSURLErrorDomain", code: -1009)
+    @Test("test connect throws when urlSession has error")
+    func testConnectThrowsWhenURLSessionHasError() async throws {
+        let underlyingError = URLError(.notConnectedToInternet)
         let mockSession = createMockURLSession(error: underlyingError)
-        let manager = createSSEManager(request: .init(url: "https://x.com"), urlSession: mockSession)
+        let manager = createSSEManager(request: sseRequest, urlSession: mockSession)
 
-        await #expect(throws: Error.self) {
+        await #expect(throws: SSEError.connectionFailed(underlying: URLError(.notConnectedToInternet))) {
             try await manager.connect()
         }
     }
 
-    @Test("Throws notConnected when disconnect is called on a not connected manager")
-    func disconnectNotConnectedError() async throws {
-        let manager = createSSEManager(request: .init(url: "https://x.com"))
+    // MARK: - .disconnect()
+
+    @Test("test disconnect throws if not connected")
+    func disconnectThrowsIfNotConnected() async throws {
+        let manager = createSSEManager(request: sseRequest)
 
         await #expect(throws: SSEError.notConnected) {
             try await manager.disconnect()
         }
     }
 
-    // MARK: - State Machine Tests
+    @Test("test disconnect does throws if connected")
+    func disconnectDoesNotThrowIfConnected() async throws {
+        let manager = createSSEManager(request: sseRequest)
+        try await manager.connect()
 
-    @Test("Transitions through states correctly: notConnected -> connecting -> connected")
-    func stateTransitionsFromNotConnectedToConnected() async throws {
-        let manager = createSSEManager(request: .init(url: "https://x.com"))
+        await #expect(throws: Never.self) {
+            try await manager.disconnect()
+        }
+    }
+
+    // MARK: - .stateEvents
+
+    @Test("test streamed state events when connecting successfully")
+    func streamedStateEventsWhenConnectingSuccessfully() async throws {
+        let manager = createSSEManager(request: sseRequest)
         var states: [SSEConnectionState] = []
 
         // Collect states in a background task
         let stateTask = Task {
-            for await state in await manager.stateEvents {
+            for await state in await manager.stateEvents.prefix(2) {
                 states.append(state)
-                if case .connected = state { break }
             }
         }
 
@@ -84,16 +95,73 @@ struct ServerSentEventManagerTests {
         ])
     }
 
-    @Test("Transitions through states correctly: notConnected -> connecting -> connected -> disconnected")
-    func stateTransitionsFromNotCOnnectedToDisconnected() async throws {
-        let manager = createSSEManager(request: .init(url: "https://x.com"))
+    @Test("test streamed state events when connecting but respoinse is not 200")
+    func streamedStateEventsWhenConnectingButResposneIsNot200() async throws {
+        let errorResponse = buildResponse(statusCode: 404)
+        let mockSession = createMockURLSession(urlResponse: errorResponse)
+        let manager = createSSEManager(request: sseRequest, urlSession: mockSession)
         var states: [SSEConnectionState] = []
 
         // Collect states in a background task
         let stateTask = Task {
-            for await state in await manager.stateEvents {
+            for await state in await manager.stateEvents.prefix(2) {
                 states.append(state)
-                if case .disconnected(.manuallyDisconnected) = state { break }
+            }
+        }
+
+        do {
+            try await manager.connect()
+            Issue.record("Expected .connect() to fail")
+        } catch {
+            // .connect() failed as expected
+        }
+        await stateTask.value
+
+        #expect(states.count == 2)
+        #expect(states == [
+            SSEConnectionState.connecting,
+            SSEConnectionState.disconnected(.streamError(SSEError.invalidHTTPResponse(HTTPResponse(statusCode: 404))))
+        ])
+    }
+
+    @Test("test streamed state events when connecting but urlRespoinse has error")
+    func streamedStateEventsWhenConnectingButURLResposneHasError() async throws {
+        let underlyingError = URLError(.notConnectedToInternet)
+        let mockSession = createMockURLSession(error: underlyingError)
+        let manager = createSSEManager(request: sseRequest, urlSession: mockSession)
+        var states: [SSEConnectionState] = []
+
+        // Collect states in a background task
+        let stateTask = Task {
+            for await state in await manager.stateEvents.prefix(2) {
+                states.append(state)
+            }
+        }
+
+        do {
+            try await manager.connect()
+            Issue.record("Expected .connect() to fail")
+        } catch {
+            // .connect() failed as expected
+        }
+        await stateTask.value
+
+        #expect(states.count == 2)
+        #expect(states == [
+            SSEConnectionState.connecting,
+            SSEConnectionState.disconnected(.streamError(SSEError.connectionFailed(underlying: URLError(.notConnectedToInternet))))
+        ])
+    }
+
+    @Test("test streamed state events when connecting then disconnecting")
+    func streamedStateEventsWhenConnectingThenDisconnecting() async throws {
+        let manager = createSSEManager(request: sseRequest)
+        var states: [SSEConnectionState] = []
+
+        // Collect states in a background task
+        let stateTask = Task {
+            for await state in await manager.stateEvents.prefix(3) {
+                states.append(state)
             }
         }
 
@@ -109,16 +177,15 @@ struct ServerSentEventManagerTests {
         ])
     }
 
-    @Test("Transitions through states correctly: notConnected -> connecting -> connected -> terminated")
-    func stateTransitionsFromNotCOnnectedToTerminateded() async throws {
-        let manager = createSSEManager(request: .init(url: "https://x.com"))
+    @Test("test streamed state events when connecting then terminated")
+    func streamedStateEventsWhenConnectingThenTerminated() async throws {
+        let manager = createSSEManager(request: sseRequest)
         var states: [SSEConnectionState] = []
 
         // Collect states in a background task
         let stateTask = Task {
             for await state in await manager.stateEvents {
                 states.append(state)
-                if case .disconnected(.terminated) = state { break }
             }
         }
 
@@ -134,12 +201,64 @@ struct ServerSentEventManagerTests {
         ])
     }
 
+    @Test("test streamed state events when connecting then disconnecting then reconnecting")
+    func streamedStateEventsWhenConnectingThenDisconnectingThenReconnecting() async throws {
+        let manager = createSSEManager(request: sseRequest)
+        var states: [SSEConnectionState] = []
+
+        // Collect states in a background task
+        let stateTask = Task {
+            for await state in await manager.stateEvents.prefix(5) {
+                states.append(state)
+            }
+        }
+
+        try await manager.connect()
+        try await manager.disconnect()
+        try await manager.connect()
+        await stateTask.value
+
+        #expect(states.count == 5)
+        #expect(states == [
+            SSEConnectionState.connecting,
+            SSEConnectionState.connected,
+            SSEConnectionState.disconnected(.manuallyDisconnected),
+            SSEConnectionState.connecting,
+            SSEConnectionState.connected
+        ])
+    }
+
+    @Test("test streamed state events cannot stream after .terminate() is called")
+    func streamedStateEventsCannotStreamAfterTerminate() async throws {
+        let manager = createSSEManager(request: sseRequest)
+        var states: [SSEConnectionState] = []
+
+        // Collect states in a background task
+        let stateTask = Task {
+            for await state in await manager.stateEvents {
+                states.append(state)
+            }
+        }
+
+        try await manager.connect()
+        await manager.terminate()
+        try await manager.connect()
+        await stateTask.value
+
+        #expect(states.count == 3)
+        #expect(states == [
+            SSEConnectionState.connecting,
+            SSEConnectionState.connected,
+            SSEConnectionState.disconnected(.terminated)
+        ])
+    }
+
     // MARK: - Data & Parsing Tests
 
-    @Test("Emits ServerSentEvent when valid data is yielded by the session")
-    func eventEmission() async throws {
+    @Test("test events stream after receiving single SSE message")
+    func eventStreamsAfterReceivingSingleSSEMessage() async throws {
         let mockSession = createMockURLSession()
-        let manager = createSSEManager(request: .init(url: "https://x.com"), urlSession: mockSession)
+        let manager = createSSEManager(request: sseRequest, urlSession: mockSession)
 
         try await manager.connect()
 
@@ -148,47 +267,35 @@ struct ServerSentEventManagerTests {
             return await iterator.next()
         }
 
-        // Simulate server sending data
-        mockSession.simulateIncomingData("id: 1\ndata: Hello World\n\n")
+        mockSession.simulateIncomingData("id: 1\nevent: mock_event\ndata: Hello World\nretry: 100\n\n")
 
         let event = await eventTask.value
         #expect(event?.id == "1")
         #expect(event?.data == "Hello World")
+        #expect(event?.event == "mock_event")
+        #expect(event?.retry == 100)
     }
 
-    @Test("Updates lastEventId when event with ID is received")
-    func lastEventIdTracking() async throws {
+    @Test("test events stream ends after terminate")
+    func eventStreamsEndsAfterTerminate() async throws {
         let mockSession = createMockURLSession()
-        let manager = createSSEManager(request: .init(url: "https://x.com"), urlSession: mockSession)
+        let manager = createSSEManager(request: sseRequest, urlSession: mockSession)
 
         try await manager.connect()
 
-        // Send event with ID
-        mockSession.simulateIncomingData("id: secure-token-99\ndata: update\n\n")
+        var streamEnded = false
+        let eventTask = Task {
+            for await _ in await manager.events {
+                // handle event
+            }
+            streamEnded = true
+        }
+        mockSession.simulateIncomingData("id: 1\nevent: mock_event\ndata: Hello World\nretry: 100\n\n")
 
-        // To verify lastEventId, we can simulate a disconnect and reconnect
-        // and check the request headers in our MockURLSession (if captured).
-        try await manager.disconnect()
+        await manager.terminate()
+        await eventTask.value
 
-        // Note: You might need to add a capture property to your MockSSEURLSession
-        // to inspect the URLRequest passed to `bytes(for:delegate:)`.
-    }
-
-    @Test("Handles stream ended by server")
-    func streamEndedByServer() async throws {
-        let mockSession = createMockURLSession()
-        let manager = createSSEManager(request: .init(url: "https://x.com"), urlSession: mockSession)
-
-        try await manager.connect()
-
-        // Simulate server closing connection
-        mockSession.continuation?.finish()
-
-        // Give the background task a moment to process the end of the stream
-        try await Task.sleep(nanoseconds: 100_000_000)
-
-        // In a real test, listen to stateEvents for .disconnected(.streamEnded)
-        #expect(true)
+        #expect(streamEnded)
     }
 }
 
