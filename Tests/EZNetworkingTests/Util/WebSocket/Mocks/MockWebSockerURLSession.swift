@@ -34,4 +34,8 @@ extension MockWebSockerURLSession {
     func upload(for request: URLRequest, fromFile fileURL: URL) async throws -> (Data, URLResponse) {
         fatalError("Should not be using in this mock")
     }
+
+    func bytes(for request: URLRequest) async throws -> (AsyncStream<UInt8>, URLResponse) {
+        fatalError("Should not be using in this mock")
+    }
 }

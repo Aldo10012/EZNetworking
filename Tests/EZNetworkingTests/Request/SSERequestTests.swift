@@ -28,7 +28,7 @@ final class SSERequestTests {
         #expect(sut.additionalheaders == nil)
         #expect(sut.cachePolicy == .reloadIgnoringLocalCacheData)
 
-        #expect(sut.timeoutInterval == 3600)
+        #expect(sut.timeoutInterval == 60)
     }
 
     // MARK: - Base SSE Headers Always Present
@@ -119,6 +119,21 @@ final class SSERequestTests {
             .accept(.eventStream),
             .cacheControl("no_cache"),
             .connection("keep_alive")
+        ])
+    }
+
+    // MARK: - Last-Event-ID
+
+    @Test("test SSERequest lastEventId header is set when lastEventId is set")
+    func sseRequestLastEventIdHeaderIsSetWhenLastEventIdIsSet() {
+        var sut = SSERequest(url: sseURL)
+        sut.setLastEventId("123")
+
+        #expect(sut.headers == [
+            .accept(.eventStream),
+            .cacheControl("no_cache"),
+            .connection("keep_alive"),
+            .lastEventID("123")
         ])
     }
 

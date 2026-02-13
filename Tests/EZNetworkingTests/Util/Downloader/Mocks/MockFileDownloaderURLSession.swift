@@ -81,4 +81,8 @@ extension MockFileDownloaderURLSession {
     func webSocketTaskInspectable(with request: URLRequest) -> URLSessionWebSocketTaskProtocol {
         fatalError("Should not be using in this mock")
     }
+
+    func bytes(for request: URLRequest) async throws -> (AsyncStream<UInt8>, URLResponse) {
+        fatalError("Should not be using in this mock")
+    }
 }

@@ -10,11 +10,45 @@ public protocol URLSessionProtocol {
     func upload(for request: URLRequest, fromFile fileURL: URL) async throws -> (Data, URLResponse)
 
     func webSocketTaskInspectable(with request: URLRequest) -> URLSessionWebSocketTaskProtocol
+
+    func bytes(for request: URLRequest) async throws -> (AsyncStream<UInt8>, URLResponse)
 }
 
 extension URLSession: URLSessionProtocol {
     public func webSocketTaskInspectable(with request: URLRequest) -> URLSessionWebSocketTaskProtocol {
         let task: URLSessionWebSocketTask = webSocketTask(with: request)
         return task as URLSessionWebSocketTaskProtocol
+    }
+
+    /// Wraps the native `URLSession.AsyncBytes` into an `AsyncStream<UInt8>`.
+    ///
+    /// ### Why this wrapper exists:
+    /// 1. **Testability**: `URLSession.AsyncBytes` has no public initializer. Returning `AsyncStream`
+    ///    allows us to inject mock data in unit tests.
+    /// 2. **Decoupling**: Abstracts the transport layer, allowing `ServerSentEventManager`
+    ///    to remain agnostic of the underlying networking stack.
+    /// 3. **Control**: Provides a `Continuation` to simulate fragmented packets or
+    ///    disconnections.
+    ///
+    /// - Note: Cancelling the stream propagates cancellation to the underlying `URLSessionTask`.
+    public func bytes(for request: URLRequest) async throws -> (AsyncStream<UInt8>, URLResponse) {
+        let (bytes, response) = try await self.bytes(for: request, delegate: nil)
+
+        let stream = AsyncStream<UInt8> { continuation in
+            let task = Task {
+                do {
+                    for try await byte in bytes {
+                        continuation.yield(byte)
+                    }
+                    continuation.finish()
+                } catch {
+                    continuation.finish()
+                }
+            }
+            // Ensure the task is cancelled if the stream is cancelled
+            continuation.onTermination = { _ in task.cancel() }
+        }
+
+        return (stream, response)
     }
 }

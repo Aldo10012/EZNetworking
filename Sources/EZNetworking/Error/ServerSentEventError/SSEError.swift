@@ -1,6 +1,6 @@
 import Foundation
 
-public enum SSEError: Error, LocalizedError, Sendable {
+public enum SSEError: Error, Sendable {
     // Connection state errors
     case notConnected
     case stillConnecting
@@ -9,36 +9,61 @@ public enum SSEError: Error, LocalizedError, Sendable {
 
     // Response validation errors
     case invalidResponse
-    case invalidStatusCode(Int)
-    case invalidContentType(String?)
+    case invalidHTTPResponse(HTTPResponse)
 
     // Disconnection errors
     case unexpectedDisconnection
+}
 
-    // MARK: - LocalizedError
+// MARK: LocalizedError
 
+extension SSEError: LocalizedError {
     public var errorDescription: String? {
         switch self {
         case .notConnected:
-            "The SSE connection is not currently established."
+            return "The SSE connection is not currently established."
         case .stillConnecting:
-            "A connection attempt is already in progress."
+            return "A connection attempt is already in progress."
         case .alreadyConnected:
-            "The SSE connection is already established."
+            return "The SSE connection is already established."
         case let .connectionFailed(underlying):
-            "Failed to establish SSE connection: \(underlying.localizedDescription)"
+            return "Failed to establish SSE connection: \(underlying.localizedDescription)"
         case .invalidResponse:
-            "The server response was not a valid HTTP response."
-        case let .invalidStatusCode(statusCode):
-            "The server returned an invalid status code: \(statusCode). Expected 200 OK."
-        case let .invalidContentType(contentType):
-            if let contentType {
-                "The server returned an invalid Content-Type: '\(contentType)'. Expected 'text/event-stream'."
+            return "The server response was not a valid HTTP response."
+        case let .invalidHTTPResponse(httpResponse):
+            if httpResponse.category != .success {
+                return "The server returned HTTP status \(httpResponse.statusCode). Expected 2xx status code for SSE connection."
             } else {
-                "The server did not specify a Content-Type header. Expected 'text/event-stream'."
+                // Must be Content-Type issue
+                let contentType = httpResponse.headers["Content-Type"] ?? httpResponse.headers["content-type"] ?? "not specified"
+                return "The server returned an invalid Content-Type: '\(contentType)'. Expected 'text/event-stream'."
             }
         case .unexpectedDisconnection:
-            "The SSE connection was unexpectedly closed."
+            return "The SSE connection was unexpectedly closed."
+        }
+    }
+}
+
+// MARK: Equatable
+
+extension SSEError: Equatable {
+    public static func == (lhs: SSEError, rhs: SSEError) -> Bool {
+        switch (lhs, rhs) {
+        case (.notConnected, .notConnected),
+             (.stillConnecting, .stillConnecting),
+             (.alreadyConnected, .alreadyConnected),
+             (.invalidResponse, .invalidResponse),
+             (.unexpectedDisconnection, .unexpectedDisconnection):
+            true
+
+        case let (.connectionFailed(errorA), .connectionFailed(errorB)):
+            (errorA as NSError) == (errorB as NSError)
+
+        case let (.invalidHTTPResponse(httpResponseA), .invalidHTTPResponse(httpResponseB)):
+            httpResponseA.statusCode == httpResponseB.statusCode
+
+        default:
+            false
         }
     }
 }
