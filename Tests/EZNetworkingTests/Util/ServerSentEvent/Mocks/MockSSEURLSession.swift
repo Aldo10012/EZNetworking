@@ -5,17 +5,20 @@ class MockSSEURLSession: URLSessionProtocol {
     var response: URLResponse
     var error: Error?
 
-    var continuation: AsyncStream<UInt8>.Continuation?
+    var continuation: AsyncThrowingStream<UInt8, Error>.Continuation?
+    var capturedRequests: [URLRequest] = []
 
     init(response: URLResponse = HTTPURLResponse(), error: Error? = nil) {
         self.response = response
         self.error = error
     }
 
-    func bytes(for request: URLRequest) async throws -> (AsyncStream<UInt8>, URLResponse) {
+    func bytes(for request: URLRequest) async throws -> (AsyncThrowingStream<UInt8, Error>, URLResponse) {
+        self.capturedRequests.append(request)
+
         if let error { throw error }
 
-        let stream = AsyncStream<UInt8> { continuation in
+        let stream = AsyncThrowingStream<UInt8, Error> { continuation in
             self.continuation = continuation
         }
 
@@ -26,6 +29,14 @@ class MockSSEURLSession: URLSessionProtocol {
     func simulateIncomingData(_ string: String) {
         for byte in string.utf8 {
             continuation?.yield(byte)
+        }
+    }
+
+    func simulateStreamEnded(error: Error?) {
+        if let error {
+            continuation?.finish(throwing: error)
+        } else {
+            continuation?.finish()
         }
     }
 }

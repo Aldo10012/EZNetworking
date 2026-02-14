@@ -71,6 +71,23 @@ struct ServerSentEventManagerTests {
         }
     }
 
+    @Test("test event id is saved and sent on next request after reconnect")
+    func lastEventIDHeaderSentOnReconnection() async throws {
+        let mockSession = createMockURLSession()
+        let manager = createSSEManager(request: sseRequest, urlSession: mockSession)
+
+        try await manager.connect()
+        mockSession.simulateIncomingData("id: event-123\nevent: mock_event\ndata: Hello World\nretry: 100\n\n")
+
+        try? await Task.sleep(for: .seconds(1))
+        try await manager.disconnect()
+        try? await Task.sleep(for: .seconds(1))
+        try await manager.connect()
+
+        let lastRequest = mockSession.capturedRequests.last
+        #expect(lastRequest?.value(forHTTPHeaderField: "Last-Event-ID") == "event-123")
+    }
+
     // MARK: - .stateEvents
 
     @Test("test streamed state events when connecting successfully")
@@ -250,6 +267,55 @@ struct ServerSentEventManagerTests {
             SSEConnectionState.connecting,
             SSEConnectionState.connected,
             SSEConnectionState.disconnected(.terminated)
+        ])
+    }
+
+    @Test("test streamed state vvents after stream finishes without error")
+    func streamedStateEventsAfterStreamFinishesWithoutError() async throws {
+        let mockSession = createMockURLSession()
+        let manager = createSSEManager(request: sseRequest, urlSession: mockSession)
+        var states: [SSEConnectionState] = []
+
+        let stateTask = Task {
+            for await state in await manager.stateEvents.prefix(3) {
+                states.append(state)
+            }
+        }
+
+        try await manager.connect()
+        mockSession.simulateStreamEnded(error: nil)
+
+        await stateTask.value
+        #expect(states == [
+            SSEConnectionState.connecting,
+            SSEConnectionState.connected,
+            SSEConnectionState.disconnected(.streamEnded)
+        ])
+    }
+
+    @Test("test streamed state vvents after stream finishes with error")
+    func streamedStateEventsAfterStreamFinishesWithError() async throws {
+        enum DummyError: Error {
+            case error
+        }
+        let mockSession = createMockURLSession()
+        let manager = createSSEManager(request: sseRequest, urlSession: mockSession)
+        var states: [SSEConnectionState] = []
+
+        let stateTask = Task {
+            for await state in await manager.stateEvents.prefix(3) {
+                states.append(state)
+            }
+        }
+
+        try await manager.connect()
+        mockSession.simulateStreamEnded(error: DummyError.error)
+
+        await stateTask.value
+        #expect(states == [
+            SSEConnectionState.connecting,
+            SSEConnectionState.connected,
+            SSEConnectionState.disconnected(.streamError(DummyError.error))
         ])
     }
 
