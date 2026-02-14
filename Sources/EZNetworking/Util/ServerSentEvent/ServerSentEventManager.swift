@@ -19,6 +19,7 @@ public actor ServerSentEventManager: ServerSentEventClient {
     /// Last event ID received; sent as `Last-Event-ID` header on reconnect per SSE spec.
     private var lastEventId: String?
     private let reconnectionConfig: SSEReconnectionConfig?
+    private var retryIntervalGivenByServer: TimeInterval?
 
     // Streams
     private let eventsStream: AsyncStream<ServerSentEvent>
@@ -135,6 +136,9 @@ extension ServerSentEventManager {
                         eventsContinuation.yield(event)
                         if let id = event.id {
                             lastEventId = id
+                        }
+                        if let retry = event.retry {
+                            retryIntervalGivenByServer = TimeInterval(retry) / 1000.0  // Convert ms to seconds
                         }
                     }
                 }
