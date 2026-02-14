@@ -7,6 +7,7 @@ class MockSSEURLSession: URLSessionProtocol {
 
     var continuation: AsyncThrowingStream<UInt8, Error>.Continuation?
     var capturedRequests: [URLRequest] = []
+    var numberOfRequestsMade = 0
 
     init(response: URLResponse = HTTPURLResponse(), error: Error? = nil) {
         self.response = response
@@ -14,6 +15,7 @@ class MockSSEURLSession: URLSessionProtocol {
     }
 
     func bytes(for request: URLRequest) async throws -> (AsyncThrowingStream<UInt8, Error>, URLResponse) {
+        self.numberOfRequestsMade += 1
         self.capturedRequests.append(request)
 
         if let error { throw error }

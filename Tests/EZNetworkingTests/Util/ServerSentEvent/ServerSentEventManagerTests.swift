@@ -363,6 +363,110 @@ struct ServerSentEventManagerTests {
 
         #expect(streamEnded)
     }
+
+    // MARK: reconnect on .connect()
+
+    @Test("test .connect() attempts connect only once if reconnectionConfig is nil")
+    func connectsOnlyOnceIfReconnectionConfigIsNil() async throws {
+        let underlyingError = URLError(.notConnectedToInternet)
+        let mockSession = createMockURLSession(error: underlyingError)
+        let manager = createSSEManager(request: sseRequest, reconnectionConfig: nil, urlSession: mockSession)
+
+        try? await manager.connect()
+
+        #expect(mockSession.numberOfRequestsMade == 1)
+    }
+
+    @Test("test .connect() attempts connect only once if reconnectionConfig.enabled is false")
+    func connectsOnlyOnceIfReconnectionConfigEnabledIsFalse() async throws {
+        let reconnectConfig = SSEReconnectionConfig(enabled: false)
+        let underlyingError = URLError(.notConnectedToInternet)
+        let mockSession = createMockURLSession(error: underlyingError)
+        let manager = createSSEManager(request: sseRequest, reconnectionConfig: reconnectConfig, urlSession: mockSession)
+
+        try? await manager.connect()
+
+        #expect(mockSession.numberOfRequestsMade == 1)
+    }
+
+    @Test("test .connect() attempts connect 3 times if reconnectionConfig.maxAttempts is 3")
+    func connectsThreeTimesIfReconnectionConfigMaxAttemptsIs3() async throws {
+        let reconnectConfig = SSEReconnectionConfig(enabled: true, maxAttempts: 3)
+        let underlyingError = URLError(.notConnectedToInternet)
+        let mockSession = createMockURLSession(error: underlyingError)
+        let manager = createSSEManager(request: sseRequest, reconnectionConfig: reconnectConfig, urlSession: mockSession)
+
+        try? await manager.connect()
+
+        #expect(mockSession.numberOfRequestsMade == 3)
+    }
+
+    @Test("test .connect() with no error attempts connect 1 time even with reconnectionConfig set")
+    func connectsOnlyOnceIfNoErrorEvenWithReconnectConfigSetUp() async throws {
+        let reconnectConfig = SSEReconnectionConfig(enabled: true, maxAttempts: 3)
+        let mockSession = createMockURLSession()
+        let manager = createSSEManager(request: sseRequest, reconnectionConfig: reconnectConfig, urlSession: mockSession)
+
+        try? await manager.connect()
+
+        #expect(mockSession.numberOfRequestsMade == 1)
+    }
+
+    @Test("test manual disconnect prevents automatic reconnection")
+    func manualDisconnectPreventsAutomaticReconnection() async throws {
+        let reconnectConfig = SSEReconnectionConfig(enabled: true, maxAttempts: 5)
+        let mockSession = createMockURLSession()
+        let manager = createSSEManager(
+            request: sseRequest,
+            reconnectionConfig: reconnectConfig,
+            urlSession: mockSession
+        )
+
+        try await manager.connect()
+        #expect(mockSession.numberOfRequestsMade == 1)
+
+        try await manager.disconnect()
+        try? await Task.sleep(for: .seconds(0.5))
+
+        #expect(mockSession.numberOfRequestsMade == 1)
+    }
+
+    @Test("test terminate prevents automatic reconnection")
+    func terminatePreventsAutomaticReconnection() async throws {
+        let reconnectConfig = SSEReconnectionConfig(enabled: true, maxAttempts: 5)
+        let mockSession = createMockURLSession()
+        let manager = createSSEManager(
+            request: sseRequest,
+            reconnectionConfig: reconnectConfig,
+            urlSession: mockSession
+        )
+
+        try await manager.connect()
+        #expect(mockSession.numberOfRequestsMade == 1)
+
+        await manager.terminate()
+        try? await Task.sleep(for: .seconds(0.5))
+
+        #expect(mockSession.numberOfRequestsMade == 1)
+    }
+
+    @Test("test maxAttempts zero means no retries")
+    func maxAttemptsZeroMeansNoRetries() async throws {
+        let reconnectConfig = SSEReconnectionConfig(
+            enabled: true,
+            maxAttempts: 0
+        )
+        let underlyingError = URLError(.notConnectedToInternet)
+        let mockSession = createMockURLSession(error: underlyingError)
+        let manager = createSSEManager(
+            request: sseRequest,
+            reconnectionConfig: reconnectConfig,
+            urlSession: mockSession
+        )
+
+        try? await manager.connect()
+        #expect(mockSession.numberOfRequestsMade == 0)
+    }
 }
 
 // MARK: Helpers

@@ -77,22 +77,10 @@ public actor ServerSentEventManager: ServerSentEventClient {
         }
         connectionState = .connecting
 
-        do {
-            sseRequest.setLastEventId(lastEventId)
-            let request = try sseRequest.getURLRequest()
-            let (bytesStream, response) = try await session.urlSession.bytes(for: request)
-
-            try responseValidator.validateStatus(from: response)
-            connectionState = .connected
-
-            startStreamingLoop(bytes: bytesStream)
-        } catch let sseError as SSEError {
-            connectionState = .disconnected(.streamError(sseError))
-            throw sseError
-        } catch {
-            let sseError = SSEError.connectionFailed(underlying: error)
-            connectionState = .disconnected(.streamError(sseError))
-            throw sseError
+        if let config = reconnectionConfig, config.enabled {
+            try await attemptConnectWithReconnection(config: config)
+        } else {
+            try await attemptSingleConnect()
         }
     }
 
@@ -122,6 +110,60 @@ public actor ServerSentEventManager: ServerSentEventClient {
 
 /// extension contianing helper methods
 extension ServerSentEventManager {
+
+    // MARK: connect
+
+    private func attemptSingleConnect() async throws {
+        do {
+            sseRequest.setLastEventId(lastEventId)
+            let request = try sseRequest.getURLRequest()
+            let (bytesStream, response) = try await session.urlSession.bytes(for: request)
+
+            try responseValidator.validateStatus(from: response)
+            connectionState = .connected
+
+            startStreamingLoop(bytes: bytesStream)
+        } catch let sseError as SSEError {
+            connectionState = .disconnected(.streamError(sseError))
+            throw sseError
+        } catch {
+            let sseError = SSEError.connectionFailed(underlying: error)
+            connectionState = .disconnected(.streamError(sseError))
+            throw sseError
+        }
+    }
+
+    private func attemptConnectWithReconnection(config: SSEReconnectionConfig) async throws {
+        var attemptCount: UInt = 0
+        var lastError: Error?
+
+        while true {
+            if config.hasReachedMaxAttempts(attemptCount) {
+                let fallbackError = SSEError.maxReconnectAttemptsReached
+                throw lastError ?? SSEError.connectionFailed(underlying: fallbackError)
+            }
+            await waitWithDelayBeforeAttemptingReconnect(attemptCount: attemptCount, config: config)
+            attemptCount += 1
+            do {
+                try await attemptSingleConnect()
+                return
+            } catch {
+                lastError = error
+                continue
+            }
+        }
+    }
+
+    private func waitWithDelayBeforeAttemptingReconnect(attemptCount: UInt, config: SSEReconnectionConfig) async {
+        guard attemptCount > 0 else { return }
+
+        if attemptCount == 1, let serverRetry = retryIntervalGivenByServer {
+            try? await Task.sleep(nanoseconds: UInt64(serverRetry * 1_000_000_000))
+        } else {
+            let delay = config.calculateDelay(for: attemptCount)  // Exponential backoff
+            try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
+        }
+    }
 
     // MARK: streaming loop
 
