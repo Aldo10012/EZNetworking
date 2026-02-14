@@ -363,8 +363,13 @@ struct ServerSentEventManagerTests {
 
         #expect(streamEnded)
     }
+}
 
-    // MARK: reconnect on .connect()
+// MARK: SSEManager with reconect
+
+@Suite("Test ServerSentEventManager with reconnect config")
+struct ServerSentEventManagerWithReconnectConfigTests {
+    private let sseRequest = SSERequest(url: "https://example.com/sse")
 
     @Test("test .connect() attempts connect only once if reconnectionConfig is nil")
     func connectsOnlyOnceIfReconnectionConfigIsNil() async throws {
