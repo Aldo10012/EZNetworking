@@ -40,7 +40,7 @@ struct ServerSentEventManagerTests {
     }
 
     @Test("test connect throws when urlSession has error")
-    func testConnectThrowsWhenURLSessionHasError() async throws {
+    func connectThrowsWhenURLSessionHasError() async throws {
         let underlyingError = URLError(.notConnectedToInternet)
         let mockSession = createMockURLSession(error: underlyingError)
         let manager = createSSEManager(request: sseRequest, urlSession: mockSession)
@@ -555,7 +555,6 @@ struct ServerSentEventManagerTests {
         ])
         #expect(mockSession.capturedRequests.last?.value(forHTTPHeaderField: "Last-Event-ID") == "event-123")
     }
-
 }
 
 // MARK: Helpers

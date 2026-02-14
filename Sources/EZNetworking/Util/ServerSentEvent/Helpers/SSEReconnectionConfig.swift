@@ -52,7 +52,7 @@ extension SSEReconnectionConfig {
     /// - Parameter currentAttemptCount: The number of attempts made so far
     /// - Returns: `true` if max attempts reached, `false` otherwise (or if no limit)
     func hasReachedMaxAttempts(_ currentAttemptCount: UInt) -> Bool {
-        guard let maxAttempts = maxAttempts else {
+        guard let maxAttempts else {
             return false
         }
         return currentAttemptCount >= maxAttempts

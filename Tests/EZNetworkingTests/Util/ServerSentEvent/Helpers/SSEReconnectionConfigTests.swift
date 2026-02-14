@@ -4,8 +4,8 @@ import Testing
 
 @Suite("Test SSEReconnectionConfig")
 struct SSEReconnectionConfigTests {
-    @Test("Default values are correctly assigned")
-    func testDefaultValues() {
+    @Test("test Default values are correctly assigned")
+    func defaultValues() {
         let config = SSEReconnectionConfig()
 
         #expect(config.enabled == true)
@@ -15,8 +15,8 @@ struct SSEReconnectionConfigTests {
         #expect(config.backoffMultiplier == 2.0)
     }
 
-    @Test("Custom initialization values are correctly assigned")
-    func testCustomValues() {
+    @Test("test Custom initialization values are correctly assigned")
+    func customValues() {
         let config = SSEReconnectionConfig(
             enabled: false,
             maxAttempts: 5,
@@ -32,8 +32,8 @@ struct SSEReconnectionConfigTests {
         #expect(config.backoffMultiplier == 1.5)
     }
 
-    @Test("Exponential backoff logic calculation")
-    func testBackoffCalculation() {
+    @Test("test Exponential backoff logic calculation")
+    func backoffCalculation() {
         let config = SSEReconnectionConfig(initialDelay: 2.0, maxDelay: 10.0, backoffMultiplier: 2.0)
 
         // Manual calculation of: min(initialDelay * pow(backoffMultiplier, attempt), maxDelay)
@@ -52,19 +52,19 @@ struct SSEReconnectionConfigTests {
         #expect(calculateDelay(attempt: 3) == 10.0)
     }
 
-    @Test("Max attempts boundary", arguments: [1, 10, 100])
-    func testMaxAttemptsBoundaries(attempts: UInt) {
+    @Test("test Max attempts boundary", arguments: [1, 10, 100])
+    func maxAttemptsBoundaries(attempts: UInt) {
         let config = SSEReconnectionConfig(maxAttempts: attempts)
         #expect(config.maxAttempts == attempts)
     }
 
     // MARK: - Delay Calculation Tests
 
-    @Test("Delay calculation follows exponential backoff", arguments: [
-        (1, 1.0),  // 1.0 * 2^0 = 1.0
-        (2, 2.0),  // 1.0 * 2^1 = 2.0
-        (3, 4.0),  // 1.0 * 2^2 = 4.0
-        (4, 8.0),  // 1.0 * 2^3 = 8.0
+    @Test("test Delay calculation follows exponential backoff", arguments: [
+        (1, 1.0), // 1.0 * 2^0 = 1.0
+        (2, 2.0), // 1.0 * 2^1 = 2.0
+        (3, 4.0), // 1.0 * 2^2 = 4.0
+        (4, 8.0), // 1.0 * 2^3 = 8.0
         (10, 60.0) // Capped at maxDelay
     ])
     func testCalculateDelay(attempt: UInt, expectedDelay: TimeInterval) {
@@ -74,26 +74,26 @@ struct SSEReconnectionConfigTests {
         #expect(result == expectedDelay)
     }
 
-    @Test("Delay calculation returns 0 for invalid attempt (0)")
-    func testCalculateDelayZero() {
+    @Test("test Delay calculation returns 0 for invalid attempt (0)")
+    func calculateDelayZero() {
         let config = SSEReconnectionConfig()
         #expect(config.calculateDelay(for: 0) == 0)
     }
 
     // MARK: - Max Attempts Tests
 
-    @Test("Max attempts logic with limit set", arguments: [
+    @Test("test Max attempts logic with limit set", arguments: [
         (3, 2, false), // 2 < 3: Proceed
-        (3, 3, true),  // 3 == 3: Reached
-        (3, 4, true)   // 4 > 3: Reached
+        (3, 3, true), // 3 == 3: Reached
+        (3, 4, true) // 4 > 3: Reached
     ])
     func testHasReachedMaxAttempts(limit: UInt, current: UInt, expected: Bool) {
         let config = SSEReconnectionConfig(maxAttempts: limit)
         #expect(config.hasReachedMaxAttempts(current) == expected)
     }
 
-    @Test("Max attempts logic with no limit (nil)")
-    func testHasReachedMaxAttemptsUnlimited() {
+    @Test("test Max attempts logic with no limit (nil)")
+    func hasReachedMaxAttemptsUnlimited() {
         let config = SSEReconnectionConfig(maxAttempts: nil)
 
         #expect(config.hasReachedMaxAttempts(0) == false)

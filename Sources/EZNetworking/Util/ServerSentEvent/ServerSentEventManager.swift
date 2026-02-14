@@ -110,7 +110,6 @@ public actor ServerSentEventManager: ServerSentEventClient {
 
 /// extension contianing helper methods
 extension ServerSentEventManager {
-
     // MARK: connect
 
     private func attemptSingleConnect() async throws {
@@ -160,7 +159,7 @@ extension ServerSentEventManager {
         if attemptCount == 1, let serverRetry = retryIntervalGivenByServer {
             try? await Task.sleep(nanoseconds: UInt64(serverRetry * 1_000_000_000))
         } else {
-            let delay = config.calculateDelay(for: attemptCount)  // Exponential backoff
+            let delay = config.calculateDelay(for: attemptCount) // Exponential backoff
             try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
         }
     }
@@ -180,7 +179,7 @@ extension ServerSentEventManager {
                             lastEventId = id
                         }
                         if let retry = event.retry {
-                            retryIntervalGivenByServer = TimeInterval(retry) / 1000.0  // Convert ms to seconds
+                            retryIntervalGivenByServer = TimeInterval(retry) / 1000.0 // Convert ms to seconds
                         }
                     }
                 }

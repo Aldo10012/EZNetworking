@@ -57,7 +57,7 @@ extension SSEError: Equatable {
              (.alreadyConnected, .alreadyConnected),
              (.invalidResponse, .invalidResponse),
              (.unexpectedDisconnection, .unexpectedDisconnection),
-            (.maxReconnectAttemptsReached, .maxReconnectAttemptsReached):
+             (.maxReconnectAttemptsReached, .maxReconnectAttemptsReached):
             true
 
         case let (.connectionFailed(errorA), .connectionFailed(errorB)):
