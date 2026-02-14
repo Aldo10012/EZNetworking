@@ -509,6 +509,7 @@ struct ServerSentEventManagerTests {
             SSEConnectionState.connecting,
             SSEConnectionState.connected
         ])
+        #expect(mockSession.capturedRequests.last?.value(forHTTPHeaderField: "Last-Event-ID") == "event-123")
     }
 
     @Test("test ServerSentEventManager reconnects when stream ends with error")
@@ -552,6 +553,7 @@ struct ServerSentEventManagerTests {
             SSEConnectionState.connecting,
             SSEConnectionState.connected
         ])
+        #expect(mockSession.capturedRequests.last?.value(forHTTPHeaderField: "Last-Event-ID") == "event-123")
     }
 
 }
