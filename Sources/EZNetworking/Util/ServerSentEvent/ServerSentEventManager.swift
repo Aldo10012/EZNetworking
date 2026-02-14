@@ -197,6 +197,16 @@ extension ServerSentEventManager {
     private func handleDisconnection(reason: SSEConnectionState.DisconnectReason) {
         guard case .connected = connectionState else { return }
         cleanup(reason: reason)
+
+        switch reason {
+        case .streamEnded, .streamError:
+            guard let config = reconnectionConfig, config.enabled else { return }
+            Task {
+                await attemptReconnectionAfterStreamFailure(config: config)
+            }
+        default:
+            break
+        }
     }
 
     /// Cancels the streaming task and transitions to disconnected state.
@@ -206,5 +216,25 @@ extension ServerSentEventManager {
         streamingTask = nil
         connectionState = .disconnected(reason)
         // Note: Do NOT finish continuations here - allows reconnection
+    }
+
+    /// Handles reconnection after an established stream fails.
+    private func attemptReconnectionAfterStreamFailure(config: SSEReconnectionConfig) async {
+        connectionState = .connecting
+        var attemptCount: UInt = 0
+
+        while true {
+            if config.hasReachedMaxAttempts(attemptCount) {
+                return // Give up silently (already disconnected)
+            }
+            await waitWithDelayBeforeAttemptingReconnect(attemptCount: attemptCount, config: config)
+            attemptCount += 1
+            do {
+                try await attemptSingleConnect()
+                return // Success!
+            } catch {
+                continue // Try again
+            }
+        }
     }
 }

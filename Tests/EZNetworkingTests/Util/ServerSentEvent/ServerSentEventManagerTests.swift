@@ -467,6 +467,93 @@ struct ServerSentEventManagerTests {
         try? await manager.connect()
         #expect(mockSession.numberOfRequestsMade == 0)
     }
+
+    @Test("test reconnect attempt when stream ends without error")
+    func reconnectAttemptWhenStreamEndsWithoutError() async throws {
+        let reconnectConfig = SSEReconnectionConfig(enabled: true, maxAttempts: 1)
+        let mockSession = createMockURLSession()
+        let manager = createSSEManager(
+            request: sseRequest,
+            reconnectionConfig: reconnectConfig,
+            urlSession: mockSession
+        )
+
+        var states: [SSEConnectionState] = []
+        Task {
+            for await state in await manager.stateEvents.prefix(5) {
+                states.append(state)
+            }
+        }
+
+        try await manager.connect()
+        try? await Task.sleep(for: .milliseconds(500))
+
+        #expect(mockSession.numberOfRequestsMade == 1)
+        #expect(states == [
+            SSEConnectionState.connecting,
+            SSEConnectionState.connected
+        ])
+
+        mockSession.simulateIncomingData("id: event-123\nevent: mock_event\ndata: Hello World\nretry: 100\n\n")
+        try? await Task.sleep(for: .milliseconds(100))
+
+        mockSession.simulateStreamEnded(error: nil)
+
+        try? await Task.sleep(for: .milliseconds(500))
+
+        #expect(mockSession.numberOfRequestsMade == 2)
+        #expect(states == [
+            SSEConnectionState.connecting,
+            SSEConnectionState.connected,
+            SSEConnectionState.disconnected(.streamEnded),
+            SSEConnectionState.connecting,
+            SSEConnectionState.connected
+        ])
+    }
+
+    @Test("test ServerSentEventManager reconnects when stream ends with error")
+    func reconnectAttemptWhenStreamEndsWithError() async throws {
+        let reconnectConfig = SSEReconnectionConfig(enabled: true, maxAttempts: 1)
+        let mockSession = createMockURLSession()
+        let manager = createSSEManager(
+            request: sseRequest,
+            reconnectionConfig: reconnectConfig,
+            urlSession: mockSession
+        )
+
+        var states: [SSEConnectionState] = []
+        Task {
+            for await state in await manager.stateEvents.prefix(5) {
+                states.append(state)
+            }
+        }
+
+        try await manager.connect()
+        try? await Task.sleep(for: .milliseconds(500))
+
+        #expect(mockSession.numberOfRequestsMade == 1)
+        #expect(states == [
+            SSEConnectionState.connecting,
+            SSEConnectionState.connected
+        ])
+
+        mockSession.simulateIncomingData("id: event-123\nevent: mock_event\ndata: Hello World\nretry: 100\n\n")
+        try? await Task.sleep(for: .milliseconds(100))
+
+        mockSession.simulateStreamEnded(error: URLError(.notConnectedToInternet))
+
+        try? await Task.sleep(for: .milliseconds(500))
+
+        #expect(mockSession.numberOfRequestsMade == 2)
+        #expect(states == [
+            SSEConnectionState.connecting,
+            SSEConnectionState.connected,
+            SSEConnectionState.disconnected(.streamError(URLError(.notConnectedToInternet))),
+            SSEConnectionState.connecting,
+            SSEConnectionState.connected
+        ])
+    }
+
 }
 
 // MARK: Helpers
