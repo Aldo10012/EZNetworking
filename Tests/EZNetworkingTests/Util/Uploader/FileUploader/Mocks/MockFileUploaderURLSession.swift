@@ -86,7 +86,7 @@ extension MockFileUploaderURLSession {
         fatalError("Should not be using in this mock")
     }
 
-    func bytes(for request: URLRequest) async throws -> (AsyncStream<UInt8>, URLResponse) {
+    func bytes(for request: URLRequest) async throws -> (AsyncThrowingStream<UInt8, Error>, URLResponse) {
         fatalError("Should not be using in this mock")
     }
 }

@@ -5,17 +5,17 @@ class MockSSEURLSession: URLSessionProtocol {
     var response: URLResponse
     var error: Error?
 
-    var continuation: AsyncStream<UInt8>.Continuation?
+    var continuation: AsyncThrowingStream<UInt8, Error>.Continuation?
 
     init(response: URLResponse = HTTPURLResponse(), error: Error? = nil) {
         self.response = response
         self.error = error
     }
 
-    func bytes(for request: URLRequest) async throws -> (AsyncStream<UInt8>, URLResponse) {
+    func bytes(for request: URLRequest) async throws -> (AsyncThrowingStream<UInt8, Error>, URLResponse) {
         if let error { throw error }
 
-        let stream = AsyncStream<UInt8> { continuation in
+        let stream = AsyncThrowingStream<UInt8, Error> { continuation in
             self.continuation = continuation
         }
 

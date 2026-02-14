@@ -11,7 +11,7 @@ public protocol URLSessionProtocol {
 
     func webSocketTaskInspectable(with request: URLRequest) -> URLSessionWebSocketTaskProtocol
 
-    func bytes(for request: URLRequest) async throws -> (AsyncStream<UInt8>, URLResponse)
+    func bytes(for request: URLRequest) async throws -> (AsyncThrowingStream<UInt8, Error>, URLResponse)
 }
 
 extension URLSession: URLSessionProtocol {
@@ -20,7 +20,7 @@ extension URLSession: URLSessionProtocol {
         return task as URLSessionWebSocketTaskProtocol
     }
 
-    /// Wraps the native `URLSession.AsyncBytes` into an `AsyncStream<UInt8>`.
+    /// Wraps the native `URLSession.AsyncBytes` into an `AsyncThrowingStream<UInt8, Error>`.
     ///
     /// ### Why this wrapper exists:
     /// 1. **Testability**: `URLSession.AsyncBytes` has no public initializer. Returning `AsyncStream`
@@ -31,18 +31,19 @@ extension URLSession: URLSessionProtocol {
     ///    disconnections.
     ///
     /// - Note: Cancelling the stream propagates cancellation to the underlying `URLSessionTask`.
-    public func bytes(for request: URLRequest) async throws -> (AsyncStream<UInt8>, URLResponse) {
+    public func bytes(for request: URLRequest) async throws -> (AsyncThrowingStream<UInt8, Error>, URLResponse) {
         let (bytes, response) = try await self.bytes(for: request, delegate: nil)
 
-        let stream = AsyncStream<UInt8> { continuation in
+        let stream = AsyncThrowingStream<UInt8, Error> { continuation in
             let task = Task {
                 do {
                     for try await byte in bytes {
+                        guard !Task.isCancelled else { return }
                         continuation.yield(byte)
                     }
                     continuation.finish()
                 } catch {
-                    continuation.finish()
+                    continuation.finish(throwing: error)
                 }
             }
             // Ensure the task is cancelled if the stream is cancelled
