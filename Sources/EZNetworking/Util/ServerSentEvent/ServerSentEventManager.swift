@@ -18,6 +18,8 @@ public actor ServerSentEventManager: ServerSentEventClient {
 
     /// Last event ID received; sent as `Last-Event-ID` header on reconnect per SSE spec.
     private var lastEventId: String?
+    private let reconnectionConfig: SSEReconnectionConfig?
+    private var retryIntervalGivenByServer: TimeInterval?
 
     // Streams
     private let eventsStream: AsyncStream<ServerSentEvent>
@@ -33,12 +35,14 @@ public actor ServerSentEventManager: ServerSentEventClient {
 
     public init(
         request: SSERequest,
+        reconnectionConfig: SSEReconnectionConfig? = nil,
         session: NetworkSession = Session(),
         responseValidator: ResponseValidator = SSEResponseValidator()
     ) {
         sseRequest = request
         self.session = session
         self.responseValidator = responseValidator
+        self.reconnectionConfig = reconnectionConfig
 
         self.session.configuration.timeoutIntervalForRequest = 60 // Connection timeout 1 minute
         self.session.configuration.timeoutIntervalForResource = 86400 // 24-hour stream timeout
@@ -73,22 +77,10 @@ public actor ServerSentEventManager: ServerSentEventClient {
         }
         connectionState = .connecting
 
-        do {
-            sseRequest.setLastEventId(lastEventId)
-            let request = try sseRequest.getURLRequest()
-            let (bytesStream, response) = try await session.urlSession.bytes(for: request)
-
-            try responseValidator.validateStatus(from: response)
-            connectionState = .connected
-
-            startStreamingLoop(bytes: bytesStream)
-        } catch let sseError as SSEError {
-            connectionState = .disconnected(.streamError(sseError))
-            throw sseError
-        } catch {
-            let sseError = SSEError.connectionFailed(underlying: error)
-            connectionState = .disconnected(.streamError(sseError))
-            throw sseError
+        if let config = reconnectionConfig, config.enabled {
+            try await attemptConnectWithReconnection(config: config)
+        } else {
+            try await attemptSingleConnect()
         }
     }
 
@@ -118,6 +110,59 @@ public actor ServerSentEventManager: ServerSentEventClient {
 
 /// extension contianing helper methods
 extension ServerSentEventManager {
+    // MARK: connect
+
+    private func attemptSingleConnect() async throws {
+        do {
+            sseRequest.setLastEventId(lastEventId)
+            let request = try sseRequest.getURLRequest()
+            let (bytesStream, response) = try await session.urlSession.bytes(for: request)
+
+            try responseValidator.validateStatus(from: response)
+            connectionState = .connected
+
+            startStreamingLoop(bytes: bytesStream)
+        } catch let sseError as SSEError {
+            connectionState = .disconnected(.streamError(sseError))
+            throw sseError
+        } catch {
+            let sseError = SSEError.connectionFailed(underlying: error)
+            connectionState = .disconnected(.streamError(sseError))
+            throw sseError
+        }
+    }
+
+    private func attemptConnectWithReconnection(config: SSEReconnectionConfig) async throws {
+        var attemptCount: UInt = 0
+        var lastError: Error?
+
+        while true {
+            if config.hasReachedMaxAttempts(attemptCount) {
+                let fallbackError = SSEError.maxReconnectAttemptsReached
+                throw lastError ?? SSEError.connectionFailed(underlying: fallbackError)
+            }
+            await waitWithDelayBeforeAttemptingReconnect(attemptCount: attemptCount, config: config)
+            attemptCount += 1
+            do {
+                try await attemptSingleConnect()
+                return
+            } catch {
+                lastError = error
+                continue
+            }
+        }
+    }
+
+    private func waitWithDelayBeforeAttemptingReconnect(attemptCount: UInt, config: SSEReconnectionConfig) async {
+        guard attemptCount > 0 else { return }
+
+        if attemptCount == 1, let serverRetry = retryIntervalGivenByServer {
+            try? await Task.sleep(nanoseconds: UInt64(serverRetry * 1_000_000_000))
+        } else {
+            let delay = config.calculateDelay(for: attemptCount) // Exponential backoff
+            try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
+        }
+    }
 
     // MARK: streaming loop
 
@@ -132,6 +177,9 @@ extension ServerSentEventManager {
                         eventsContinuation.yield(event)
                         if let id = event.id {
                             lastEventId = id
+                        }
+                        if let retry = event.retry {
+                            retryIntervalGivenByServer = TimeInterval(retry) / 1000.0 // Convert ms to seconds
                         }
                     }
                 }
@@ -148,6 +196,16 @@ extension ServerSentEventManager {
     private func handleDisconnection(reason: SSEConnectionState.DisconnectReason) {
         guard case .connected = connectionState else { return }
         cleanup(reason: reason)
+
+        switch reason {
+        case .streamEnded, .streamError:
+            guard let config = reconnectionConfig, config.enabled else { return }
+            Task {
+                await attemptReconnectionAfterStreamFailure(config: config)
+            }
+        default:
+            break
+        }
     }
 
     /// Cancels the streaming task and transitions to disconnected state.
@@ -157,5 +215,25 @@ extension ServerSentEventManager {
         streamingTask = nil
         connectionState = .disconnected(reason)
         // Note: Do NOT finish continuations here - allows reconnection
+    }
+
+    /// Handles reconnection after an established stream fails.
+    private func attemptReconnectionAfterStreamFailure(config: SSEReconnectionConfig) async {
+        connectionState = .connecting
+        var attemptCount: UInt = 0
+
+        while true {
+            if config.hasReachedMaxAttempts(attemptCount) {
+                return // Give up silently (already disconnected)
+            }
+            await waitWithDelayBeforeAttemptingReconnect(attemptCount: attemptCount, config: config)
+            attemptCount += 1
+            do {
+                try await attemptSingleConnect()
+                return // Success!
+            } catch {
+                continue // Try again
+            }
+        }
     }
 }

@@ -553,4 +553,5 @@ final class SSEResponseValidatorTests {
         }
     }
 }
+
 // swiftlint:enable type_body_length
