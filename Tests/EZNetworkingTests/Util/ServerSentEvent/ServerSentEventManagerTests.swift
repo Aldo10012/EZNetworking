@@ -270,6 +270,55 @@ struct ServerSentEventManagerTests {
         ])
     }
 
+    @Test("test streamed state vvents after stream finishes without error")
+    func streamedStateEventsAfterStreamFinishesWithoutError() async throws {
+        let mockSession = createMockURLSession()
+        let manager = createSSEManager(request: sseRequest, urlSession: mockSession)
+        var states: [SSEConnectionState] = []
+
+        let stateTask = Task {
+            for await state in await manager.stateEvents.prefix(3) {
+                states.append(state)
+            }
+        }
+
+        try await manager.connect()
+        mockSession.simulateStreamEnded(error: nil)
+
+        await stateTask.value
+        #expect(states == [
+            SSEConnectionState.connecting,
+            SSEConnectionState.connected,
+            SSEConnectionState.disconnected(.streamEnded)
+        ])
+    }
+
+    @Test("test streamed state vvents after stream finishes with error")
+    func streamedStateEventsAfterStreamFinishesWithError() async throws {
+        enum DummyError: Error {
+            case error
+        }
+        let mockSession = createMockURLSession()
+        let manager = createSSEManager(request: sseRequest, urlSession: mockSession)
+        var states: [SSEConnectionState] = []
+
+        let stateTask = Task {
+            for await state in await manager.stateEvents.prefix(3) {
+                states.append(state)
+            }
+        }
+
+        try await manager.connect()
+        mockSession.simulateStreamEnded(error: DummyError.error)
+
+        await stateTask.value
+        #expect(states == [
+            SSEConnectionState.connecting,
+            SSEConnectionState.connected,
+            SSEConnectionState.disconnected(.streamError(DummyError.error))
+        ])
+    }
+
     // MARK: - Data & Parsing Tests
 
     @Test("test events stream after receiving single SSE message")

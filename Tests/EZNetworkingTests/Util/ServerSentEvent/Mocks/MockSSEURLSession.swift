@@ -31,6 +31,14 @@ class MockSSEURLSession: URLSessionProtocol {
             continuation?.yield(byte)
         }
     }
+
+    func simulateStreamEnded(error: Error?) {
+        if let error {
+            continuation?.finish(throwing: error)
+        } else {
+            continuation?.finish()
+        }
+    }
 }
 
 // MARK: unused methods
