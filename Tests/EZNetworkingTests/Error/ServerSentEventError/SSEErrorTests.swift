@@ -13,6 +13,7 @@ struct SSEErrorTests {
         #expect(SSEError.alreadyConnected == .alreadyConnected)
         #expect(SSEError.invalidResponse == .invalidResponse)
         #expect(SSEError.unexpectedDisconnection == .unexpectedDisconnection)
+        #expect(SSEError.maxReconnectAttemptsReached == .maxReconnectAttemptsReached)
 
         // Cross-case inequality
         #expect(SSEError.notConnected != .stillConnecting)
@@ -134,6 +135,7 @@ struct SSEErrorTests {
             .alreadyConnected,
             .stillConnecting,
             .connectionFailed(underlying: NSError(domain: "test", code: 1)),
+            .maxReconnectAttemptsReached,
             .invalidResponse,
             .invalidHTTPResponse(HTTPResponse(statusCode: 404)),
             .unexpectedDisconnection
@@ -141,7 +143,7 @@ struct SSEErrorTests {
 
         for error in errors {
             switch error {
-            case .notConnected, .alreadyConnected, .stillConnecting, .connectionFailed,
+            case .notConnected, .alreadyConnected, .stillConnecting, .connectionFailed, .maxReconnectAttemptsReached,
                  .invalidResponse, .invalidHTTPResponse, .unexpectedDisconnection:
                 #expect(Bool(true))
             }
@@ -172,6 +174,7 @@ struct SSEErrorTests {
             .alreadyConnected,
             .stillConnecting,
             .connectionFailed(underlying: NSError(domain: "test", code: 1)),
+            .maxReconnectAttemptsReached,
             .invalidResponse,
             .invalidHTTPResponse(HTTPResponse(statusCode: 404)),
             .unexpectedDisconnection

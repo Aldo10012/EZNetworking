@@ -6,6 +6,7 @@ public enum SSEError: Error, Sendable {
     case stillConnecting
     case alreadyConnected
     case connectionFailed(underlying: Error)
+    case maxReconnectAttemptsReached
 
     // Response validation errors
     case invalidResponse
@@ -28,6 +29,8 @@ extension SSEError: LocalizedError {
             return "The SSE connection is already established."
         case let .connectionFailed(underlying):
             return "Failed to establish SSE connection: \(underlying.localizedDescription)"
+        case .maxReconnectAttemptsReached:
+            return "Max reconnection attempts reached"
         case .invalidResponse:
             return "The server response was not a valid HTTP response."
         case let .invalidHTTPResponse(httpResponse):
@@ -53,7 +56,8 @@ extension SSEError: Equatable {
              (.stillConnecting, .stillConnecting),
              (.alreadyConnected, .alreadyConnected),
              (.invalidResponse, .invalidResponse),
-             (.unexpectedDisconnection, .unexpectedDisconnection):
+             (.unexpectedDisconnection, .unexpectedDisconnection),
+            (.maxReconnectAttemptsReached, .maxReconnectAttemptsReached):
             true
 
         case let (.connectionFailed(errorA), .connectionFailed(errorB)):
