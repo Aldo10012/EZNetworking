@@ -18,6 +18,7 @@ public actor ServerSentEventManager: ServerSentEventClient {
 
     /// Last event ID received; sent as `Last-Event-ID` header on reconnect per SSE spec.
     private var lastEventId: String?
+    private let reconnectionConfig: SSEReconnectionConfig?
 
     // Streams
     private let eventsStream: AsyncStream<ServerSentEvent>
@@ -33,12 +34,14 @@ public actor ServerSentEventManager: ServerSentEventClient {
 
     public init(
         request: SSERequest,
+        reconnectionConfig: SSEReconnectionConfig? = nil,
         session: NetworkSession = Session(),
         responseValidator: ResponseValidator = SSEResponseValidator()
     ) {
         sseRequest = request
         self.session = session
         self.responseValidator = responseValidator
+        self.reconnectionConfig = reconnectionConfig
 
         self.session.configuration.timeoutIntervalForRequest = 60 // Connection timeout 1 minute
         self.session.configuration.timeoutIntervalForResource = 86400 // 24-hour stream timeout

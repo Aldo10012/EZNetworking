@@ -369,9 +369,10 @@ struct ServerSentEventManagerTests {
 
 private func createSSEManager(
     request: SSERequest,
+    reconnectionConfig: SSEReconnectionConfig? = nil,
     urlSession: URLSessionProtocol = createMockURLSession()
 ) -> ServerSentEventManager {
-    ServerSentEventManager(request: request, session: MockSession(urlSession: urlSession))
+    ServerSentEventManager(request: request, reconnectionConfig: reconnectionConfig, session: MockSession(urlSession: urlSession))
 }
 
 private func createMockURLSession(
