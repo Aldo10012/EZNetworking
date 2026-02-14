@@ -112,8 +112,14 @@ public actor ServerSentEventManager: ServerSentEventClient {
     public var stateEvents: AsyncStream<SSEConnectionState> {
         stateEventStream
     }
+}
 
-    // MARK: Helpers
+// MARK: - Helpers
+
+/// extension contianing helper methods
+extension ServerSentEventManager {
+
+    // MARK: streaming loop
 
     private func startStreamingLoop(bytes: AsyncThrowingStream<UInt8, Error>) {
         streamingTask = Task(priority: .high) {
@@ -136,6 +142,8 @@ public actor ServerSentEventManager: ServerSentEventClient {
             }
         }
     }
+
+    // MARK: disconnect / cleanup
 
     private func handleDisconnection(reason: SSEConnectionState.DisconnectReason) {
         guard case .connected = connectionState else { return }
