@@ -71,6 +71,23 @@ struct ServerSentEventManagerTests {
         }
     }
 
+    @Test("test event id is saved and sent on next request after reconnect")
+    func lastEventIDHeaderSentOnReconnection() async throws {
+        let mockSession = createMockURLSession()
+        let manager = createSSEManager(request: sseRequest, urlSession: mockSession)
+
+        try await manager.connect()
+        mockSession.simulateIncomingData("id: event-123\nevent: mock_event\ndata: Hello World\nretry: 100\n\n")
+
+        try? await Task.sleep(for: .seconds(1))
+        try await manager.disconnect()
+        try? await Task.sleep(for: .seconds(1))
+        try await manager.connect()
+
+        let lastRequest = mockSession.capturedRequests.last
+        #expect(lastRequest?.value(forHTTPHeaderField: "Last-Event-ID") == "event-123")
+    }
+
     // MARK: - .stateEvents
 
     @Test("test streamed state events when connecting successfully")
