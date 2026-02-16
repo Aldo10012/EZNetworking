@@ -17,12 +17,13 @@ public struct ResponseValidatorImpl: ResponseValidator {
         }
         let httpResponse = convert(httpURLResponse)
 
-        // Validate status code is 2xx or 304
         guard httpResponse.category == .success || httpResponse.statusCode == 304 else {
             throw NetworkingError.responseValidationFailed(reason: .badHTTPResponse(underlying: httpResponse))
         }
 
-        try checkIfResponseContainsAllExpectedHttpHeaders(httpResponse: httpResponse)
+        guard responseContainsAllExpectedHttpHeaders(httpResponse: httpResponse) else {
+            throw NetworkingError.responseValidationFailed(reason: .badHTTPResponse(underlying: httpResponse))
+        }
     }
 
     private func convert(_ httpURLResponse: HTTPURLResponse) -> HTTPResponse {
@@ -35,12 +36,13 @@ public struct ResponseValidatorImpl: ResponseValidator {
         return HTTPResponse(statusCode: httpURLResponse.statusCode, headers: headers)
     }
 
-    private func checkIfResponseContainsAllExpectedHttpHeaders(httpResponse: HTTPResponse) throws {
+    private func responseContainsAllExpectedHttpHeaders(httpResponse: HTTPResponse) -> Bool {
         guard let expectedHttpHeaders else {
-            return
+            return true
         }
         if !expectedHttpHeaders.allSatisfy({ httpResponse.headers[$0.key] == $0.value }) {
-            throw NetworkingError.responseValidationFailed(reason: .badHTTPResponse(underlying: httpResponse))
+            return false
         }
+        return true
     }
 }
