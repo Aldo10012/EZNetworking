@@ -47,9 +47,43 @@ struct ServerSentEventManagerTests {
         do {
             try await manager.connect()
             Issue.record("expected to throw")
-        } catch let NetworkingError.serverSentEventFailed(reason: .invalidHTTPResponse(response)) {
+        } catch let NetworkingError.responseValidationFailed(reason: .badHTTPResponse(underlying: response)) {
             #expect(response.statusCode == 404)
             #expect(response.headers == ["Content-Type": "text/event-stream"])
+        } catch {
+            Issue.record("Unecpected error: \(error)")
+        }
+    }
+
+    @Test("test connect throws when response is 200 but response has empty http header")
+    func connectThrowsWhenResponseIs200ButResponseHasEmptyHttpHeaders() async throws {
+        let errorResponse = buildResponse(statusCode: 200, headerFields: [:])
+        let mockSession = createMockURLSession(urlResponse: errorResponse)
+        let manager = createSSEManager(request: sseRequest, urlSession: mockSession)
+
+        do {
+            try await manager.connect()
+            Issue.record("expected to throw")
+        } catch let NetworkingError.responseValidationFailed(reason: .badHTTPResponse(underlying: response)) {
+            #expect(response.statusCode == 200)
+            #expect(response.headers == [:])
+        } catch {
+            Issue.record("Unecpected error: \(error)")
+        }
+    }
+
+    @Test("test connect throws when response is 200 but response has invalid http header")
+    func connectThrowsWhenResponseIs200ButResponseHasInvalidHttpHeaders() async throws {
+        let errorResponse = buildResponse(statusCode: 200, headerFields: ["Content-Type": "application/json"])
+        let mockSession = createMockURLSession(urlResponse: errorResponse)
+        let manager = createSSEManager(request: sseRequest, urlSession: mockSession)
+
+        do {
+            try await manager.connect()
+            Issue.record("expected to throw")
+        } catch let NetworkingError.responseValidationFailed(reason: .badHTTPResponse(underlying: response)) {
+            #expect(response.statusCode == 200)
+            #expect(response.headers == ["Content-Type": "application/json"])
         } catch {
             Issue.record("Unecpected error: \(error)")
         }
@@ -156,7 +190,7 @@ struct ServerSentEventManagerTests {
         #expect(states.count == 2)
         #expect(states == [
             SSEConnectionState.connecting,
-            SSEConnectionState.disconnected(.streamError(NetworkingError.serverSentEventFailed(reason: .invalidHTTPResponse(HTTPResponse(statusCode: 404)))))
+            SSEConnectionState.disconnected(.streamError(NetworkingError.responseValidationFailed(reason: .badHTTPResponse(underlying: HTTPResponse(statusCode: 404)))))
         ])
     }
 
@@ -575,11 +609,14 @@ private func createMockURLSession(
     MockSSEURLSession(response: urlResponse, error: error)
 }
 
-private func buildResponse(statusCode: Int) -> HTTPURLResponse {
+private func buildResponse(
+    statusCode: Int,
+    headerFields: [String: String] = ["Content-Type": "text/event-stream"]
+) -> HTTPURLResponse {
     HTTPURLResponse(
         url: URL(string: "https://example.com")!,
         statusCode: statusCode,
         httpVersion: nil,
-        headerFields: ["Content-Type": "text/event-stream"]
+        headerFields: headerFields
     )!
 }

@@ -51,7 +51,7 @@ public actor ServerSentEventManager: ServerSentEventClient {
         request: SSERequest,
         session: NetworkSession = Session(),
         retryPolicy: RetryPolicy? = nil,
-        responseValidator: ResponseValidator = SSEResponseValidator()
+        responseValidator: ResponseValidator = ResponseValidatorImpl(expectedHttpHeaders: [.contentType(.eventStream)])
     ) {
         sseRequest = request
         self.session = session
