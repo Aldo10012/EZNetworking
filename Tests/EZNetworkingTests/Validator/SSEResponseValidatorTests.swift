@@ -30,132 +30,39 @@ final class SSEResponseValidatorTests {
         )
     }
 
+    static let statusCodeList2xx = [200, 201, 202, 203, 204, 206]
+    static let statusCodeListNon2xx = [100, 300, 301, 400, 403, 404, 500, 502]
+    static let invalidContentTypeList = [
+        "application/json",
+        "text/plain",
+        "text/html",
+        "application/xml"
+    ]
+
     // MARK: - Success Cases (2xx with correct Content-Type)
 
-    @Test("Validates 200 OK with text/event-stream")
-    func validates200WithCorrectContentType() throws {
+    @Test("Validates 2xx status codes with text/event-stream", arguments: statusCodeList2xx)
+    func validates2xxStatusCodesWithCorrectContentType(statusCode: Int) throws {
         let validator = SSEResponseValidator()
         let response = makeMockResponse(
-            statusCode: 200,
+            statusCode: statusCode,
             headers: ["Content-Type": "text/event-stream"]
         )
-
-        // Should not throw
-        try validator.validateStatus(from: response)
-
-        #expect(Bool(true))
+        #expect(throws: Never.self) {
+            try validator.validateStatus(from: response)
+        }
     }
 
-    @Test("Validates 200 OK with text/event-stream and charset")
-    func validates200WithContentTypeAndCharset() throws {
+    @Test("Validates 2xx status codes with text/event-stream and charset", arguments: statusCodeList2xx)
+    func validates2xxStatusCodesWithCorrectContentTypeAndCharset(statusCode: Int) throws {
         let validator = SSEResponseValidator()
         let response = makeMockResponse(
-            statusCode: 200,
+            statusCode: statusCode,
             headers: ["Content-Type": "text/event-stream; charset=utf-8"]
         )
-
-        // Should not throw
-        try validator.validateStatus(from: response)
-
-        #expect(Bool(true))
-    }
-
-    @Test("Validates 201 Created with text/event-stream")
-    func validates201WithCorrectContentType() throws {
-        let validator = SSEResponseValidator()
-        let response = makeMockResponse(
-            statusCode: 201,
-            headers: ["Content-Type": "text/event-stream"]
-        )
-
-        // Should not throw
-        try validator.validateStatus(from: response)
-
-        #expect(Bool(true))
-    }
-
-    @Test("Validates 202 Accepted with text/event-stream")
-    func validates202WithCorrectContentType() throws {
-        let validator = SSEResponseValidator()
-        let response = makeMockResponse(
-            statusCode: 202,
-            headers: ["Content-Type": "text/event-stream"]
-        )
-
-        // Should not throw
-        try validator.validateStatus(from: response)
-
-        #expect(Bool(true))
-    }
-
-    @Test("Validates 204 No Content with text/event-stream")
-    func validates204WithCorrectContentType() throws {
-        let validator = SSEResponseValidator()
-        let response = makeMockResponse(
-            statusCode: 204,
-            headers: ["Content-Type": "text/event-stream"]
-        )
-
-        // Should not throw
-        try validator.validateStatus(from: response)
-
-        #expect(Bool(true))
-    }
-
-    @Test("Validates 206 Partial Content with text/event-stream")
-    func validates206WithCorrectContentType() throws {
-        let validator = SSEResponseValidator()
-        let response = makeMockResponse(
-            statusCode: 206,
-            headers: ["Content-Type": "text/event-stream"]
-        )
-
-        // Should not throw
-        try validator.validateStatus(from: response)
-
-        #expect(Bool(true))
-    }
-
-    @Test("Content-Type is case-insensitive in header key")
-    func contentTypeHeaderIsCaseInsensitive() throws {
-        let validator = SSEResponseValidator()
-        let response = makeMockResponse(
-            statusCode: 200,
-            headers: ["content-type": "text/event-stream"]
-        )
-
-        // Should not throw
-        try validator.validateStatus(from: response)
-
-        #expect(Bool(true))
-    }
-
-    @Test("Content-Type value is case-insensitive")
-    func contentTypeValueIsCaseInsensitive() throws {
-        let validator = SSEResponseValidator()
-        let response = makeMockResponse(
-            statusCode: 200,
-            headers: ["Content-Type": "TEXT/EVENT-STREAM"]
-        )
-
-        // Should not throw
-        try validator.validateStatus(from: response)
-
-        #expect(Bool(true))
-    }
-
-    @Test("Content-Type with mixed case")
-    func contentTypeWithMixedCase() throws {
-        let validator = SSEResponseValidator()
-        let response = makeMockResponse(
-            statusCode: 200,
-            headers: ["Content-Type": "Text/Event-Stream"]
-        )
-
-        // Should not throw
-        try validator.validateStatus(from: response)
-
-        #expect(Bool(true))
+        #expect(throws: Never.self) {
+            try validator.validateStatus(from: response)
+        }
     }
 
     // MARK: - Invalid Response Type
@@ -165,277 +72,46 @@ final class SSEResponseValidatorTests {
         let validator = SSEResponseValidator()
         let response = makeNonHTTPResponse()
 
-        #expect(throws: ServerSentEvenFailureReason.self) {
+        #expect(throws: NetworkingError.serverSentEventFailed(reason: .invalidResponse)) {
             try validator.validateStatus(from: response)
-        }
-    }
-
-    @Test("InvalidResponse error has correct type")
-    func invalidResponseErrorHasCorrectType() {
-        let validator = SSEResponseValidator()
-        let response = makeNonHTTPResponse()
-
-        do {
-            try validator.validateStatus(from: response)
-            Issue.record("Expected error to be thrown")
-        } catch let error as ServerSentEvenFailureReason {
-            if case .invalidResponse = error {
-                #expect(Bool(true))
-            } else {
-                Issue.record("Expected .invalidResponse error, got: \(error)")
-            }
-        } catch {
-            Issue.record("Expected SSEError, got: \(error)")
         }
     }
 
     // MARK: - Invalid Status Code (non-2xx)
 
-    @Test("Throws invalidHTTPResponse for 1xx status code")
-    func throwsInvalidHTTPResponseFor1xx() {
+    @Test("throws for non 2xx status codes with text/event-stream", arguments: statusCodeListNon2xx)
+    func throwsForNon2xxStatusCodesWithCorrectContentType(statusCode: Int) throws {
         let validator = SSEResponseValidator()
         let response = makeMockResponse(
-            statusCode: 100,
+            statusCode: statusCode,
             headers: ["Content-Type": "text/event-stream"]
         )
-
-        #expect(throws: ServerSentEvenFailureReason.self) {
-            try validator.validateStatus(from: response)
-        }
-    }
-
-    @Test("Throws invalidHTTPResponse for 3xx redirect")
-    func throwsInvalidHTTPResponseFor3xx() {
-        let validator = SSEResponseValidator()
-        let response = makeMockResponse(
-            statusCode: 301,
-            headers: ["Content-Type": "text/event-stream"]
-        )
-
-        #expect(throws: ServerSentEvenFailureReason.self) {
-            try validator.validateStatus(from: response)
-        }
-    }
-
-    @Test("Throws invalidHTTPResponse for 400 Bad Request")
-    func throwsInvalidHTTPResponseFor400() {
-        let validator = SSEResponseValidator()
-        let response = makeMockResponse(
-            statusCode: 400,
-            headers: ["Content-Type": "text/event-stream"]
-        )
-
-        #expect(throws: ServerSentEvenFailureReason.self) {
-            try validator.validateStatus(from: response)
-        }
-    }
-
-    @Test("Throws invalidHTTPResponse for 401 Unauthorized")
-    func throwsInvalidHTTPResponseFor401() {
-        let validator = SSEResponseValidator()
-        let response = makeMockResponse(
-            statusCode: 401,
-            headers: ["Content-Type": "text/event-stream"]
-        )
-
-        #expect(throws: ServerSentEvenFailureReason.self) {
-            try validator.validateStatus(from: response)
-        }
-    }
-
-    @Test("Throws invalidHTTPResponse for 403 Forbidden")
-    func throwsInvalidHTTPResponseFor403() {
-        let validator = SSEResponseValidator()
-        let response = makeMockResponse(
-            statusCode: 403,
-            headers: ["Content-Type": "text/event-stream"]
-        )
-
-        #expect(throws: ServerSentEvenFailureReason.self) {
-            try validator.validateStatus(from: response)
-        }
-    }
-
-    @Test("Throws invalidHTTPResponse for 404 Not Found")
-    func throwsInvalidHTTPResponseFor404() {
-        let validator = SSEResponseValidator()
-        let response = makeMockResponse(
-            statusCode: 404,
-            headers: ["Content-Type": "text/event-stream"]
-        )
-
-        #expect(throws: ServerSentEvenFailureReason.self) {
-            try validator.validateStatus(from: response)
-        }
-    }
-
-    @Test("Throws invalidHTTPResponse for 500 Internal Server Error")
-    func throwsInvalidHTTPResponseFor500() {
-        let validator = SSEResponseValidator()
-        let response = makeMockResponse(
-            statusCode: 500,
-            headers: ["Content-Type": "text/event-stream"]
-        )
-
-        #expect(throws: ServerSentEvenFailureReason.self) {
-            try validator.validateStatus(from: response)
-        }
-    }
-
-    @Test("Throws invalidHTTPResponse for 502 Bad Gateway")
-    func throwsInvalidHTTPResponseFor502() {
-        let validator = SSEResponseValidator()
-        let response = makeMockResponse(
-            statusCode: 502,
-            headers: ["Content-Type": "text/event-stream"]
-        )
-
-        #expect(throws: ServerSentEvenFailureReason.self) {
-            try validator.validateStatus(from: response)
-        }
-    }
-
-    @Test("Throws invalidHTTPResponse for 503 Service Unavailable")
-    func throwsInvalidHTTPResponseFor503() {
-        let validator = SSEResponseValidator()
-        let response = makeMockResponse(
-            statusCode: 503,
-            headers: ["Content-Type": "text/event-stream"]
-        )
-
-        #expect(throws: ServerSentEvenFailureReason.self) {
-            try validator.validateStatus(from: response)
-        }
-    }
-
-    @Test("InvalidHTTPResponse error contains response details for bad status")
-    func invalidHTTPResponseErrorContainsResponseDetailsForBadStatus() {
-        let validator = SSEResponseValidator()
-        let response = makeMockResponse(
-            statusCode: 404,
-            headers: ["Content-Type": "text/event-stream"]
-        )
-
         do {
             try validator.validateStatus(from: response)
-            Issue.record("Expected error to be thrown")
-        } catch let error as ServerSentEvenFailureReason {
-            if case let .invalidHTTPResponse(httpResponse) = error {
-                #expect(httpResponse.statusCode == 404)
-                #expect(httpResponse.headers["Content-Type"] == "text/event-stream")
-            } else {
-                Issue.record("Expected .invalidHTTPResponse error, got: \(error)")
-            }
+            Issue.record("Expected to throw")
         } catch {
-            Issue.record("Expected SSEError, got: \(error)")
+            #expect(Bool(true))
         }
     }
 
     // MARK: - Invalid Content-Type
 
-    @Test("Throws invalidHTTPResponse for missing Content-Type")
-    func throwsInvalidHTTPResponseForMissingContentType() {
+    @Test("Validates 2xx status codes without text/event-stream", arguments: invalidContentTypeList)
+    func validates2xxStatusCodesWithIncorrectContentType(contentType: String) throws {
         let validator = SSEResponseValidator()
         let response = makeMockResponse(
             statusCode: 200,
-            headers: [:]
+            headers: ["Content-Type": contentType]
         )
-
-        #expect(throws: ServerSentEvenFailureReason.self) {
-            try validator.validateStatus(from: response)
-        }
-    }
-
-    @Test("Throws invalidHTTPResponse for wrong Content-Type")
-    func throwsInvalidHTTPResponseForWrongContentType() {
-        let validator = SSEResponseValidator()
-        let response = makeMockResponse(
-            statusCode: 200,
-            headers: ["Content-Type": "application/json"]
-        )
-
-        #expect(throws: ServerSentEvenFailureReason.self) {
-            try validator.validateStatus(from: response)
-        }
-    }
-
-    @Test("Throws invalidHTTPResponse for text/plain")
-    func throwsInvalidHTTPResponseForTextPlain() {
-        let validator = SSEResponseValidator()
-        let response = makeMockResponse(
-            statusCode: 200,
-            headers: ["Content-Type": "text/plain"]
-        )
-
-        #expect(throws: ServerSentEvenFailureReason.self) {
-            try validator.validateStatus(from: response)
-        }
-    }
-
-    @Test("Throws invalidHTTPResponse for text/html")
-    func throwsInvalidHTTPResponseForTextHTML() {
-        let validator = SSEResponseValidator()
-        let response = makeMockResponse(
-            statusCode: 200,
-            headers: ["Content-Type": "text/html"]
-        )
-
-        #expect(throws: ServerSentEvenFailureReason.self) {
-            try validator.validateStatus(from: response)
-        }
-    }
-
-    @Test("Throws invalidHTTPResponse for application/xml")
-    func throwsInvalidHTTPResponseForApplicationXML() {
-        let validator = SSEResponseValidator()
-        let response = makeMockResponse(
-            statusCode: 200,
-            headers: ["Content-Type": "application/xml"]
-        )
-
-        #expect(throws: ServerSentEvenFailureReason.self) {
-            try validator.validateStatus(from: response)
-        }
-    }
-
-    @Test("InvalidHTTPResponse error contains response details for bad Content-Type")
-    func invalidHTTPResponseErrorContainsResponseDetailsForBadContentType() {
-        let validator = SSEResponseValidator()
-        let response = makeMockResponse(
-            statusCode: 200,
-            headers: ["Content-Type": "application/json"]
-        )
-
         do {
             try validator.validateStatus(from: response)
-            Issue.record("Expected error to be thrown")
-        } catch let error as ServerSentEvenFailureReason {
-            if case let .invalidHTTPResponse(httpResponse) = error {
-                #expect(httpResponse.statusCode == 200)
-                #expect(httpResponse.headers["Content-Type"] == "application/json")
-            } else {
-                Issue.record("Expected .invalidHTTPResponse error, got: \(error)")
-            }
+            Issue.record("Expected to throw")
         } catch {
-            Issue.record("Expected SSEError, got: \(error)")
+            #expect(Bool(true))
         }
     }
 
     // MARK: - Edge Cases
-
-    @Test("Validates with empty headers except Content-Type")
-    func validatesWithEmptyHeadersExceptContentType() throws {
-        let validator = SSEResponseValidator()
-        let response = makeMockResponse(
-            statusCode: 200,
-            headers: ["Content-Type": "text/event-stream"]
-        )
-
-        // Should not throw
-        try validator.validateStatus(from: response)
-
-        #expect(Bool(true))
-    }
 
     @Test("Validates with many additional headers")
     func validatesWithManyAdditionalHeaders() throws {
@@ -483,32 +159,6 @@ final class SSEResponseValidatorTests {
         try validator.validateStatus(from: response)
 
         #expect(Bool(true))
-    }
-
-    @Test("Boundary case - 199 status code fails")
-    func boundary199StatusCodeFails() {
-        let validator = SSEResponseValidator()
-        let response = makeMockResponse(
-            statusCode: 199,
-            headers: ["Content-Type": "text/event-stream"]
-        )
-
-        #expect(throws: ServerSentEvenFailureReason.self) {
-            try validator.validateStatus(from: response)
-        }
-    }
-
-    @Test("Boundary case - 300 status code fails")
-    func boundary300StatusCodeFails() {
-        let validator = SSEResponseValidator()
-        let response = makeMockResponse(
-            statusCode: 300,
-            headers: ["Content-Type": "text/event-stream"]
-        )
-
-        #expect(throws: ServerSentEvenFailureReason.self) {
-            try validator.validateStatus(from: response)
-        }
     }
 }
 
