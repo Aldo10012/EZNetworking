@@ -90,6 +90,22 @@ final class NetworkingErrorTests {
         #expect(err1 != err2)
     }
 
+    // MARK: .serverSentEventFailed(reason:_)
+
+    @Test("test NetworkingError.serverSentEventFailed(_) equatability")
+    func networkingErrorServerSentEventFailedEquatability() {
+        let err1 = NetworkingError.serverSentEventFailed(reason: .notConnected)
+        let err2 = NetworkingError.serverSentEventFailed(reason: .notConnected)
+        #expect(err1 == err2)
+    }
+
+    @Test("test NetworkingError.serverSentEventFailed(_) non equatability")
+    func networkingErrorServerSentEventFailedNonEquatability() {
+        let err1 = NetworkingError.serverSentEventFailed(reason: .notConnected)
+        let err2 = NetworkingError.serverSentEventFailed(reason: .alreadyConnected)
+        #expect(err1 != err2)
+    }
+
     // MARK: different cases
 
     @Test("test NetworkingError different cases are non equatability")
