@@ -1,9 +1,6 @@
 import Foundation
 
 public enum WebSocketError: Error, @unchecked Sendable {
-    // URL error
-    case invalidWebSocketURLRequest
-
     // Connection errors
     case notConnected
     case stillConnecting
@@ -28,8 +25,6 @@ public enum WebSocketError: Error, @unchecked Sendable {
 extension WebSocketError: LocalizedError {
     public var errorDescription: String? {
         switch self {
-        case .invalidWebSocketURLRequest:
-            return "WebSocket URLRequest is invalid"
         case .notConnected:
             return "WebSocket is not connected"
         case .stillConnecting:
@@ -68,8 +63,7 @@ extension WebSocketError: CustomStringConvertible {
 extension WebSocketError: Equatable {
     public static func == (lhs: WebSocketError, rhs: WebSocketError) -> Bool {
         switch (lhs, rhs) {
-        case (.invalidWebSocketURLRequest, .invalidWebSocketURLRequest),
-             (.notConnected, .notConnected),
+        case (.notConnected, .notConnected),
              (.stillConnecting, .stillConnecting),
              (.alreadyConnected, .alreadyConnected),
              (.pongTimeout, .pongTimeout),

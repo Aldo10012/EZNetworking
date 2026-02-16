@@ -69,7 +69,6 @@ final class WebSocketErrorTests {
 
     @Test("test localized descriptions for a selection of cases")
     func localizedDescriptions() {
-        #expect(WebSocketError.invalidWebSocketURLRequest.errorDescription == "WebSocket URLRequest is invalid")
         #expect(WebSocketError.notConnected.errorDescription == "WebSocket is not connected")
         #expect(WebSocketError.stillConnecting.errorDescription == "WebSocket is still connecting")
         #expect(WebSocketError.alreadyConnected.errorDescription == "WebSocket is already connected")
@@ -88,7 +87,6 @@ final class WebSocketErrorTests {
     }
 
     private static let WebSocketErrorList: [WebSocketError] = [
-        .invalidWebSocketURLRequest,
         .notConnected,
         .stillConnecting,
         .alreadyConnected,
