@@ -206,7 +206,7 @@ public actor WebSocket: WebSocketClient {
 
         cleanup(
             closeCode: .normalClosure,
-            reason: nil,
+            data: nil,
             newState: .disconnected(.manuallyDisconnected),
             error: .forcedDisconnection
         )
@@ -219,7 +219,7 @@ public actor WebSocket: WebSocketClient {
         let reason = webSocketTask?.closeReason
         cleanup(
             closeCode: closeCode,
-            reason: reason,
+            data: reason,
             newState: .disconnected(.connectionLost(reason: error)),
             error: error
         )
@@ -230,14 +230,14 @@ public actor WebSocket: WebSocketClient {
     /// This allows the streams to persist after disconnect and reconnect
     private func cleanup(
         closeCode: URLSessionWebSocketTask.CloseCode,
-        reason: Data?,
+        data: Data?,
         newState: WebSocketConnectionState,
         error: WebSocketFailureReason
     ) {
         initialConnectionContinuation?.resume(throwing: error)
         initialConnectionContinuation = nil
 
-        webSocketTask?.cancel(with: closeCode, reason: reason)
+        webSocketTask?.cancel(with: closeCode, reason: data)
         webSocketTask = nil
 
         connectionState = newState
@@ -255,7 +255,7 @@ public actor WebSocket: WebSocketClient {
     public func terminate() async {
         cleanup(
             closeCode: .normalClosure,
-            reason: nil,
+            data: nil,
             newState: .disconnected(.terminated),
             error: .forcedDisconnection
         )
