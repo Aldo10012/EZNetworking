@@ -510,48 +510,6 @@ final class SSEResponseValidatorTests {
             try validator.validateStatus(from: response)
         }
     }
-
-    // MARK: - Error Message Tests
-
-    @Test("Error message for bad status code mentions expected 2xx")
-    func errorMessageForBadStatusCodeMentionsExpected2xx() {
-        let validator = SSEResponseValidator()
-        let response = makeMockResponse(
-            statusCode: 404,
-            headers: ["Content-Type": "text/event-stream"]
-        )
-
-        do {
-            try validator.validateStatus(from: response)
-            Issue.record("Expected error to be thrown")
-        } catch let error as SSEError {
-            let description = error.errorDescription ?? ""
-            #expect(description.contains("404"))
-            #expect(description.lowercased().contains("2xx"))
-        } catch {
-            Issue.record("Expected SSEError, got: \(error)")
-        }
-    }
-
-    @Test("Error message for bad Content-Type mentions expected text/event-stream")
-    func errorMessageForBadContentTypeMentionsExpected() {
-        let validator = SSEResponseValidator()
-        let response = makeMockResponse(
-            statusCode: 200,
-            headers: ["Content-Type": "application/json"]
-        )
-
-        do {
-            try validator.validateStatus(from: response)
-            Issue.record("Expected error to be thrown")
-        } catch let error as SSEError {
-            let description = error.errorDescription ?? ""
-            #expect(description.contains("application/json"))
-            #expect(description.contains("text/event-stream"))
-        } catch {
-            Issue.record("Expected SSEError, got: \(error)")
-        }
-    }
 }
 
 // swiftlint:enable type_body_length

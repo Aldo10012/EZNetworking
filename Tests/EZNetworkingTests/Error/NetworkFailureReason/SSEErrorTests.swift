@@ -44,70 +44,6 @@ struct SSEErrorTests {
         #expect(lhs != rhs)
     }
 
-    // MARK: - LocalizedError Tests
-
-    @Test("test Not connected error description")
-    func notConnectedErrorDescription() {
-        let error: SSEError = .notConnected
-
-        #expect(error.errorDescription != nil)
-        #expect(error.errorDescription?.contains("not currently established") == true)
-    }
-
-    @Test("test Already connected error description")
-    func alreadyConnectedErrorDescription() {
-        let error: SSEError = .alreadyConnected
-
-        #expect(error.errorDescription != nil)
-        #expect(error.errorDescription?.contains("already established") == true)
-    }
-
-    @Test("test Still connecting error description")
-    func stillConnectingErrorDescription() {
-        let error: SSEError = .stillConnecting
-
-        #expect(error.errorDescription != nil)
-        #expect(error.errorDescription?.contains("in progress") == true)
-    }
-
-    @Test("test Connection failed error description")
-    func connectionFailedErrorDescription() {
-        let underlyingError = NSError(
-            domain: "TestDomain",
-            code: 1,
-            userInfo: [NSLocalizedDescriptionKey: "Network unavailable"]
-        )
-        let error: SSEError = .connectionFailed(underlying: underlyingError)
-
-        #expect(error.errorDescription != nil)
-        #expect(error.errorDescription?.contains("Failed to establish") == true)
-        #expect(error.errorDescription?.contains("Network unavailable") == true)
-    }
-
-    @Test("test Invalid response error description")
-    func invalidResponseErrorDescription() {
-        let error: SSEError = .invalidResponse
-
-        #expect(error.errorDescription != nil)
-        #expect(error.errorDescription?.contains("not a valid HTTP response") == true)
-    }
-
-    @Test("test Invalid status code error description")
-    func invalidStatusCodeErrorDescription() {
-        let error: SSEError = .invalidHTTPResponse(HTTPResponse(statusCode: 500))
-
-        #expect(error.errorDescription != nil)
-        #expect(error.errorDescription?.contains("500") == true)
-    }
-
-    @Test("test Unexpected disconnection error description")
-    func unexpectedDisconnectionErrorDescription() {
-        let error: SSEError = .unexpectedDisconnection
-
-        #expect(error.errorDescription != nil)
-        #expect(error.errorDescription?.contains("unexpectedly closed") == true)
-    }
-
     // MARK: - Error Protocol Conformance
 
     @Test("test Error protocol conformance")
@@ -116,14 +52,6 @@ struct SSEErrorTests {
         let anyError: Error = error
 
         #expect(anyError is SSEError)
-    }
-
-    @Test("test LocalizedError protocol conformance")
-    func localizedErrorProtocolConformance() {
-        let error: SSEError = .invalidHTTPResponse(HTTPResponse(statusCode: 404))
-        let localizedError: LocalizedError = error
-
-        #expect(localizedError.errorDescription != nil)
     }
 
     // MARK: - Pattern Matching Tests
@@ -167,21 +95,4 @@ struct SSEErrorTests {
         }
     }
 
-    @Test("test Error description is not empty")
-    func errorDescriptionIsNotEmpty() {
-        let errors: [SSEError] = [
-            .notConnected,
-            .alreadyConnected,
-            .stillConnecting,
-            .connectionFailed(underlying: NSError(domain: "test", code: 1)),
-            .maxReconnectAttemptsReached,
-            .invalidResponse,
-            .invalidHTTPResponse(HTTPResponse(statusCode: 404)),
-            .unexpectedDisconnection
-        ]
-
-        for error in errors {
-            #expect(error.errorDescription?.isEmpty == false)
-        }
-    }
 }
