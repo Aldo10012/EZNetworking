@@ -5,7 +5,7 @@ public protocol ResponseValidator {
 }
 
 public struct ResponseValidatorImpl: ResponseValidator {
-    private var expectedHttpHeaders: [HTTPHeader]?
+    private let expectedHttpHeaders: [HTTPHeader]?
 
     public init(expectedHttpHeaders: [HTTPHeader]? = nil) {
         self.expectedHttpHeaders = expectedHttpHeaders
