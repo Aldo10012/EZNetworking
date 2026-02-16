@@ -378,49 +378,49 @@ struct ServerSentEventManagerTests {
 // MARK: SSEManager with reconect
 
 @Suite("Test ServerSentEventManager with reconnect config")
-struct ServerSentEventManagerWithReconnectConfigTests {
+struct ServerSentEventManagerWithretryPolicyTests {
     private let sseRequest = SSERequest(url: "https://example.com/sse")
 
-    @Test("test .connect() attempts connect only once if reconnectionConfig is nil")
-    func connectsOnlyOnceIfReconnectionConfigIsNil() async throws {
+    @Test("test .connect() attempts connect only once if retryPolicy is nil")
+    func connectsOnlyOnceIfretryPolicyIsNil() async throws {
         let underlyingError = URLError(.notConnectedToInternet)
         let mockSession = createMockURLSession(error: underlyingError)
-        let manager = createSSEManager(request: sseRequest, reconnectionConfig: nil, urlSession: mockSession)
+        let manager = createSSEManager(request: sseRequest, urlSession: mockSession, retryPolicy: nil)
 
         try? await manager.connect()
 
         #expect(mockSession.numberOfRequestsMade == 1)
     }
 
-    @Test("test .connect() attempts connect only once if reconnectionConfig.enabled is false")
-    func connectsOnlyOnceIfReconnectionConfigEnabledIsFalse() async throws {
-        let reconnectConfig = SSEReconnectionConfig(enabled: false)
+    @Test("test .connect() attempts connect only once if retryPolicy.enabled is false")
+    func connectsOnlyOnceIfretryPolicyEnabledIsFalse() async throws {
+        let retryPolicy = RetryPolicy(enabled: false)
         let underlyingError = URLError(.notConnectedToInternet)
         let mockSession = createMockURLSession(error: underlyingError)
-        let manager = createSSEManager(request: sseRequest, reconnectionConfig: reconnectConfig, urlSession: mockSession)
+        let manager = createSSEManager(request: sseRequest, urlSession: mockSession, retryPolicy: retryPolicy)
 
         try? await manager.connect()
 
         #expect(mockSession.numberOfRequestsMade == 1)
     }
 
-    @Test("test .connect() attempts connect 3 times if reconnectionConfig.maxAttempts is 3")
-    func connectsThreeTimesIfReconnectionConfigMaxAttemptsIs3() async throws {
-        let reconnectConfig = SSEReconnectionConfig(enabled: true, maxAttempts: 3)
+    @Test("test .connect() attempts connect 3 times if retryPolicy.maxAttempts is 3")
+    func connectsThreeTimesIfretryPolicyMaxAttemptsIs3() async throws {
+        let retryPolicy = RetryPolicy(enabled: true, maxAttempts: 3)
         let underlyingError = URLError(.notConnectedToInternet)
         let mockSession = createMockURLSession(error: underlyingError)
-        let manager = createSSEManager(request: sseRequest, reconnectionConfig: reconnectConfig, urlSession: mockSession)
+        let manager = createSSEManager(request: sseRequest, urlSession: mockSession, retryPolicy: retryPolicy)
 
         try? await manager.connect()
 
         #expect(mockSession.numberOfRequestsMade == 3)
     }
 
-    @Test("test .connect() with no error attempts connect 1 time even with reconnectionConfig set")
-    func connectsOnlyOnceIfNoErrorEvenWithReconnectConfigSetUp() async throws {
-        let reconnectConfig = SSEReconnectionConfig(enabled: true, maxAttempts: 3)
+    @Test("test .connect() with no error attempts connect 1 time even with retryPolicy set")
+    func connectsOnlyOnceIfNoErrorEvenWithretryPolicySetUp() async throws {
+        let retryPolicy = RetryPolicy(enabled: true, maxAttempts: 3)
         let mockSession = createMockURLSession()
-        let manager = createSSEManager(request: sseRequest, reconnectionConfig: reconnectConfig, urlSession: mockSession)
+        let manager = createSSEManager(request: sseRequest, urlSession: mockSession, retryPolicy: retryPolicy)
 
         try? await manager.connect()
 
@@ -429,12 +429,12 @@ struct ServerSentEventManagerWithReconnectConfigTests {
 
     @Test("test manual disconnect prevents automatic reconnection")
     func manualDisconnectPreventsAutomaticReconnection() async throws {
-        let reconnectConfig = SSEReconnectionConfig(enabled: true, maxAttempts: 5)
+        let retryPolicy = RetryPolicy(enabled: true, maxAttempts: 5)
         let mockSession = createMockURLSession()
         let manager = createSSEManager(
             request: sseRequest,
-            reconnectionConfig: reconnectConfig,
-            urlSession: mockSession
+            urlSession: mockSession,
+            retryPolicy: retryPolicy
         )
 
         try await manager.connect()
@@ -448,12 +448,12 @@ struct ServerSentEventManagerWithReconnectConfigTests {
 
     @Test("test terminate prevents automatic reconnection")
     func terminatePreventsAutomaticReconnection() async throws {
-        let reconnectConfig = SSEReconnectionConfig(enabled: true, maxAttempts: 5)
+        let retryPolicy = RetryPolicy(enabled: true, maxAttempts: 5)
         let mockSession = createMockURLSession()
         let manager = createSSEManager(
             request: sseRequest,
-            reconnectionConfig: reconnectConfig,
-            urlSession: mockSession
+            urlSession: mockSession,
+            retryPolicy: retryPolicy
         )
 
         try await manager.connect()
@@ -467,7 +467,7 @@ struct ServerSentEventManagerWithReconnectConfigTests {
 
     @Test("test maxAttempts zero means no retries")
     func maxAttemptsZeroMeansNoRetries() async throws {
-        let reconnectConfig = SSEReconnectionConfig(
+        let retryPolicy = RetryPolicy(
             enabled: true,
             maxAttempts: 0
         )
@@ -475,8 +475,8 @@ struct ServerSentEventManagerWithReconnectConfigTests {
         let mockSession = createMockURLSession(error: underlyingError)
         let manager = createSSEManager(
             request: sseRequest,
-            reconnectionConfig: reconnectConfig,
-            urlSession: mockSession
+            urlSession: mockSession,
+            retryPolicy: retryPolicy
         )
 
         try? await manager.connect()
@@ -485,12 +485,12 @@ struct ServerSentEventManagerWithReconnectConfigTests {
 
     @Test("test reconnect attempt when stream ends without error")
     func reconnectAttemptWhenStreamEndsWithoutError() async throws {
-        let reconnectConfig = SSEReconnectionConfig(enabled: true, maxAttempts: 1)
+        let retryPolicy = RetryPolicy(enabled: true, maxAttempts: 1)
         let mockSession = createMockURLSession()
         let manager = createSSEManager(
             request: sseRequest,
-            reconnectionConfig: reconnectConfig,
-            urlSession: mockSession
+            urlSession: mockSession,
+            retryPolicy: retryPolicy
         )
 
         var states: [SSEConnectionState] = []
@@ -529,12 +529,12 @@ struct ServerSentEventManagerWithReconnectConfigTests {
 
     @Test("test ServerSentEventManager reconnects when stream ends with error")
     func reconnectAttemptWhenStreamEndsWithError() async throws {
-        let reconnectConfig = SSEReconnectionConfig(enabled: true, maxAttempts: 1)
+        let retryPolicy = RetryPolicy(enabled: true, maxAttempts: 1)
         let mockSession = createMockURLSession()
         let manager = createSSEManager(
             request: sseRequest,
-            reconnectionConfig: reconnectConfig,
-            urlSession: mockSession
+            urlSession: mockSession,
+            retryPolicy: retryPolicy
         )
 
         var states: [SSEConnectionState] = []
@@ -576,10 +576,10 @@ struct ServerSentEventManagerWithReconnectConfigTests {
 
 private func createSSEManager(
     request: SSERequest,
-    reconnectionConfig: SSEReconnectionConfig? = nil,
-    urlSession: URLSessionProtocol = createMockURLSession()
+    urlSession: URLSessionProtocol = createMockURLSession(),
+    retryPolicy: RetryPolicy? = nil
 ) -> ServerSentEventManager {
-    ServerSentEventManager(request: request, reconnectionConfig: reconnectionConfig, session: MockSession(urlSession: urlSession))
+    ServerSentEventManager(request: request, session: MockSession(urlSession: urlSession), retryPolicy: retryPolicy)
 }
 
 private func createMockURLSession(

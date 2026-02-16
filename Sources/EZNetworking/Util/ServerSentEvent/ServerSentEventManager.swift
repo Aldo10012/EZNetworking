@@ -18,7 +18,7 @@ public actor ServerSentEventManager: ServerSentEventClient {
 
     /// Last event ID received; sent as `Last-Event-ID` header on reconnect per SSE spec.
     private var lastEventId: String?
-    private let reconnectionConfig: SSEReconnectionConfig?
+    private let retryPolicy: RetryPolicy?
     private var retryIntervalGivenByServer: TimeInterval?
 
     // Streams
@@ -35,28 +35,28 @@ public actor ServerSentEventManager: ServerSentEventClient {
 
     public init(
         url: String,
-        reconnectionConfig: SSEReconnectionConfig? = nil,
         session: NetworkSession = Session(),
+        retryPolicy: RetryPolicy? = nil,
         responseValidator: ResponseValidator = SSEResponseValidator()
     ) {
         self.init(
             request: SSERequest(url: url),
-            reconnectionConfig: reconnectionConfig,
             session: session,
+            retryPolicy: retryPolicy,
             responseValidator: responseValidator
         )
     }
 
     public init(
         request: SSERequest,
-        reconnectionConfig: SSEReconnectionConfig? = nil,
         session: NetworkSession = Session(),
+        retryPolicy: RetryPolicy? = nil,
         responseValidator: ResponseValidator = SSEResponseValidator()
     ) {
         sseRequest = request
         self.session = session
+        self.retryPolicy = retryPolicy
         self.responseValidator = responseValidator
-        self.reconnectionConfig = reconnectionConfig
 
         self.session.configuration.timeoutIntervalForRequest = 60 // Connection timeout 1 minute
         self.session.configuration.timeoutIntervalForResource = 86400 // 24-hour stream timeout
@@ -91,7 +91,7 @@ public actor ServerSentEventManager: ServerSentEventClient {
         }
         connectionState = .connecting
 
-        if let config = reconnectionConfig, config.enabled {
+        if let config = retryPolicy, config.enabled {
             try await attemptConnectWithReconnection(config: config)
         } else {
             try await attemptSingleConnect()
@@ -146,7 +146,7 @@ extension ServerSentEventManager {
         }
     }
 
-    private func attemptConnectWithReconnection(config: SSEReconnectionConfig) async throws {
+    private func attemptConnectWithReconnection(config: RetryPolicy) async throws {
         var attemptCount: UInt = 0
         var lastError: Error?
 
@@ -167,7 +167,7 @@ extension ServerSentEventManager {
         }
     }
 
-    private func waitWithDelayBeforeAttemptingReconnect(attemptCount: UInt, config: SSEReconnectionConfig) async {
+    private func waitWithDelayBeforeAttemptingReconnect(attemptCount: UInt, config: RetryPolicy) async {
         guard attemptCount > 0 else { return }
 
         if attemptCount == 1, let serverRetry = retryIntervalGivenByServer {
@@ -213,7 +213,7 @@ extension ServerSentEventManager {
 
         switch reason {
         case .streamEnded, .streamError:
-            guard let config = reconnectionConfig, config.enabled else { return }
+            guard let config = retryPolicy, config.enabled else { return }
             Task {
                 await attemptReconnectionAfterStreamFailure(config: config)
             }
@@ -232,7 +232,7 @@ extension ServerSentEventManager {
     }
 
     /// Handles reconnection after an established stream fails.
-    private func attemptReconnectionAfterStreamFailure(config: SSEReconnectionConfig) async {
+    private func attemptReconnectionAfterStreamFailure(config: RetryPolicy) async {
         connectionState = .connecting
         var attemptCount: UInt = 0
 
