@@ -51,7 +51,7 @@ final class WebSocketStateEventsTests {
         let expectedStates: [WebSocketConnectionState] = [
             .connecting,
             .disconnected(.failedToConnect(
-                error: WebSocketFailureReason.connectionFailed(underlying: DummyError.error)
+                reason: WebSocketFailureReason.connectionFailed(underlying: DummyError.error)
             ))
         ]
 

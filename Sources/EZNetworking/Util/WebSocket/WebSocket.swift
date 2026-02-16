@@ -162,11 +162,11 @@ public actor WebSocket: WebSocketClient {
             }
             connectionState = .connected(protocol: connectedProtocol)
         } catch let wsError as WebSocketFailureReason {
-            connectionState = .disconnected(.failedToConnect(error: wsError))
+            connectionState = .disconnected(.failedToConnect(reason: wsError))
             throw wsError
         } catch {
             let wsError = WebSocketFailureReason.connectionFailed(underlying: error)
-            connectionState = .disconnected(.failedToConnect(error: wsError))
+            connectionState = .disconnected(.failedToConnect(reason: wsError))
             throw wsError
         }
     }
