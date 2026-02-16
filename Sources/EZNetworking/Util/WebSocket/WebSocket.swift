@@ -207,7 +207,7 @@ public actor WebSocket: WebSocketClient {
             closeCode: .normalClosure,
             data: nil,
             newState: .disconnected(.manuallyDisconnected),
-            error: .forcedDisconnection
+            reason: .forcedDisconnection
         )
     }
 
@@ -219,7 +219,7 @@ public actor WebSocket: WebSocketClient {
             closeCode: webSocketTask?.closeCode ?? .goingAway,
             data: webSocketTask?.closeReason,
             newState: .disconnected(.connectionLost(reason: error)),
-            error: error
+            reason: error
         )
     }
 
@@ -230,9 +230,9 @@ public actor WebSocket: WebSocketClient {
         closeCode: URLSessionWebSocketTask.CloseCode,
         data: Data?,
         newState: WebSocketConnectionState,
-        error: WebSocketFailureReason
+        reason: WebSocketFailureReason
     ) {
-        initialConnectionContinuation?.resume(throwing: error)
+        initialConnectionContinuation?.resume(throwing: reason)
         initialConnectionContinuation = nil
 
         webSocketTask?.cancel(with: closeCode, reason: data)
@@ -255,7 +255,7 @@ public actor WebSocket: WebSocketClient {
             closeCode: .normalClosure,
             data: nil,
             newState: .disconnected(.terminated),
-            error: .forcedDisconnection
+            reason: .forcedDisconnection
         )
         session.delegate.webSocketTaskInterceptor?.onEvent = nil
         stateEventContinuation.finish()
