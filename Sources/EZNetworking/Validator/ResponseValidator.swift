@@ -36,10 +36,11 @@ public struct ResponseValidatorImpl: ResponseValidator {
     }
 
     private func checkIfResponseContainsAllExpectedHttpHeaders(httpResponse: HTTPResponse) throws {
-        if let expectedHttpHeaders {
-            if !expectedHttpHeaders.allSatisfy({ httpResponse.headers[$0.key] == $0.value }) {
-                throw NetworkingError.responseValidationFailed(reason: .badHTTPResponse(underlying: httpResponse))
-            }
+        guard let expectedHttpHeaders else {
+            return
+        }
+        if !expectedHttpHeaders.allSatisfy({ httpResponse.headers[$0.key] == $0.value }) {
+            throw NetworkingError.responseValidationFailed(reason: .badHTTPResponse(underlying: httpResponse))
         }
     }
 }
