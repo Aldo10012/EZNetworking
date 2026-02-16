@@ -42,6 +42,13 @@ final class URLResponseValidatorTests {
         }
     }
 
+    @Test("test validateStatus givenHTTPURLResponseStatusCode304 does not Throws")
+    func validateStatus_givenHTTPURLResponseStatusCode304_NoThrows() throws {
+        #expect(throws: Never.self) {
+            try sut.validateStatus(from: createHttpUrlResponse(statusCode: 304))
+        }
+    }
+
     // MARK: 4xx status code
 
     @Test("test validateStatus givenHTTPURLResponseStatusCode400 Throws")

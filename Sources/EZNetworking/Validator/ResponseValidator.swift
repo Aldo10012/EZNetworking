@@ -18,16 +18,12 @@ public struct ResponseValidatorImpl: ResponseValidator {
                 result[key] = value
             }
         }
+        let httpResponse = HTTPResponse(statusCode: httpURLResponse.statusCode, headers: headers)
 
-        let httpResponse = HTTPResponse(
-            statusCode: httpURLResponse.statusCode,
-            headers: headers
-        )
-
-        if httpResponse.category == .success {
-            return // successful http response (2xx) do not throw error
+        // Validate status code is 2xx or 304
+        guard httpResponse.category == .success || httpResponse.statusCode == 304 else {
+            throw NetworkingError.responseValidationFailed(reason: .badHTTPResponse(underlying: httpResponse))
         }
-        throw NetworkingError.responseValidationFailed(reason: .badHTTPResponse(underlying: httpResponse))
     }
 }
 

@@ -4,7 +4,6 @@ public struct SSEResponseValidator: ResponseValidator {
     public init() {}
 
     public func validateStatus(from urlResponse: URLResponse) throws {
-        // Must be an HTTP response
         guard let httpURLResponse = urlResponse as? HTTPURLResponse else {
             throw NetworkingError.serverSentEventFailed(reason: .invalidResponse)
         }
@@ -15,13 +14,9 @@ public struct SSEResponseValidator: ResponseValidator {
                 result[key] = value
             }
         }
+        let httpResponse = HTTPResponse(statusCode: httpURLResponse.statusCode, headers: headers)
 
-        let httpResponse = HTTPResponse(
-            statusCode: httpURLResponse.statusCode,
-            headers: headers
-        )
-
-        // Validate status code is 2xx
+        // Validate status code is 2xx or 304
         guard httpResponse.category == .success else {
             throw NetworkingError.serverSentEventFailed(reason: .invalidHTTPResponse(httpResponse))
         }
