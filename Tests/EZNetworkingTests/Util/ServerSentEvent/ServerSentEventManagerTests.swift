@@ -48,7 +48,7 @@ struct ServerSentEventManagerTests {
             try await manager.connect()
             Issue.record("expected to throw")
         } catch let NetworkingError.serverSentEventFailed(reason: reason) {
-            if case .invalidHTTPResponse(let response) = reason {
+            if case let .invalidHTTPResponse(response) = reason {
                 #expect(response.statusCode == 404)
                 #expect(response.headers == ["Content-Type": "text/event-stream"])
             } else {
