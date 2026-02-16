@@ -1,5 +1,5 @@
-import Foundation
 import Combine
+import Foundation
 
 public protocol WebSocketPublisherClient {
     func connect() -> AnyPublisher<Void, Error>

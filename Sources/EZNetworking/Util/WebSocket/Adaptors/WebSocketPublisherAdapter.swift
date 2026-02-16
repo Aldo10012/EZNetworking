@@ -1,5 +1,5 @@
-import Foundation
 import Combine
+import Foundation
 
 public final class WebSocketPublisherAdapter: WebSocketPublisherClient {
     private let actor: any WebSocketClient
@@ -28,8 +28,8 @@ public final class WebSocketPublisherAdapter: WebSocketPublisherClient {
     }
 
     // For testing only
-    internal init(webSocketClient: any WebSocketClient) {
-        self.actor = webSocketClient
+    init(webSocketClient: any WebSocketClient) {
+        actor = webSocketClient
         subscribeToMessages()
         subscribeToStateEvents()
     }
@@ -90,7 +90,7 @@ public final class WebSocketPublisherAdapter: WebSocketPublisherClient {
         messageTask = Task { [weak self] in
             guard let self else { return }
             for await msg in await actor.messages {
-                self.messageSubject.send(msg)
+                messageSubject.send(msg)
             }
         }
     }
@@ -100,7 +100,7 @@ public final class WebSocketPublisherAdapter: WebSocketPublisherClient {
         stateTask = Task { [weak self] in
             guard let self else { return }
             for await state in await actor.stateEvents {
-                self.stateSubject.send(state)
+                stateSubject.send(state)
             }
         }
     }

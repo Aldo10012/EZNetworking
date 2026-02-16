@@ -27,8 +27,8 @@ public final class WebSocketCallbackAdapter: WebSocketCallbackClient {
     }
 
     // For testing only
-    internal init(webSocketClient: any WebSocketClient) {
-        self.actor = webSocketClient
+    init(webSocketClient: any WebSocketClient) {
+        actor = webSocketClient
     }
 
     public func connect(completion: @escaping (Result<Void, Error>) -> Void) {

@@ -1,7 +1,7 @@
+import Combine
 @testable import EZNetworking
 import Foundation
 import Testing
-import Combine
 
 @Suite("Test WebSocketPublisherAdapter")
 final class WebSocketPublisherAdapterTests {
@@ -177,7 +177,8 @@ final class WebSocketPublisherAdapterTests {
         await mockWSActor.stateContinuation.yield(.connected(protocol: nil))
         await expectation.fulfillment(within: .milliseconds(100))
         #expect(received.count == 1)
-    }}
+    }
+}
 
 // MARK: Mocks
 
