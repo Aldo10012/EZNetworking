@@ -22,11 +22,7 @@ public struct ResponseValidatorImpl: ResponseValidator {
             throw NetworkingError.responseValidationFailed(reason: .badHTTPResponse(underlying: httpResponse))
         }
 
-        if let expectedHttpHeaders {
-            if !expectedHttpHeaders.allSatisfy({ httpResponse.headers[$0.key] == $0.value }) {
-                throw NetworkingError.responseValidationFailed(reason: .badHTTPResponse(underlying: httpResponse))
-            }
-        }
+        try checkIfResponseContainsAllExpectedHttpHeaders(httpResponse: httpResponse)
     }
 
     private func convert(_ httpURLResponse: HTTPURLResponse) -> HTTPResponse {
@@ -37,5 +33,13 @@ public struct ResponseValidatorImpl: ResponseValidator {
             }
         }
         return HTTPResponse(statusCode: httpURLResponse.statusCode, headers: headers)
+    }
+
+    private func checkIfResponseContainsAllExpectedHttpHeaders(httpResponse: HTTPResponse) throws {
+        if let expectedHttpHeaders {
+            if !expectedHttpHeaders.allSatisfy({ httpResponse.headers[$0.key] == $0.value }) {
+                throw NetworkingError.responseValidationFailed(reason: .badHTTPResponse(underlying: httpResponse))
+            }
+        }
     }
 }
