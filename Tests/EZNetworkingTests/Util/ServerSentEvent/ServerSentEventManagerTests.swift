@@ -33,7 +33,7 @@ struct ServerSentEventManagerTests {
 
         try await manager.connect()
 
-        await #expect(throws: ServerSentEvenFailureReason.alreadyConnected) {
+        await #expect(throws: NetworkingError.serverSentEventFailed(reason: .alreadyConnected)) {
             try await manager.connect()
         }
     }
@@ -44,7 +44,7 @@ struct ServerSentEventManagerTests {
         let mockSession = createMockURLSession(urlResponse: errorResponse)
         let manager = createSSEManager(request: sseRequest, urlSession: mockSession)
 
-        await #expect(throws: ServerSentEvenFailureReason.invalidHTTPResponse(HTTPResponse(statusCode: 404))) {
+        await #expect(throws: NetworkingError.serverSentEventFailed(reason: .invalidHTTPResponse(HTTPResponse(statusCode: 404)))) {
             try await manager.connect()
         }
     }
@@ -55,8 +55,13 @@ struct ServerSentEventManagerTests {
         let mockSession = createMockURLSession(error: underlyingError)
         let manager = createSSEManager(request: sseRequest, urlSession: mockSession)
 
-        await #expect(throws: ServerSentEvenFailureReason.connectionFailed(underlying: URLError(.notConnectedToInternet))) {
+        do {
             try await manager.connect()
+            Issue.record("expected to throw")
+        } catch let NetworkingError.serverSentEventFailed(reason: reason) {
+            #expect(reason == .connectionFailed(underlying: URLError(.notConnectedToInternet)))
+        } catch {
+            Issue.record("Unecpected error: \(error)")
         }
     }
 
@@ -66,7 +71,7 @@ struct ServerSentEventManagerTests {
     func disconnectThrowsIfNotConnected() async throws {
         let manager = createSSEManager(request: sseRequest)
 
-        await #expect(throws: ServerSentEvenFailureReason.notConnected) {
+        await #expect(throws: NetworkingError.serverSentEventFailed(reason: .notConnected)) {
             try await manager.disconnect()
         }
     }
@@ -147,7 +152,7 @@ struct ServerSentEventManagerTests {
         #expect(states.count == 2)
         #expect(states == [
             SSEConnectionState.connecting,
-            SSEConnectionState.disconnected(.streamError(ServerSentEvenFailureReason.invalidHTTPResponse(HTTPResponse(statusCode: 404))))
+            SSEConnectionState.disconnected(.streamError(NetworkingError.serverSentEventFailed(reason: .invalidHTTPResponse(HTTPResponse(statusCode: 404)))))
         ])
     }
 
@@ -176,7 +181,7 @@ struct ServerSentEventManagerTests {
         #expect(states.count == 2)
         #expect(states == [
             SSEConnectionState.connecting,
-            SSEConnectionState.disconnected(.streamError(ServerSentEvenFailureReason.connectionFailed(underlying: URLError(.notConnectedToInternet))))
+            SSEConnectionState.disconnected(.streamError(NetworkingError.serverSentEventFailed(reason: .connectionFailed(underlying: URLError(.notConnectedToInternet)))))
         ])
     }
 

@@ -23,7 +23,7 @@ public struct SSEResponseValidator: ResponseValidator {
 
         // Validate status code is 2xx
         guard httpResponse.category == .success else {
-            throw ServerSentEvenFailureReason.invalidHTTPResponse(httpResponse)
+            throw NetworkingError.serverSentEventFailed(reason: .invalidHTTPResponse(httpResponse))
         }
 
         // Validate Content-Type header contains "text/event-stream"

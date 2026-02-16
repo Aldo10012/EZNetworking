@@ -44,16 +44,6 @@ struct ServerSentEvenFailureReasonTests {
         #expect(lhs != rhs)
     }
 
-    // MARK: - Error Protocol Conformance
-
-    @Test("test Error protocol conformance")
-    func errorProtocolConformance() {
-        let error: ServerSentEvenFailureReason = .notConnected
-        let anyError: Error = error
-
-        #expect(anyError is ServerSentEvenFailureReason)
-    }
-
     // MARK: - Pattern Matching Tests
 
     @Test("test Pattern matching all error cases")
