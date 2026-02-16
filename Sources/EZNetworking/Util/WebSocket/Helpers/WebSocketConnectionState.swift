@@ -31,7 +31,7 @@ public enum WebSocketConnectionState: Equatable, Sendable {
         /// socket failed to establish connection
         case failedToConnect(reason: WebSocketFailureReason)
         /// socket abruptly lost connection (server connection lost)
-        case connectionLost(error: WebSocketFailureReason)
+        case connectionLost(reason: WebSocketFailureReason)
         /// socket was terminated
         case terminated
 

@@ -220,7 +220,7 @@ public actor WebSocket: WebSocketClient {
         cleanup(
             closeCode: closeCode,
             reason: reason,
-            newState: .disconnected(.connectionLost(error: error)),
+            newState: .disconnected(.connectionLost(reason: error)),
             error: error
         )
     }
