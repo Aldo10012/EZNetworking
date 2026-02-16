@@ -167,7 +167,7 @@ final class RequestPerformableCallbacksTests {
 
 private func createRequestPerformer(
     urlSession: URLSessionProtocol = createMockURLSession(),
-    validator: ResponseValidator = ResponseValidatorImpl(),
+    validator: ResponseValidator = DefaultResponseValidator(),
     decoder: JSONDecoder = EZJSONDecoder()
 ) -> RequestPerformer {
     RequestPerformer(session: MockSession(urlSession: urlSession), validator: validator, decoder: decoder)

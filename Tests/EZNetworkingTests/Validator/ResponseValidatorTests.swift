@@ -4,7 +4,7 @@ import Testing
 
 @Suite("Test URLResponseValidator")
 final class URLResponseValidatorTests {
-    let sut = ResponseValidatorImpl()
+    let sut = DefaultResponseValidator()
 
     private struct SomeUnknownError: Error {}
 
@@ -84,7 +84,7 @@ final class URLResponseValidatorTests {
 
     @Test("test validate passes when not expecting any HTTPHeaders and receives no headers")
     func validatePassesWhenNotExpectingAnyHTTPHeadersAndReceivesNoHeaders() {
-        let validator = ResponseValidatorImpl(expectedHttpHeaders: nil)
+        let validator = DefaultResponseValidator(expectedHttpHeaders: nil)
         #expect(throws: Never.self) {
             try validator.validateStatus(from: createHttpUrlResponse(statusCode: 200, headerFields: nil))
         }
@@ -92,7 +92,7 @@ final class URLResponseValidatorTests {
 
     @Test("test validate passes when not expecting any HTTPHeaders and receives headers")
     func validatePassesWhenNotExpectingAnyHTTPHeadersAndReceivesHeaders() {
-        let validator = ResponseValidatorImpl(expectedHttpHeaders: nil)
+        let validator = DefaultResponseValidator(expectedHttpHeaders: nil)
         #expect(throws: Never.self) {
             try validator.validateStatus(from: createHttpUrlResponse(statusCode: 200, headerFields: ["Content-Type": "application/json"]))
         }
@@ -100,7 +100,7 @@ final class URLResponseValidatorTests {
 
     @Test("test validate throws when expecting HTTPHeaders and receives no headers")
     func validateThrowsWhenExpectingHTTPHeadersAndReceivesNoHeaders() {
-        let validator = ResponseValidatorImpl(expectedHttpHeaders: [.contentType(.json)])
+        let validator = DefaultResponseValidator(expectedHttpHeaders: [.contentType(.json)])
         #expect(throws: NetworkingError.responseValidationFailed(reason: .badHTTPResponse(underlying: .init(statusCode: 200, headers: [:])))) {
             try validator.validateStatus(from: createHttpUrlResponse(statusCode: 200, headerFields: nil))
         }
@@ -108,7 +108,7 @@ final class URLResponseValidatorTests {
 
     @Test("test validate passes when expecting HTTPHeaders and receives same headers")
     func validatePassesWhenExpectingHTTPHeadersAndReceivesSameHeaders() {
-        let validator = ResponseValidatorImpl(expectedHttpHeaders: [.contentType(.json)])
+        let validator = DefaultResponseValidator(expectedHttpHeaders: [.contentType(.json)])
         #expect(throws: Never.self) {
             try validator.validateStatus(from: createHttpUrlResponse(statusCode: 200, headerFields: ["Content-Type": "application/json"]))
         }
@@ -116,7 +116,7 @@ final class URLResponseValidatorTests {
 
     @Test("test validate throws when expecting HTTPHeaders and receives different headers")
     func validateThrowsWhenExpectingHTTPHeadersAndReceivesDifferentHeaders() {
-        let validator = ResponseValidatorImpl(expectedHttpHeaders: [.contentType(.plain)])
+        let validator = DefaultResponseValidator(expectedHttpHeaders: [.contentType(.plain)])
         #expect(throws: NetworkingError.responseValidationFailed(reason: .badHTTPResponse(underlying: .init(statusCode: 200, headers: ["Content-Type": "application/json"])))) {
             try validator.validateStatus(from: createHttpUrlResponse(statusCode: 200, headerFields: ["Content-Type": "application/json"]))
         }

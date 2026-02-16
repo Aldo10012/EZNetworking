@@ -4,7 +4,7 @@ public protocol ResponseValidator {
     func validateStatus(from urlResponse: URLResponse) throws
 }
 
-public struct ResponseValidatorImpl: ResponseValidator {
+public struct DefaultResponseValidator: ResponseValidator {
     private let expectedHttpHeaders: [HTTPHeader]?
 
     public init(expectedHttpHeaders: [HTTPHeader]? = nil) {

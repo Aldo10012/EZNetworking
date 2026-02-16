@@ -305,7 +305,7 @@ private let testURL = URL(string: "https://example.com/example.pdf")!
 
 private func createFileDownloader(
     urlSession: URLSessionProtocol = createMockURLSession(statusCode: 200),
-    validator: ResponseValidator = ResponseValidatorImpl(),
+    validator: ResponseValidator = DefaultResponseValidator(),
     decoder: JSONDecoder = EZJSONDecoder()
 ) -> FileDownloader {
     FileDownloader(
