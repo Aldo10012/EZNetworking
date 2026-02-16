@@ -1079,7 +1079,7 @@ do {
 
 ## Contributing 🤝
 
-Contributions are welcome! If you have an idea to improve EZNetworking, please feel free to submit and open a pull request or open an issue.
+Contributions to are always welcomed! For more details see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License 📄
 
