@@ -33,7 +33,7 @@ struct ServerSentEventManagerTests {
 
         try await manager.connect()
 
-        await #expect(throws: SSEError.alreadyConnected) {
+        await #expect(throws: NetworkingError.serverSentEventFailed(reason: .alreadyConnected)) {
             try await manager.connect()
         }
     }
@@ -44,8 +44,14 @@ struct ServerSentEventManagerTests {
         let mockSession = createMockURLSession(urlResponse: errorResponse)
         let manager = createSSEManager(request: sseRequest, urlSession: mockSession)
 
-        await #expect(throws: SSEError.invalidHTTPResponse(HTTPResponse(statusCode: 404))) {
+        do {
             try await manager.connect()
+            Issue.record("expected to throw")
+        } catch let NetworkingError.serverSentEventFailed(reason: .invalidHTTPResponse(response)) {
+            #expect(response.statusCode == 404)
+            #expect(response.headers == ["Content-Type": "text/event-stream"])
+        } catch {
+            Issue.record("Unecpected error: \(error)")
         }
     }
 
@@ -55,8 +61,13 @@ struct ServerSentEventManagerTests {
         let mockSession = createMockURLSession(error: underlyingError)
         let manager = createSSEManager(request: sseRequest, urlSession: mockSession)
 
-        await #expect(throws: SSEError.connectionFailed(underlying: URLError(.notConnectedToInternet))) {
+        do {
             try await manager.connect()
+            Issue.record("expected to throw")
+        } catch let NetworkingError.serverSentEventFailed(reason: reason) {
+            #expect(reason == .connectionFailed(underlying: URLError(.notConnectedToInternet)))
+        } catch {
+            Issue.record("Unecpected error: \(error)")
         }
     }
 
@@ -66,7 +77,7 @@ struct ServerSentEventManagerTests {
     func disconnectThrowsIfNotConnected() async throws {
         let manager = createSSEManager(request: sseRequest)
 
-        await #expect(throws: SSEError.notConnected) {
+        await #expect(throws: NetworkingError.serverSentEventFailed(reason: .notConnected)) {
             try await manager.disconnect()
         }
     }
@@ -111,7 +122,6 @@ struct ServerSentEventManagerTests {
                 states.append(state)
             }
         }
-
         try await manager.connect()
         await stateTask.value
 
@@ -135,7 +145,6 @@ struct ServerSentEventManagerTests {
                 states.append(state)
             }
         }
-
         do {
             try await manager.connect()
             Issue.record("Expected .connect() to fail")
@@ -147,7 +156,7 @@ struct ServerSentEventManagerTests {
         #expect(states.count == 2)
         #expect(states == [
             SSEConnectionState.connecting,
-            SSEConnectionState.disconnected(.streamError(SSEError.invalidHTTPResponse(HTTPResponse(statusCode: 404))))
+            SSEConnectionState.disconnected(.streamError(NetworkingError.serverSentEventFailed(reason: .invalidHTTPResponse(HTTPResponse(statusCode: 404)))))
         ])
     }
 
@@ -164,7 +173,6 @@ struct ServerSentEventManagerTests {
                 states.append(state)
             }
         }
-
         do {
             try await manager.connect()
             Issue.record("Expected .connect() to fail")
@@ -176,7 +184,7 @@ struct ServerSentEventManagerTests {
         #expect(states.count == 2)
         #expect(states == [
             SSEConnectionState.connecting,
-            SSEConnectionState.disconnected(.streamError(SSEError.connectionFailed(underlying: URLError(.notConnectedToInternet))))
+            SSEConnectionState.disconnected(.streamError(NetworkingError.serverSentEventFailed(reason: .connectionFailed(underlying: URLError(.notConnectedToInternet)))))
         ])
     }
 
@@ -191,7 +199,6 @@ struct ServerSentEventManagerTests {
                 states.append(state)
             }
         }
-
         try await manager.connect()
         try await manager.disconnect()
         await stateTask.value
@@ -215,7 +222,6 @@ struct ServerSentEventManagerTests {
                 states.append(state)
             }
         }
-
         try await manager.connect()
         await manager.terminate()
         await stateTask.value
@@ -239,7 +245,6 @@ struct ServerSentEventManagerTests {
                 states.append(state)
             }
         }
-
         try await manager.connect()
         try await manager.disconnect()
         try await manager.connect()
@@ -266,7 +271,6 @@ struct ServerSentEventManagerTests {
                 states.append(state)
             }
         }
-
         try await manager.connect()
         await manager.terminate()
         try await manager.connect()
@@ -291,7 +295,6 @@ struct ServerSentEventManagerTests {
                 states.append(state)
             }
         }
-
         try await manager.connect()
         mockSession.simulateStreamEnded(error: nil)
 
@@ -317,7 +320,6 @@ struct ServerSentEventManagerTests {
                 states.append(state)
             }
         }
-
         try await manager.connect()
         mockSession.simulateStreamEnded(error: DummyError.error)
 
@@ -342,7 +344,6 @@ struct ServerSentEventManagerTests {
             var iterator = await manager.events.makeAsyncIterator()
             return await iterator.next()
         }
-
         mockSession.simulateIncomingData("id: 1\nevent: mock_event\ndata: Hello World\nretry: 100\n\n")
 
         let event = await eventTask.value
@@ -388,7 +389,6 @@ struct ServerSentEventManagerWithretryPolicyTests {
         let manager = createSSEManager(request: sseRequest, urlSession: mockSession, retryPolicy: nil)
 
         try? await manager.connect()
-
         #expect(mockSession.numberOfRequestsMade == 1)
     }
 
@@ -400,7 +400,6 @@ struct ServerSentEventManagerWithretryPolicyTests {
         let manager = createSSEManager(request: sseRequest, urlSession: mockSession, retryPolicy: retryPolicy)
 
         try? await manager.connect()
-
         #expect(mockSession.numberOfRequestsMade == 1)
     }
 
@@ -412,7 +411,6 @@ struct ServerSentEventManagerWithretryPolicyTests {
         let manager = createSSEManager(request: sseRequest, urlSession: mockSession, retryPolicy: retryPolicy)
 
         try? await manager.connect()
-
         #expect(mockSession.numberOfRequestsMade == 3)
     }
 
@@ -423,7 +421,6 @@ struct ServerSentEventManagerWithretryPolicyTests {
         let manager = createSSEManager(request: sseRequest, urlSession: mockSession, retryPolicy: retryPolicy)
 
         try? await manager.connect()
-
         #expect(mockSession.numberOfRequestsMade == 1)
     }
 
@@ -436,7 +433,6 @@ struct ServerSentEventManagerWithretryPolicyTests {
             urlSession: mockSession,
             retryPolicy: retryPolicy
         )
-
         try await manager.connect()
         #expect(mockSession.numberOfRequestsMade == 1)
 
@@ -455,7 +451,6 @@ struct ServerSentEventManagerWithretryPolicyTests {
             urlSession: mockSession,
             retryPolicy: retryPolicy
         )
-
         try await manager.connect()
         #expect(mockSession.numberOfRequestsMade == 1)
 
@@ -478,7 +473,6 @@ struct ServerSentEventManagerWithretryPolicyTests {
             urlSession: mockSession,
             retryPolicy: retryPolicy
         )
-
         try? await manager.connect()
         #expect(mockSession.numberOfRequestsMade == 0)
     }
@@ -508,12 +502,9 @@ struct ServerSentEventManagerWithretryPolicyTests {
             SSEConnectionState.connecting,
             SSEConnectionState.connected
         ])
-
         mockSession.simulateIncomingData("id: event-123\nevent: mock_event\ndata: Hello World\nretry: 100\n\n")
         try? await Task.sleep(for: .milliseconds(100))
-
         mockSession.simulateStreamEnded(error: nil)
-
         try? await Task.sleep(for: .milliseconds(500))
 
         #expect(mockSession.numberOfRequestsMade == 2)
@@ -536,14 +527,12 @@ struct ServerSentEventManagerWithretryPolicyTests {
             urlSession: mockSession,
             retryPolicy: retryPolicy
         )
-
         var states: [SSEConnectionState] = []
         Task {
             for await state in await manager.stateEvents.prefix(5) {
                 states.append(state)
             }
         }
-
         try await manager.connect()
         try? await Task.sleep(for: .milliseconds(500))
 
@@ -552,12 +541,9 @@ struct ServerSentEventManagerWithretryPolicyTests {
             SSEConnectionState.connecting,
             SSEConnectionState.connected
         ])
-
         mockSession.simulateIncomingData("id: event-123\nevent: mock_event\ndata: Hello World\nretry: 100\n\n")
         try? await Task.sleep(for: .milliseconds(100))
-
         mockSession.simulateStreamEnded(error: URLError(.notConnectedToInternet))
-
         try? await Task.sleep(for: .milliseconds(500))
 
         #expect(mockSession.numberOfRequestsMade == 2)

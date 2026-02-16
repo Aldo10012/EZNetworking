@@ -84,10 +84,10 @@ public actor ServerSentEventManager: ServerSentEventClient {
 
     public func connect() async throws {
         if case .connecting = connectionState {
-            throw SSEError.stillConnecting
+            throw NetworkingError.serverSentEventFailed(reason: .stillConnecting)
         }
         if case .connected = connectionState {
-            throw SSEError.alreadyConnected
+            throw NetworkingError.serverSentEventFailed(reason: .alreadyConnected)
         }
         connectionState = .connecting
 
@@ -100,7 +100,7 @@ public actor ServerSentEventManager: ServerSentEventClient {
 
     public func disconnect() async throws {
         guard case .connected = connectionState else {
-            throw SSEError.notConnected
+            throw NetworkingError.serverSentEventFailed(reason: .notConnected)
         }
         cleanup(reason: SSEConnectionState.DisconnectReason.manuallyDisconnected)
     }
@@ -136,13 +136,13 @@ extension ServerSentEventManager {
             connectionState = .connected
 
             startStreamingLoop(bytes: bytesStream)
-        } catch let sseError as SSEError {
-            connectionState = .disconnected(.streamError(sseError))
-            throw sseError
+        } catch let netowrkingError as NetworkingError {
+            connectionState = .disconnected(.streamError(netowrkingError))
+            throw netowrkingError
         } catch {
-            let sseError = SSEError.connectionFailed(underlying: error)
-            connectionState = .disconnected(.streamError(sseError))
-            throw sseError
+            let error = NetworkingError.serverSentEventFailed(reason: .connectionFailed(underlying: error))
+            connectionState = .disconnected(.streamError(error))
+            throw error
         }
     }
 
@@ -152,8 +152,8 @@ extension ServerSentEventManager {
 
         while true {
             if config.hasReachedMaxAttempts(attemptCount) {
-                let fallbackError = SSEError.maxReconnectAttemptsReached
-                throw lastError ?? SSEError.connectionFailed(underlying: fallbackError)
+                let fallbackError = NetworkingError.serverSentEventFailed(reason: .maxReconnectAttemptsReached)
+                throw lastError ?? fallbackError
             }
             await waitWithDelayBeforeAttemptingReconnect(attemptCount: attemptCount, config: config)
             attemptCount += 1
