@@ -203,7 +203,6 @@ public actor WebSocket: WebSocketClient {
         guard case .connected = connectionState else {
             throw WebSocketFailureReason.notConnected
         }
-
         cleanup(
             closeCode: .normalClosure,
             data: nil,
@@ -213,13 +212,12 @@ public actor WebSocket: WebSocketClient {
     }
 
     private func handleConnectionLoss(error: WebSocketFailureReason) {
-        guard case .connected = connectionState else { return }
-
-        let closeCode = webSocketTask?.closeCode ?? .goingAway
-        let reason = webSocketTask?.closeReason
+        guard case .connected = connectionState else {
+            return
+        }
         cleanup(
-            closeCode: closeCode,
-            data: reason,
+            closeCode: webSocketTask?.closeCode ?? .goingAway,
+            data: webSocketTask?.closeReason,
             newState: .disconnected(.connectionLost(reason: error)),
             error: error
         )
