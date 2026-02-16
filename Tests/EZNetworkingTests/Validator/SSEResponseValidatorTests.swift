@@ -2,7 +2,6 @@
 import Foundation
 import Testing
 
-// swiftlint:disable type_body_length
 @Suite("Test SSEResponseValidator")
 final class SSEResponseValidatorTests {
     // MARK: - Helper Methods
@@ -167,5 +166,3 @@ final class SSEResponseValidatorTests {
         #expect(Bool(true))
     }
 }
-
-// swiftlint:enable type_body_length
