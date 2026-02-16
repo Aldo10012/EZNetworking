@@ -1,11 +1,183 @@
 @testable import EZNetworking
 import Foundation
 import Testing
+import Combine
 
 @Suite("Test WebSocketPublisherAdapter")
 final class WebSocketPublisherAdapterTests {
-    // TODO: add tests
-}
+    // MARK: .connect()
+
+    @Test("test WebSocketPublisherAdapter.connect() completes if actor does not throw")
+    func webSocketPublisherAdapterConnectCompletesIfActorDoesNotThrow() async throws {
+        let mockWSActor = MockWebSocket()
+        let sut = WebSocketPublisherAdapter(webSocketClient: mockWSActor)
+        let expectation = Expectation()
+        var didSucceed = false
+        var cancellables = Set<AnyCancellable>()
+
+        sut.connect()
+            .sink(receiveCompletion: { completion in
+                if case .finished = completion { didSucceed = true }
+                expectation.fulfill()
+            }, receiveValue: { _ in })
+            .store(in: &cancellables)
+
+        await expectation.fulfillment(within: .milliseconds(100))
+        #expect(didSucceed)
+    }
+
+    @Test("test WebSocketPublisherAdapter.connect() fails if actor throws")
+    func webSocketPublisherAdapterConnectFailsIfActorThrows() async throws {
+        let mockWSActor = MockWebSocket(connectThrows: DummyError.error)
+        let sut = WebSocketPublisherAdapter(webSocketClient: mockWSActor)
+        let expectation = Expectation()
+        var didFail = false
+        var cancellables = Set<AnyCancellable>()
+
+        sut.connect()
+            .sink(receiveCompletion: { completion in
+                if case .failure = completion { didFail = true }
+                expectation.fulfill()
+            }, receiveValue: { _ in })
+            .store(in: &cancellables)
+
+        await expectation.fulfillment(within: .milliseconds(100))
+        #expect(didFail)
+    }
+
+    // MARK: .disconnect()
+
+    @Test("test WebSocketPublisherAdapter.disconnect() completes if actor does not throw")
+    func webSocketPublisherAdapterDisconnectCompletesIfActorDoesNotThrow() async throws {
+        let mockWSActor = MockWebSocket()
+        let sut = WebSocketPublisherAdapter(webSocketClient: mockWSActor)
+        let expectation = Expectation()
+        var didSucceed = false
+        var cancellables = Set<AnyCancellable>()
+
+        sut.disconnect()
+            .sink(receiveCompletion: { completion in
+                if case .finished = completion { didSucceed = true }
+                expectation.fulfill()
+            }, receiveValue: { _ in })
+            .store(in: &cancellables)
+
+        await expectation.fulfillment(within: .milliseconds(100))
+        #expect(didSucceed)
+    }
+
+    @Test("test WebSocketPublisherAdapter.disconnect() fails if actor throws")
+    func webSocketPublisherAdapterDisconnectFailsIfActorThrows() async throws {
+        let mockWSActor = MockWebSocket(disconnectThrows: DummyError.error)
+        let sut = WebSocketPublisherAdapter(webSocketClient: mockWSActor)
+        let expectation = Expectation()
+        var didFail = false
+        var cancellables = Set<AnyCancellable>()
+
+        sut.disconnect()
+            .sink(receiveCompletion: { completion in
+                if case .failure = completion { didFail = true }
+                expectation.fulfill()
+            }, receiveValue: { _ in })
+            .store(in: &cancellables)
+
+        await expectation.fulfillment(within: .milliseconds(100))
+        #expect(didFail)
+    }
+
+    // MARK: .terminate()
+
+    @Test("test WebSocketPublisherAdapter.terminate() calls actor.terminate()")
+    func webSocketPublisherAdapterTerminateCallsActorTerminate() async throws {
+        let mockWSActor = MockWebSocket()
+        let sut = WebSocketPublisherAdapter(webSocketClient: mockWSActor)
+        sut.terminate()
+        try? await Task.sleep(for: .milliseconds(100))
+        let didTerminate = await mockWSActor.didTerminate
+        #expect(didTerminate)
+    }
+
+    // MARK: .send()
+
+    @Test("test WebSocketPublisherAdapter.send() completes if actor does not throw")
+    func webSocketPublisherAdapterSendCompletesIfActorDoesNotThrow() async throws {
+        let mockWSActor = MockWebSocket()
+        let sut = WebSocketPublisherAdapter(webSocketClient: mockWSActor)
+        let expectation = Expectation()
+        var didSucceed = false
+        var cancellables = Set<AnyCancellable>()
+
+        sut.send(.string("Test"))
+            .sink(receiveCompletion: { completion in
+                if case .finished = completion { didSucceed = true }
+                expectation.fulfill()
+            }, receiveValue: { _ in })
+            .store(in: &cancellables)
+
+        await expectation.fulfillment(within: .milliseconds(100))
+        #expect(didSucceed)
+    }
+
+    @Test("test WebSocketPublisherAdapter.send() fails if actor throws")
+    func webSocketPublisherAdapterSendFailsIfActorThrows() async throws {
+        let mockWSActor = MockWebSocket(sendThrows: DummyError.error)
+        let sut = WebSocketPublisherAdapter(webSocketClient: mockWSActor)
+        let expectation = Expectation()
+        var didFail = false
+        var cancellables = Set<AnyCancellable>()
+
+        sut.send(.string("Test")).sink(receiveCompletion: { completion in
+            if case .failure = completion { didFail = true }
+            expectation.fulfill()
+        }, receiveValue: { _ in }).store(in: &cancellables)
+
+        await expectation.fulfillment(within: .milliseconds(100))
+        #expect(didFail)
+    }
+
+    // MARK: .messages
+
+    @Test("test WebSocketPublisherAdapter.messages emits inbound messages")
+    func webSocketPublisherAdapterMessagesEmitsInboundMessages() async throws {
+        let mockWSActor = MockWebSocket()
+        let sut = WebSocketPublisherAdapter(webSocketClient: mockWSActor)
+        var cancellables = Set<AnyCancellable>()
+        let expectation = Expectation()
+        var received: [InboundMessage] = []
+
+        sut.messages
+            .sink { msg in
+                received.append(msg)
+                if received.count == 1 { expectation.fulfill() }
+            }
+            .store(in: &cancellables)
+
+        await mockWSActor.messageContinuation.yield(.string("Hello world"))
+        await expectation.fulfillment(within: .milliseconds(100))
+        #expect(received.count == 1)
+    }
+
+    // MARK: .stateEvents
+
+    @Test("test WebSocketPublisherAdapter.stateEvents emits state changes")
+    func webSocketPublisherAdapterStateEventsEmitsStateChanges() async throws {
+        let mockWSActor = MockWebSocket()
+        let sut = WebSocketPublisherAdapter(webSocketClient: mockWSActor)
+        var cancellables = Set<AnyCancellable>()
+        let expectation = Expectation()
+        var received: [WebSocketConnectionState] = []
+
+        sut.stateEvents
+            .sink { state in
+                received.append(state)
+                if received.count == 1 { expectation.fulfill() }
+            }
+            .store(in: &cancellables)
+
+        await mockWSActor.stateContinuation.yield(.connected(protocol: nil))
+        await expectation.fulfillment(within: .milliseconds(100))
+        #expect(received.count == 1)
+    }}
 
 // MARK: Mocks
 
