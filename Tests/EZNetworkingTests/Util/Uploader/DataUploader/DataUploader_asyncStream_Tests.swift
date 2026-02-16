@@ -286,7 +286,7 @@ extension DataUploader {
     /// Test-only initializer that mimics the production logic but uses MockFileDownloaderURLSession.
     fileprivate convenience init(
         mockSession: MockDataUploaderURLSession,
-        validator: ResponseValidator = ResponseValidatorImpl(),
+        validator: ResponseValidator = DefaultResponseValidator(),
         decoder: JSONDecoder = EZJSONDecoder()
     ) {
         let sessionDelegate = SessionDelegate()

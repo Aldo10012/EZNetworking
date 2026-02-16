@@ -12,7 +12,7 @@ public class FileDownloader: FileDownloadable {
 
     public init(
         session: NetworkSession = Session(),
-        validator: ResponseValidator = ResponseValidatorImpl(),
+        validator: ResponseValidator = DefaultResponseValidator(),
         decoder: JSONDecoder = EZJSONDecoder()
     ) {
         self.session = session

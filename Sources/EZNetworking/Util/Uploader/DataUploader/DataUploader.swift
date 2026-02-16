@@ -11,7 +11,7 @@ public class DataUploader: DataUploadable {
 
     public init(
         session: NetworkSession = Session(),
-        validator: ResponseValidator = ResponseValidatorImpl()
+        validator: ResponseValidator = DefaultResponseValidator()
     ) {
         self.session = session
         self.validator = validator

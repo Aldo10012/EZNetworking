@@ -18,7 +18,7 @@ final class FileDownloadableAsyncStreamTests {
                 urlSession: urlSession,
                 delegate: delegate
             ),
-            validator: ResponseValidatorImpl(),
+            validator: DefaultResponseValidator(),
             decoder: EZJSONDecoder()
         )
 
@@ -45,7 +45,7 @@ final class FileDownloadableAsyncStreamTests {
             session: MockSession(
                 urlSession: createMockURLSession(statusCode: 400)
             ),
-            validator: ResponseValidatorImpl()
+            validator: DefaultResponseValidator()
         )
 
         var events: [DownloadStreamEvent] = []

@@ -25,7 +25,7 @@ final class FileDownloadableAsyncAwaitTests {
     func downloadFileFailsWhenStatusCodeIsNot200() async throws {
         let sut = createFileDownloader(
             urlSession: createMockURLSession(statusCode: 400),
-            validator: ResponseValidatorImpl()
+            validator: DefaultResponseValidator()
         )
 
         do {
@@ -216,7 +216,7 @@ private let testURL = URL(string: "https://example.com/example.pdf")!
 
 private func createFileDownloader(
     urlSession: URLSessionProtocol = createMockURLSession(statusCode: 200),
-    validator: ResponseValidator = ResponseValidatorImpl(),
+    validator: ResponseValidator = DefaultResponseValidator(),
     decoder: JSONDecoder = EZJSONDecoder()
 ) -> FileDownloader {
     FileDownloader(
@@ -253,7 +253,7 @@ extension FileDownloader {
     /// Test-only initializer that mimics the production logic but uses MockFileDownloaderURLSession.
     convenience init(
         mockSession: MockFileDownloaderURLSession,
-        validator: ResponseValidator = ResponseValidatorImpl(),
+        validator: ResponseValidator = DefaultResponseValidator(),
         decoder: JSONDecoder = EZJSONDecoder()
     ) {
         let sessionDelegate = SessionDelegate()
