@@ -15,14 +15,7 @@ public struct ResponseValidatorImpl: ResponseValidator {
         guard let httpURLResponse = urlResponse as? HTTPURLResponse else {
             throw NetworkingError.responseValidationFailed(reason: .noHTTPURLResponse)
         }
-
-        // Convert headers from [AnyHashable: Any] to [String: String]
-        let headers = httpURLResponse.allHeaderFields.reduce(into: [String: String]()) { result, pair in
-            if let key = pair.key as? String, let value = pair.value as? String {
-                result[key] = value
-            }
-        }
-        let httpResponse = HTTPResponse(statusCode: httpURLResponse.statusCode, headers: headers)
+        let httpResponse = convert(httpURLResponse)
 
         // Validate status code is 2xx or 304
         guard httpResponse.category == .success || httpResponse.statusCode == 304 else {
@@ -34,5 +27,15 @@ public struct ResponseValidatorImpl: ResponseValidator {
                 throw NetworkingError.responseValidationFailed(reason: .badHTTPResponse(underlying: httpResponse))
             }
         }
+    }
+
+    private func convert(_ httpURLResponse: HTTPURLResponse) -> HTTPResponse {
+        // Convert headers from [AnyHashable: Any] to [String: String]
+        let headers = httpURLResponse.allHeaderFields.reduce(into: [String: String]()) { result, pair in
+            if let key = pair.key as? String, let value = pair.value as? String {
+                result[key] = value
+            }
+        }
+        return HTTPResponse(statusCode: httpURLResponse.statusCode, headers: headers)
     }
 }
