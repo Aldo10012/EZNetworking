@@ -1,15 +1,34 @@
 import Foundation
 import Combine
 
-public final class WebSocketPublisherClientAdapter: WebSocketPublisherClient {
+public final class WebSocketPublisherAdapter: WebSocketPublisherClient {
     private let actor: any WebSocketClient
     private var messageSubject = PassthroughSubject<InboundMessage, Never>()
     private var stateSubject = PassthroughSubject<WebSocketConnectionState, Never>()
     private var messageTask: Task<Void, Never>?
     private var stateTask: Task<Void, Never>?
 
-    public init(actor: any WebSocketClient) {
-        self.actor = actor
+    public convenience init(
+        url: String,
+        protocols: [String]? = nil,
+        additionalheaders: [HTTPHeader]? = nil,
+        pingConfig: PingConfig = PingConfig(),
+        session: NetworkSession = Session()
+    ) {
+        let request = WebSocketRequest(url: url, protocols: protocols, additionalheaders: additionalheaders)
+        self.init(webSocketClient: WebSocket(request: request, pingConfig: pingConfig, session: session))
+    }
+
+    public convenience init(
+        request: WebSocketRequest,
+        pingConfig: PingConfig = PingConfig(),
+        session: NetworkSession = Session()
+    ) {
+        self.init(webSocketClient: WebSocket(request: request, pingConfig: pingConfig, session: session))
+    }
+
+    internal init(webSocketClient: any WebSocketClient) {
+        self.actor = webSocketClient
         subscribeToMessages()
         subscribeToStateEvents()
     }
