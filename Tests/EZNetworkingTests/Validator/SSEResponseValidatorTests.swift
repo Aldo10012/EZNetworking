@@ -89,8 +89,11 @@ final class SSEResponseValidatorTests {
         do {
             try validator.validateStatus(from: response)
             Issue.record("Expected to throw")
+        } catch let NetworkingError.serverSentEventFailed(reason: reason) {
+            let expectedResponse = HTTPResponse(statusCode: statusCode, headers: ["Content-Type": "text/event-stream"])
+            #expect(reason == .invalidHTTPResponse(expectedResponse))
         } catch {
-            #expect(Bool(true))
+            Issue.record("Unexpected error: \(error)")
         }
     }
 
@@ -106,8 +109,11 @@ final class SSEResponseValidatorTests {
         do {
             try validator.validateStatus(from: response)
             Issue.record("Expected to throw")
+        } catch let NetworkingError.serverSentEventFailed(reason: reason) {
+            let expectedResponse = HTTPResponse(statusCode: 200, headers: ["Content-Type": contentType])
+            #expect(reason == .invalidHTTPResponse(expectedResponse))
         } catch {
-            #expect(Bool(true))
+            Issue.record("Unexpected error: \(error)")
         }
     }
 

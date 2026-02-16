@@ -33,7 +33,7 @@ extension ServerSentEvenFailureReason {
             (errorA as NSError) == (errorB as NSError)
 
         case let (.invalidHTTPResponse(httpResponseA), .invalidHTTPResponse(httpResponseB)):
-            httpResponseA.statusCode == httpResponseB.statusCode
+            httpResponseA.statusCode == httpResponseB.statusCode && httpResponseA.headers == httpResponseB.headers
 
         default:
             false

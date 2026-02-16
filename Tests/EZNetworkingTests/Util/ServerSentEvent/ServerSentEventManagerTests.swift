@@ -44,8 +44,18 @@ struct ServerSentEventManagerTests {
         let mockSession = createMockURLSession(urlResponse: errorResponse)
         let manager = createSSEManager(request: sseRequest, urlSession: mockSession)
 
-        await #expect(throws: NetworkingError.serverSentEventFailed(reason: .invalidHTTPResponse(HTTPResponse(statusCode: 404)))) {
+        do {
             try await manager.connect()
+            Issue.record("expected to throw")
+        } catch let NetworkingError.serverSentEventFailed(reason: reason) {
+            if case .invalidHTTPResponse(let response) = reason {
+                #expect(response.statusCode == 404)
+                #expect(response.headers == ["Content-Type": "text/event-stream"])
+            } else {
+                Issue.record("Unexpected reason: \(reason)")
+            }
+        } catch {
+            Issue.record("Unecpected error: \(error)")
         }
     }
 
