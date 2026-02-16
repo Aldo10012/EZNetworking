@@ -121,7 +121,6 @@ final class URLResponseValidatorTests {
             try validator.validateStatus(from: createHttpUrlResponse(statusCode: 200, headerFields: ["Content-Type": "application/json"]))
         }
     }
-
 }
 
 // MARK: - Test Helpers
