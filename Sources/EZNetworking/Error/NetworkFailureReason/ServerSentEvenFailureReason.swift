@@ -1,6 +1,6 @@
 import Foundation
 
-public enum SSEError: Error, Sendable {
+public enum ServerSentEvenFailureReason: Error, Sendable {
     // Connection state errors
     case notConnected
     case stillConnecting
@@ -18,8 +18,8 @@ public enum SSEError: Error, Sendable {
 
 // MARK: Equatable
 
-extension SSEError: Equatable {
-    public static func == (lhs: SSEError, rhs: SSEError) -> Bool {
+extension ServerSentEvenFailureReason: Equatable {
+    public static func == (lhs: ServerSentEvenFailureReason, rhs: ServerSentEvenFailureReason) -> Bool {
         switch (lhs, rhs) {
         case (.notConnected, .notConnected),
              (.stillConnecting, .stillConnecting),

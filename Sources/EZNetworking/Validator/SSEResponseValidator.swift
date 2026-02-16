@@ -6,7 +6,7 @@ public struct SSEResponseValidator: ResponseValidator {
     public func validateStatus(from urlResponse: URLResponse) throws {
         // Must be an HTTP response
         guard let httpURLResponse = urlResponse as? HTTPURLResponse else {
-            throw SSEError.invalidResponse
+            throw ServerSentEvenFailureReason.invalidResponse
         }
 
         // Convert headers from [AnyHashable: Any] to [String: String]
@@ -23,13 +23,13 @@ public struct SSEResponseValidator: ResponseValidator {
 
         // Validate status code is 2xx
         guard httpResponse.category == .success else {
-            throw SSEError.invalidHTTPResponse(httpResponse)
+            throw ServerSentEvenFailureReason.invalidHTTPResponse(httpResponse)
         }
 
         // Validate Content-Type header contains "text/event-stream"
         let contentType = headers["Content-Type"] ?? headers["content-type"]
         guard let contentType, contentType.lowercased().contains("text/event-stream") else {
-            throw SSEError.invalidHTTPResponse(httpResponse)
+            throw ServerSentEvenFailureReason.invalidHTTPResponse(httpResponse)
         }
     }
 }

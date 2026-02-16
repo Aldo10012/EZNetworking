@@ -165,7 +165,7 @@ final class SSEResponseValidatorTests {
         let validator = SSEResponseValidator()
         let response = makeNonHTTPResponse()
 
-        #expect(throws: SSEError.self) {
+        #expect(throws: ServerSentEvenFailureReason.self) {
             try validator.validateStatus(from: response)
         }
     }
@@ -178,7 +178,7 @@ final class SSEResponseValidatorTests {
         do {
             try validator.validateStatus(from: response)
             Issue.record("Expected error to be thrown")
-        } catch let error as SSEError {
+        } catch let error as ServerSentEvenFailureReason {
             if case .invalidResponse = error {
                 #expect(Bool(true))
             } else {
@@ -199,7 +199,7 @@ final class SSEResponseValidatorTests {
             headers: ["Content-Type": "text/event-stream"]
         )
 
-        #expect(throws: SSEError.self) {
+        #expect(throws: ServerSentEvenFailureReason.self) {
             try validator.validateStatus(from: response)
         }
     }
@@ -212,7 +212,7 @@ final class SSEResponseValidatorTests {
             headers: ["Content-Type": "text/event-stream"]
         )
 
-        #expect(throws: SSEError.self) {
+        #expect(throws: ServerSentEvenFailureReason.self) {
             try validator.validateStatus(from: response)
         }
     }
@@ -225,7 +225,7 @@ final class SSEResponseValidatorTests {
             headers: ["Content-Type": "text/event-stream"]
         )
 
-        #expect(throws: SSEError.self) {
+        #expect(throws: ServerSentEvenFailureReason.self) {
             try validator.validateStatus(from: response)
         }
     }
@@ -238,7 +238,7 @@ final class SSEResponseValidatorTests {
             headers: ["Content-Type": "text/event-stream"]
         )
 
-        #expect(throws: SSEError.self) {
+        #expect(throws: ServerSentEvenFailureReason.self) {
             try validator.validateStatus(from: response)
         }
     }
@@ -251,7 +251,7 @@ final class SSEResponseValidatorTests {
             headers: ["Content-Type": "text/event-stream"]
         )
 
-        #expect(throws: SSEError.self) {
+        #expect(throws: ServerSentEvenFailureReason.self) {
             try validator.validateStatus(from: response)
         }
     }
@@ -264,7 +264,7 @@ final class SSEResponseValidatorTests {
             headers: ["Content-Type": "text/event-stream"]
         )
 
-        #expect(throws: SSEError.self) {
+        #expect(throws: ServerSentEvenFailureReason.self) {
             try validator.validateStatus(from: response)
         }
     }
@@ -277,7 +277,7 @@ final class SSEResponseValidatorTests {
             headers: ["Content-Type": "text/event-stream"]
         )
 
-        #expect(throws: SSEError.self) {
+        #expect(throws: ServerSentEvenFailureReason.self) {
             try validator.validateStatus(from: response)
         }
     }
@@ -290,7 +290,7 @@ final class SSEResponseValidatorTests {
             headers: ["Content-Type": "text/event-stream"]
         )
 
-        #expect(throws: SSEError.self) {
+        #expect(throws: ServerSentEvenFailureReason.self) {
             try validator.validateStatus(from: response)
         }
     }
@@ -303,7 +303,7 @@ final class SSEResponseValidatorTests {
             headers: ["Content-Type": "text/event-stream"]
         )
 
-        #expect(throws: SSEError.self) {
+        #expect(throws: ServerSentEvenFailureReason.self) {
             try validator.validateStatus(from: response)
         }
     }
@@ -319,7 +319,7 @@ final class SSEResponseValidatorTests {
         do {
             try validator.validateStatus(from: response)
             Issue.record("Expected error to be thrown")
-        } catch let error as SSEError {
+        } catch let error as ServerSentEvenFailureReason {
             if case let .invalidHTTPResponse(httpResponse) = error {
                 #expect(httpResponse.statusCode == 404)
                 #expect(httpResponse.headers["Content-Type"] == "text/event-stream")
@@ -341,7 +341,7 @@ final class SSEResponseValidatorTests {
             headers: [:]
         )
 
-        #expect(throws: SSEError.self) {
+        #expect(throws: ServerSentEvenFailureReason.self) {
             try validator.validateStatus(from: response)
         }
     }
@@ -354,7 +354,7 @@ final class SSEResponseValidatorTests {
             headers: ["Content-Type": "application/json"]
         )
 
-        #expect(throws: SSEError.self) {
+        #expect(throws: ServerSentEvenFailureReason.self) {
             try validator.validateStatus(from: response)
         }
     }
@@ -367,7 +367,7 @@ final class SSEResponseValidatorTests {
             headers: ["Content-Type": "text/plain"]
         )
 
-        #expect(throws: SSEError.self) {
+        #expect(throws: ServerSentEvenFailureReason.self) {
             try validator.validateStatus(from: response)
         }
     }
@@ -380,7 +380,7 @@ final class SSEResponseValidatorTests {
             headers: ["Content-Type": "text/html"]
         )
 
-        #expect(throws: SSEError.self) {
+        #expect(throws: ServerSentEvenFailureReason.self) {
             try validator.validateStatus(from: response)
         }
     }
@@ -393,7 +393,7 @@ final class SSEResponseValidatorTests {
             headers: ["Content-Type": "application/xml"]
         )
 
-        #expect(throws: SSEError.self) {
+        #expect(throws: ServerSentEvenFailureReason.self) {
             try validator.validateStatus(from: response)
         }
     }
@@ -409,7 +409,7 @@ final class SSEResponseValidatorTests {
         do {
             try validator.validateStatus(from: response)
             Issue.record("Expected error to be thrown")
-        } catch let error as SSEError {
+        } catch let error as ServerSentEvenFailureReason {
             if case let .invalidHTTPResponse(httpResponse) = error {
                 #expect(httpResponse.statusCode == 200)
                 #expect(httpResponse.headers["Content-Type"] == "application/json")
@@ -493,7 +493,7 @@ final class SSEResponseValidatorTests {
             headers: ["Content-Type": "text/event-stream"]
         )
 
-        #expect(throws: SSEError.self) {
+        #expect(throws: ServerSentEvenFailureReason.self) {
             try validator.validateStatus(from: response)
         }
     }
@@ -506,7 +506,7 @@ final class SSEResponseValidatorTests {
             headers: ["Content-Type": "text/event-stream"]
         )
 
-        #expect(throws: SSEError.self) {
+        #expect(throws: ServerSentEvenFailureReason.self) {
             try validator.validateStatus(from: response)
         }
     }

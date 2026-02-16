@@ -84,10 +84,10 @@ public actor ServerSentEventManager: ServerSentEventClient {
 
     public func connect() async throws {
         if case .connecting = connectionState {
-            throw SSEError.stillConnecting
+            throw ServerSentEvenFailureReason.stillConnecting
         }
         if case .connected = connectionState {
-            throw SSEError.alreadyConnected
+            throw ServerSentEvenFailureReason.alreadyConnected
         }
         connectionState = .connecting
 
@@ -100,7 +100,7 @@ public actor ServerSentEventManager: ServerSentEventClient {
 
     public func disconnect() async throws {
         guard case .connected = connectionState else {
-            throw SSEError.notConnected
+            throw ServerSentEvenFailureReason.notConnected
         }
         cleanup(reason: SSEConnectionState.DisconnectReason.manuallyDisconnected)
     }
@@ -136,11 +136,11 @@ extension ServerSentEventManager {
             connectionState = .connected
 
             startStreamingLoop(bytes: bytesStream)
-        } catch let sseError as SSEError {
+        } catch let sseError as ServerSentEvenFailureReason {
             connectionState = .disconnected(.streamError(sseError))
             throw sseError
         } catch {
-            let sseError = SSEError.connectionFailed(underlying: error)
+            let sseError = ServerSentEvenFailureReason.connectionFailed(underlying: error)
             connectionState = .disconnected(.streamError(sseError))
             throw sseError
         }
@@ -152,8 +152,8 @@ extension ServerSentEventManager {
 
         while true {
             if config.hasReachedMaxAttempts(attemptCount) {
-                let fallbackError = SSEError.maxReconnectAttemptsReached
-                throw lastError ?? SSEError.connectionFailed(underlying: fallbackError)
+                let fallbackError = ServerSentEvenFailureReason.maxReconnectAttemptsReached
+                throw lastError ?? ServerSentEvenFailureReason.connectionFailed(underlying: fallbackError)
             }
             await waitWithDelayBeforeAttemptingReconnect(attemptCount: attemptCount, config: config)
             attemptCount += 1

@@ -2,27 +2,27 @@
 import Foundation
 import Testing
 
-@Suite("SSEError Tests")
-struct SSEErrorTests {
+@Suite("Test ServerSentEvenFailureReason")
+struct ServerSentEvenFailureReasonTests {
     // MARK: - Equality
 
     @Test("test Verifies basic cases without associated values")
     func basicEquality() {
-        #expect(SSEError.notConnected == .notConnected)
-        #expect(SSEError.stillConnecting == .stillConnecting)
-        #expect(SSEError.alreadyConnected == .alreadyConnected)
-        #expect(SSEError.invalidResponse == .invalidResponse)
-        #expect(SSEError.unexpectedDisconnection == .unexpectedDisconnection)
-        #expect(SSEError.maxReconnectAttemptsReached == .maxReconnectAttemptsReached)
+        #expect(ServerSentEvenFailureReason.notConnected == .notConnected)
+        #expect(ServerSentEvenFailureReason.stillConnecting == .stillConnecting)
+        #expect(ServerSentEvenFailureReason.alreadyConnected == .alreadyConnected)
+        #expect(ServerSentEvenFailureReason.invalidResponse == .invalidResponse)
+        #expect(ServerSentEvenFailureReason.unexpectedDisconnection == .unexpectedDisconnection)
+        #expect(ServerSentEvenFailureReason.maxReconnectAttemptsReached == .maxReconnectAttemptsReached)
 
         // Cross-case inequality
-        #expect(SSEError.notConnected != .stillConnecting)
+        #expect(ServerSentEvenFailureReason.notConnected != .stillConnecting)
     }
 
     @Test("test Verifies invalidStatusCode equality and inequality")
     func statusCodeEquality() {
-        #expect(SSEError.invalidHTTPResponse(HTTPResponse(statusCode: 404)) == .invalidHTTPResponse(HTTPResponse(statusCode: 404)))
-        #expect(SSEError.invalidHTTPResponse(HTTPResponse(statusCode: 500)) != .invalidHTTPResponse(HTTPResponse(statusCode: 501)))
+        #expect(ServerSentEvenFailureReason.invalidHTTPResponse(HTTPResponse(statusCode: 404)) == .invalidHTTPResponse(HTTPResponse(statusCode: 404)))
+        #expect(ServerSentEvenFailureReason.invalidHTTPResponse(HTTPResponse(statusCode: 500)) != .invalidHTTPResponse(HTTPResponse(statusCode: 501)))
     }
 
     @Test("test Verifies connectionFailed equality by bridging to NSError")
@@ -31,16 +31,16 @@ struct SSEErrorTests {
         let error2 = NSError(domain: "test", code: 1, userInfo: nil)
         let differentError = NSError(domain: "test", code: 2, userInfo: nil)
 
-        #expect(SSEError.connectionFailed(underlying: error1) == .connectionFailed(underlying: error2))
-        #expect(SSEError.connectionFailed(underlying: error1) != .connectionFailed(underlying: differentError))
+        #expect(ServerSentEvenFailureReason.connectionFailed(underlying: error1) == .connectionFailed(underlying: error2))
+        #expect(ServerSentEvenFailureReason.connectionFailed(underlying: error1) != .connectionFailed(underlying: differentError))
     }
 
     @Test("test Verifies inequality across different enum cases", arguments: [
-        (SSEError.notConnected, SSEError.invalidResponse),
-        (SSEError.invalidHTTPResponse(HTTPResponse(statusCode: 200)), SSEError.notConnected),
-        (SSEError.stillConnecting, SSEError.unexpectedDisconnection)
+        (ServerSentEvenFailureReason.notConnected, ServerSentEvenFailureReason.invalidResponse),
+        (ServerSentEvenFailureReason.invalidHTTPResponse(HTTPResponse(statusCode: 200)), ServerSentEvenFailureReason.notConnected),
+        (ServerSentEvenFailureReason.stillConnecting, ServerSentEvenFailureReason.unexpectedDisconnection)
     ])
-    func mismatchedCases(lhs: SSEError, rhs: SSEError) {
+    func mismatchedCases(lhs: ServerSentEvenFailureReason, rhs: ServerSentEvenFailureReason) {
         #expect(lhs != rhs)
     }
 
@@ -48,17 +48,17 @@ struct SSEErrorTests {
 
     @Test("test Error protocol conformance")
     func errorProtocolConformance() {
-        let error: SSEError = .notConnected
+        let error: ServerSentEvenFailureReason = .notConnected
         let anyError: Error = error
 
-        #expect(anyError is SSEError)
+        #expect(anyError is ServerSentEvenFailureReason)
     }
 
     // MARK: - Pattern Matching Tests
 
     @Test("test Pattern matching all error cases")
     func patternMatchingAllErrorCases() {
-        let errors: [SSEError] = [
+        let errors: [ServerSentEvenFailureReason] = [
             .notConnected,
             .alreadyConnected,
             .stillConnecting,
@@ -85,7 +85,7 @@ struct SSEErrorTests {
         let statusCodes = [400, 401, 403, 404, 500, 502, 503]
 
         for code in statusCodes {
-            let error: SSEError = .invalidHTTPResponse(HTTPResponse(statusCode: code))
+            let error: ServerSentEvenFailureReason = .invalidHTTPResponse(HTTPResponse(statusCode: code))
 
             if case let .invalidHTTPResponse(receivedCode) = error {
                 #expect(receivedCode.statusCode == code)
