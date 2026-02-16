@@ -40,12 +40,12 @@ final class WebSocketSendTests {
         let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
         let sut = WebSocket(request: webSocketRequest, pingConfig: pingConfig, session: MockSession(urlSession: urlSession, delegate: session))
 
-        var capturedError: WebSocketError?
+        var capturedError: WebSocketFailureReason?
         let task = Task {
             do {
                 try await sut.send(.string("test send"))
                 Issue.record("Should no tbe able to send without calling .connect() first")
-            } catch let wsError as WebSocketError {
+            } catch let wsError as WebSocketFailureReason {
                 capturedError = wsError
             } catch {
                 Issue.record("Expected WebSocketError")
@@ -68,13 +68,13 @@ final class WebSocketSendTests {
         let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
         let sut = WebSocket(request: webSocketRequest, pingConfig: pingConfig, session: MockSession(urlSession: urlSession, delegate: session))
 
-        var capturedError: WebSocketError?
+        var capturedError: WebSocketFailureReason?
         let task = Task {
             do {
                 try await sut.connect()
                 try await sut.send(.string("test send"))
                 Issue.record("Expected .send() to fail")
-            } catch let wsError as WebSocketError {
+            } catch let wsError as WebSocketFailureReason {
                 capturedError = wsError
             } catch {
                 Issue.record("Expected WebSocketError")

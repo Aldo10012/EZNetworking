@@ -29,9 +29,9 @@ public enum WebSocketConnectionState: Equatable, Sendable {
         /// socket was manually disconnected by user
         case manuallyDisconnected
         /// socket failed to establish connection
-        case failedToConnect(error: WebSocketError)
+        case failedToConnect(error: WebSocketFailureReason)
         /// socket abruptly lost connection (server connection lost)
-        case connectionLost(error: WebSocketError)
+        case connectionLost(error: WebSocketFailureReason)
         /// socket was terminated
         case terminated
 

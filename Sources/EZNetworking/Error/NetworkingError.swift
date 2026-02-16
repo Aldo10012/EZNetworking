@@ -5,7 +5,7 @@ public enum NetworkingError: Error, Sendable {
     case decodingFailed(reason: DecodingFailureReason)
     case responseValidationFailed(reason: ResponseValidationFailureReason)
     case requestFailed(reason: RequestFailureReason)
-    case webSocketFailed(reason: WebSocketError)
+    case webSocketFailed(reason: WebSocketFailureReason)
 }
 
 extension NetworkingError: Equatable {

@@ -40,13 +40,13 @@ final class WebSocketConnectTests {
         let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
         let sut = WebSocket(request: webSocketRequest, session: MockSession(urlSession: urlSession, delegate: session))
 
-        var errorThrown: WebSocketError?
+        var errorThrown: WebSocketFailureReason?
 
         let task = Task {
             do {
                 try await sut.connect()
                 Issue.record("Unexpected success")
-            } catch let wsError as WebSocketError {
+            } catch let wsError as WebSocketFailureReason {
                 errorThrown = wsError
             } catch {
                 Issue.record("Expected WebSocketError")
@@ -57,7 +57,7 @@ final class WebSocketConnectTests {
         wsInterceptor.simulateDidCompleteWithError(error: DummyError.error)
         await task.value
 
-        #expect(errorThrown == WebSocketError.connectionFailed(underlying: DummyError.error))
+        #expect(errorThrown == WebSocketFailureReason.connectionFailed(underlying: DummyError.error))
     }
 
     @Test("test calling .connect throws error if WebSocketTaskInterceptor didClsoeWithCode")
@@ -68,13 +68,13 @@ final class WebSocketConnectTests {
         let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
         let sut = WebSocket(request: webSocketRequest, session: MockSession(urlSession: urlSession, delegate: session))
 
-        var errorThrown: WebSocketError?
+        var errorThrown: WebSocketFailureReason?
 
         let task = Task {
             do {
                 try await sut.connect()
                 Issue.record("Unexpected success")
-            } catch let wsError as WebSocketError {
+            } catch let wsError as WebSocketFailureReason {
                 errorThrown = wsError
             } catch {
                 Issue.record("Expected WebSocketError")
@@ -85,7 +85,7 @@ final class WebSocketConnectTests {
         wsInterceptor.simulateDidCloseWithCloseCode(didCloseWith: .internalServerError, reason: nil)
         await task.value
 
-        #expect(errorThrown == WebSocketError.unexpectedDisconnection(code: .internalServerError, reason: nil))
+        #expect(errorThrown == WebSocketFailureReason.unexpectedDisconnection(code: .internalServerError, reason: nil))
     }
 
     @Test("test calling .connect does call .webSocketTaskInspectable()")

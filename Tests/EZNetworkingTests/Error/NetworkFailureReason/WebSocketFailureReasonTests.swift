@@ -5,21 +5,21 @@ import Testing
 @Suite("Test WebSocketErrorTests")
 final class WebSocketErrorTests {
     @Test("test WebSocketError basic cases are Equatable", arguments: zip(WebSocketErrorList, WebSocketErrorList))
-    func basicCasesAreEquatable(inputA: WebSocketError, inputB: WebSocketError) {
+    func basicCasesAreEquatable(inputA: WebSocketFailureReason, inputB: WebSocketFailureReason) {
         #expect(inputA == inputB)
     }
 
     @Test("test different basic cases are not equal")
     func differentBasicCasesAreNotEqual() {
-        #expect(WebSocketError.notConnected != WebSocketError.alreadyConnected)
-        #expect(WebSocketError.alreadyConnected != WebSocketError.stillConnecting)
+        #expect(WebSocketFailureReason.notConnected != WebSocketFailureReason.alreadyConnected)
+        #expect(WebSocketFailureReason.alreadyConnected != WebSocketFailureReason.stillConnecting)
     }
 
     @Test("test unexpectedDisconnection equality and description")
     func unexpectedDisconnectionEqualityAndDescription() {
-        let lhs = WebSocketError.unexpectedDisconnection(code: .normalClosure, reason: "bye")
-        let rhs = WebSocketError.unexpectedDisconnection(code: .normalClosure, reason: "bye")
-        let other = WebSocketError.unexpectedDisconnection(code: .goingAway, reason: "bye")
+        let lhs = WebSocketFailureReason.unexpectedDisconnection(code: .normalClosure, reason: "bye")
+        let rhs = WebSocketFailureReason.unexpectedDisconnection(code: .normalClosure, reason: "bye")
+        let other = WebSocketFailureReason.unexpectedDisconnection(code: .goingAway, reason: "bye")
 
         #expect(lhs == rhs)
         #expect(lhs != other)
@@ -36,7 +36,7 @@ final class WebSocketErrorTests {
 
     @Test("test unexpectedDisconnection equality and description with no reason provided")
     func unexpectedDisconnectionEqualityAndDescriptionWithNoReasonProvided() {
-        let err = WebSocketError.unexpectedDisconnection(code: .normalClosure, reason: nil)
+        let err = WebSocketFailureReason.unexpectedDisconnection(code: .normalClosure, reason: nil)
 
         guard case let .unexpectedDisconnection(code, _) = err else {
             #expect(Bool(false))
@@ -53,10 +53,10 @@ final class WebSocketErrorTests {
         let urlErr1 = URLError(.timedOut)
         let urlErr2 = URLError(.timedOut)
 
-        #expect(WebSocketError.connectionFailed(underlying: urlErr1) == .connectionFailed(underlying: urlErr2))
-        #expect(WebSocketError.sendFailed(underlying: urlErr1) == .sendFailed(underlying: urlErr2))
-        #expect(WebSocketError.receiveFailed(underlying: urlErr1) == .receiveFailed(underlying: urlErr2))
-        #expect(WebSocketError.pingFailed(underlying: urlErr1) == .pingFailed(underlying: urlErr2))
+        #expect(WebSocketFailureReason.connectionFailed(underlying: urlErr1) == .connectionFailed(underlying: urlErr2))
+        #expect(WebSocketFailureReason.sendFailed(underlying: urlErr1) == .sendFailed(underlying: urlErr2))
+        #expect(WebSocketFailureReason.receiveFailed(underlying: urlErr1) == .receiveFailed(underlying: urlErr2))
+        #expect(WebSocketFailureReason.pingFailed(underlying: urlErr1) == .pingFailed(underlying: urlErr2))
     }
 
     @Test("test underlying error equality compares fails if underlying error difers")
@@ -64,15 +64,15 @@ final class WebSocketErrorTests {
         let urlErr = URLError(.timedOut)
         let nsErr = NSError(domain: "test", code: 1, userInfo: nil)
 
-        #expect(WebSocketError.connectionFailed(underlying: urlErr) != .connectionFailed(underlying: nsErr))
+        #expect(WebSocketFailureReason.connectionFailed(underlying: urlErr) != .connectionFailed(underlying: nsErr))
     }
 
     @Test("test localized descriptions for a selection of cases")
     func localizedDescriptions() {
-        #expect(WebSocketError.notConnected.errorDescription == "WebSocket is not connected")
-        #expect(WebSocketError.stillConnecting.errorDescription == "WebSocket is still connecting")
-        #expect(WebSocketError.alreadyConnected.errorDescription == "WebSocket is already connected")
-        #expect(WebSocketError.pongTimeout.errorDescription == "WebSocket pong response timed out")
+        #expect(WebSocketFailureReason.notConnected.errorDescription == "WebSocket is not connected")
+        #expect(WebSocketFailureReason.stillConnecting.errorDescription == "WebSocket is still connecting")
+        #expect(WebSocketFailureReason.alreadyConnected.errorDescription == "WebSocket is already connected")
+        #expect(WebSocketFailureReason.pongTimeout.errorDescription == "WebSocket pong response timed out")
     }
 
     @Test("LocalizedError - dynamic descriptions")
@@ -80,13 +80,13 @@ final class WebSocketErrorTests {
         let err = NSError(domain: "Test", code: -1)
         let msg = err.localizedDescription
 
-        #expect(WebSocketError.connectionFailed(underlying: err).errorDescription == "WebSocket connection failed: \(msg)")
-        #expect(WebSocketError.sendFailed(underlying: err).errorDescription == "Failed to send WebSocket message: \(msg)")
-        #expect(WebSocketError.receiveFailed(underlying: err).errorDescription == "Failed to receive WebSocket message: \(msg)")
-        #expect(WebSocketError.pingFailed(underlying: err).errorDescription == "WebSocket ping failed: \(msg)")
+        #expect(WebSocketFailureReason.connectionFailed(underlying: err).errorDescription == "WebSocket connection failed: \(msg)")
+        #expect(WebSocketFailureReason.sendFailed(underlying: err).errorDescription == "Failed to send WebSocket message: \(msg)")
+        #expect(WebSocketFailureReason.receiveFailed(underlying: err).errorDescription == "Failed to receive WebSocket message: \(msg)")
+        #expect(WebSocketFailureReason.pingFailed(underlying: err).errorDescription == "WebSocket ping failed: \(msg)")
     }
 
-    private static let WebSocketErrorList: [WebSocketError] = [
+    private static let WebSocketErrorList: [WebSocketFailureReason] = [
         .notConnected,
         .stillConnecting,
         .alreadyConnected,

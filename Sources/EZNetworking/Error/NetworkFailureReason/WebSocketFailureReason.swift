@@ -1,6 +1,6 @@
 import Foundation
 
-public enum WebSocketError: Error, @unchecked Sendable {
+public enum WebSocketFailureReason: Error, @unchecked Sendable {
     // Connection errors
     case notConnected
     case stillConnecting
@@ -22,7 +22,7 @@ public enum WebSocketError: Error, @unchecked Sendable {
 
 // MARK: - LocalizedError conformance for better error messages
 
-extension WebSocketError: LocalizedError {
+extension WebSocketFailureReason: LocalizedError {
     public var errorDescription: String? {
         switch self {
         case .notConnected:
@@ -52,7 +52,7 @@ extension WebSocketError: LocalizedError {
 
 // MARK: - CustomStringConvertible for debugging
 
-extension WebSocketError: CustomStringConvertible {
+extension WebSocketFailureReason: CustomStringConvertible {
     public var description: String {
         errorDescription ?? "Unknown WebSocket error"
     }
@@ -60,8 +60,8 @@ extension WebSocketError: CustomStringConvertible {
 
 // MARK: - Equatable (useful for testing)
 
-extension WebSocketError: Equatable {
-    public static func == (lhs: WebSocketError, rhs: WebSocketError) -> Bool {
+extension WebSocketFailureReason: Equatable {
+    public static func == (lhs: WebSocketFailureReason, rhs: WebSocketFailureReason) -> Bool {
         switch (lhs, rhs) {
         case (.notConnected, .notConnected),
              (.stillConnecting, .stillConnecting),

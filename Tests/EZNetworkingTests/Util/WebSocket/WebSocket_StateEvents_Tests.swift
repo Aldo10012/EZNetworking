@@ -51,7 +51,7 @@ final class WebSocketStateEventsTests {
         let expectedStates: [WebSocketConnectionState] = [
             .connecting,
             .disconnected(.failedToConnect(
-                error: WebSocketError.connectionFailed(underlying: DummyError.error)
+                error: WebSocketFailureReason.connectionFailed(underlying: DummyError.error)
             ))
         ]
 
@@ -93,7 +93,7 @@ final class WebSocketStateEventsTests {
             .connecting,
             .connected(protocol: "test"),
             .disconnected(.connectionLost(
-                error: WebSocketError.unexpectedDisconnection(code: .internalServerError, reason: nil)
+                error: WebSocketFailureReason.unexpectedDisconnection(code: .internalServerError, reason: nil)
             ))
         ]
 
@@ -170,7 +170,7 @@ final class WebSocketStateEventsTests {
             .connecting,
             .connected(protocol: "test"),
             .disconnected(.connectionLost(
-                error: WebSocketError.pingFailed(underlying: MockURLSessionWebSocketTaskError.pingError)
+                error: WebSocketFailureReason.pingFailed(underlying: MockURLSessionWebSocketTaskError.pingError)
             ))
         ]
 
@@ -209,7 +209,7 @@ final class WebSocketStateEventsTests {
             .connecting,
             .connected(protocol: "test"),
             .disconnected(.connectionLost(
-                error: WebSocketError.receiveFailed(underlying: MockURLSessionWebSocketTaskError.failedToReceiveMessage)
+                error: WebSocketFailureReason.receiveFailed(underlying: MockURLSessionWebSocketTaskError.failedToReceiveMessage)
             ))
         ]
 
