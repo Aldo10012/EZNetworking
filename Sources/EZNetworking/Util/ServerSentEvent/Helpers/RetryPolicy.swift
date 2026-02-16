@@ -1,7 +1,7 @@
 import Foundation
 
 /// Configuration for automatic reconnection behavior, including strategy and retry limits for SSE connections.
-public struct SSEReconnectionConfig: Sendable {
+public struct RetryPolicy: Sendable {
     /// Determines if the client should automatically attempt to reconnect after unexpected stream errors.
     public let enabled: Bool
     /// The maximum number of retry attempts; set to nil for unlimited attempts.
@@ -29,7 +29,7 @@ public struct SSEReconnectionConfig: Sendable {
     }
 }
 
-extension SSEReconnectionConfig {
+extension RetryPolicy {
     /// Calculates the reconnection delay for a given attempt number.
     ///
     /// Uses exponential backoff: `initialDelay * backoffMultiplier^(attemptNumber - 1)`,

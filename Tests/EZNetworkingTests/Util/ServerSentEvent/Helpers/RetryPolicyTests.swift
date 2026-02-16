@@ -2,11 +2,11 @@
 import Foundation
 import Testing
 
-@Suite("Test SSEReconnectionConfig")
-struct SSEReconnectionConfigTests {
+@Suite("Test RetryPolicy")
+struct RetryPolicyTests {
     @Test("test Default values are correctly assigned")
     func defaultValues() {
-        let config = SSEReconnectionConfig()
+        let config = RetryPolicy()
 
         #expect(config.enabled == true)
         #expect(config.maxAttempts == nil)
@@ -17,7 +17,7 @@ struct SSEReconnectionConfigTests {
 
     @Test("test Custom initialization values are correctly assigned")
     func customValues() {
-        let config = SSEReconnectionConfig(
+        let config = RetryPolicy(
             enabled: false,
             maxAttempts: 5,
             initialDelay: 2.5,
@@ -34,7 +34,7 @@ struct SSEReconnectionConfigTests {
 
     @Test("test Exponential backoff logic calculation")
     func backoffCalculation() {
-        let config = SSEReconnectionConfig(initialDelay: 2.0, maxDelay: 10.0, backoffMultiplier: 2.0)
+        let config = RetryPolicy(initialDelay: 2.0, maxDelay: 10.0, backoffMultiplier: 2.0)
 
         // Manual calculation of: min(initialDelay * pow(backoffMultiplier, attempt), maxDelay)
         // Attempt 0: 2.0 * 2^0 = 2.0
@@ -54,7 +54,7 @@ struct SSEReconnectionConfigTests {
 
     @Test("test Max attempts boundary", arguments: [1, 10, 100])
     func maxAttemptsBoundaries(attempts: UInt) {
-        let config = SSEReconnectionConfig(maxAttempts: attempts)
+        let config = RetryPolicy(maxAttempts: attempts)
         #expect(config.maxAttempts == attempts)
     }
 
@@ -68,7 +68,7 @@ struct SSEReconnectionConfigTests {
         (10, 60.0) // Capped at maxDelay
     ])
     func testCalculateDelay(attempt: UInt, expectedDelay: TimeInterval) {
-        let config = SSEReconnectionConfig(initialDelay: 1.0, maxDelay: 60.0, backoffMultiplier: 2.0)
+        let config = RetryPolicy(initialDelay: 1.0, maxDelay: 60.0, backoffMultiplier: 2.0)
 
         let result = config.calculateDelay(for: attempt)
         #expect(result == expectedDelay)
@@ -76,7 +76,7 @@ struct SSEReconnectionConfigTests {
 
     @Test("test Delay calculation returns 0 for invalid attempt (0)")
     func calculateDelayZero() {
-        let config = SSEReconnectionConfig()
+        let config = RetryPolicy()
         #expect(config.calculateDelay(for: 0) == 0)
     }
 
@@ -88,13 +88,13 @@ struct SSEReconnectionConfigTests {
         (3, 4, true) // 4 > 3: Reached
     ])
     func testHasReachedMaxAttempts(limit: UInt, current: UInt, expected: Bool) {
-        let config = SSEReconnectionConfig(maxAttempts: limit)
+        let config = RetryPolicy(maxAttempts: limit)
         #expect(config.hasReachedMaxAttempts(current) == expected)
     }
 
     @Test("test Max attempts logic with no limit (nil)")
     func hasReachedMaxAttemptsUnlimited() {
-        let config = SSEReconnectionConfig(maxAttempts: nil)
+        let config = RetryPolicy(maxAttempts: nil)
 
         #expect(config.hasReachedMaxAttempts(0) == false)
         #expect(config.hasReachedMaxAttempts(999) == false)
