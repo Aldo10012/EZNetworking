@@ -30,10 +30,8 @@ public struct ResponseValidatorImpl: ResponseValidator {
         }
 
         if let expectedHttpHeaders {
-            let allHeadersPresent = expectedHttpHeaders.allSatisfy {
-                httpResponse.headers[$0.key] == $0.value
-            }
-            if !allHeadersPresent {
+            let allExpectedHeadersPresentInResponse = expectedHttpHeaders.allSatisfy { httpResponse.headers[$0.key] == $0.value }
+            if !allExpectedHeadersPresentInResponse {
                 throw NetworkingError.responseValidationFailed(reason: .badHTTPResponse(underlying: httpResponse))
             }
         }
