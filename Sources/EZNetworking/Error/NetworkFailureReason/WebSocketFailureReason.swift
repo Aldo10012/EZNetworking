@@ -20,46 +20,6 @@ public enum WebSocketFailureReason: Error, @unchecked Sendable {
     case forcedDisconnection
 }
 
-// MARK: - LocalizedError conformance for better error messages
-
-extension WebSocketFailureReason: LocalizedError {
-    public var errorDescription: String? {
-        switch self {
-        case .notConnected:
-            return "WebSocket is not connected"
-        case .stillConnecting:
-            return "WebSocket is still connecting"
-        case .alreadyConnected:
-            return "WebSocket is already connected"
-        case let .connectionFailed(error):
-            return "WebSocket connection failed: \(error.localizedDescription)"
-        case let .sendFailed(error):
-            return "Failed to send WebSocket message: \(error.localizedDescription)"
-        case let .receiveFailed(error):
-            return "Failed to receive WebSocket message: \(error.localizedDescription)"
-        case let .pingFailed(error):
-            return "WebSocket ping failed: \(error.localizedDescription)"
-        case .pongTimeout:
-            return "WebSocket pong response timed out"
-        case let .unexpectedDisconnection(code, reason):
-            let reasonText = reason ?? "No reason provided"
-            return "WebSocket disconnected unexpectedly with code \(code.rawValue): \(reasonText)"
-        case .forcedDisconnection:
-            return "WebSocket was forcefully disconnected"
-        }
-    }
-}
-
-// MARK: - CustomStringConvertible for debugging
-
-extension WebSocketFailureReason: CustomStringConvertible {
-    public var description: String {
-        errorDescription ?? "Unknown WebSocket error"
-    }
-}
-
-// MARK: - Equatable (useful for testing)
-
 extension WebSocketFailureReason: Equatable {
     public static func == (lhs: WebSocketFailureReason, rhs: WebSocketFailureReason) -> Bool {
         switch (lhs, rhs) {
