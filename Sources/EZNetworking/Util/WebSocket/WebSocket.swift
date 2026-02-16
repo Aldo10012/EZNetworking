@@ -77,10 +77,10 @@ public actor WebSocket: WebSocketClient {
 
         // Validate current state
         if case .connecting = connectionState {
-            throw WebSocketFailureReason.stillConnecting
+            throw NetworkingError.webSocketFailed(reason: .stillConnecting)
         }
         if case .connected = connectionState {
-            throw WebSocketFailureReason.alreadyConnected
+            throw NetworkingError.webSocketFailed(reason: .alreadyConnected)
         }
 
         // Create and resume WebSocket task
@@ -142,7 +142,8 @@ public actor WebSocket: WebSocketClient {
         initialConnectionContinuation = nil
     }
 
-    private func handleConnectFail(throwing error: WebSocketFailureReason) {
+    private func handleConnectFail(throwing reason: WebSocketFailureReason) {
+        let error = NetworkingError.webSocketFailed(reason: reason)
         initialConnectionContinuation?.resume(throwing: error)
         initialConnectionContinuation = nil
     }
@@ -161,13 +162,13 @@ public actor WebSocket: WebSocketClient {
                 self.initialConnectionContinuation = continuation
             }
             connectionState = .connected(protocol: connectedProtocol)
-        } catch let wsError as WebSocketFailureReason {
-            connectionState = .disconnected(.failedToConnect(reason: wsError))
-            throw wsError
+        } catch let NetworkingError.webSocketFailed(reason) {
+            connectionState = .disconnected(.failedToConnect(reason: reason))
+            throw NetworkingError.webSocketFailed(reason: reason)
         } catch {
-            let wsError = WebSocketFailureReason.connectionFailed(underlying: error)
-            connectionState = .disconnected(.failedToConnect(reason: wsError))
-            throw wsError
+            let reason = WebSocketFailureReason.connectionFailed(underlying: error)
+            connectionState = .disconnected(.failedToConnect(reason: reason))
+            throw NetworkingError.webSocketFailed(reason: reason)
         }
     }
 
@@ -201,7 +202,7 @@ public actor WebSocket: WebSocketClient {
 
     public func disconnect() async throws {
         guard case .connected = connectionState else {
-            throw WebSocketFailureReason.notConnected
+            throw NetworkingError.webSocketFailed(reason: .notConnected)
         }
         cleanup(
             closeCode: .normalClosure,
@@ -232,7 +233,8 @@ public actor WebSocket: WebSocketClient {
         newState: WebSocketConnectionState,
         reason: WebSocketFailureReason
     ) {
-        initialConnectionContinuation?.resume(throwing: reason)
+        let error = NetworkingError.webSocketFailed(reason: reason)
+        initialConnectionContinuation?.resume(throwing: error)
         initialConnectionContinuation = nil
 
         webSocketTask?.cancel(with: closeCode, reason: data)
@@ -266,13 +268,13 @@ public actor WebSocket: WebSocketClient {
 
     public func send(_ message: OutboundMessage) async throws {
         guard let wsTask = webSocketTask, case .connected = connectionState else {
-            throw WebSocketFailureReason.notConnected
+            throw NetworkingError.webSocketFailed(reason: .notConnected)
         }
 
         do {
             try await wsTask.send(message)
         } catch {
-            throw WebSocketFailureReason.sendFailed(underlying: error)
+            throw NetworkingError.webSocketFailed(reason: .sendFailed(underlying: error))
         }
     }
 

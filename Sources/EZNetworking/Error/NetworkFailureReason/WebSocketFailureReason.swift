@@ -1,6 +1,6 @@
 import Foundation
 
-public enum WebSocketFailureReason: Error, @unchecked Sendable {
+public enum WebSocketFailureReason: Equatable, Sendable {
     // Connection errors
     case notConnected
     case stillConnecting
@@ -20,7 +20,7 @@ public enum WebSocketFailureReason: Error, @unchecked Sendable {
     case forcedDisconnection
 }
 
-extension WebSocketFailureReason: Equatable {
+extension WebSocketFailureReason {
     public static func == (lhs: WebSocketFailureReason, rhs: WebSocketFailureReason) -> Bool {
         switch (lhs, rhs) {
         case (.notConnected, .notConnected),

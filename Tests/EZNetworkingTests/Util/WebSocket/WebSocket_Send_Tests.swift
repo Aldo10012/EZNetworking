@@ -40,15 +40,15 @@ final class WebSocketSendTests {
         let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
         let sut = WebSocket(request: webSocketRequest, pingConfig: pingConfig, session: MockSession(urlSession: urlSession, delegate: session))
 
-        var capturedError: WebSocketFailureReason?
+        var capturedError: NetworkingError?
         let task = Task {
             do {
                 try await sut.send(.string("test send"))
                 Issue.record("Should no tbe able to send without calling .connect() first")
-            } catch let wsError as WebSocketFailureReason {
-                capturedError = wsError
+            } catch let error as NetworkingError {
+                capturedError = error
             } catch {
-                Issue.record("Expected WebSocketError")
+                Issue.record("Expected NetworkingError")
             }
         }
 
@@ -56,7 +56,7 @@ final class WebSocketSendTests {
         wsInterceptor.simulateOpenWithProtocol(nil)
 
         await task.value
-        #expect(capturedError == .notConnected)
+        #expect(capturedError == .webSocketFailed(reason: .notConnected))
     }
 
     @Test("test string message fails if send() throws error")
@@ -68,14 +68,14 @@ final class WebSocketSendTests {
         let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
         let sut = WebSocket(request: webSocketRequest, pingConfig: pingConfig, session: MockSession(urlSession: urlSession, delegate: session))
 
-        var capturedError: WebSocketFailureReason?
+        var capturedError: NetworkingError?
         let task = Task {
             do {
                 try await sut.connect()
                 try await sut.send(.string("test send"))
                 Issue.record("Expected .send() to fail")
-            } catch let wsError as WebSocketFailureReason {
-                capturedError = wsError
+            } catch let error as NetworkingError {
+                capturedError = error
             } catch {
                 Issue.record("Expected WebSocketError")
             }
@@ -84,7 +84,7 @@ final class WebSocketSendTests {
         try await Task.sleep(nanoseconds: 100)
         wsInterceptor.simulateOpenWithProtocol(nil)
         await task.value
-        #expect(capturedError == .sendFailed(underlying: MockURLSessionWebSocketTaskError.failedToSendMessage))
+        #expect(capturedError == .webSocketFailed(reason: .sendFailed(underlying: MockURLSessionWebSocketTaskError.failedToSendMessage)))
     }
 }
 
