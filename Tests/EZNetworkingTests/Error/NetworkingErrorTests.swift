@@ -74,6 +74,22 @@ final class NetworkingErrorTests {
         #expect(err1 != err2)
     }
 
+    // MARK: .webSocketFailed(reason:_)
+
+    @Test("test NetworkingError.webSocketFailed(_) equatability")
+    func networkingErrorWebSocketFailedEquatability() {
+        let err1 = NetworkingError.webSocketFailed(reason: .notConnected)
+        let err2 = NetworkingError.webSocketFailed(reason: .notConnected)
+        #expect(err1 == err2)
+    }
+
+    @Test("test NetworkingError.webSocketFailed(_) non equatability")
+    func networkingErrorWebSocketFailedNonEquatability() {
+        let err1 = NetworkingError.webSocketFailed(reason: .notConnected)
+        let err2 = NetworkingError.webSocketFailed(reason: .alreadyConnected)
+        #expect(err1 != err2)
+    }
+
     // MARK: different cases
 
     @Test("test NetworkingError different cases are non equatability")

@@ -22,10 +22,10 @@ final class WebSocketConnectionStateTests {
     @Test("disconnected state equality with protocol values")
     func disconnectEquality() {
         let manuallyDisconnected = WebSocketConnectionState.disconnected(.manuallyDisconnected)
-        let connectionLostA = WebSocketConnectionState.disconnected(.connectionLost(error: .alreadyConnected))
-        let connectionLostB = WebSocketConnectionState.disconnected(.connectionLost(error: .stillConnecting))
-        let failedToConnectA = WebSocketConnectionState.disconnected(.failedToConnect(error: .alreadyConnected))
-        let failedToConnectB = WebSocketConnectionState.disconnected(.failedToConnect(error: .stillConnecting))
+        let connectionLostA = WebSocketConnectionState.disconnected(.connectionLost(reason: .alreadyConnected))
+        let connectionLostB = WebSocketConnectionState.disconnected(.connectionLost(reason: .stillConnecting))
+        let failedToConnectA = WebSocketConnectionState.disconnected(.failedToConnect(reason: .alreadyConnected))
+        let failedToConnectB = WebSocketConnectionState.disconnected(.failedToConnect(reason: .stillConnecting))
         let terminated = WebSocketConnectionState.disconnected(.terminated)
 
         #expect(manuallyDisconnected == manuallyDisconnected)
