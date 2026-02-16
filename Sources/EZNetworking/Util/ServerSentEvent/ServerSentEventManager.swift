@@ -35,28 +35,28 @@ public actor ServerSentEventManager: ServerSentEventClient {
 
     public init(
         url: String,
-        retryPolicy: RetryPolicy? = nil,
         session: NetworkSession = Session(),
+        retryPolicy: RetryPolicy? = nil,
         responseValidator: ResponseValidator = SSEResponseValidator()
     ) {
         self.init(
             request: SSERequest(url: url),
-            retryPolicy: retryPolicy,
             session: session,
+            retryPolicy: retryPolicy,
             responseValidator: responseValidator
         )
     }
 
     public init(
         request: SSERequest,
-        retryPolicy: RetryPolicy? = nil,
         session: NetworkSession = Session(),
+        retryPolicy: RetryPolicy? = nil,
         responseValidator: ResponseValidator = SSEResponseValidator()
     ) {
         sseRequest = request
         self.session = session
-        self.responseValidator = responseValidator
         self.retryPolicy = retryPolicy
+        self.responseValidator = responseValidator
 
         self.session.configuration.timeoutIntervalForRequest = 60 // Connection timeout 1 minute
         self.session.configuration.timeoutIntervalForResource = 86400 // 24-hour stream timeout
