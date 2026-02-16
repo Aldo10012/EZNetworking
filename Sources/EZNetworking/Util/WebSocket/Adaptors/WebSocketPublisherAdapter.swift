@@ -27,6 +27,7 @@ public final class WebSocketPublisherAdapter: WebSocketPublisherClient {
         self.init(webSocketClient: WebSocket(request: request, pingConfig: pingConfig, session: session))
     }
 
+    // For testing only
     internal init(webSocketClient: any WebSocketClient) {
         self.actor = webSocketClient
         subscribeToMessages()
