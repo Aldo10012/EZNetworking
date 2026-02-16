@@ -34,6 +34,20 @@ public actor ServerSentEventManager: ServerSentEventClient {
     // MARK: init
 
     public init(
+        url: String,
+        reconnectionConfig: SSEReconnectionConfig? = nil,
+        session: NetworkSession = Session(),
+        responseValidator: ResponseValidator = SSEResponseValidator()
+    ) {
+        self.init(
+            request: SSERequest(url: url),
+            reconnectionConfig: reconnectionConfig,
+            session: session,
+            responseValidator: responseValidator
+        )
+    }
+
+    public init(
         request: SSERequest,
         reconnectionConfig: SSEReconnectionConfig? = nil,
         session: NetworkSession = Session(),

@@ -8,6 +8,16 @@ struct ServerSentEventManagerTests {
 
     // MARK: - .connect()
 
+    @Test("test with url string connect does not throw")
+    func connectWithURLStringDoesNotThrow() async throws {
+        let mockSession = MockSession(urlSession: createMockURLSession())
+        let manager = ServerSentEventManager(url: "https://example.com/sse", session: mockSession)
+
+        await #expect(throws: Never.self) {
+            try await manager.connect()
+        }
+    }
+
     @Test("test connect does not throw")
     func connectDoesNotThrow() async throws {
         let manager = createSSEManager(request: sseRequest)
