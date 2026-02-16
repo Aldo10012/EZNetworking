@@ -5,7 +5,11 @@ public protocol ResponseValidator {
 }
 
 public struct ResponseValidatorImpl: ResponseValidator {
-    public init() {}
+    private var expectedHttpHeaders: [HTTPHeader]?
+
+    public init(expectedHttpHeaders: [HTTPHeader]? = nil) {
+        self.expectedHttpHeaders = expectedHttpHeaders
+    }
 
     public func validateStatus(from urlResponse: URLResponse) throws {
         guard let httpURLResponse = urlResponse as? HTTPURLResponse else {
@@ -24,7 +28,16 @@ public struct ResponseValidatorImpl: ResponseValidator {
         guard httpResponse.category == .success || httpResponse.statusCode == 304 else {
             throw NetworkingError.responseValidationFailed(reason: .badHTTPResponse(underlying: httpResponse))
         }
+
+        if let expectedHttpHeaders {
+            for header in expectedHttpHeaders {
+                let httpResponseContainsExpectedHeaders = httpResponse.headers.contains { key, value in
+                    return header.key == key && header.value == value
+                }
+                if !httpResponseContainsExpectedHeaders {
+                    throw NetworkingError.responseValidationFailed(reason: .badHTTPResponse(underlying: httpResponse))
+                }
+            }
+        }
     }
 }
-
-public typealias URLResponseHeaders = [AnyHashable: Any]
