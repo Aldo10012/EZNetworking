@@ -25,6 +25,19 @@ EZNetworking is a powerful, lightweight Swift networking library that simplifies
 
 - [Installation](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#installation-)
 - [Quick Start Guide](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#quick-start-guide-)
+
+<!-- NEW -->
+
+- Usage
+  - HTTP Components - [HTTP Method](), [HTTP Query Parameter](), [HTTP Header](), [HTTP Body](), [Timeout](), [Cache]()
+  - How to make a request - [RequestFactory](), [RequestBuilder](), [Request protocol](), 
+  - REST API Request - [Performing a Request](), [Error handling]()
+  - Large Data - [File Download](), [Data Upload](), [File Download](), [multipart/form-data Upload]()
+  - Live Communication - [server-sent-event](), [websocket]()
+  - Session Management - [Session](), [SessionDelegate](), [Interceptors]()
+
+<!-- OLD -->
+
 - [Building Requests](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#building-requests-%EF%B8%8F)
   - [Using RequestFactory](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#using-requestfactory)
   - [Using RequestBuilder](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#using-requestbuilder)
@@ -81,6 +94,8 @@ EZNetworking is a powerful, lightweight Swift networking library that simplifies
     - [WebSocket Task Interceptor](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#websocket-task-interceptor)
   - [Session Management](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#session-management)
 - [Error Handling](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#error-handling-)
+
+
 - [Scripts](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#scripts)
 - [Contributing](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#contributing-)
 - [License](https://github.com/Aldo10012/EZNetworking?tab=readme-ov-file#license-)
