@@ -8,8 +8,11 @@ EZNetworking is a powerful, lightweight Swift networking library that simplifies
 
 ## Key Features 🚀
 
-- **Modern Swift Support**: Built with Swift 5.9 and iOS 15.0+
+- **Modern Swift Support**: Built with Swift 5.9 and iOS 15.0+, macOS 12+, watchOS 8+, tvOS 15+, visionOS 1+
 - **Async/Await Integration**: First-class support for Swift concurrency
+- **Combine Support**: Publishers for requests, downloads, uploads, WebSocket, and SSE
+- **Callback Support**: Completion handler-based API across the board
+- **AsyncStream Support**: Streaming progress for uploads, downloads, and real-time events
 - **Type-Safe Networking**: Strong typing for requests and responses
 - **Flexible Request Building**: Multiple approaches to creating requests
 - **Comprehensive Interceptors**: Full request/response pipeline control
@@ -17,6 +20,7 @@ EZNetworking is a powerful, lightweight Swift networking library that simplifies
 - **File Download**: Easy-to-use file downloader
 - **File Upload**: Easy-to-use file uploader
 - **Data Upload**: Easy-to-use data uploader
+- **Multipart Form Data**: Construct multipart requests with boundary handling and MIME types
 - **WebSocket**: Real-time, bi-directional client-to-server communication
 - **Server-Sent Events**: Lightweight, server-to-client streaming with automatic reconnection
 - **Extensive Testing**: 100% unit test coverage
