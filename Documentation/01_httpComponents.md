@@ -102,17 +102,16 @@ let multipartBody = HTTPBody.multipartFormData([
 ])
 ```
 
-## Timeout and Cache
+## Timeout
 
-Configure request timeout and caching behavior:
+Configure request timeout interval:
 
 ```swift
 // With RequestFactory
 let request1 = RequestFactoryImpl().build(
     httpMethod: .GET,
     urlString: "https://api.example.com",
-    timeoutInterval: 30,
-    cachePolicy: .returnCacheDataElseLoad
+    timeoutInterval: 30
 )
 
 // With RequestBuilder
@@ -120,6 +119,25 @@ let request2 = RequestBuilderImpl()
     .setHttpMethod(.GET)
     .setBaseUrl("https://api.example.com")
     .setTimeoutInterval(30)
+    .build()
+```
+
+## Cache
+
+Configure request caching behavior:
+
+```swift
+// With RequestFactory
+let request1 = RequestFactoryImpl().build(
+    httpMethod: .GET,
+    urlString: "https://api.example.com",
+    cachePolicy: .returnCacheDataElseLoad
+)
+
+// With RequestBuilder
+let request2 = RequestBuilderImpl()
+    .setHttpMethod(.GET)
+    .setBaseUrl("https://api.example.com")
     .setCachePolicy(.returnCacheDataElseLoad)
     .build()
 ```
