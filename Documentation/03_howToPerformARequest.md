@@ -102,7 +102,7 @@ public enum NetworkingError: Error {
 
 // Error handling example
 do {
-    let response = try await AsyncRequestPerformer().perform(request: request, decodeTo: UserData.self)
+    let response = try await RequestPerformer().perform(request: request, decodeTo: UserData.self)
     // do something with the response
 } catch let error as NetworkingError {
     switch error {

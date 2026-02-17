@@ -67,7 +67,7 @@ let request = RequestFactoryImpl().build(
 
 // Using async/await
 do {
-    let response = try await AsyncRequestPerformer().perform(
+    let response = try await RequestPerformer().perform(
         request: request,
         decodeTo: UserData.self
     )
