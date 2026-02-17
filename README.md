@@ -30,7 +30,7 @@ EZNetworking is a powerful, lightweight Swift networking library that simplifies
 
 - Usage
   - HTTP Components - [HTTP Method](Documentation/01_httpComponents.md#http-methods), [HTTP Query Parameter](Documentation/01_httpComponents.md#query-parameters), [HTTP Header](Documentation/01_httpComponents.md#headers), [HTTP Body](Documentation/01_httpComponents.md#request-body), [Timeout](Documentation/01_httpComponents.md#timeout-and-cache), [Cache](Documentation/01_httpComponents.md#timeout-and-cache)
-  - How to make a request - [RequestFactory](), [RequestBuilder](), [Request protocol](), 
+  - How to make a request - [RequestFactory](Documentation/02_howToMakeARequest.md#using-requestfactory), [RequestBuilder](Documentation/02_howToMakeARequest.md#using-requestbuilder), [Request protocol](Documentation/02_howToMakeARequest.md#request-protocol)
   - REST API Request - [Performing a Request](), [Error handling]()
   - Large Data - [File Download](), [Data Upload](), [File Download](), [multipart/form-data Upload]()
   - Live Communication - [server-sent-event](), [websocket]()
@@ -139,88 +139,6 @@ do {
 } catch {
     print("Error: \(error)")
 }
-```
-
-## Building Requests 🏗️
-
-EZNetworking provides three ways to create requests:
-1. Using RequestFactory for quick, one-line requests
-2. Using RequestBuilder for step-by-step request construction
-3. Implementing the Request protocol for reusable API endpoints
-
-### Using RequestFactory
-
-Perfect for quick, one-line request creation:
-
-```swift
-let request = RequestFactoryImpl().build(
-    httpMethod: .POST,
-    urlString: "https://api.example.com/users",
-    parameters: [
-        .init(key: "name", value: "John Doe"),
-        .init(key: "email", value: "john@example.com")
-    ],
-    headers: [
-        .accept(.json),
-        .contentType(.json)
-    ],
-    body: .jsonString("{\"role\":\"user\"}"),
-    timeoutInterval: 30,
-    cachePolicy: .useProtocolCachePolicy
-)
-```
-
-### Using RequestBuilder
-
-Ideal for complex requests with multiple configurations:
-
-```swift
-let request = RequestBuilderImpl()
-    .setHttpMethod(.POST)
-    .setBaseUrl("https://api.example.com")
-    .setParameters([
-        .init(key: "api_version", value: "v2")
-    ])
-    .setHeaders([
-        .accept(.json),
-        .authorization(.bearer("YOUR_TOKEN"))
-    ])
-    .setBody(.jsonString("{\"data\":\"value\"}"))
-    .setTimeoutInterval(30)
-    .setCachePolicy(.useProtocolCachePolicy)
-    .build()
-```
-
-### Request Protocol
-
-The Request protocol allows you to create reusable request definitions:
-
-```swift
-struct UserRequest: Request {
-    let userId: String
-    
-    var httpMethod: HTTPMethod { .GET }
-    var baseUrlString: String { "https://api.example.com" }
-    var parameters: [HTTPParameter]? {[
-        .init(key: "user_id", value: userId),
-        .init(key: "version", value: "v2")
-    ]}
-    var headers: [HTTPHeader]? {[
-        .accept(.json),
-        .contentType(.json),
-        .authorization(.bearer("YOUR_TOKEN"))
-    ]}
-    var body: HTTPBody? { nil }
-    var timeoutInterval: TimeInterval { 30 }
-    var cachePolicy: URLRequest.CachePolicy { .useProtocolCachePolicy }
-}
-
-// Usage
-let userRequest = UserRequest(userId: "123")
-let response = try await AsyncRequestPerformer().perform(
-    request: userRequest,
-    decodeTo: UserData.self
-)
 ```
 
 ## Making Network Calls 🌐
