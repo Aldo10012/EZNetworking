@@ -11,8 +11,10 @@ delegate.cacheInterceptor = CustomCacheInterceptor()
 delegate.authenticationInterceptor = CustomAuthInterceptor()
 delegate.metricsInterceptor = CustomMetricsInterceptor()
 
-// Create performer with custom session delegate. Works for RequestPerformer and AsyncRequestPerformer
-let performer = RequestPerformer(sessionDelegate: delegate)
+let session = Session(delegate: delegate)
+
+// Create performer with custom session.
+let performer = RequestPerformer(configuration: .default, session: session)
 
 // Use performer for requests
 performer.performTask(request: request) { result in
