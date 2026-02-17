@@ -15,12 +15,7 @@ public final class ServerSentEventPublisherAdapter: ServerSentEventPublisherClie
         responseValidator: ResponseValidator = DefaultResponseValidator(expectedHttpHeaders: [.contentType(.eventStream)])
     ) {
         let request = SSERequest(url: url)
-        self.init(
-            request: request,
-            session: session,
-            retryPolicy: retryPolicy,
-            responseValidator: responseValidator
-        )
+        self.init(request: request, session: session, retryPolicy: retryPolicy, responseValidator: responseValidator)
     }
 
     public convenience init(
@@ -30,12 +25,7 @@ public final class ServerSentEventPublisherAdapter: ServerSentEventPublisherClie
         responseValidator: ResponseValidator = DefaultResponseValidator(expectedHttpHeaders: [.contentType(.eventStream)])
     ) {
         self.init(
-            serverSentEventClient: ServerSentEventManager(
-                request: request,
-                session: session,
-                retryPolicy: retryPolicy,
-                responseValidator: responseValidator
-            )
+            serverSentEventClient: ServerSentEventManager(request: request, session: session, retryPolicy: retryPolicy, responseValidator: responseValidator)
         )
     }
 
