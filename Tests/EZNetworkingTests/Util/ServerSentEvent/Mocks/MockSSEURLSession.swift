@@ -65,4 +65,12 @@ extension MockSSEURLSession {
     func webSocketTaskInspectable(with request: URLRequest) -> any URLSessionWebSocketTaskProtocol {
         fatalError("Should not be using in this mock")
     }
+
+    func downloadTask(with request: URLRequest) -> URLSessionDownloadTaskProtocol {
+        fatalError("Should not be using in this mock")
+    }
+
+    func downloadTask(withResumeData resumeData: Data) -> URLSessionDownloadTaskProtocol {
+        fatalError("Should not be using in this mock")
+    }
 }

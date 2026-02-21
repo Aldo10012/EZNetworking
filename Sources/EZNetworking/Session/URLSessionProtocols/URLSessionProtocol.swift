@@ -12,9 +12,23 @@ public protocol URLSessionProtocol {
     func webSocketTaskInspectable(with request: URLRequest) -> URLSessionWebSocketTaskProtocol
 
     func bytes(for request: URLRequest) async throws -> (AsyncThrowingStream<UInt8, Error>, URLResponse)
+
+    func downloadTask(with request: URLRequest) -> URLSessionDownloadTaskProtocol
+
+    func downloadTask(withResumeData resumeData: Data) -> URLSessionDownloadTaskProtocol
 }
 
 extension URLSession: URLSessionProtocol {
+    public func downloadTask(with request: URLRequest) -> URLSessionDownloadTaskProtocol {
+        let task: URLSessionDownloadTask = downloadTask(with: request)
+        return task as URLSessionDownloadTaskProtocol
+    }
+
+    public func downloadTask(withResumeData resumeData: Data) -> URLSessionDownloadTaskProtocol {
+        let task: URLSessionDownloadTask = downloadTask(withResumeData: resumeData)
+        return task as URLSessionDownloadTaskProtocol
+    }
+
     public func webSocketTaskInspectable(with request: URLRequest) -> URLSessionWebSocketTaskProtocol {
         let task: URLSessionWebSocketTask = webSocketTask(with: request)
         return task as URLSessionWebSocketTaskProtocol

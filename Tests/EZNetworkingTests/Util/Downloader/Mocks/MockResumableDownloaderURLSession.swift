@@ -1,48 +1,49 @@
 import EZNetworking
 import Foundation
 
-class MockFileDownloaderURLSession: URLSessionProtocol {
+class MockResumableDownloaderURLSession: URLSessionProtocol, @unchecked Sendable {
     var url: URL?
-    var data: Data?
     var urlResponse: URLResponse?
     var error: Error?
-    var completion: ((Data?, URLResponse?, Error?) -> Void)?
     var sessionDelegate: SessionDelegate?
 
     var progressToExecute: [DownloadProgress] = []
+    var mockDownloadTask: MockURLSessionDownloadTaskProtocol = MockURLSessionDownloadTaskProtocol()
+    var didCreateTaskFromResumeData = false
 
-    init(data: Data? = nil, url: URL? = nil, urlResponse: URLResponse? = nil, error: Error? = nil) {
-        self.data = data
+    init(url: URL? = nil, urlResponse: URLResponse? = nil, error: Error? = nil) {
         self.url = url
         self.urlResponse = urlResponse
         self.error = error
     }
 
-    func download(from url: URL, delegate: (any URLSessionTaskDelegate)?) async throws -> (URL, URLResponse) {
-        if let error {
-            throw error
-        }
-        guard let urlResponse else {
-            fatalError("Could not configure return for MockFileDownloaderURLSession.download")
-        }
+    func downloadTask(with request: URLRequest) -> URLSessionDownloadTaskProtocol {
+        let task = mockDownloadTask
         simulateDownloadProgress(for: .init())
-        return (URL(fileURLWithPath: "/tmp/test.pdf"), urlResponse)
+        return task
+    }
+
+    func downloadTask(withResumeData resumeData: Data) -> URLSessionDownloadTaskProtocol {
+        didCreateTaskFromResumeData = true
+        let task = mockDownloadTask
+        simulateDownloadProgress(for: .init())
+        return task
     }
 }
 
 // MARK: Helpers
 
-extension MockFileDownloaderURLSession {
+extension MockResumableDownloaderURLSession {
     enum DownloadProgress {
         case inProgress(percent: Int64)
         case complete
+        case failed(Error)
     }
 
     private func simulateDownloadProgress(for task: URLSessionDownloadTask) {
         for progressToExecute in progressToExecute {
             switch progressToExecute {
             case let .inProgress(percent):
-                // Simulate x% progress
                 sessionDelegate?.urlSession(
                     .shared,
                     downloadTask: task,
@@ -52,11 +53,17 @@ extension MockFileDownloaderURLSession {
                 )
 
             case .complete:
-                // Simulate completion
                 sessionDelegate?.urlSession(
                     .shared,
                     downloadTask: task,
                     didFinishDownloadingTo: URL(fileURLWithPath: "/tmp/test.pdf")
+                )
+
+            case let .failed(error):
+                sessionDelegate?.urlSession(
+                    .shared,
+                    task: task,
+                    didCompleteWithError: error
                 )
             }
         }
@@ -65,8 +72,12 @@ extension MockFileDownloaderURLSession {
 
 // MARK: unused methods
 
-extension MockFileDownloaderURLSession {
+extension MockResumableDownloaderURLSession {
     func data(for request: URLRequest) async throws -> (Data, URLResponse) {
+        fatalError("Should not be using in this mock")
+    }
+
+    func download(from url: URL, delegate: URLSessionTaskDelegate?) async throws -> (URL, URLResponse) {
         fatalError("Should not be using in this mock")
     }
 
@@ -83,14 +94,6 @@ extension MockFileDownloaderURLSession {
     }
 
     func bytes(for request: URLRequest) async throws -> (AsyncThrowingStream<UInt8, Error>, URLResponse) {
-        fatalError("Should not be using in this mock")
-    }
-
-    func downloadTask(with request: URLRequest) -> URLSessionDownloadTaskProtocol {
-        fatalError("Should not be using in this mock")
-    }
-
-    func downloadTask(withResumeData resumeData: Data) -> URLSessionDownloadTaskProtocol {
         fatalError("Should not be using in this mock")
     }
 }

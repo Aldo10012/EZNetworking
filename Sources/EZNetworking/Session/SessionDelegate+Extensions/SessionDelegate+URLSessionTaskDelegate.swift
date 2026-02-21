@@ -39,6 +39,10 @@ extension SessionDelegate: URLSessionTaskDelegate {
 
         if let error {
             webSocketTaskInterceptor?.urlSession(session, task: task, didCompleteWithError: error)
+
+            if task is URLSessionDownloadTask {
+                downloadTaskInterceptor?.urlSession(session, task: task, didCompleteWithError: error)
+            }
         }
     }
 

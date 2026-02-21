@@ -13,4 +13,11 @@ public protocol DownloadTaskInterceptor: AnyObject {
 
     /// Intercepts when a download task is resumed.
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didResumeAtOffset fileOffset: Int64, expectedTotalBytes: Int64)
+
+    /// Intercepts when a download task completes with an error.
+    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?)
+}
+
+extension DownloadTaskInterceptor {
+    public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {}
 }
