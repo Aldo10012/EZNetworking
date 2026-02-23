@@ -47,4 +47,12 @@ extension MockRequestPerformerURLSession {
     func bytes(for request: URLRequest) async throws -> (AsyncThrowingStream<UInt8, Error>, URLResponse) {
         fatalError("Should not be using in this mock")
     }
+
+    func downloadTask(with url: URL) -> URLSessionDownloadTaskProtocol {
+        fatalError("Should not be using in this mock")
+    }
+
+    func downloadTask(withResumeData resumeData: Data) -> URLSessionDownloadTaskProtocol {
+        fatalError("Should not be using in this mock")
+    }
 }
