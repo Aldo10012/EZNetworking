@@ -38,6 +38,7 @@ extension SessionDelegate: URLSessionTaskDelegate {
         taskLifecycleInterceptor?.urlSession(session, task: task, didCompleteWithError: error)
 
         if let error {
+            downloadTaskInterceptor?.urlSession(session, task: task, didCompleteWithError: error)
             webSocketTaskInterceptor?.urlSession(session, task: task, didCompleteWithError: error)
         }
     }

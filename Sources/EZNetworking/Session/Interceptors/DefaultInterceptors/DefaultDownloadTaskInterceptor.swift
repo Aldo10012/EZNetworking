@@ -1,25 +1,43 @@
-import Combine
 import Foundation
 
 /// Default implementation of DownloadTaskInterceptor
 class DefaultDownloadTaskInterceptor: DownloadTaskInterceptor {
-    var progress: (Double) -> Void
+    var onEvent: (DownloadTaskInterceptorEvent) -> Void
+    private let validator: ResponseValidator
 
-    init(progress: @escaping (Double) -> Void = { _ in }) {
-        self.progress = progress
+    init(
+        validator: ResponseValidator = DefaultResponseValidator(),
+        onEvent: @escaping (DownloadTaskInterceptorEvent) -> Void = { _ in }
+    ) {
+        self.validator = validator
+        self.onEvent = onEvent
     }
 
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
-        progress(1.0)
+        do {
+            guard let response = downloadTask.response else {
+                throw NetworkingError.downloadFailed(reason: .invalidResponse)
+            }
+            try validator.validateStatus(from: response)
+            onEvent(.onDownloadCompleted(location))
+        } catch {
+            onEvent(.onDownloadFailed(error))
+        }
     }
 
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
+        guard totalBytesExpectedToWrite > 0 else { return }
         let currentProgress = Double(totalBytesWritten) / Double(totalBytesExpectedToWrite)
-        progress(currentProgress)
+        onEvent(.onProgress(currentProgress))
     }
 
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didResumeAtOffset fileOffset: Int64, expectedTotalBytes: Int64) {
+        guard expectedTotalBytes > 0 else { return }
         let currentProgress = Double(fileOffset) / Double(expectedTotalBytes)
-        progress(currentProgress)
+        onEvent(.onProgress(currentProgress))
+    }
+
+    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error) {
+        onEvent(.onDownloadFailed(error))
     }
 }

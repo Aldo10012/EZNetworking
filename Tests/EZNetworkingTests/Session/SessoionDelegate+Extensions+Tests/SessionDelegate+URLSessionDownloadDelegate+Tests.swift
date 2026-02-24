@@ -42,7 +42,7 @@ final class SessionDelegateURLSessionDownloadDelegateTests {
 // MARK: mock class
 
 private class MockDownloadTaskInterceptor: DownloadTaskInterceptor {
-    var progress: (Double) -> Void = { _ in }
+    var onEvent: (DownloadTaskInterceptorEvent) -> Void = { _ in }
 
     var didFinishDownloading = false
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
@@ -57,6 +57,11 @@ private class MockDownloadTaskInterceptor: DownloadTaskInterceptor {
     var didResumeAtOffset = false
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didResumeAtOffset fileOffset: Int64, expectedTotalBytes: Int64) {
         didResumeAtOffset = true
+    }
+
+    var didCompleteWithError = false
+    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error) {
+        didCompleteWithError = true
     }
 }
 

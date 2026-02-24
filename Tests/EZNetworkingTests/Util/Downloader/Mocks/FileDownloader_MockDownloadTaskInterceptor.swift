@@ -2,23 +2,29 @@ import EZNetworking
 import Foundation
 
 class FileDownloaderMockDownloadTaskInterceptor: DownloadTaskInterceptor {
-    var progress: (Double) -> Void
+    var onEvent: (DownloadTaskInterceptorEvent) -> Void
 
-    init(progress: @escaping (Double) -> Void) {
-        self.progress = progress
+    init(onEvent: @escaping (DownloadTaskInterceptorEvent) -> Void = { _ in }) {
+        self.onEvent = onEvent
     }
 
+    var didCallDidFinishDownloadingTo = false
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
-        progress(1)
+        didCallDidFinishDownloadingTo = true
     }
 
     var didCallDidWriteData = false
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
         didCallDidWriteData = true
-        progress(1)
     }
 
+    var didCallDidResumeAtOffset = false
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didResumeAtOffset fileOffset: Int64, expectedTotalBytes: Int64) {
-        progress(1)
+        didCallDidResumeAtOffset = true
+    }
+
+    var didCallDidCompleteWithError = false
+    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error) {
+        didCallDidCompleteWithError = true
     }
 }
