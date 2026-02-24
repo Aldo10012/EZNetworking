@@ -7,7 +7,7 @@ public class EZJSONDecoder: JSONDecoder, @unchecked Sendable {
         } catch let error as DecodingError {
             throw NetworkingError.decodingFailed(reason: .decodingError(underlying: error))
         } catch {
-            throw NetworkingError.decodingFailed(reason: .other(underlying: error))
+            throw NetworkingError.decodingFailed(reason: .other(underlying: error.asSendableError))
         }
     }
 }
