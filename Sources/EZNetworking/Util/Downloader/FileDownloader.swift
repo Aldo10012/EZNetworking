@@ -39,7 +39,7 @@ public actor FileDownloader: FileDownloadable {
     // MARK: deinit
 
     deinit {
-        fallbackDownloadTaskInterceptor.onEvent = { _ in }
+        session.delegate.downloadTaskInterceptor?.onEvent = { _ in }
         continuation?.finish()
     }
 
