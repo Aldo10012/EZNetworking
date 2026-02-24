@@ -19,7 +19,7 @@ public actor FileDownloader: FileDownloadable {
     private var continuation: AsyncStream<DownloadEvent>.Continuation?
 
     /// Strong reference since SessionDelegate.downloadTaskInterceptor is weak
-    private nonisolated let downloadInterceptor: DefaultDownloadTaskInterceptor
+    private nonisolated let fallbackDownloadTaskInterceptor: DefaultDownloadTaskInterceptor
 
     // MARK: init
 
@@ -31,7 +31,7 @@ public actor FileDownloader: FileDownloadable {
         self.url = url
         self.session = session
         self.validator = validator
-        self.downloadInterceptor = DefaultDownloadTaskInterceptor(validator: validator)
+        self.fallbackDownloadTaskInterceptor = DefaultDownloadTaskInterceptor(validator: validator)
 
         setupDownloadEventHandler()
     }
@@ -39,7 +39,7 @@ public actor FileDownloader: FileDownloadable {
     // MARK: deinit
 
     deinit {
-        downloadInterceptor.onEvent = { _ in }
+        fallbackDownloadTaskInterceptor.onEvent = { _ in }
         continuation?.finish()
     }
 
@@ -119,7 +119,7 @@ public actor FileDownloader: FileDownloadable {
 
     private nonisolated func setupDownloadEventHandler() {
         if session.delegate.downloadTaskInterceptor == nil {
-            session.delegate.downloadTaskInterceptor = downloadInterceptor
+            session.delegate.downloadTaskInterceptor = fallbackDownloadTaskInterceptor
         }
 
         session.delegate.downloadTaskInterceptor?.onEvent = { [weak self] event in
