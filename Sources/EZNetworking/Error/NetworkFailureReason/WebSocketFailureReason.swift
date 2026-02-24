@@ -5,14 +5,14 @@ public enum WebSocketFailureReason: Equatable, Sendable {
     case notConnected
     case stillConnecting
     case alreadyConnected
-    case connectionFailed(underlying: Error)
+    case connectionFailed(underlying: SendableError)
 
     // Communication errors
-    case sendFailed(underlying: Error)
-    case receiveFailed(underlying: Error)
+    case sendFailed(underlying: SendableError)
+    case receiveFailed(underlying: SendableError)
 
     // Ping/pong errors
-    case pingFailed(underlying: Error)
+    case pingFailed(underlying: SendableError)
     case pongTimeout
 
     // Disconnection errors

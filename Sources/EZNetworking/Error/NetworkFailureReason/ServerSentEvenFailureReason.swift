@@ -5,7 +5,7 @@ public enum ServerSentEvenFailureReason: Equatable, Sendable {
     case notConnected
     case stillConnecting
     case alreadyConnected
-    case connectionFailed(underlying: Error)
+    case connectionFailed(underlying: SendableError)
     case maxReconnectAttemptsReached
 
     // Response validation errors

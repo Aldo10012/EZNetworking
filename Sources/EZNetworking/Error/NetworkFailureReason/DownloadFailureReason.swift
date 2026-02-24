@@ -7,7 +7,7 @@ public enum DownloadFailureReason: Equatable, Sendable {
     case alreadyDownloading
     case notDownloading
     case notPaused
-    case unknownError(underlying: Error)
+    case unknownError(underlying: SendableError)
 
     public static func == (lhs: DownloadFailureReason, rhs: DownloadFailureReason) -> Bool {
         switch (lhs, rhs) {

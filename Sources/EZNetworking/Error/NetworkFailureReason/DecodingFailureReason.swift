@@ -2,7 +2,7 @@ import Foundation
 
 public enum DecodingFailureReason: Equatable, Sendable {
     case decodingError(underlying: DecodingError)
-    case other(underlying: Error)
+    case other(underlying: SendableError)
 
     public static func == (lhs: DecodingFailureReason, rhs: DecodingFailureReason) -> Bool {
         switch (lhs, rhs) {
@@ -15,3 +15,5 @@ public enum DecodingFailureReason: Equatable, Sendable {
         }
     }
 }
+
+public typealias SendableError = Error & Sendable
