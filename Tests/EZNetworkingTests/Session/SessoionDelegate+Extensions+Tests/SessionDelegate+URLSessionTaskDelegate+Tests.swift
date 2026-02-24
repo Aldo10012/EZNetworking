@@ -73,6 +73,38 @@ final class SessionDelegateURLSessionTaskDelegateTests {
         #expect(taskLifecycleInterceptor.didCompleteWithError)
     }
 
+    @Test("test SessionDelegate DidCompleteWithError nil error does not forward to download or websocket interceptors")
+    func sessionDelegateDidCompleteWithNilError() {
+        let downloadInterceptor = SpyDownloadTaskInterceptor()
+        let webSocketInterceptor = SpyWebSocketTaskInterceptor()
+        let taskLifecycleInterceptor = MockTaskLifecycleInterceptor()
+        let delegate = SessionDelegate()
+        delegate.downloadTaskInterceptor = downloadInterceptor
+        delegate.webSocketTaskInterceptor = webSocketInterceptor
+        delegate.taskLifecycleInterceptor = taskLifecycleInterceptor
+
+        delegate.urlSession(.shared, task: mockURLSessionTask, didCompleteWithError: nil)
+
+        #expect(taskLifecycleInterceptor.didCompleteWithError)
+        #expect(!downloadInterceptor.didCompleteWithError)
+        #expect(!webSocketInterceptor.didCompleteWithError)
+    }
+
+    @Test("test SessionDelegate DidCompleteWithError generic task does not forward to download or websocket interceptors")
+    func sessionDelegateDidCompleteWithError_genericTask() {
+        let downloadInterceptor = SpyDownloadTaskInterceptor()
+        let webSocketInterceptor = SpyWebSocketTaskInterceptor()
+        let delegate = SessionDelegate()
+        delegate.downloadTaskInterceptor = downloadInterceptor
+        delegate.webSocketTaskInterceptor = webSocketInterceptor
+
+        let error = NSError(domain: "TestError", code: 1, userInfo: nil)
+        delegate.urlSession(.shared, task: mockURLSessionTask, didCompleteWithError: error)
+
+        #expect(!downloadInterceptor.didCompleteWithError)
+        #expect(!webSocketInterceptor.didCompleteWithError)
+    }
+
     @Test("test SessionDelegateT askIsWaitingForConnectivity")
     func sessionDelegateTaskIsWaitingForConnectivity() {
         let taskLifecycleInterceptor = MockTaskLifecycleInterceptor()
@@ -139,4 +171,27 @@ private var mockURLSessionTask: URLSessionTask {
 
 private var mockURLSessionTaskMetrics: URLSessionTaskMetrics {
     URLSessionTaskMetrics()
+}
+
+private class SpyDownloadTaskInterceptor: DownloadTaskInterceptor {
+    var onEvent: (DownloadTaskInterceptorEvent) -> Void = { _ in }
+    var didCompleteWithError = false
+
+    func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {}
+    func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {}
+    func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didResumeAtOffset fileOffset: Int64, expectedTotalBytes: Int64) {}
+    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error) {
+        didCompleteWithError = true
+    }
+}
+
+private class SpyWebSocketTaskInterceptor: WebSocketTaskInterceptor {
+    var onEvent: ((WebSocketTaskEvent) -> Void)? = { _ in }
+    var didCompleteWithError = false
+
+    func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didOpenWithProtocol protocol: String?) {}
+    func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didCloseWith closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?) {}
+    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error) {
+        didCompleteWithError = true
+    }
 }

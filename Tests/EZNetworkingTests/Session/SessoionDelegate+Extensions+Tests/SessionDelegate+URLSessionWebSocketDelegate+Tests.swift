@@ -40,7 +40,7 @@ final class SessionDelegateURLSessionWebSocketDelegateTests {
         delegate.webSocketTaskInterceptor = webSocketInterceptor
 
         let error = NSError(domain: "test", code: 0)
-        delegate.urlSession(.shared, task: .init(), didCompleteWithError: error)
+        delegate.urlSession(.shared, task: mockURLSessionWebSocketTask, didCompleteWithError: error)
 
         #expect(webSocketInterceptor.didCompleteWithError)
         #expect(webSocketInterceptor.receivedError as? NSError == error)
