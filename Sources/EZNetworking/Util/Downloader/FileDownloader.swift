@@ -23,9 +23,9 @@ public actor FileDownloader: FileDownloadable {
         AsyncStream { $0.finish() }
     }
 
-    public func pause() async {}
+    public func pause() async throws {}
 
-    public func resume() async {}
+    public func resume() async throws {}
 
-    public func cancel() {}
+    public func cancel() throws {}
 }

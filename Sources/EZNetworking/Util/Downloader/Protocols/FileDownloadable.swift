@@ -5,13 +5,13 @@ public protocol FileDownloadable: Actor {
     func downloadFileStream() -> AsyncStream<DownloadEvent>
 
     /// Pauses the active download
-    func pause() async
+    func pause() async throws
 
     /// Resumes a paused download
-    func resume() async
+    func resume() async throws
 
     /// Cancels the download
-    func cancel()
+    func cancel() throws
 }
 
 public enum DownloadEvent: Sendable {
