@@ -37,6 +37,17 @@ final class SessionDelegateURLSessionDownloadDelegateTests {
 
         #expect(downloadTaskInterceptor.didResumeAtOffset)
     }
+
+    @Test("test SessionDelegate DidCompleteWithError forwards to downloadTaskInterceptor")
+    func sessionDelegateDidCompleteWithError() {
+        let downloadTaskInterceptor = MockDownloadTaskInterceptor()
+        let delegate = SessionDelegate()
+        delegate.downloadTaskInterceptor = downloadTaskInterceptor
+
+        delegate.urlSession(.shared, task: mockUrlSessionDownloadTask, didCompleteWithError: URLError(.timedOut))
+
+        #expect(downloadTaskInterceptor.didCompleteWithError)
+    }
 }
 
 // MARK: mock class
