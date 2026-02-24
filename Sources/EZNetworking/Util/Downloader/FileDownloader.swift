@@ -46,6 +46,13 @@ public actor FileDownloader: FileDownloadable {
     // MARK: - FileDownloadable
 
     public func downloadFileStream() -> AsyncStream<DownloadEvent> {
+        guard !Task.isCancelled else {
+            return AsyncStream { continuation in
+                continuation.yield(.cancelled)
+                continuation.finish()
+            }
+        }
+
         guard case .idle = state else {
             return AsyncStream { continuation in
                 continuation.yield(.failed(.downloadFailed(reason: .alreadyDownloading)))
@@ -55,6 +62,13 @@ public actor FileDownloader: FileDownloadable {
 
         let (stream, continuation) = AsyncStream<DownloadEvent>.makeStream()
         self.continuation = continuation
+
+        continuation.onTermination = { @Sendable [weak self] termination in
+            guard case .cancelled = termination else { return }
+            Task { [weak self] in
+                try? await self?.cancel()
+            }
+        }
 
         state = .downloading
         let task = session.urlSession.downloadTask(with: url)
@@ -67,17 +81,21 @@ public actor FileDownloader: FileDownloadable {
     }
 
     public func pause() async throws {
+        try Task.checkCancellation()
         guard case .downloading = state else {
             throw NetworkingError.downloadFailed(reason: .notDownloading)
         }
 
+        continuation?.yield(.paused)
+        state = .paused(resumeData: nil)
         let resumeData = await downloadTask?.cancelByProducingResumeData()
+        try Task.checkCancellation()
         downloadTask = nil
         state = .paused(resumeData: resumeData)
-        continuation?.yield(.paused)
     }
 
     public func resume() async throws {
+        try Task.checkCancellation()
         guard case let .paused(resumeData) = state else {
             throw NetworkingError.downloadFailed(reason: .notPaused)
         }

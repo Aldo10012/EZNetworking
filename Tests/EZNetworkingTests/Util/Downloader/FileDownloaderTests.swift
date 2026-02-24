@@ -285,6 +285,53 @@ final class FileDownloaderTests {
             return false
         }))
     }
+
+    // MARK: - Task cancellation
+
+    @Test("test downloadFileStream when parent task is cancelled emits cancelled")
+    func downloadFileStream_parentTaskCancelled() async {
+        let mockURLSession = MockFileDownloaderURLSession()
+        let session = MockSession(urlSession: mockURLSession, delegate: SessionDelegate())
+        let sut = FileDownloader(url: mockUrl, session: session)
+
+        let eventsTask = Task {
+            // Spin until this task is cancelled before calling downloadFileStream
+            while !Task.isCancelled {
+                await Task.yield()
+            }
+            let stream = await sut.downloadFileStream()
+            var events: [DownloadEvent] = []
+            for await event in stream {
+                events.append(event)
+            }
+            return events
+        }
+        eventsTask.cancel()
+
+        let events = await eventsTask.value
+        #expect(events == [.cancelled])
+        #expect(!mockURLSession.mockDownloadTask.didResume)
+    }
+
+    @Test("test cancelling stream consumer cancels download task")
+    func streamConsumerCancellation_cancelsDownloadTask() async throws {
+        let mockURLSession = MockFileDownloaderURLSession()
+        let session = MockSession(urlSession: mockURLSession, delegate: SessionDelegate())
+        let sut = FileDownloader(url: mockUrl, session: session)
+
+        let stream = await sut.downloadFileStream()
+        #expect(mockURLSession.mockDownloadTask.didResume)
+
+        let consumeTask = Task {
+            for await _ in stream {}
+        }
+
+        try await Task.sleep(nanoseconds: 50_000_000)
+        consumeTask.cancel()
+        try await Task.sleep(nanoseconds: 100_000_000)
+
+        #expect(mockURLSession.mockDownloadTask.didCancel)
+    }
 }
 
 // MARK: - DownloadEvent Equatable
