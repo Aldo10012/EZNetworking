@@ -5,7 +5,7 @@ import Testing
 @Suite("Test SendableError")
 struct SendableErrorTests {
 
-    @Test("Test Verify it returns self if already a SendableErrorWrapper")
+    @Test("Test verify it returns self if already a SendableErrorWrapper")
     func asSendableError_WhenAlreadyWrapper_ReturnsSameWrapper() {
         let originalNSError = NSError(domain: "test", code: 1, userInfo: nil)
         let firstWrapper = SendableErrorWrapper(originalNSError)
@@ -36,7 +36,7 @@ struct SendableErrorTests {
         #expect(nsError.asSendableError is SendableErrorWrapper)
     }
 
-    @Test("test Verify wrapper handles custom non-standard error classes")
+    @Test("test verify wrapper handles custom non-standard error classes")
     func wrapper_WithCustomClassError() {
         // Custom classes that inherit from NSError but aren't NSError.self
         class LegacyCustomError: NSError, @unchecked Sendable { }
@@ -47,7 +47,7 @@ struct SendableErrorTests {
         #expect(result is SendableErrorWrapper)
     }
 
-    @Test("test Verify SendableErrorWrapper CustomNSError conformance")
+    @Test("test verify SendableErrorWrapper CustomNSError conformance")
     func wrapper_CustomNSErrorConformance() {
         let domain = "custom.logic"
         let code = 123
