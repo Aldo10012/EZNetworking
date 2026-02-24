@@ -23,7 +23,7 @@ public actor FileDownloader: FileDownloadable {
 
     // MARK: init
 
-    init(
+    public init(
         url: URL,
         session: NetworkSession = Session(),
         validator: ResponseValidator = DefaultResponseValidator()
