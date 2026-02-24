@@ -1,9 +1,15 @@
 import Foundation
 
+public enum DownloadTaskInterceptorEvent {
+    case onProgress(Double)
+    case onDownloadCompleted(URL)
+    case onDownloadFailed(Error)
+}
+
 /// Protocol for intercepting download tasks specifically.
 public protocol DownloadTaskInterceptor: AnyObject {
-    /// Track the progress of the download process
-    var progress: (Double) -> Void { get set }
+    /// Callback for download task events (progress, completion, failure)
+    var onEvent: (DownloadTaskInterceptorEvent) -> Void { get set }
 
     /// Intercepts when a download task finishes downloading to a location.
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL)
@@ -13,4 +19,7 @@ public protocol DownloadTaskInterceptor: AnyObject {
 
     /// Intercepts when a download task is resumed.
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didResumeAtOffset fileOffset: Int64, expectedTotalBytes: Int64)
+
+    /// Intercepts when a download task completes with an error.
+    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error)
 }

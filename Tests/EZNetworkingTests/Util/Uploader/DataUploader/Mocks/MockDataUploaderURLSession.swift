@@ -75,10 +75,6 @@ extension MockDataUploaderURLSession {
         fatalError("Should not be using in this mock")
     }
 
-    func download(from url: URL, delegate: (any URLSessionTaskDelegate)?) async throws -> (URL, URLResponse) {
-        fatalError("Should not be using in this mock")
-    }
-
     func upload(for request: URLRequest, fromFile fileURL: URL) async throws -> (Data, URLResponse) {
         fatalError("Should not be using in this mock")
     }
@@ -88,6 +84,14 @@ extension MockDataUploaderURLSession {
     }
 
     func bytes(for request: URLRequest) async throws -> (AsyncThrowingStream<UInt8, Error>, URLResponse) {
+        fatalError("Should not be using in this mock")
+    }
+
+    func downloadTask(with url: URL) -> URLSessionDownloadTaskProtocol {
+        fatalError("Should not be using in this mock")
+    }
+
+    func downloadTask(withResumeData resumeData: Data) -> URLSessionDownloadTaskProtocol {
         fatalError("Should not be using in this mock")
     }
 }

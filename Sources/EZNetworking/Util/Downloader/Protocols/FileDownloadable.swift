@@ -1,18 +1,25 @@
-import Combine
 import Foundation
 
-public typealias DownloadProgressHandler = (Double) -> Void
-public typealias DownloadCompletionHandler = (Result<URL, NetworkingError>) -> Void
+public protocol FileDownloadable: Actor {
+    /// Starts the download and returns a stream of events
+    func downloadFileStream() -> AsyncStream<DownloadEvent>
 
-public protocol FileDownloadable {
-    func downloadFile(from serverUrl: URL, progress: DownloadProgressHandler?) async throws -> URL
-    func downloadFileStream(from serverUrl: URL) -> AsyncStream<DownloadStreamEvent>
-    func downloadFileTask(from serverUrl: URL, progress: DownloadProgressHandler?, completion: @escaping (DownloadCompletionHandler)) -> CancellableRequest
-    func downloadFilePublisher(from serverUrl: URL, progress: DownloadProgressHandler?) -> AnyPublisher<URL, NetworkingError>
+    /// Pauses the active download
+    func pause() async throws
+
+    /// Resumes a paused download
+    func resume() async throws
+
+    /// Cancels the download
+    func cancel() throws
 }
 
-public enum DownloadStreamEvent {
+public enum DownloadEvent: Sendable {
+    case started
     case progress(Double)
-    case success(URL)
-    case failure(NetworkingError)
+    case paused
+    case resumed
+    case completed(URL)
+    case failed(NetworkingError)
+    case cancelled
 }

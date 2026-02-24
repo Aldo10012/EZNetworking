@@ -7,6 +7,7 @@ public enum NetworkingError: Error, Sendable {
     case requestFailed(reason: RequestFailureReason)
     case webSocketFailed(reason: WebSocketFailureReason)
     case serverSentEventFailed(reason: ServerSentEvenFailureReason)
+    case downloadFailed(reason: DownloadFailureReason)
 }
 
 extension NetworkingError: Equatable {
@@ -28,6 +29,9 @@ extension NetworkingError: Equatable {
             reason1 == reason2
 
         case let (.serverSentEventFailed(reason: reason1), .serverSentEventFailed(reason: reason2)):
+            reason1 == reason2
+
+        case let (.downloadFailed(reason: reason1), .downloadFailed(reason: reason2)):
             reason1 == reason2
 
         default:

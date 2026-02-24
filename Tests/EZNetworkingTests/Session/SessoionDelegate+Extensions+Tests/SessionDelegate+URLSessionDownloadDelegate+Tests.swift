@@ -37,12 +37,23 @@ final class SessionDelegateURLSessionDownloadDelegateTests {
 
         #expect(downloadTaskInterceptor.didResumeAtOffset)
     }
+
+    @Test("test SessionDelegate DidCompleteWithError forwards to downloadTaskInterceptor")
+    func sessionDelegateDidCompleteWithError() {
+        let downloadTaskInterceptor = MockDownloadTaskInterceptor()
+        let delegate = SessionDelegate()
+        delegate.downloadTaskInterceptor = downloadTaskInterceptor
+
+        delegate.urlSession(.shared, task: mockUrlSessionDownloadTask, didCompleteWithError: URLError(.timedOut))
+
+        #expect(downloadTaskInterceptor.didCompleteWithError)
+    }
 }
 
 // MARK: mock class
 
 private class MockDownloadTaskInterceptor: DownloadTaskInterceptor {
-    var progress: (Double) -> Void = { _ in }
+    var onEvent: (DownloadTaskInterceptorEvent) -> Void = { _ in }
 
     var didFinishDownloading = false
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
@@ -57,6 +68,11 @@ private class MockDownloadTaskInterceptor: DownloadTaskInterceptor {
     var didResumeAtOffset = false
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didResumeAtOffset fileOffset: Int64, expectedTotalBytes: Int64) {
         didResumeAtOffset = true
+    }
+
+    var didCompleteWithError = false
+    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error) {
+        didCompleteWithError = true
     }
 }
 

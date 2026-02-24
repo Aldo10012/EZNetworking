@@ -2,42 +2,51 @@
 
 ## File Download
 
+`FileDownloader` is an actor-based downloader that supports pause, resume, and cancel. It exposes a single `AsyncStream<DownloadEvent>` API.
+
+### Basic Usage
 ```swift
-let fileURL = URL(string: "https://example.com/file.pdf")!
+let downloader = FileDownloader(url: URL(string: "https://example.com/file.pdf")!)
 
-// Async/await
-do {
-    let localURL = try await FileDownloader().downloadFile(with: fileURL)
-    // Handle downloaded file
-} catch {
-    // Handle error
-}
-
-// Completion handler with progress tracking
-let task = FileDownloader().downloadFile(url: testURL) { result in
-    switch result {
-    case .success:
-        // handle the returned local URL path. Perhaps write and save it in FileManager
-    case .failure(let error):
+for await event in await downloader.downloadFileStream() {
+    switch event {
+    case .started:
+        // download started
+    case .progress(let progress):
+        // handle progress (0.0 to 1.0)
+    case .completed(let localURL):
+        // handle downloaded file at localURL
+    case .failed(let error):
         // handle error
+    case .paused:
+        // download paused
+    case .resumed:
+        // download resumed
+    case .cancelled:
+        // download cancelled
+    }
+}
+```
+
+### Pause, Resume, and Cancel
+```swift
+let downloader = FileDownloader(url: URL(string: "https://example.com/file.pdf")!)
+
+// Start consuming events in a background task
+let eventsTask = Task {
+    for await event in await downloader.downloadFileStream() {
+        // handle events
     }
 }
 
-// Cancel download if needed
-task.cancel()
+// Pause the download
+try await downloader.pause()
 
-// Combine Publishers
-let cancellables = Set<AnyCancellable>()
-FileDownloader()
-    .downloadFilePublisher(url: URL, progress: {
-        // handle progress
-    })
-    .sink(receiveCompletion: { completion in
-        // handle completion
-    }, receiveValue: { localURL in
-        // handle response
-    })
-    .store(in: &cancellables)
+// Resume the download
+try await downloader.resume()
+
+// Cancel the download
+try downloader.cancel()
 ```
 
 ## Data Upload
