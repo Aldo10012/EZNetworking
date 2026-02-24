@@ -5,7 +5,7 @@ import Testing
 @Suite("Test SendableError")
 struct SendableErrorTests {
 
-    @Test("Test verify it returns self if already a SendableErrorWrapper")
+    @Test("test verify it returns self if already a sendable error wrapper")
     func asSendableError_WhenAlreadyWrapper_ReturnsSameWrapper() {
         let originalNSError = NSError(domain: "test", code: 1, userInfo: nil)
         let firstWrapper = SendableErrorWrapper(originalNSError)
@@ -19,7 +19,7 @@ struct SendableErrorTests {
         }
     }
 
-    @Test("Test when an error is ALREADY Sendable (Swift Enum)")
+    @Test("test verify returns self when error is already a sendable swift enum")
     func asSendableError_WhenAlreadySendable_ReturnsSelf() {
         enum MockError: Error, Sendable, Equatable { case testCase }
         let originalError = MockError.testCase
@@ -30,13 +30,13 @@ struct SendableErrorTests {
         #expect(result as? MockError == .testCase)
     }
 
-    @Test("Test when an error is a legacy NSError")
+    @Test("test verify legacy nserror is wrapped")
     func asSendableError_WhenNSError_ReturnsWrapper() {
         let nsError = NSError(domain: "test", code: 404)
         #expect(nsError.asSendableError is SendableErrorWrapper)
     }
 
-    @Test("test verify wrapper handles custom non-standard error classes")
+    @Test("test verify custom error classes are wrapped")
     func wrapper_WithCustomClassError() {
         // Custom classes that inherit from NSError but aren't NSError.self
         class LegacyCustomError: NSError, @unchecked Sendable { }
@@ -47,7 +47,7 @@ struct SendableErrorTests {
         #expect(result is SendableErrorWrapper)
     }
 
-    @Test("test verify SendableErrorWrapper CustomNSError conformance")
+    @Test("test verify sendable error wrapper correctly preserves nserror metadata")
     func wrapper_CustomNSErrorConformance() {
         let domain = "custom.logic"
         let code = 123
