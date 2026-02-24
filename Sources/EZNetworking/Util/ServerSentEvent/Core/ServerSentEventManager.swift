@@ -140,7 +140,7 @@ extension ServerSentEventManager {
             connectionState = .disconnected(.streamError(netowrkingError))
             throw netowrkingError
         } catch {
-            let error = NetworkingError.serverSentEventFailed(reason: .connectionFailed(underlying: error))
+            let error = NetworkingError.serverSentEventFailed(reason: .connectionFailed(underlying: error.asSendableError))
             connectionState = .disconnected(.streamError(error))
             throw error
         }

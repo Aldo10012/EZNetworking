@@ -123,7 +123,7 @@ public actor WebSocket: WebSocketClient {
             handleConnect(with: proto)
 
         case let (.connecting, .didOpenWithError(err)):
-            handleConnectFail(throwing: .connectionFailed(underlying: err))
+            handleConnectFail(throwing: .connectionFailed(underlying: err.asSendableError))
 
         case let (.connecting, .didClose(code, reason)):
             handleConnectFail(throwing: .unexpectedDisconnection(code: code, reason: parseReason(reason)))
@@ -166,7 +166,7 @@ public actor WebSocket: WebSocketClient {
             connectionState = .disconnected(.failedToConnect(reason: reason))
             throw NetworkingError.webSocketFailed(reason: reason)
         } catch {
-            let reason = WebSocketFailureReason.connectionFailed(underlying: error)
+            let reason = WebSocketFailureReason.connectionFailed(underlying: error.asSendableError)
             connectionState = .disconnected(.failedToConnect(reason: reason))
             throw NetworkingError.webSocketFailed(reason: reason)
         }
@@ -191,7 +191,7 @@ public actor WebSocket: WebSocketClient {
                 } catch {
                     guard !Task.isCancelled else { break }
                     consecutiveFailures += 1
-                    lastError = WebSocketFailureReason.pingFailed(underlying: error)
+                    lastError = WebSocketFailureReason.pingFailed(underlying: error.asSendableError)
                 }
                 await pingConfig.waitForPingInterval()
             }
@@ -274,7 +274,7 @@ public actor WebSocket: WebSocketClient {
         do {
             try await wsTask.send(message)
         } catch {
-            throw NetworkingError.webSocketFailed(reason: .sendFailed(underlying: error))
+            throw NetworkingError.webSocketFailed(reason: .sendFailed(underlying: error.asSendableError))
         }
     }
 
@@ -292,7 +292,7 @@ public actor WebSocket: WebSocketClient {
                     messagesContinuation.yield(message)
                 } catch {
                     guard !Task.isCancelled else { break }
-                    let wsError = WebSocketFailureReason.receiveFailed(underlying: error)
+                    let wsError = WebSocketFailureReason.receiveFailed(underlying: error.asSendableError)
                     handleConnectionLoss(error: wsError)
                     break
                 }

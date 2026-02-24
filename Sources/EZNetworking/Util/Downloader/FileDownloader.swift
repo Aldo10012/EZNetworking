@@ -169,7 +169,7 @@ public actor FileDownloader: FileDownloadable {
             } else if let urlError = error as? URLError {
                 .downloadFailed(reason: .urlError(underlying: urlError))
             } else {
-                .downloadFailed(reason: .unknownError(underlying: error))
+                .downloadFailed(reason: .unknownError(underlying: error.asSendableError))
             }
             continuation?.yield(.failed(networkError))
             continuation?.finish()

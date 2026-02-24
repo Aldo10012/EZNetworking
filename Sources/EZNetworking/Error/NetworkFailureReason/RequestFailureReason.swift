@@ -2,7 +2,7 @@ import Foundation
 
 public enum RequestFailureReason: Equatable, Sendable {
     case urlError(underlying: URLError)
-    case unknownError(underlying: Error)
+    case unknownError(underlying: SendableError)
 
     public static func == (lhs: RequestFailureReason, rhs: RequestFailureReason) -> Bool {
         switch (lhs, rhs) {
