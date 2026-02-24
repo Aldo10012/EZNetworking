@@ -31,7 +31,7 @@ public actor FileDownloader: FileDownloadable {
         self.url = url
         self.session = session
         self.validator = validator
-        self.fallbackDownloadTaskInterceptor = DefaultDownloadTaskInterceptor(validator: validator)
+        fallbackDownloadTaskInterceptor = DefaultDownloadTaskInterceptor(validator: validator)
 
         setupDownloadEventHandler(session: session)
     }
@@ -58,7 +58,7 @@ public actor FileDownloader: FileDownloadable {
 
         state = .downloading
         let task = session.urlSession.downloadTask(with: url)
-        self.downloadTask = task
+        downloadTask = task
         task.resume()
 
         continuation.yield(.started)
@@ -78,7 +78,7 @@ public actor FileDownloader: FileDownloadable {
     }
 
     public func resume() async throws {
-        guard case .paused(let resumeData) = state else {
+        guard case let .paused(resumeData) = state else {
             throw NetworkingError.downloadFailed(reason: .alreadyDownloading)
         }
 
@@ -93,7 +93,7 @@ public actor FileDownloader: FileDownloadable {
 
         state = .downloading
         let task = session.urlSession.downloadTask(withResumeData: resumeData)
-        self.downloadTask = task
+        downloadTask = task
         task.resume()
 
         continuation?.yield(.resumed)
@@ -133,26 +133,25 @@ public actor FileDownloader: FileDownloadable {
         guard case .downloading = state else { return }
 
         switch event {
-        case .onProgress(let progress):
+        case let .onProgress(progress):
             continuation?.yield(.progress(progress))
 
-        case .onDownloadCompleted(let location):
+        case let .onDownloadCompleted(location):
             state = .completed
             downloadTask = nil
             continuation?.yield(.completed(location))
             continuation?.finish()
             continuation = nil
 
-        case .onDownloadFailed(let error):
+        case let .onDownloadFailed(error):
             state = .failed
             downloadTask = nil
-            let networkError: NetworkingError
-            if let ne = error as? NetworkingError {
-                networkError = ne
+            let networkError: NetworkingError = if let ne = error as? NetworkingError {
+                ne
             } else if let urlError = error as? URLError {
-                networkError = .downloadFailed(reason: .urlError(underlying: urlError))
+                .downloadFailed(reason: .urlError(underlying: urlError))
             } else {
-                networkError = .downloadFailed(reason: .unknownError(underlying: error))
+                .downloadFailed(reason: .unknownError(underlying: error))
             }
             continuation?.yield(.failed(networkError))
             continuation?.finish()

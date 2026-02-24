@@ -4,7 +4,6 @@ import Testing
 
 @Suite("Test FileDownloader")
 final class FileDownloaderTests {
-
     private let mockUrl = URL(string: "https://example.com/file.pdf")!
     private let mockFileLocation = URL(fileURLWithPath: "/tmp/test.pdf")
 
@@ -151,9 +150,9 @@ final class FileDownloaderTests {
 
         #expect(events.count == 2)
         #expect(events[0] == .started)
-        if case .failed(let error) = events[1],
-           case .downloadFailed(let reason) = error,
-           case .urlError(let urlError) = reason {
+        if case let .failed(error) = events[1],
+           case let .downloadFailed(reason) = error,
+           case let .urlError(urlError) = reason {
             #expect(urlError.code == .notConnectedToInternet)
         } else {
             Issue.record("Expected .failed with .urlError, got \(events[1])")
@@ -198,8 +197,8 @@ final class FileDownloaderTests {
         }
 
         #expect(events.count == 1)
-        if case .failed(let error) = events[0],
-           case .downloadFailed(let reason) = error {
+        if case let .failed(error) = events[0],
+           case let .downloadFailed(reason) = error {
             #expect(reason == .alreadyDownloading)
         } else {
             Issue.record("Expected .failed(.alreadyDownloading), got \(events[0])")
@@ -262,8 +261,8 @@ final class FileDownloaderTests {
         #expect(events.contains(.started))
         #expect(events.contains(.paused))
         #expect(events.contains(where: {
-            if case .failed(let error) = $0,
-               case .downloadFailed(let reason) = error {
+            if case let .failed(error) = $0,
+               case let .downloadFailed(reason) = error {
                 return reason == .cannotResume
             }
             return false

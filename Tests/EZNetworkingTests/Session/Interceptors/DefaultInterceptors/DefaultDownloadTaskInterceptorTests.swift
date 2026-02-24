@@ -4,7 +4,6 @@ import Testing
 
 @Suite("Test DefaultDownloadTaskInterceptor")
 final class DefaultDownloadTaskInterceptorTests {
-
     // MARK: - didWriteData
 
     @Test("test didWriteData emits onProgress event")
@@ -15,7 +14,7 @@ final class DefaultDownloadTaskInterceptorTests {
         }
         sut.urlSession(.shared, downloadTask: mockDownloadTask, didWriteData: 10, totalBytesWritten: 50, totalBytesExpectedToWrite: 100)
 
-        if case .onProgress(let progress) = receivedEvent {
+        if case let .onProgress(progress) = receivedEvent {
             #expect(progress == 0.5)
         } else {
             Issue.record("Expected .onProgress event, got \(String(describing: receivedEvent))")
@@ -43,7 +42,7 @@ final class DefaultDownloadTaskInterceptorTests {
         }
         sut.urlSession(.shared, downloadTask: mockDownloadTask, didResumeAtOffset: 50, expectedTotalBytes: 100)
 
-        if case .onProgress(let progress) = receivedEvent {
+        if case let .onProgress(progress) = receivedEvent {
             #expect(progress == 0.5)
         } else {
             Issue.record("Expected .onProgress event, got \(String(describing: receivedEvent))")
@@ -94,7 +93,7 @@ final class DefaultDownloadTaskInterceptorTests {
         )
         sut.urlSession(.shared, downloadTask: task, didFinishDownloadingTo: mockUrl)
 
-        if case .onDownloadFailed(let error) = receivedEvent {
+        if case let .onDownloadFailed(error) = receivedEvent {
             let networkingError = try #require(error as? NetworkingError)
             #expect(networkingError == NetworkingError.responseValidationFailed(reason: .badHTTPResponse(underlying: .init(statusCode: 500))))
         } else {
@@ -129,7 +128,7 @@ final class DefaultDownloadTaskInterceptorTests {
         let error = URLError(.notConnectedToInternet)
         sut.urlSession(.shared, task: mockDownloadTask, didCompleteWithError: error)
 
-        if case .onDownloadFailed(let receivedError) = receivedEvent {
+        if case let .onDownloadFailed(receivedError) = receivedEvent {
             #expect((receivedError as? URLError)?.code == .notConnectedToInternet)
         } else {
             Issue.record("Expected .onDownloadFailed event, got \(String(describing: receivedEvent))")

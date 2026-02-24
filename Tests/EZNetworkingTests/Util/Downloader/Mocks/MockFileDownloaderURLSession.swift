@@ -2,8 +2,8 @@ import EZNetworking
 import Foundation
 
 class MockFileDownloaderURLSession: URLSessionProtocol {
-    var mockDownloadTask: MockDownloadTask = MockDownloadTask()
-    var mockResumeDownloadTask: MockDownloadTask = MockDownloadTask()
+    var mockDownloadTask = MockDownloadTask()
+    var mockResumeDownloadTask = MockDownloadTask()
 
     func downloadTask(with url: URL) -> URLSessionDownloadTaskProtocol {
         mockDownloadTask
