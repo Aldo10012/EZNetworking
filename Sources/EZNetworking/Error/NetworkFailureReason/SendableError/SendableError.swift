@@ -24,15 +24,14 @@ public struct SendableErrorWrapper: Error, CustomNSError, Sendable {
 
 extension Error {
     public var asSendableError: SendableError {
-        if let wrapper = self as? SendableErrorWrapper {
-            return wrapper
-        }
-        let mirror = Mirror(reflecting: self)
-        if mirror.displayStyle == .class {
-            return SendableErrorWrapper(self)
+        if let sendableErrorWrapper = self as? SendableErrorWrapper {
+            return sendableErrorWrapper
         }
         if let sendable = self as? SendableError {
             return sendable
+        }
+        if Mirror(reflecting: self).displayStyle == .class {
+            return SendableErrorWrapper(self)
         }
         return SendableErrorWrapper(self)
     }
