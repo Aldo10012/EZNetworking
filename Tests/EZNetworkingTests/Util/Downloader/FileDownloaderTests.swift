@@ -63,6 +63,7 @@ final class FileDownloaderTests {
 
         try await Task.sleep(nanoseconds: 50_000_000)
         try await sut.pause()
+        #expect(mockURLSession.mockDownloadTask.didCancelWhileProducingResumeData)
         try await Task.sleep(nanoseconds: 50_000_000)
 
         // Resume to continue the download

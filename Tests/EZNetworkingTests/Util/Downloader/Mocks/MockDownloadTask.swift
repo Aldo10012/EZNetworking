@@ -4,6 +4,7 @@ import Foundation
 class MockDownloadTask: URLSessionDownloadTaskProtocol {
     var didResume = false
     var didCancel = false
+    var didCancelWhileProducingResumeData = false
     var mockResumeData: Data?
 
     func resume() {
@@ -15,6 +16,7 @@ class MockDownloadTask: URLSessionDownloadTaskProtocol {
     }
 
     func cancelByProducingResumeData() async -> Data? {
-        mockResumeData
+        didCancelWhileProducingResumeData = true
+        return mockResumeData
     }
 }
