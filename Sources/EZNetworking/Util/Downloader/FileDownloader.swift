@@ -33,7 +33,7 @@ public actor FileDownloader: FileDownloadable {
         self.validator = validator
         self.fallbackDownloadTaskInterceptor = DefaultDownloadTaskInterceptor(validator: validator)
 
-        setupDownloadEventHandler()
+        setupDownloadEventHandler(session: session)
     }
 
     // MARK: deinit
@@ -117,13 +117,13 @@ public actor FileDownloader: FileDownloadable {
 
     // MARK: - Event handling
 
-    private nonisolated func setupDownloadEventHandler() {
+    private nonisolated func setupDownloadEventHandler(session: NetworkSession) {
         if session.delegate.downloadTaskInterceptor == nil {
             session.delegate.downloadTaskInterceptor = fallbackDownloadTaskInterceptor
         }
 
         session.delegate.downloadTaskInterceptor?.onEvent = { [weak self] event in
-            Task { [weak self] in
+            Task { @Sendable [weak self] in
                 await self?.handleDownloadInterceptorEvent(event)
             }
         }
