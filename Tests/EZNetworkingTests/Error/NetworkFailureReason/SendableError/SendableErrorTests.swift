@@ -72,4 +72,19 @@ struct SendableErrorTests {
             #expect(secondWrapper.code == firstWrapper.code)
         }
     }
+
+    @Test("test SendableErrorWrapper properties")
+    func propertiesOfSendableErrorWrapper() {
+        let originalError = NSError(domain: "test", code: -1, userInfo: nil)
+        let sut = SendableErrorWrapper(originalError)
+
+        #expect(sut.localizedDescription == "The operation couldn’t be completed. (test error -1.)")
+        #expect(sut.domain == "test")
+        #expect(sut.code == -1)
+
+        #expect(SendableErrorWrapper.errorDomain == "EZNetworking.SendableErrorWrapper")
+        #expect(sut.errorCode == -1)
+        #expect(sut.errorUserInfo[NSLocalizedDescriptionKey] as! String == "The operation couldn’t be completed. (test error -1.)")
+        #expect(sut.errorUserInfo["wrappedDomain"] as! String == "test")
+    }
 }
