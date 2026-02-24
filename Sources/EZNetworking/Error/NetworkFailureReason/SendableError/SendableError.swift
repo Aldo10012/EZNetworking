@@ -30,9 +30,6 @@ extension Error {
         if let sendable = self as? SendableError {
             return sendable
         }
-        if Mirror(reflecting: self).displayStyle == .class {
-            return SendableErrorWrapper(self)
-        }
         return SendableErrorWrapper(self)
     }
 }
