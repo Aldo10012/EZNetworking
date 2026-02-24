@@ -68,7 +68,7 @@ public actor FileDownloader: FileDownloadable {
 
     public func pause() async throws {
         guard case .downloading = state else {
-            throw NetworkingError.downloadFailed(reason: .alreadyDownloading)
+            throw NetworkingError.downloadFailed(reason: .notDownloading)
         }
 
         let resumeData = await downloadTask?.cancelByProducingResumeData()
@@ -79,7 +79,7 @@ public actor FileDownloader: FileDownloadable {
 
     public func resume() async throws {
         guard case let .paused(resumeData) = state else {
-            throw NetworkingError.downloadFailed(reason: .alreadyDownloading)
+            throw NetworkingError.downloadFailed(reason: .notPaused)
         }
 
         guard let resumeData else {
@@ -104,7 +104,7 @@ public actor FileDownloader: FileDownloadable {
         case .downloading, .paused:
             break
         case .idle, .completed, .failed, .cancelled:
-            throw NetworkingError.downloadFailed(reason: .alreadyDownloading)
+            throw NetworkingError.downloadFailed(reason: .notDownloading)
         }
 
         downloadTask?.cancel()

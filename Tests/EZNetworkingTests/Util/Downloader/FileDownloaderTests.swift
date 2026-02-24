@@ -222,7 +222,7 @@ final class FileDownloaderTests {
         let session = MockSession(urlSession: MockFileDownloaderURLSession(), delegate: SessionDelegate())
         let sut = FileDownloader(url: mockUrl, session: session)
 
-        await #expect(throws: NetworkingError.downloadFailed(reason: .alreadyDownloading)) {
+        await #expect(throws: NetworkingError.downloadFailed(reason: .notDownloading)) {
             try await sut.pause()
         }
     }
@@ -232,7 +232,7 @@ final class FileDownloaderTests {
         let session = MockSession(urlSession: MockFileDownloaderURLSession(), delegate: SessionDelegate())
         let sut = FileDownloader(url: mockUrl, session: session)
 
-        await #expect(throws: NetworkingError.downloadFailed(reason: .alreadyDownloading)) {
+        await #expect(throws: NetworkingError.downloadFailed(reason: .notPaused)) {
             try await sut.resume()
         }
     }
@@ -242,7 +242,7 @@ final class FileDownloaderTests {
         let session = MockSession(urlSession: MockFileDownloaderURLSession(), delegate: SessionDelegate())
         let sut = FileDownloader(url: mockUrl, session: session)
 
-        await #expect(throws: NetworkingError.downloadFailed(reason: .alreadyDownloading)) {
+        await #expect(throws: NetworkingError.downloadFailed(reason: .notDownloading)) {
             try await sut.cancel()
         }
     }

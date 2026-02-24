@@ -56,24 +56,53 @@ struct DownloadFailureReasonTests {
         #expect(reason1 == reason2)
     }
 
+    @Test("test notDownloading case equality")
+    func notDownloadingEquality() {
+        let reason1 = DownloadFailureReason.notDownloading
+        let reason2 = DownloadFailureReason.notDownloading
+
+        #expect(reason1 == reason2)
+    }
+
+    @Test("test notPaused case equality")
+    func notPausedEquality() {
+        let reason1 = DownloadFailureReason.notPaused
+        let reason2 = DownloadFailureReason.notPaused
+
+        #expect(reason1 == reason2)
+    }
+
     @Test("test different cases are not equal")
     func differentCasesInequality() {
         let urlError = DownloadFailureReason.urlError(underlying: URLError(.badURL))
         let invalidResponse = DownloadFailureReason.invalidResponse
         let cannotResume = DownloadFailureReason.cannotResume
         let alreadyDownloading = DownloadFailureReason.alreadyDownloading
+        let notDownloading = DownloadFailureReason.notDownloading
+        let notPaused = DownloadFailureReason.notPaused
         let unknownError = DownloadFailureReason.unknownError(underlying: NSError(domain: "Test", code: 1, userInfo: nil))
 
         #expect(urlError != invalidResponse)
         #expect(urlError != cannotResume)
         #expect(urlError != alreadyDownloading)
+        #expect(urlError != notDownloading)
+        #expect(urlError != notPaused)
         #expect(urlError != unknownError)
         #expect(invalidResponse != cannotResume)
         #expect(invalidResponse != alreadyDownloading)
+        #expect(invalidResponse != notDownloading)
+        #expect(invalidResponse != notPaused)
         #expect(invalidResponse != unknownError)
         #expect(cannotResume != alreadyDownloading)
+        #expect(cannotResume != notDownloading)
+        #expect(cannotResume != notPaused)
         #expect(cannotResume != unknownError)
+        #expect(alreadyDownloading != notDownloading)
+        #expect(alreadyDownloading != notPaused)
         #expect(alreadyDownloading != unknownError)
+        #expect(notDownloading != notPaused)
+        #expect(notDownloading != unknownError)
+        #expect(notPaused != unknownError)
     }
 
     @Test("test urlError vs unknownError even with same NSError")
