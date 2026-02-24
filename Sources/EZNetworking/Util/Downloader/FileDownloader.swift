@@ -89,9 +89,9 @@ public actor FileDownloader: FileDownloadable {
         continuation?.yield(.paused)
         state = .paused(resumeData: nil)
         let resumeData = await downloadTask?.cancelByProducingResumeData()
-        try Task.checkCancellation()
         downloadTask = nil
         state = .paused(resumeData: resumeData)
+        try Task.checkCancellation()
     }
 
     public func resume() async throws {
