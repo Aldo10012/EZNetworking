@@ -83,7 +83,7 @@ final class DefaultDownloadTaskInterceptorTests {
     }
 
     @Test("test didFinishDownloadingTo emits onDownloadFailed when response validation fails")
-    func didFinishDownloadingTo_emitsFailedOnBadStatus() {
+    func didFinishDownloadingTo_emitsFailedOnBadStatus() throws {
         var receivedEvent: DownloadTaskInterceptorEvent?
         let mockValidator = MockResponseValidator(shouldSucceed: false)
         let sut = DefaultDownloadTaskInterceptor(validator: mockValidator) { event in
@@ -94,8 +94,9 @@ final class DefaultDownloadTaskInterceptorTests {
         )
         sut.urlSession(.shared, downloadTask: task, didFinishDownloadingTo: mockUrl)
 
-        if case .onDownloadFailed = receivedEvent {
-            // pass
+        if case .onDownloadFailed(let error) = receivedEvent {
+            let networkingError = try #require(error as? NetworkingError)
+            #expect(networkingError == NetworkingError.responseValidationFailed(reason: .badHTTPResponse(underlying: .init(statusCode: 500))))
         } else {
             Issue.record("Expected .onDownloadFailed event, got \(String(describing: receivedEvent))")
         }
@@ -138,7 +139,7 @@ final class DefaultDownloadTaskInterceptorTests {
 
 // MARK: - Mock URLSessionDownloadTask
 
-private class MockURLSessionDownloadTask: URLSessionDownloadTask {
+private class MockURLSessionDownloadTask: URLSessionDownloadTask, @unchecked Sendable {
     private let mockResponse: URLResponse?
 
     init(mockResponse: URLResponse?) {
