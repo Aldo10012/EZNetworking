@@ -1,12 +1,15 @@
 import Foundation
 
 public enum DownloadFailureReason: Equatable, Sendable {
-    case urlError(underlying: URLError)
-    case invalidResponse
+    // state related errors
     case cannotResume
     case alreadyDownloading
     case notDownloading
     case notPaused
+
+    // network related errors
+    case invalidResponse
+    case urlError(underlying: URLError)
     case unknownError(underlying: SendableError)
 
     public static func == (lhs: DownloadFailureReason, rhs: DownloadFailureReason) -> Bool {
