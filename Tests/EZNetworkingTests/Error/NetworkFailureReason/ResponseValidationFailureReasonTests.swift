@@ -24,6 +24,7 @@ final class ResponseValidationFailureReasonTests {
     }
 
     private static let list: [ResponseValidationFailureReason] = [
+        .noURLResponse,
         .noHTTPURLResponse,
         .badHTTPResponse(underlying: HTTPResponse(statusCode: 400))
     ]
