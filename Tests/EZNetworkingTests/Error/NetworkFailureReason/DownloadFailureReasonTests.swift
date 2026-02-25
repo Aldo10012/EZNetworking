@@ -32,14 +32,6 @@ struct DownloadFailureReasonTests {
         #expect(reason1 != reason3)
     }
 
-    @Test("test invalidResponse case equality")
-    func invalidResponseEquality() {
-        let reason1 = DownloadFailureReason.invalidResponse
-        let reason2 = DownloadFailureReason.invalidResponse
-
-        #expect(reason1 == reason2)
-    }
-
     @Test("test cannotResume case equality")
     func cannotResumeEquality() {
         let reason1 = DownloadFailureReason.cannotResume
@@ -75,24 +67,17 @@ struct DownloadFailureReasonTests {
     @Test("test different cases are not equal")
     func differentCasesInequality() {
         let urlError = DownloadFailureReason.urlError(underlying: URLError(.badURL))
-        let invalidResponse = DownloadFailureReason.invalidResponse
         let cannotResume = DownloadFailureReason.cannotResume
         let alreadyDownloading = DownloadFailureReason.alreadyDownloading
         let notDownloading = DownloadFailureReason.notDownloading
         let notPaused = DownloadFailureReason.notPaused
         let unknownError = DownloadFailureReason.unknownError(underlying: NSError(domain: "Test", code: 1, userInfo: nil))
 
-        #expect(urlError != invalidResponse)
         #expect(urlError != cannotResume)
         #expect(urlError != alreadyDownloading)
         #expect(urlError != notDownloading)
         #expect(urlError != notPaused)
         #expect(urlError != unknownError)
-        #expect(invalidResponse != cannotResume)
-        #expect(invalidResponse != alreadyDownloading)
-        #expect(invalidResponse != notDownloading)
-        #expect(invalidResponse != notPaused)
-        #expect(invalidResponse != unknownError)
         #expect(cannotResume != alreadyDownloading)
         #expect(cannotResume != notDownloading)
         #expect(cannotResume != notPaused)

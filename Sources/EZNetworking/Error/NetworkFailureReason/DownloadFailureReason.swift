@@ -8,7 +8,6 @@ public enum DownloadFailureReason: Equatable, Sendable {
     case notPaused
 
     // network related errors
-    case invalidResponse
     case urlError(underlying: URLError)
     case unknownError(underlying: SendableError)
 
@@ -16,8 +15,7 @@ public enum DownloadFailureReason: Equatable, Sendable {
         switch (lhs, rhs) {
         case let (.urlError(underlying: lhsError), .urlError(underlying: rhsError)):
             (lhsError as NSError) == (rhsError as NSError)
-        case (.invalidResponse, .invalidResponse),
-             (.cannotResume, .cannotResume),
+        case (.cannotResume, .cannotResume),
              (.alreadyDownloading, .alreadyDownloading),
              (.notDownloading, .notDownloading),
              (.notPaused, .notPaused):
