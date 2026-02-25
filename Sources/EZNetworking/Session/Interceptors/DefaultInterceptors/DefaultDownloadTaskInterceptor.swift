@@ -16,7 +16,7 @@ class DefaultDownloadTaskInterceptor: DownloadTaskInterceptor {
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
         do {
             guard let response = downloadTask.response else {
-                throw NetworkingError.downloadFailed(reason: .invalidResponse)
+                throw NetworkingError.responseValidationFailed(reason: .noURLResponse)
             }
             try validator.validateStatus(from: response)
             onEvent(.onDownloadCompleted(location))
