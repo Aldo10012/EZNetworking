@@ -104,7 +104,7 @@ final class DefaultDownloadTaskInterceptorTests {
     @Test("test didFinishDownloadingTo emits onDownloadFailed when response validation fails due to no response")
     func didFinishDownloadingTo_emitsFailedWhenResponseIsNil() throws {
         var receivedEvent: DownloadTaskInterceptorEvent?
-        let mockValidator = MockResponseValidator(shouldSucceed: false)
+        let mockValidator = DefaultResponseValidator()
         let sut = DefaultDownloadTaskInterceptor(validator: mockValidator) { event in
             receivedEvent = event
         }
@@ -176,7 +176,7 @@ private class MockURLSessionDownloadTask: URLSessionDownloadTask, @unchecked Sen
 private struct MockResponseValidator: ResponseValidator {
     let shouldSucceed: Bool
 
-    func validateStatus(from urlResponse: URLResponse) throws {
+    func validateStatus(from urlResponse: URLResponse?) throws {
         if !shouldSucceed {
             throw NetworkingError.responseValidationFailed(reason: .badHTTPResponse(underlying: HTTPResponse(statusCode: 500, headers: [:])))
         }
