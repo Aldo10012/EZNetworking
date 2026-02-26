@@ -334,6 +334,46 @@ final class FileDownloaderTests {
 
     // MARK: - Task cancellation
 
+    @Test("test pause yields cancelled when Task is cancelled during cancelByProducingResumeData await")
+    func pauseYieldsCancelledWhenTaskCancelledDuringAwait() async throws {
+        let downloadInterceptor = MockDownloadTaskInterceptor()
+        let delegate = SessionDelegate(downloadTaskInterceptor: downloadInterceptor)
+        let mockURLSession = MockFileDownloaderURLSession()
+        let session = MockSession(urlSession: mockURLSession, delegate: delegate)
+        let sut = FileDownloader(url: mockUrl, session: session)
+
+        let stream = await sut.downloadFileStream()
+
+        downloadInterceptor.simulateDownloadProgress(0.5)
+        try await Task.sleep(for: .milliseconds(10))
+
+        // Make cancelByProducingResumeData suspend so we have a window to cancel
+        mockURLSession.mockDownloadTask.onCancelByProducingResumeData = {
+            try? await Task.sleep(for: .seconds(1))
+        }
+
+        let pauseTask = Task {
+            try await sut.pause()
+        }
+
+        // Give pause() time to enter the await
+        try await Task.sleep(for: .milliseconds(50))
+
+        // Cancel the task while pause() is suspended in cancelByProducingResumeData
+        pauseTask.cancel()
+        _ = try? await pauseTask.value
+
+        var events: [DownloadEvent] = []
+        for await event in stream {
+            events.append(event)
+        }
+        #expect(events == [
+            .started,
+            .progress(0.5),
+            .cancelled
+        ])
+    }
+
     @Test("test downloadFileStream when parent task is cancelled emits cancelled")
     func downloadFileStream_parentTaskCancelled() async {
         let mockURLSession = MockFileDownloaderURLSession()
