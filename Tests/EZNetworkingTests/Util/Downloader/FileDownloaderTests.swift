@@ -564,7 +564,6 @@ final class FileDownloaderTests {
         let consumeTask = Task {
             for await _ in stream {}
         }
-
         try await Task.sleep(nanoseconds: 50_000_000)
         consumeTask.cancel()
         try await Task.sleep(nanoseconds: 100_000_000)
@@ -594,26 +593,5 @@ private class MockDelegateDownloadTask: URLSessionDownloadTask, @unchecked Senda
 
     override var response: URLResponse? {
         mockResponse
-    }
-}
-
-private class MockDownloadTaskInterceptor: DownloadTaskInterceptor {
-    var onEvent: (DownloadTaskInterceptorEvent) -> Void = { _ in }
-    init() {}
-    func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {}
-    func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {}
-    func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didResumeAtOffset fileOffset: Int64, expectedTotalBytes: Int64) {}
-    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: any Error) {}
-
-    func simulateDownloadComplete(_ location: URL) {
-        onEvent(.onDownloadCompleted(location))
-    }
-
-    func simulateDownloadProgress(_ progress: Double) {
-        onEvent(.onProgress(progress))
-    }
-
-    func simulateFailure(_ error: Error, resumeData: Data? = nil) {
-        onEvent(.onDownloadFailed(error, resumeData: resumeData))
     }
 }
