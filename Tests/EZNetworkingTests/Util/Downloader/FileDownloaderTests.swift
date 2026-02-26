@@ -2,6 +2,7 @@
 import Foundation
 import Testing
 
+// swiftlint:disable type_body_length
 @Suite("Test FileDownloader")
 final class FileDownloaderTests {
     // MARK: - underlying downloadTask
@@ -571,6 +572,7 @@ final class FileDownloaderTests {
         #expect(mockURLSession.mockDownloadTask.didCancel)
     }
 }
+// swiftlint:enable type_body_length
 
 // MARK: - Helpers
 
@@ -591,7 +593,5 @@ private class MockDelegateDownloadTask: URLSessionDownloadTask, @unchecked Senda
         super.init()
     }
 
-    override var response: URLResponse? {
-        mockResponse
-    }
+    override var response: URLResponse? { mockResponse }
 }
