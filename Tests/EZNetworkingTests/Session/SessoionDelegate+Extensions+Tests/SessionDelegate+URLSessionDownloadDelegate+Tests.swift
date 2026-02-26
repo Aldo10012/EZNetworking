@@ -6,7 +6,7 @@ import Testing
 final class SessionDelegateURLSessionDownloadDelegateTests {
     @Test("test SessionDelegate DidFinishDownloadingTo")
     func sessionDelegateDidFinishDownloadingTo() {
-        let downloadTaskInterceptor = MockDownloadTaskInterceptor()
+        let downloadTaskInterceptor = DownloadTaskInterceptorMock()
         let delegate = SessionDelegate()
         delegate.downloadTaskInterceptor = downloadTaskInterceptor
 
@@ -18,7 +18,7 @@ final class SessionDelegateURLSessionDownloadDelegateTests {
 
     @Test("test SessionDelegat eDidWriteData")
     func sessionDelegateDidWriteData() {
-        let downloadTaskInterceptor = MockDownloadTaskInterceptor()
+        let downloadTaskInterceptor = DownloadTaskInterceptorMock()
         let delegate = SessionDelegate()
         delegate.downloadTaskInterceptor = downloadTaskInterceptor
 
@@ -29,7 +29,7 @@ final class SessionDelegateURLSessionDownloadDelegateTests {
 
     @Test("test SessionDelegate DidResumeAtOffset")
     func sessionDelegateDidResumeAtOffset() {
-        let downloadTaskInterceptor = MockDownloadTaskInterceptor()
+        let downloadTaskInterceptor = DownloadTaskInterceptorMock()
         let delegate = SessionDelegate()
         delegate.downloadTaskInterceptor = downloadTaskInterceptor
 
@@ -40,7 +40,7 @@ final class SessionDelegateURLSessionDownloadDelegateTests {
 
     @Test("test SessionDelegate DidCompleteWithError forwards to downloadTaskInterceptor")
     func sessionDelegateDidCompleteWithError() {
-        let downloadTaskInterceptor = MockDownloadTaskInterceptor()
+        let downloadTaskInterceptor = DownloadTaskInterceptorMock()
         let delegate = SessionDelegate()
         delegate.downloadTaskInterceptor = downloadTaskInterceptor
 
@@ -52,7 +52,7 @@ final class SessionDelegateURLSessionDownloadDelegateTests {
 
 // MARK: mock class
 
-private class MockDownloadTaskInterceptor: DownloadTaskInterceptor {
+private class DownloadTaskInterceptorMock: DownloadTaskInterceptor {
     var onEvent: (DownloadTaskInterceptorEvent) -> Void = { _ in }
 
     var didFinishDownloading = false

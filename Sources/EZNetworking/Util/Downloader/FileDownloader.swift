@@ -12,6 +12,7 @@ public actor FileDownloader: FileDownloadable {
         case paused(resumeData: Data)
         case completed
         case failed
+        case failedRetryable(resumeData: Data)
         case cancelled
     }
 
@@ -112,7 +113,14 @@ public actor FileDownloader: FileDownloadable {
 
     public func resume() async throws {
         try Task.checkCancellation()
-        guard case let .paused(resumeData) = state else {
+
+        let resumeData: Data
+        switch state {
+        case let .paused(data):
+            resumeData = data
+        case let .failedRetryable(data):
+            resumeData = data
+        default:
             throw NetworkingError.downloadFailed(reason: .notPaused)
         }
 
@@ -126,7 +134,7 @@ public actor FileDownloader: FileDownloadable {
 
     public func cancel() throws {
         switch state {
-        case .downloading, .paused, .pausing:
+        case .downloading, .paused, .pausing, .failedRetryable:
             break
         case .idle, .completed, .failed, .cancelled:
             throw NetworkingError.downloadFailed(reason: .notDownloading)
@@ -171,9 +179,8 @@ public actor FileDownloader: FileDownloadable {
             continuation?.finish()
             continuation = nil
 
-        case let .onDownloadFailed(error):
+        case let .onDownloadFailed(error, resumeData):
             guard case .downloading = state else { return }
-            state = .failed
             downloadTask = nil
             let networkError: NetworkingError = if let ne = error as? NetworkingError {
                 ne
@@ -182,9 +189,16 @@ public actor FileDownloader: FileDownloadable {
             } else {
                 .downloadFailed(reason: .unknownError(underlying: error.asSendableError))
             }
-            continuation?.yield(.failed(networkError))
-            continuation?.finish()
-            continuation = nil
+
+            if let resumeData {
+                state = .failedRetryable(resumeData: resumeData)
+                continuation?.yield(.failedRetryable(networkError))
+            } else {
+                state = .failed
+                continuation?.yield(.failed(networkError))
+                continuation?.finish()
+                continuation = nil
+            }
         }
     }
 }

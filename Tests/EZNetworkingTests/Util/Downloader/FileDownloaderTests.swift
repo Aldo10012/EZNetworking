@@ -4,7 +4,7 @@ import Testing
 
 @Suite("Test FileDownloader")
 final class FileDownloaderTests {
-    // MARK: - underlying downloadTask
+    // MARK: underlying downloadTask
 
     @Test("test calling FileDownloader.downloadFileStream() calls downloadTask.resume()")
     func callingDownloadFaileStreamCallsDownloadTaskResume() async {
@@ -38,7 +38,7 @@ final class FileDownloaderTests {
         #expect(mockURLSession.mockDownloadTask.didCancelWhileProducingResumeData)
     }
 
-    // MARK: - Download success
+    // MARK: Download success
 
     @Test("test download success")
     func downloadSuccess() async {
@@ -86,7 +86,7 @@ final class FileDownloaderTests {
         ])
     }
 
-    // MARK: - Download failure
+    // MARK: Download failure
 
     @Test("test download failure due to network error before complete")
     func downladFailedDueToNetworkErrorBeforeCanComplete() async {
@@ -158,7 +158,7 @@ final class FileDownloaderTests {
         ])
     }
 
-    // MARK: - Cancel
+    // MARK: Cancel
 
     @Test("test cancelling download mid progress")
     func cancellingDownloadMidProgress() async throws {
@@ -185,7 +185,7 @@ final class FileDownloaderTests {
         ])
     }
 
-    // MARK: - Pause
+    // MARK: Pause
 
     @Test("test FileDownloader.pause() successfully pauses download")
     func fileDownloadPauseSuccessfullyPausesDownload() async throws {
@@ -212,7 +212,60 @@ final class FileDownloaderTests {
         ])
     }
 
-    // MARK: Pause & Resume
+    // MARK: Invalid state transitions
+
+    @Test("test downloadFileStream when already downloading emits alreadyDownloading")
+    func downloadFileStreamWhenAlreadyDownloadingEmitsAlreadyDownloading() async {
+        let session = MockSession(urlSession: MockFileDownloaderURLSession(), delegate: SessionDelegate())
+        let sut = FileDownloader(url: mockUrl, session: session)
+
+        _ = await sut.downloadFileStream()
+
+        let secondStream = await sut.downloadFileStream()
+        var events: [DownloadEvent] = []
+        for await event in secondStream {
+            events.append(event)
+        }
+
+        #expect(events == [
+            .failed(.downloadFailed(reason: .alreadyDownloading))
+        ])
+    }
+
+    @Test("test calling .pause() when not downloading throws")
+    func callingPauseWhenNotDownloadingThrows() async {
+        let session = MockSession(urlSession: MockFileDownloaderURLSession(), delegate: SessionDelegate())
+        let sut = FileDownloader(url: mockUrl, session: session)
+
+        await #expect(throws: NetworkingError.downloadFailed(reason: .notDownloading)) {
+            try await sut.pause()
+        }
+    }
+
+    @Test("test calling .resume() when not downloading throws")
+    func callingResumeWhenNotDownloadingThrows() async {
+        let session = MockSession(urlSession: MockFileDownloaderURLSession(), delegate: SessionDelegate())
+        let sut = FileDownloader(url: mockUrl, session: session)
+
+        await #expect(throws: NetworkingError.downloadFailed(reason: .notPaused)) {
+            try await sut.resume()
+        }
+    }
+
+    @Test("test calling .cancel() when not downloading throws")
+    func callingCancelWhenNotDownloadingThrows() async {
+        let session = MockSession(urlSession: MockFileDownloaderURLSession(), delegate: SessionDelegate())
+        let sut = FileDownloader(url: mockUrl, session: session)
+
+        await #expect(throws: NetworkingError.downloadFailed(reason: .notDownloading)) {
+            try await sut.cancel()
+        }
+    }
+}
+
+@Suite("Test FileDownloader - pause/resume")
+final class FileDownloaderPauseResumeTests {
+    // MARK: - Pause & Resume
 
     @Test("test resuming paused download if has resumeData")
     func resumingPausedDownloadIfhasResumeData() async throws {
@@ -307,56 +360,137 @@ final class FileDownloaderTests {
         ])
     }
 
-    // MARK: - Invalid state transitions
+    // MARK: - Retryable failure
 
-    @Test("test downloadFileStream when already downloading emits alreadyDownloading")
-    func downloadFileStreamWhenAlreadyDownloadingEmitsAlreadyDownloading() async {
-        let session = MockSession(urlSession: MockFileDownloaderURLSession(), delegate: SessionDelegate())
+    @Test("test failure with resume data yields failedRetryable and stream stays open")
+    func failureWithResumeData_yieldsFailedRetryable() async throws {
+        let downloadInterceptor = MockDownloadTaskInterceptor()
+        let delegate = SessionDelegate(downloadTaskInterceptor: downloadInterceptor)
+        let mockURLSession = MockFileDownloaderURLSession()
+        let session = MockSession(urlSession: mockURLSession, delegate: delegate)
+        let sut = FileDownloader(url: mockUrl, session: session)
+
+        let stream = await sut.downloadFileStream()
+
+        let mockResumeData = "partial".data(using: .utf8)!
+        downloadInterceptor.simulateDownloadProgress(0.5)
+        downloadInterceptor.simulateFailure(URLError(.networkConnectionLost), resumeData: mockResumeData)
+
+        var events: [DownloadEvent] = []
+        for await event in stream.prefix(3) {
+            events.append(event)
+        }
+        #expect(events == [
+            .started,
+            .progress(0.5),
+            .failedRetryable(.downloadFailed(reason: .urlError(underlying: URLError(.networkConnectionLost))))
+        ])
+    }
+
+    @Test("test failure without resume data yields failed and stream finishes")
+    func failureWithoutResumeData_yieldsFailed() async {
+        let downloadInterceptor = MockDownloadTaskInterceptor()
+        let delegate = SessionDelegate(downloadTaskInterceptor: downloadInterceptor)
+        let mockURLSession = MockFileDownloaderURLSession()
+        let session = MockSession(urlSession: mockURLSession, delegate: delegate)
+        let sut = FileDownloader(url: mockUrl, session: session)
+
+        let stream = await sut.downloadFileStream()
+
+        downloadInterceptor.simulateDownloadProgress(0.5)
+        downloadInterceptor.simulateFailure(URLError(.networkConnectionLost))
+
+        var events: [DownloadEvent] = []
+        for await event in stream {
+            events.append(event)
+        }
+        #expect(events == [
+            .started,
+            .progress(0.5),
+            .failed(.downloadFailed(reason: .urlError(underlying: URLError(.networkConnectionLost))))
+        ])
+    }
+
+    @Test("test resume after retryable failure completes successfully")
+    func resumeAfterRetryableFailure_completesSuccessfully() async throws {
+        let downloadInterceptor = MockDownloadTaskInterceptor()
+        let delegate = SessionDelegate(downloadTaskInterceptor: downloadInterceptor)
+        let mockURLSession = MockFileDownloaderURLSession()
+        let session = MockSession(urlSession: mockURLSession, delegate: delegate)
+        let sut = FileDownloader(url: mockUrl, session: session)
+
+        let stream = await sut.downloadFileStream()
+
+        let mockResumeData = "partial".data(using: .utf8)!
+        downloadInterceptor.simulateDownloadProgress(0.3)
+        downloadInterceptor.simulateFailure(URLError(.networkConnectionLost), resumeData: mockResumeData)
+        try await Task.sleep(for: .milliseconds(10))
+        try await sut.resume()
+        try await Task.sleep(for: .milliseconds(10))
+        downloadInterceptor.simulateDownloadProgress(0.6)
+        downloadInterceptor.simulateDownloadComplete(mockFileLocation)
+
+        var events: [DownloadEvent] = []
+        for await event in stream {
+            events.append(event)
+        }
+        #expect(events == [
+            .started,
+            .progress(0.3),
+            .failedRetryable(.downloadFailed(reason: .urlError(underlying: URLError(.networkConnectionLost)))),
+            .resumed,
+            .progress(0.6),
+            .completed(mockFileLocation)
+        ])
+    }
+
+    @Test("test cancel from failedRetryable state")
+    func cancelFromFailedRetryableState() async throws {
+        let downloadInterceptor = MockDownloadTaskInterceptor()
+        let delegate = SessionDelegate(downloadTaskInterceptor: downloadInterceptor)
+        let mockURLSession = MockFileDownloaderURLSession()
+        let session = MockSession(urlSession: mockURLSession, delegate: delegate)
+        let sut = FileDownloader(url: mockUrl, session: session)
+
+        let stream = await sut.downloadFileStream()
+
+        let mockResumeData = "partial".data(using: .utf8)!
+        downloadInterceptor.simulateFailure(URLError(.networkConnectionLost), resumeData: mockResumeData)
+        try await Task.sleep(for: .milliseconds(10))
+        try await sut.cancel()
+
+        var events: [DownloadEvent] = []
+        for await event in stream {
+            events.append(event)
+        }
+        #expect(events == [
+            .started,
+            .failedRetryable(.downloadFailed(reason: .urlError(underlying: URLError(.networkConnectionLost)))),
+            .cancelled
+        ])
+    }
+
+    @Test("test resume from non-retryable failed state throws")
+    func resumeFromNonRetryableFailedState_throws() async throws {
+        let downloadInterceptor = MockDownloadTaskInterceptor()
+        let delegate = SessionDelegate(downloadTaskInterceptor: downloadInterceptor)
+        let mockURLSession = MockFileDownloaderURLSession()
+        let session = MockSession(urlSession: mockURLSession, delegate: delegate)
         let sut = FileDownloader(url: mockUrl, session: session)
 
         _ = await sut.downloadFileStream()
 
-        let secondStream = await sut.downloadFileStream()
-        var events: [DownloadEvent] = []
-        for await event in secondStream {
-            events.append(event)
-        }
-
-        #expect(events == [
-            .failed(.downloadFailed(reason: .alreadyDownloading))
-        ])
-    }
-
-    @Test("test calling .pause() when not downloading throws")
-    func callingPauseWhenNotDownloadingThrows() async {
-        let session = MockSession(urlSession: MockFileDownloaderURLSession(), delegate: SessionDelegate())
-        let sut = FileDownloader(url: mockUrl, session: session)
-
-        await #expect(throws: NetworkingError.downloadFailed(reason: .notDownloading)) {
-            try await sut.pause()
-        }
-    }
-
-    @Test("test calling .resume() when not downloading throws")
-    func callingResumeWhenNotDownloadingThrows() async {
-        let session = MockSession(urlSession: MockFileDownloaderURLSession(), delegate: SessionDelegate())
-        let sut = FileDownloader(url: mockUrl, session: session)
+        downloadInterceptor.simulateFailure(URLError(.networkConnectionLost))
+        try await Task.sleep(for: .milliseconds(10))
 
         await #expect(throws: NetworkingError.downloadFailed(reason: .notPaused)) {
             try await sut.resume()
         }
     }
+}
 
-    @Test("test calling .cancel() when not downloading throws")
-    func callingCancelWhenNotDownloadingThrows() async {
-        let session = MockSession(urlSession: MockFileDownloaderURLSession(), delegate: SessionDelegate())
-        let sut = FileDownloader(url: mockUrl, session: session)
-
-        await #expect(throws: NetworkingError.downloadFailed(reason: .notDownloading)) {
-            try await sut.cancel()
-        }
-    }
-
+@Suite("Test FileDownloader - Task cancellation")
+final class FileDownloaderTaskCancellationTests {
     // MARK: - Task cancellation
 
     @Test("test pause yields cancelled when Task is cancelled during cancelByProducingResumeData await")
@@ -436,7 +570,6 @@ final class FileDownloaderTests {
         let consumeTask = Task {
             for await _ in stream {}
         }
-
         try await Task.sleep(nanoseconds: 50_000_000)
         consumeTask.cancel()
         try await Task.sleep(nanoseconds: 100_000_000)
@@ -458,34 +591,9 @@ private func makeMockDelegateTask(statusCode: Int = 200) -> MockDelegateDownload
 
 private class MockDelegateDownloadTask: URLSessionDownloadTask, @unchecked Sendable {
     private let mockResponse: URLResponse?
-
     init(mockResponse: URLResponse?) {
         self.mockResponse = mockResponse
         super.init()
     }
-
-    override var response: URLResponse? {
-        mockResponse
-    }
-}
-
-private class MockDownloadTaskInterceptor: DownloadTaskInterceptor {
-    var onEvent: (DownloadTaskInterceptorEvent) -> Void = { _ in }
-    init() {}
-    func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {}
-    func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {}
-    func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didResumeAtOffset fileOffset: Int64, expectedTotalBytes: Int64) {}
-    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: any Error) {}
-
-    func simulateDownloadComplete(_ location: URL) {
-        onEvent(.onDownloadCompleted(location))
-    }
-
-    func simulateDownloadProgress(_ progress: Double) {
-        onEvent(.onProgress(progress))
-    }
-
-    func simulateFailure(_ error: Error) {
-        onEvent(.onDownloadFailed(error))
-    }
+    override var response: URLResponse? { mockResponse }
 }
