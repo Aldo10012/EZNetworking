@@ -2,10 +2,9 @@
 import Foundation
 import Testing
 
-// swiftlint:disable type_body_length
 @Suite("Test FileDownloader")
 final class FileDownloaderTests {
-    // MARK: - underlying downloadTask
+    // MARK: underlying downloadTask
 
     @Test("test calling FileDownloader.downloadFileStream() calls downloadTask.resume()")
     func callingDownloadFaileStreamCallsDownloadTaskResume() async {
@@ -39,7 +38,7 @@ final class FileDownloaderTests {
         #expect(mockURLSession.mockDownloadTask.didCancelWhileProducingResumeData)
     }
 
-    // MARK: - Download success
+    // MARK: Download success
 
     @Test("test download success")
     func downloadSuccess() async {
@@ -87,7 +86,7 @@ final class FileDownloaderTests {
         ])
     }
 
-    // MARK: - Download failure
+    // MARK: Download failure
 
     @Test("test download failure due to network error before complete")
     func downladFailedDueToNetworkErrorBeforeCanComplete() async {
@@ -159,7 +158,7 @@ final class FileDownloaderTests {
         ])
     }
 
-    // MARK: - Cancel
+    // MARK: Cancel
 
     @Test("test cancelling download mid progress")
     func cancellingDownloadMidProgress() async throws {
@@ -186,7 +185,7 @@ final class FileDownloaderTests {
         ])
     }
 
-    // MARK: - Pause
+    // MARK: Pause
 
     @Test("test FileDownloader.pause() successfully pauses download")
     func fileDownloadPauseSuccessfullyPausesDownload() async throws {
@@ -213,7 +212,60 @@ final class FileDownloaderTests {
         ])
     }
 
-    // MARK: Pause & Resume
+    // MARK: Invalid state transitions
+
+    @Test("test downloadFileStream when already downloading emits alreadyDownloading")
+    func downloadFileStreamWhenAlreadyDownloadingEmitsAlreadyDownloading() async {
+        let session = MockSession(urlSession: MockFileDownloaderURLSession(), delegate: SessionDelegate())
+        let sut = FileDownloader(url: mockUrl, session: session)
+
+        _ = await sut.downloadFileStream()
+
+        let secondStream = await sut.downloadFileStream()
+        var events: [DownloadEvent] = []
+        for await event in secondStream {
+            events.append(event)
+        }
+
+        #expect(events == [
+            .failed(.downloadFailed(reason: .alreadyDownloading))
+        ])
+    }
+
+    @Test("test calling .pause() when not downloading throws")
+    func callingPauseWhenNotDownloadingThrows() async {
+        let session = MockSession(urlSession: MockFileDownloaderURLSession(), delegate: SessionDelegate())
+        let sut = FileDownloader(url: mockUrl, session: session)
+
+        await #expect(throws: NetworkingError.downloadFailed(reason: .notDownloading)) {
+            try await sut.pause()
+        }
+    }
+
+    @Test("test calling .resume() when not downloading throws")
+    func callingResumeWhenNotDownloadingThrows() async {
+        let session = MockSession(urlSession: MockFileDownloaderURLSession(), delegate: SessionDelegate())
+        let sut = FileDownloader(url: mockUrl, session: session)
+
+        await #expect(throws: NetworkingError.downloadFailed(reason: .notPaused)) {
+            try await sut.resume()
+        }
+    }
+
+    @Test("test calling .cancel() when not downloading throws")
+    func callingCancelWhenNotDownloadingThrows() async {
+        let session = MockSession(urlSession: MockFileDownloaderURLSession(), delegate: SessionDelegate())
+        let sut = FileDownloader(url: mockUrl, session: session)
+
+        await #expect(throws: NetworkingError.downloadFailed(reason: .notDownloading)) {
+            try await sut.cancel()
+        }
+    }
+}
+
+@Suite("Test FileDownloader - pause/resume")
+final class FileDownloaderPauseResumeTests {
+    // MARK: - Pause & Resume
 
     @Test("test resuming paused download if has resumeData")
     func resumingPausedDownloadIfhasResumeData() async throws {
@@ -435,57 +487,10 @@ final class FileDownloaderTests {
             try await sut.resume()
         }
     }
+}
 
-    // MARK: - Invalid state transitions
-
-    @Test("test downloadFileStream when already downloading emits alreadyDownloading")
-    func downloadFileStreamWhenAlreadyDownloadingEmitsAlreadyDownloading() async {
-        let session = MockSession(urlSession: MockFileDownloaderURLSession(), delegate: SessionDelegate())
-        let sut = FileDownloader(url: mockUrl, session: session)
-
-        _ = await sut.downloadFileStream()
-
-        let secondStream = await sut.downloadFileStream()
-        var events: [DownloadEvent] = []
-        for await event in secondStream {
-            events.append(event)
-        }
-
-        #expect(events == [
-            .failed(.downloadFailed(reason: .alreadyDownloading))
-        ])
-    }
-
-    @Test("test calling .pause() when not downloading throws")
-    func callingPauseWhenNotDownloadingThrows() async {
-        let session = MockSession(urlSession: MockFileDownloaderURLSession(), delegate: SessionDelegate())
-        let sut = FileDownloader(url: mockUrl, session: session)
-
-        await #expect(throws: NetworkingError.downloadFailed(reason: .notDownloading)) {
-            try await sut.pause()
-        }
-    }
-
-    @Test("test calling .resume() when not downloading throws")
-    func callingResumeWhenNotDownloadingThrows() async {
-        let session = MockSession(urlSession: MockFileDownloaderURLSession(), delegate: SessionDelegate())
-        let sut = FileDownloader(url: mockUrl, session: session)
-
-        await #expect(throws: NetworkingError.downloadFailed(reason: .notPaused)) {
-            try await sut.resume()
-        }
-    }
-
-    @Test("test calling .cancel() when not downloading throws")
-    func callingCancelWhenNotDownloadingThrows() async {
-        let session = MockSession(urlSession: MockFileDownloaderURLSession(), delegate: SessionDelegate())
-        let sut = FileDownloader(url: mockUrl, session: session)
-
-        await #expect(throws: NetworkingError.downloadFailed(reason: .notDownloading)) {
-            try await sut.cancel()
-        }
-    }
-
+@Suite("Test FileDownloader - Task cancellation")
+final class FileDownloaderTaskCancellationTests {
     // MARK: - Task cancellation
 
     @Test("test pause yields cancelled when Task is cancelled during cancelByProducingResumeData await")
@@ -572,7 +577,6 @@ final class FileDownloaderTests {
         #expect(mockURLSession.mockDownloadTask.didCancel)
     }
 }
-// swiftlint:enable type_body_length
 
 // MARK: - Helpers
 
@@ -587,11 +591,9 @@ private func makeMockDelegateTask(statusCode: Int = 200) -> MockDelegateDownload
 
 private class MockDelegateDownloadTask: URLSessionDownloadTask, @unchecked Sendable {
     private let mockResponse: URLResponse?
-
     init(mockResponse: URLResponse?) {
         self.mockResponse = mockResponse
         super.init()
     }
-
     override var response: URLResponse? { mockResponse }
 }
