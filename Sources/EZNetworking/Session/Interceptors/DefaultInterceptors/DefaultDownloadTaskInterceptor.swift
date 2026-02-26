@@ -18,7 +18,7 @@ class DefaultDownloadTaskInterceptor: DownloadTaskInterceptor {
             try validator.validateStatus(from: downloadTask.response)
             onEvent(.onDownloadCompleted(location))
         } catch {
-            onEvent(.onDownloadFailed(error))
+            onEvent(.onDownloadFailed(error, resumeData: nil))
         }
     }
 
@@ -35,6 +35,7 @@ class DefaultDownloadTaskInterceptor: DownloadTaskInterceptor {
     }
 
     func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error) {
-        onEvent(.onDownloadFailed(error))
+        let resumeData = (error as? URLError)?.downloadTaskResumeData
+        onEvent(.onDownloadFailed(error, resumeData: resumeData))
     }
 }

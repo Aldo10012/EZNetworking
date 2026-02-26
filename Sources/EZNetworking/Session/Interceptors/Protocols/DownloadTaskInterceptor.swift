@@ -3,7 +3,7 @@ import Foundation
 public enum DownloadTaskInterceptorEvent {
     case onProgress(Double)
     case onDownloadCompleted(URL)
-    case onDownloadFailed(Error)
+    case onDownloadFailed(Error, resumeData: Data?)
 }
 
 /// Protocol for intercepting download tasks specifically.
