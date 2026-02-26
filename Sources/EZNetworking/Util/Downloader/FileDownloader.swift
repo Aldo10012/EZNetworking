@@ -8,7 +8,8 @@ public actor FileDownloader: FileDownloadable {
     private enum State {
         case idle
         case downloading
-        case paused(resumeData: Data?)
+        case pausing
+        case paused(resumeData: Data)
         case completed
         case failed
         case cancelled
@@ -86,27 +87,33 @@ public actor FileDownloader: FileDownloadable {
             throw NetworkingError.downloadFailed(reason: .notDownloading)
         }
 
-        continuation?.yield(.paused)
-        state = .paused(resumeData: nil)
+        state = .pausing
         let resumeData = await downloadTask?.cancelByProducingResumeData()
         downloadTask = nil
+
+        guard !Task.isCancelled else {
+            state = .cancelled
+            continuation?.yield(.cancelled)
+            continuation?.finish()
+            continuation = nil
+            return
+        }
+        guard case .pausing = state else { return }
+        guard let resumeData else {
+            state = .failed
+            continuation?.yield(.failed(.downloadFailed(reason: .cannotResume)))
+            continuation?.finish()
+            continuation = nil
+            return
+        }
         state = .paused(resumeData: resumeData)
-        try Task.checkCancellation()
+        continuation?.yield(.paused)
     }
 
     public func resume() async throws {
         try Task.checkCancellation()
         guard case let .paused(resumeData) = state else {
             throw NetworkingError.downloadFailed(reason: .notPaused)
-        }
-
-        guard let resumeData else {
-            state = .failed
-            let error = NetworkingError.downloadFailed(reason: .cannotResume)
-            continuation?.yield(.failed(error))
-            continuation?.finish()
-            continuation = nil
-            throw error
         }
 
         state = .downloading
@@ -119,7 +126,7 @@ public actor FileDownloader: FileDownloadable {
 
     public func cancel() throws {
         switch state {
-        case .downloading, .paused:
+        case .downloading, .paused, .pausing:
             break
         case .idle, .completed, .failed, .cancelled:
             throw NetworkingError.downloadFailed(reason: .notDownloading)
@@ -148,13 +155,16 @@ public actor FileDownloader: FileDownloadable {
     }
 
     private func handleDownloadInterceptorEvent(_ event: DownloadTaskInterceptorEvent) {
-        guard case .downloading = state else { return }
-
         switch event {
         case let .onProgress(progress):
+            guard case .downloading = state else { return }
             continuation?.yield(.progress(progress))
 
         case let .onDownloadCompleted(location):
+            switch state {
+            case .downloading, .pausing: break
+            default: return
+            }
             state = .completed
             downloadTask = nil
             continuation?.yield(.completed(location))
@@ -162,6 +172,7 @@ public actor FileDownloader: FileDownloadable {
             continuation = nil
 
         case let .onDownloadFailed(error):
+            guard case .downloading = state else { return }
             state = .failed
             downloadTask = nil
             let networkError: NetworkingError = if let ne = error as? NetworkingError {
