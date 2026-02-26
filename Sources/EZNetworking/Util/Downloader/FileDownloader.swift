@@ -155,13 +155,16 @@ public actor FileDownloader: FileDownloadable {
     }
 
     private func handleDownloadInterceptorEvent(_ event: DownloadTaskInterceptorEvent) {
-        guard case .downloading = state else { return }
-
         switch event {
         case let .onProgress(progress):
+            guard case .downloading = state else { return }
             continuation?.yield(.progress(progress))
 
         case let .onDownloadCompleted(location):
+            switch state {
+            case .downloading, .pausing: break
+            default: return
+            }
             state = .completed
             downloadTask = nil
             continuation?.yield(.completed(location))
@@ -169,6 +172,7 @@ public actor FileDownloader: FileDownloadable {
             continuation = nil
 
         case let .onDownloadFailed(error):
+            guard case .downloading = state else { return }
             state = .failed
             downloadTask = nil
             let networkError: NetworkingError = if let ne = error as? NetworkingError {
