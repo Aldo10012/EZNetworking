@@ -133,6 +133,31 @@ final class FileDownloaderTests {
         ])
     }
 
+    @Test("test download failure due to unknown error before complete")
+    func downladFailedDueToUnknownErrorBeforeCanComplete() async {
+        enum UnknownError: Error { case error }
+        let downloadInterceptor = MockDownloadTaskInterceptor()
+        let delegate = SessionDelegate(downloadTaskInterceptor: downloadInterceptor)
+        let mockURLSession = MockFileDownloaderURLSession()
+        let session = MockSession(urlSession: mockURLSession, delegate: delegate)
+        let sut = FileDownloader(url: mockUrl, session: session)
+
+        let stream = await sut.downloadFileStream()
+
+        downloadInterceptor.simulateDownloadProgress(0.5)
+        downloadInterceptor.simulateFailure(UnknownError.error)
+
+        var events: [DownloadEvent] = []
+        for await event in stream {
+            events.append(event)
+        }
+        #expect(events == [
+            .started,
+            .progress(0.5),
+            .failed(.downloadFailed(reason: .unknownError(underlying: UnknownError.error)))
+        ])
+    }
+
     // MARK: - Cancel
 
     @Test("test cancelling download mid progress")
