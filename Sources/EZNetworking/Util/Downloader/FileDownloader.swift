@@ -9,7 +9,7 @@ public actor FileDownloader: FileDownloadable {
         case idle
         case downloading
         case pausing
-        case paused(resumeData: Data?)
+        case paused(resumeData: Data)
         case completed
         case failed
         case cancelled
@@ -114,15 +114,6 @@ public actor FileDownloader: FileDownloadable {
         try Task.checkCancellation()
         guard case let .paused(resumeData) = state else {
             throw NetworkingError.downloadFailed(reason: .notPaused)
-        }
-
-        guard let resumeData else {
-            state = .failed
-            let error = NetworkingError.downloadFailed(reason: .cannotResume)
-            continuation?.yield(.failed(error))
-            continuation?.finish()
-            continuation = nil
-            throw error
         }
 
         state = .downloading
