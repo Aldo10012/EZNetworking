@@ -183,7 +183,7 @@ final class FileDownloaderTests {
         #expect(events == [
             .started,
             .progress(0.5),
-            .paused
+            .failed(.downloadFailed(reason: .cannotResume))
         ])
     }
 
@@ -238,7 +238,7 @@ final class FileDownloaderTests {
         mockURLSession.mockDownloadTask.mockResumeData = nil
         try await sut.pause()
         try await Task.sleep(for: .milliseconds(10))
-        await #expect(throws: NetworkingError.downloadFailed(reason: .cannotResume)) {
+        await #expect(throws: NetworkingError.downloadFailed(reason: .notPaused)) {
             try await sut.resume()
         }
 
@@ -249,7 +249,6 @@ final class FileDownloaderTests {
         #expect(events == [
             .started,
             .progress(0.3),
-            .paused,
             .failed(.downloadFailed(reason: .cannotResume))
         ])
     }
