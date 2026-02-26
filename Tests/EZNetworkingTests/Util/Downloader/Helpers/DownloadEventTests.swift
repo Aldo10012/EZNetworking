@@ -4,19 +4,18 @@ import Testing
 
 @Suite("Test DownloadEvent")
 final class DownloadEventTests {
-
     @Test("test DownloadEvent equality", arguments: zip(list, list))
-    func testEquality(inputA: DownloadEvent, inputB: DownloadEvent) {
+    func equality(inputA: DownloadEvent, inputB: DownloadEvent) {
         #expect(inputA == inputB)
     }
 
     @Test("test DownloadEvent non equality", arguments: zip(list, list.reversed()))
-    func testNonEquality(inputA: DownloadEvent, inputB: DownloadEvent) {
+    func nonEquality(inputA: DownloadEvent, inputB: DownloadEvent) {
         #expect(inputA != inputB)
     }
 
     @Test("test same case with different inputs are not equatable")
-    func testSameCaseWithDifferentINputsAreNotEquatable() {
+    func sameCaseWithDifferentINputsAreNotEquatable() {
         let event1 = DownloadEvent.progress(0.1)
         let event2 = DownloadEvent.progress(0.8)
         let event3 = DownloadEvent.completed(DownloadEventTests.urlA)

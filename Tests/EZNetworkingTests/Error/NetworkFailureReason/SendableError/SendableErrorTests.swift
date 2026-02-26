@@ -4,7 +4,6 @@ import Testing
 
 @Suite("Test SendableError")
 struct SendableErrorTests {
-
     @Test("test .asSendableError for NSError")
     func asSendableErrorOnNSError() {
         let originalError = NSError(domain: "test", code: -1, userInfo: nil)
@@ -50,7 +49,7 @@ struct SendableErrorTests {
 
     @Test("test .asSendableError for Custom Non Sendabel Error - 2")
     func asSendableErrorOnCustomNonSendableError_2() {
-        class NonSendableBox { }
+        class NonSendableBox {}
         enum MockError: Error {
             case testCase(NonSendableBox)
         }

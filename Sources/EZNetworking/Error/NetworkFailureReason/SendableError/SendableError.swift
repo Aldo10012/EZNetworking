@@ -10,9 +10,9 @@ public struct SendableErrorWrapper: Error, CustomNSError, Sendable {
 
     public init(_ error: Error) {
         let nsError = error as NSError
-        self.localizedDescription = nsError.localizedDescription
-        self.domain = nsError.domain
-        self.code = nsError.code
+        localizedDescription = nsError.localizedDescription
+        domain = nsError.domain
+        code = nsError.code
     }
 
     public static var errorDomain: String { "EZNetworking.SendableErrorWrapper" }
