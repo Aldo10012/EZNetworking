@@ -93,18 +93,12 @@ public actor FileDownloader: FileDownloadable {
         downloadTask = nil
 
         guard !Task.isCancelled else {
-            state = .cancelled
-            continuation?.yield(.cancelled)
-            continuation?.finish()
-            continuation = nil
+            terminate(with: .cancelled, state: .cancelled)
             return
         }
         guard case .pausing = state else { return }
         guard let resumeData else {
-            state = .failed
-            continuation?.yield(.failed(.downloadFailed(reason: .cannotResume)))
-            continuation?.finish()
-            continuation = nil
+            terminate(with: .failed(.downloadFailed(reason: .cannotResume)), state: .failed)
             return
         }
         state = .paused(resumeData: resumeData)
@@ -141,9 +135,16 @@ public actor FileDownloader: FileDownloadable {
         }
 
         downloadTask?.cancel()
+        terminate(with: .cancelled, state: .cancelled)
+    }
+
+    // MARK: - Helpers
+
+    /// Moves to a terminal state, yields a final event, and closes the stream.
+    private func terminate(with event: DownloadEvent, state newState: State) {
+        state = newState
         downloadTask = nil
-        state = .cancelled
-        continuation?.yield(.cancelled)
+        continuation?.yield(event)
         continuation?.finish()
         continuation = nil
     }
@@ -173,11 +174,7 @@ public actor FileDownloader: FileDownloadable {
             case .downloading, .pausing: break
             default: return
             }
-            state = .completed
-            downloadTask = nil
-            continuation?.yield(.completed(location))
-            continuation?.finish()
-            continuation = nil
+            terminate(with: .completed(location), state: .completed)
 
         case let .onDownloadFailed(error, resumeData):
             guard case .downloading = state else { return }
@@ -194,10 +191,7 @@ public actor FileDownloader: FileDownloadable {
                 state = .failedRetryable(resumeData: resumeData)
                 continuation?.yield(.failedRetryable(networkError))
             } else {
-                state = .failed
-                continuation?.yield(.failed(networkError))
-                continuation?.finish()
-                continuation = nil
+                terminate(with: .failed(networkError), state: .failed)
             }
         }
     }
