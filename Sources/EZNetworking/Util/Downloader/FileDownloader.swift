@@ -89,6 +89,11 @@ public actor FileDownloader: FileDownloadable {
         }
 
         state = .pausing
+
+        /// The await below is a suspension point. While suspended, actor reentrancy
+        /// allows cancel() or handleDownloadInterceptorEvent to run and change state.
+        /// Note: downloadTask is still non-nil here, so cancel() can call .cancel() on it.
+        /// The post-await guards re-check Task cancellation and state to handle these cases.
         let resumeData = await downloadTask?.cancelByProducingResumeData()
         downloadTask = nil
 
