@@ -105,11 +105,11 @@ public actor FileDownloader: FileDownloadable {
         let resumeData = await downloadTask?.cancelByProducingResumeData()
         downloadTask = nil
 
+        guard case .pausing = state else { return }
         guard !Task.isCancelled else {
             terminate(with: .cancelled, state: .cancelled)
             return
         }
-        guard case .pausing = state else { return }
         guard let resumeData else {
             terminate(with: .failed(.downloadFailed(reason: .cannotResume)), state: .failed)
             return
