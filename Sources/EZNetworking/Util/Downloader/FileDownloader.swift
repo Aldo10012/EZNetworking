@@ -73,7 +73,7 @@ public actor FileDownloader: FileDownloadable {
         }
 
         state = .downloading
-        let task = session.urlSession.downloadTask(with: url)
+        let task = session.urlSession.downloadTaskInspectable(with: url)
         downloadTask = task
         task.resume()
 
@@ -125,7 +125,7 @@ public actor FileDownloader: FileDownloadable {
         }
 
         state = .downloading
-        let task = session.urlSession.downloadTask(withResumeData: resumeData)
+        let task = session.urlSession.downloadTaskInspectable(withResumeData: resumeData)
         downloadTask = task
         task.resume()
 

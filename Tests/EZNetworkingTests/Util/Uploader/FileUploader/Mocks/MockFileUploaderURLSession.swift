@@ -86,11 +86,11 @@ extension MockFileUploaderURLSession {
         fatalError("Should not be using in this mock")
     }
 
-    func downloadTask(with url: URL) -> URLSessionDownloadTaskProtocol {
+    func downloadTaskInspectable(with url: URL) -> URLSessionDownloadTaskProtocol {
         fatalError("Should not be using in this mock")
     }
 
-    func downloadTask(withResumeData resumeData: Data) -> URLSessionDownloadTaskProtocol {
+    func downloadTaskInspectable(withResumeData resumeData: Data) -> URLSessionDownloadTaskProtocol {
         fatalError("Should not be using in this mock")
     }
 }

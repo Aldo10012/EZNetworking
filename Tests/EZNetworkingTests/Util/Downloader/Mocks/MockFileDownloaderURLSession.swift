@@ -5,11 +5,11 @@ class MockFileDownloaderURLSession: URLSessionProtocol {
     var mockDownloadTask = MockDownloadTask()
     var mockResumeDownloadTask = MockDownloadTask()
 
-    func downloadTask(with url: URL) -> URLSessionDownloadTaskProtocol {
+    func downloadTaskInspectable(with url: URL) -> URLSessionDownloadTaskProtocol {
         mockDownloadTask
     }
 
-    func downloadTask(withResumeData resumeData: Data) -> URLSessionDownloadTaskProtocol {
+    func downloadTaskInspectable(withResumeData resumeData: Data) -> URLSessionDownloadTaskProtocol {
         mockResumeDownloadTask
     }
 
