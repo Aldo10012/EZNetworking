@@ -45,7 +45,7 @@ public actor FileDownloader: FileDownloadable {
         continuation?.finish()
     }
 
-    // MARK: - FileDownloadable
+    // MARK: - downloadFileStream
 
     public func downloadFileStream() -> AsyncStream<DownloadEvent> {
         guard !Task.isCancelled else {
@@ -90,6 +90,8 @@ public actor FileDownloader: FileDownloadable {
         return stream
     }
 
+    // MARK: pause
+
     public func pause() async throws {
         try Task.checkCancellation()
         guard case .downloading = state else {
@@ -118,6 +120,7 @@ public actor FileDownloader: FileDownloadable {
         continuation?.yield(.paused)
     }
 
+    // MARK: resume
     public func resume() async throws {
         try Task.checkCancellation()
 
@@ -138,6 +141,8 @@ public actor FileDownloader: FileDownloadable {
 
         continuation?.yield(.resumed)
     }
+
+    // MARK: cancel
 
     public func cancel() throws {
         switch state {
