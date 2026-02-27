@@ -130,8 +130,10 @@ public actor FileDownloader: FileDownloadable {
         switch state {
         case .downloading, .paused, .pausing, .failedRetryable:
             break
-        case .idle, .completed, .failed, .cancelled:
+        case .idle:
             throw NetworkingError.downloadFailed(reason: .notDownloading)
+        case .completed, .failed, .cancelled:
+            throw NetworkingError.downloadFailed(reason: .alreadyFinished)
         }
 
         downloadTask?.cancel()
