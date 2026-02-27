@@ -362,7 +362,7 @@ final class FileDownloaderPauseResumeTests {
 
     // MARK: - Retryable failure
 
-    @Test("test failure with resume data yields failedRetryable and stream stays open")
+    @Test("test failure with resume data yields failedButCanResume and stream stays open")
     func failureWithResumeData_yieldsFailedRetryable() async throws {
         let downloadInterceptor = MockDownloadTaskInterceptor()
         let delegate = SessionDelegate(downloadTaskInterceptor: downloadInterceptor)
@@ -383,7 +383,7 @@ final class FileDownloaderPauseResumeTests {
         #expect(events == [
             .started,
             .progress(0.5),
-            .failedRetryable(.downloadFailed(reason: .urlError(underlying: URLError(.networkConnectionLost))))
+            .failedButCanResume(.downloadFailed(reason: .urlError(underlying: URLError(.networkConnectionLost))))
         ])
     }
 
@@ -437,14 +437,14 @@ final class FileDownloaderPauseResumeTests {
         #expect(events == [
             .started,
             .progress(0.3),
-            .failedRetryable(.downloadFailed(reason: .urlError(underlying: URLError(.networkConnectionLost)))),
+            .failedButCanResume(.downloadFailed(reason: .urlError(underlying: URLError(.networkConnectionLost)))),
             .resumed,
             .progress(0.6),
             .completed(mockFileLocation)
         ])
     }
 
-    @Test("test cancel from failedRetryable state")
+    @Test("test cancel from failedButCanResume state")
     func cancelFromFailedRetryableState() async throws {
         let downloadInterceptor = MockDownloadTaskInterceptor()
         let delegate = SessionDelegate(downloadTaskInterceptor: downloadInterceptor)
@@ -465,7 +465,7 @@ final class FileDownloaderPauseResumeTests {
         }
         #expect(events == [
             .started,
-            .failedRetryable(.downloadFailed(reason: .urlError(underlying: URLError(.networkConnectionLost)))),
+            .failedButCanResume(.downloadFailed(reason: .urlError(underlying: URLError(.networkConnectionLost)))),
             .cancelled
         ])
     }

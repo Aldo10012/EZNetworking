@@ -12,7 +12,7 @@ public actor FileDownloader: FileDownloadable {
         case paused(resumeData: Data)
         case completed
         case failed
-        case failedRetryable(resumeData: Data)
+        case failedButCanResume(resumeData: Data)
         case cancelled
     }
 
@@ -58,7 +58,7 @@ public actor FileDownloader: FileDownloadable {
         switch state {
         case .idle:
             break
-        case .failedRetryable:
+        case .failedButCanResume:
             return AsyncStream { continuation in
                 continuation.yield(.failed(.downloadFailed(reason: .downloadIncompleteButResumable)))
                 continuation.finish()
@@ -125,7 +125,7 @@ public actor FileDownloader: FileDownloadable {
         switch state {
         case let .paused(data):
             resumeData = data
-        case let .failedRetryable(data):
+        case let .failedButCanResume(data):
             resumeData = data
         default:
             throw NetworkingError.downloadFailed(reason: .notPaused)
@@ -141,7 +141,7 @@ public actor FileDownloader: FileDownloadable {
 
     public func cancel() throws {
         switch state {
-        case .downloading, .paused, .pausing, .failedRetryable:
+        case .downloading, .paused, .pausing, .failedButCanResume:
             break
         case .idle:
             throw NetworkingError.downloadFailed(reason: .notDownloading)
@@ -203,8 +203,8 @@ public actor FileDownloader: FileDownloadable {
             }
 
             if let resumeData {
-                state = .failedRetryable(resumeData: resumeData)
-                continuation?.yield(.failedRetryable(networkError))
+                state = .failedButCanResume(resumeData: resumeData)
+                continuation?.yield(.failedButCanResume(networkError))
             } else {
                 terminate(with: .failed(networkError), state: .failed)
             }
