@@ -55,7 +55,15 @@ public actor FileDownloader: FileDownloadable {
             }
         }
 
-        guard case .idle = state else {
+        switch state {
+        case .idle:
+            break
+        case .failedRetryable:
+            return AsyncStream { continuation in
+                continuation.yield(.failed(.downloadFailed(reason: .downloadIncompleteButResumable)))
+                continuation.finish()
+            }
+        default:
             return AsyncStream { continuation in
                 continuation.yield(.failed(.downloadFailed(reason: .alreadyDownloading)))
                 continuation.finish()

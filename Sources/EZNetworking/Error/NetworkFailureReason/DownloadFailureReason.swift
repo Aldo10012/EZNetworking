@@ -5,6 +5,7 @@ public enum DownloadFailureReason: Equatable, Sendable {
     case cannotResume
     case alreadyDownloading
     case alreadyFinished
+    case downloadIncompleteButResumable
     case notDownloading
     case notPaused
 
@@ -19,6 +20,7 @@ public enum DownloadFailureReason: Equatable, Sendable {
         case (.cannotResume, .cannotResume),
              (.alreadyDownloading, .alreadyDownloading),
              (.alreadyFinished, .alreadyFinished),
+             (.downloadIncompleteButResumable, .downloadIncompleteButResumable),
              (.notDownloading, .notDownloading),
              (.notPaused, .notPaused):
             true
