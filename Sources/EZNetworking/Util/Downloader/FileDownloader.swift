@@ -100,10 +100,6 @@ public actor FileDownloader: FileDownloadable {
 
         state = .pausing
 
-        /// The await below is a suspension point. While suspended, actor reentrancy
-        /// allows cancel() or handleDownloadInterceptorEvent to run and change state.
-        /// Note: downloadTask is still non-nil here, so cancel() can call .cancel() on it.
-        /// The post-await guards re-check Task cancellation and state to handle these cases.
         let resumeData = await downloadTask?.cancelByProducingResumeData()
         downloadTask = nil
 
@@ -199,20 +195,25 @@ public actor FileDownloader: FileDownloadable {
         case let .onDownloadFailed(error, resumeData):
             guard case .downloading = state else { return }
             downloadTask = nil
-            let networkError: NetworkingError = if let ne = error as? NetworkingError {
-                ne
-            } else if let urlError = error as? URLError {
-                .downloadFailed(reason: .urlError(underlying: urlError))
-            } else {
-                .downloadFailed(reason: .unknownError(underlying: error.asSendableError))
-            }
 
+            let networkError = mapNetworkingError(from: error)
             if let resumeData {
                 state = .failedButCanResume(resumeData: resumeData)
                 continuation?.yield(.failedButCanResume(networkError))
             } else {
                 terminate(with: .failed(networkError), state: .failed)
             }
+        }
+    }
+
+    private func mapNetworkingError(from error: Error) -> NetworkingError {
+        switch error {
+        case let networkingError as NetworkingError:
+            networkingError
+        case let urlError as URLError:
+            .downloadFailed(reason: .urlError(underlying: urlError))
+        default:
+            .downloadFailed(reason: .unknownError(underlying: error.asSendableError))
         }
     }
 }
