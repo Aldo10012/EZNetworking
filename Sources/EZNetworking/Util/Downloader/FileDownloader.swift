@@ -58,14 +58,19 @@ public actor FileDownloader: FileDownloadable {
         switch state {
         case .idle:
             break
+        case .downloading, .pausing, .paused:
+            return AsyncStream { continuation in
+                continuation.yield(.failed(.downloadFailed(reason: .alreadyDownloading)))
+                continuation.finish()
+            }
         case .failedButCanResume:
             return AsyncStream { continuation in
                 continuation.yield(.failed(.downloadFailed(reason: .downloadIncompleteButResumable)))
                 continuation.finish()
             }
-        default:
+        case .completed, .failed, .cancelled:
             return AsyncStream { continuation in
-                continuation.yield(.failed(.downloadFailed(reason: .alreadyDownloading)))
+                continuation.yield(.failed(.downloadFailed(reason: .alreadyFinished)))
                 continuation.finish()
             }
         }
