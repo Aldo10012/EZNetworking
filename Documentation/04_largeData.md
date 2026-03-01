@@ -51,6 +51,24 @@ try await downloader.resume()
 try downloader.cancel()
 ```
 
+### Background Downloads
+
+To continue downloads when the app is suspended, create a `Session` with a background `URLSessionConfiguration` and inject it into `FileDownloader`:
+
+```swift
+let configuration = URLSessionConfiguration.background(withIdentifier: "com.myapp.backgroundDownload")
+let session = Session(configuration: configuration)
+
+let downloader = FileDownloader(
+    url: URL(string: "https://example.com/largefile.zip")!,
+    session: session
+)
+
+for await event in await downloader.downloadFileStream() {
+    // handle events
+}
+```
+
 ## Data Upload
 
 ### Async Await
