@@ -637,18 +637,8 @@ final class FileDownloaderTaskCancellationTests {
 private let mockUrl = URL(string: "https://example.com/file.pdf")!
 private let mockFileLocation = URL(fileURLWithPath: "/tmp/test.pdf")
 
-private func makeMockDelegateTask(statusCode: Int = 200) -> MockDelegateDownloadTask {
-    MockDelegateDownloadTask(
+private func makeMockDelegateTask(statusCode: Int = 200) -> MockURLSessionDownloadTask {
+    MockURLSessionDownloadTask(
         mockResponse: HTTPURLResponse(url: mockUrl, statusCode: statusCode, httpVersion: nil, headerFields: nil)
     )
-}
-
-private class MockDelegateDownloadTask: URLSessionDownloadTask, @unchecked Sendable {
-    private let mockResponse: URLResponse?
-    init(mockResponse: URLResponse?) {
-        self.mockResponse = mockResponse
-        super.init()
-    }
-
-    override var response: URLResponse? { mockResponse }
 }
