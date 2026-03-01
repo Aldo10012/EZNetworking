@@ -49,30 +49,18 @@ public actor FileDownloader: FileDownloadable {
 
     public func downloadFileStream() -> AsyncStream<DownloadEvent> {
         guard !Task.isCancelled else {
-            return AsyncStream { continuation in
-                continuation.yield(.cancelled)
-                continuation.finish()
-            }
+            return earlyExitStream(yielding: .cancelled)
         }
 
         switch state {
         case .idle:
             break
         case .downloading, .pausing, .paused:
-            return AsyncStream { continuation in
-                continuation.yield(.failed(.downloadFailed(reason: .alreadyDownloading)))
-                continuation.finish()
-            }
+            return earlyExitStream(yielding: .failed(.downloadFailed(reason: .alreadyDownloading)))
         case .failedButCanResume:
-            return AsyncStream { continuation in
-                continuation.yield(.failed(.downloadFailed(reason: .downloadIncompleteButResumable)))
-                continuation.finish()
-            }
+            return earlyExitStream(yielding: .failed(.downloadFailed(reason: .downloadIncompleteButResumable)))
         case .completed, .failed, .cancelled:
-            return AsyncStream { continuation in
-                continuation.yield(.failed(.downloadFailed(reason: .alreadyFinished)))
-                continuation.finish()
-            }
+            return earlyExitStream(yielding: .failed(.downloadFailed(reason: .alreadyFinished)))
         }
 
         let (stream, continuation) = AsyncStream<DownloadEvent>.makeStream()
@@ -160,6 +148,13 @@ public actor FileDownloader: FileDownloadable {
     }
 
     // MARK: - Helpers
+
+    private nonisolated func earlyExitStream(yielding value: DownloadEvent) -> AsyncStream<DownloadEvent> {
+        AsyncStream { continuation in
+            continuation.yield(value)
+            continuation.finish()
+        }
+    }
 
     /// Moves to a terminal state, yields a final event, and closes the stream.
     private func terminate(with event: DownloadEvent, state newState: State) {
