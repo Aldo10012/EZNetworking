@@ -48,6 +48,22 @@ struct DownloadFailureReasonTests {
         #expect(reason1 == reason2)
     }
 
+    @Test("test alreadyFinished case equality")
+    func alreadyFinishedEquality() {
+        let reason1 = DownloadFailureReason.alreadyFinished
+        let reason2 = DownloadFailureReason.alreadyFinished
+
+        #expect(reason1 == reason2)
+    }
+
+    @Test("test downloadIncompleteButResumable case equality")
+    func downloadIncompleteButResumableEquality() {
+        let reason1 = DownloadFailureReason.downloadIncompleteButResumable
+        let reason2 = DownloadFailureReason.downloadIncompleteButResumable
+
+        #expect(reason1 == reason2)
+    }
+
     @Test("test notDownloading case equality")
     func notDownloadingEquality() {
         let reason1 = DownloadFailureReason.notDownloading
@@ -69,22 +85,37 @@ struct DownloadFailureReasonTests {
         let urlError = DownloadFailureReason.urlError(underlying: URLError(.badURL))
         let cannotResume = DownloadFailureReason.cannotResume
         let alreadyDownloading = DownloadFailureReason.alreadyDownloading
+        let alreadyFinished = DownloadFailureReason.alreadyFinished
+        let downloadIncompleteButResumable = DownloadFailureReason.downloadIncompleteButResumable
         let notDownloading = DownloadFailureReason.notDownloading
         let notPaused = DownloadFailureReason.notPaused
         let unknownError = DownloadFailureReason.unknownError(underlying: NSError(domain: "Test", code: 1, userInfo: nil))
 
         #expect(urlError != cannotResume)
         #expect(urlError != alreadyDownloading)
+        #expect(urlError != alreadyFinished)
+        #expect(urlError != downloadIncompleteButResumable)
         #expect(urlError != notDownloading)
         #expect(urlError != notPaused)
         #expect(urlError != unknownError)
         #expect(cannotResume != alreadyDownloading)
+        #expect(cannotResume != alreadyFinished)
+        #expect(cannotResume != downloadIncompleteButResumable)
         #expect(cannotResume != notDownloading)
         #expect(cannotResume != notPaused)
         #expect(cannotResume != unknownError)
+        #expect(alreadyDownloading != alreadyFinished)
+        #expect(alreadyDownloading != downloadIncompleteButResumable)
         #expect(alreadyDownloading != notDownloading)
         #expect(alreadyDownloading != notPaused)
         #expect(alreadyDownloading != unknownError)
+        #expect(alreadyFinished != downloadIncompleteButResumable)
+        #expect(alreadyFinished != notDownloading)
+        #expect(alreadyFinished != notPaused)
+        #expect(alreadyFinished != unknownError)
+        #expect(downloadIncompleteButResumable != notDownloading)
+        #expect(downloadIncompleteButResumable != notPaused)
+        #expect(downloadIncompleteButResumable != unknownError)
         #expect(notDownloading != notPaused)
         #expect(notDownloading != unknownError)
         #expect(notPaused != unknownError)

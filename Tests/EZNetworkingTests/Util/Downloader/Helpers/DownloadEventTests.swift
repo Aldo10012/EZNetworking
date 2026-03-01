@@ -22,8 +22,8 @@ final class DownloadEventTests {
         let event4 = DownloadEvent.completed(DownloadEventTests.urlB)
         let event5 = DownloadEvent.failed(.couldNotBuildURLRequest(reason: .noURL))
         let event6 = DownloadEvent.failed(.responseValidationFailed(reason: .noURLResponse))
-        let event7 = DownloadEvent.failedRetryable(.couldNotBuildURLRequest(reason: .noURL))
-        let event8 = DownloadEvent.failedRetryable(.responseValidationFailed(reason: .noURLResponse))
+        let event7 = DownloadEvent.failedButCanResume(.couldNotBuildURLRequest(reason: .noURL))
+        let event8 = DownloadEvent.failedButCanResume(.responseValidationFailed(reason: .noURLResponse))
 
         #expect(event1 != event2)
         #expect(event3 != event4)
@@ -31,10 +31,10 @@ final class DownloadEventTests {
         #expect(event7 != event8)
     }
 
-    @Test("test failed and failedRetryable with same error are not equal")
+    @Test("test failed and failedButCanResume with same error are not equal")
     func failedAndFailedRetryableAreNotEqual() {
         let error = NetworkingError.couldNotBuildURLRequest(reason: .invalidURL)
-        #expect(DownloadEvent.failed(error) != DownloadEvent.failedRetryable(error))
+        #expect(DownloadEvent.failed(error) != DownloadEvent.failedButCanResume(error))
     }
 
     private static let list: [DownloadEvent] = [
@@ -47,7 +47,7 @@ final class DownloadEventTests {
         .completed(urlA),
         .completed(urlB),
         .failed(.couldNotBuildURLRequest(reason: .invalidURL)),
-        .failedRetryable(.responseValidationFailed(reason: .noURLResponse))
+        .failedButCanResume(.responseValidationFailed(reason: .noURLResponse))
     ]
 
     private static let urlA = URL(string: "https://www.example.com")!

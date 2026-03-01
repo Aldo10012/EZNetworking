@@ -7,7 +7,7 @@ public enum DownloadEvent: Sendable, Equatable {
     case resumed
     case completed(URL)
     case failed(NetworkingError)
-    case failedRetryable(NetworkingError)
+    case failedButCanResume(NetworkingError)
     case cancelled
 
     public static func == (lhs: DownloadEvent, rhs: DownloadEvent) -> Bool {
@@ -20,7 +20,7 @@ public enum DownloadEvent: Sendable, Equatable {
             lhsURL == rhsURL
         case let (.failed(lhsE), .failed(rhsE)):
             lhsE == rhsE
-        case let (.failedRetryable(lhsE), .failedRetryable(rhsE)):
+        case let (.failedButCanResume(lhsE), .failedButCanResume(rhsE)):
             lhsE == rhsE
         default:
             false

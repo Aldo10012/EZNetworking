@@ -196,7 +196,7 @@ final class DefaultDownloadTaskInterceptorTests {
 
 // MARK: - Mock URLSessionDownloadTask
 
-private class MockURLSessionDownloadTask: URLSessionDownloadTask, @unchecked Sendable {
+class MockURLSessionDownloadTask: URLSessionDownloadTask, @unchecked Sendable {
     private let mockResponse: URLResponse?
 
     init(mockResponse: URLResponse?) {

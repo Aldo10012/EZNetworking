@@ -4,6 +4,8 @@ public enum DownloadFailureReason: Equatable, Sendable {
     // state related errors
     case cannotResume
     case alreadyDownloading
+    case alreadyFinished
+    case downloadIncompleteButResumable
     case notDownloading
     case notPaused
 
@@ -17,6 +19,8 @@ public enum DownloadFailureReason: Equatable, Sendable {
             (lhsError as NSError) == (rhsError as NSError)
         case (.cannotResume, .cannotResume),
              (.alreadyDownloading, .alreadyDownloading),
+             (.alreadyFinished, .alreadyFinished),
+             (.downloadIncompleteButResumable, .downloadIncompleteButResumable),
              (.notDownloading, .notDownloading),
              (.notPaused, .notPaused):
             true

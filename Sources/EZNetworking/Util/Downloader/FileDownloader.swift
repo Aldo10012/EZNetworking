@@ -12,7 +12,7 @@ public actor FileDownloader: FileDownloadable {
         case paused(resumeData: Data)
         case completed
         case failed
-        case failedRetryable(resumeData: Data)
+        case failedButCanResume(resumeData: Data)
         case cancelled
     }
 
@@ -45,21 +45,22 @@ public actor FileDownloader: FileDownloadable {
         continuation?.finish()
     }
 
-    // MARK: - FileDownloadable
+    // MARK: - downloadFileStream
 
     public func downloadFileStream() -> AsyncStream<DownloadEvent> {
         guard !Task.isCancelled else {
-            return AsyncStream { continuation in
-                continuation.yield(.cancelled)
-                continuation.finish()
-            }
+            return earlyExitStream(yielding: .cancelled)
         }
 
-        guard case .idle = state else {
-            return AsyncStream { continuation in
-                continuation.yield(.failed(.downloadFailed(reason: .alreadyDownloading)))
-                continuation.finish()
-            }
+        switch state {
+        case .idle:
+            break
+        case .downloading, .pausing, .paused:
+            return earlyExitStream(yielding: .failed(.downloadFailed(reason: .alreadyDownloading)))
+        case .failedButCanResume:
+            return earlyExitStream(yielding: .failed(.downloadFailed(reason: .downloadIncompleteButResumable)))
+        case .completed, .failed, .cancelled:
+            return earlyExitStream(yielding: .failed(.downloadFailed(reason: .alreadyFinished)))
         }
 
         let (stream, continuation) = AsyncStream<DownloadEvent>.makeStream()
@@ -82,6 +83,8 @@ public actor FileDownloader: FileDownloadable {
         return stream
     }
 
+    // MARK: pause
+
     public func pause() async throws {
         try Task.checkCancellation()
         guard case .downloading = state else {
@@ -89,27 +92,24 @@ public actor FileDownloader: FileDownloadable {
         }
 
         state = .pausing
+
         let resumeData = await downloadTask?.cancelByProducingResumeData()
         downloadTask = nil
 
+        guard case .pausing = state else { return }
         guard !Task.isCancelled else {
-            state = .cancelled
-            continuation?.yield(.cancelled)
-            continuation?.finish()
-            continuation = nil
+            terminate(with: .cancelled, state: .cancelled)
             return
         }
-        guard case .pausing = state else { return }
         guard let resumeData else {
-            state = .failed
-            continuation?.yield(.failed(.downloadFailed(reason: .cannotResume)))
-            continuation?.finish()
-            continuation = nil
+            terminate(with: .failed(.downloadFailed(reason: .cannotResume)), state: .failed)
             return
         }
         state = .paused(resumeData: resumeData)
         continuation?.yield(.paused)
     }
+
+    // MARK: resume
 
     public func resume() async throws {
         try Task.checkCancellation()
@@ -118,7 +118,7 @@ public actor FileDownloader: FileDownloadable {
         switch state {
         case let .paused(data):
             resumeData = data
-        case let .failedRetryable(data):
+        case let .failedButCanResume(data):
             resumeData = data
         default:
             throw NetworkingError.downloadFailed(reason: .notPaused)
@@ -132,18 +132,36 @@ public actor FileDownloader: FileDownloadable {
         continuation?.yield(.resumed)
     }
 
+    // MARK: cancel
+
     public func cancel() throws {
         switch state {
-        case .downloading, .paused, .pausing, .failedRetryable:
+        case .downloading, .paused, .pausing, .failedButCanResume:
             break
-        case .idle, .completed, .failed, .cancelled:
+        case .idle:
             throw NetworkingError.downloadFailed(reason: .notDownloading)
+        case .completed, .failed, .cancelled:
+            throw NetworkingError.downloadFailed(reason: .alreadyFinished)
         }
 
         downloadTask?.cancel()
+        terminate(with: .cancelled, state: .cancelled)
+    }
+
+    // MARK: - Helpers
+
+    private nonisolated func earlyExitStream(yielding value: DownloadEvent) -> AsyncStream<DownloadEvent> {
+        AsyncStream { continuation in
+            continuation.yield(value)
+            continuation.finish()
+        }
+    }
+
+    /// Moves to a terminal state, yields a final event, and closes the stream.
+    private func terminate(with event: DownloadEvent, state newState: State) {
+        state = newState
         downloadTask = nil
-        state = .cancelled
-        continuation?.yield(.cancelled)
+        continuation?.yield(event)
         continuation?.finish()
         continuation = nil
     }
@@ -173,32 +191,30 @@ public actor FileDownloader: FileDownloadable {
             case .downloading, .pausing: break
             default: return
             }
-            state = .completed
-            downloadTask = nil
-            continuation?.yield(.completed(location))
-            continuation?.finish()
-            continuation = nil
+            terminate(with: .completed(location), state: .completed)
 
         case let .onDownloadFailed(error, resumeData):
             guard case .downloading = state else { return }
             downloadTask = nil
-            let networkError: NetworkingError = if let ne = error as? NetworkingError {
-                ne
-            } else if let urlError = error as? URLError {
-                .downloadFailed(reason: .urlError(underlying: urlError))
-            } else {
-                .downloadFailed(reason: .unknownError(underlying: error.asSendableError))
-            }
 
+            let networkError = mapNetworkingError(from: error)
             if let resumeData {
-                state = .failedRetryable(resumeData: resumeData)
-                continuation?.yield(.failedRetryable(networkError))
+                state = .failedButCanResume(resumeData: resumeData)
+                continuation?.yield(.failedButCanResume(networkError))
             } else {
-                state = .failed
-                continuation?.yield(.failed(networkError))
-                continuation?.finish()
-                continuation = nil
+                terminate(with: .failed(networkError), state: .failed)
             }
+        }
+    }
+
+    private func mapNetworkingError(from error: Error) -> NetworkingError {
+        switch error {
+        case let networkingError as NetworkingError:
+            networkingError
+        case let urlError as URLError:
+            .downloadFailed(reason: .urlError(underlying: urlError))
+        default:
+            .downloadFailed(reason: .unknownError(underlying: error.asSendableError))
         }
     }
 }
