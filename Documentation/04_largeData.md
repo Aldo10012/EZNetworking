@@ -18,6 +18,8 @@ for await event in await downloader.downloadFileStream() {
         // handle downloaded file at localURL
     case .failed(let error):
         // handle error
+    case .failedButCanResume(let error):
+        // download failed but can be resumed by calling resume()
     case .paused:
         // download paused
     case .resumed:
