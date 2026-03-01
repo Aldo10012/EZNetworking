@@ -59,7 +59,7 @@ public actor WebSocket: WebSocketClient {
         stateEventStream = stream
         stateEventContinuation = continuation
 
-        setupWebSocketEventHandler()
+        setupWebSocketEventHandler(session: session)
     }
 
     // MARK: deinit
@@ -99,7 +99,7 @@ public actor WebSocket: WebSocketClient {
 
     // MARK: Handle delegate events
 
-    private nonisolated func setupWebSocketEventHandler() {
+    private nonisolated func setupWebSocketEventHandler(session: NetworkSession) {
         if session.delegate.webSocketTaskInterceptor == nil {
             session.delegate.webSocketTaskInterceptor = fallbackWebSocketTaskInterceptor
         }
