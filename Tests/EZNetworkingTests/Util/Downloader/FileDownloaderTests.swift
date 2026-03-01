@@ -258,7 +258,7 @@ final class FileDownloaderTests {
     }
 
     @Test("test downloadFileStream when failedButCanResume emits downloadIncompleteButResumable")
-    func downloadFileStreamWhenFailedButCanResumeEmitsDownloadIncompleteButResumable() async {
+    func downloadFileStreamWhenFailedButCanResumeEmitsDownloadIncompleteButResumable() async throws {
         let downloadInterceptor = MockDownloadTaskInterceptor()
         let delegate = SessionDelegate(downloadTaskInterceptor: downloadInterceptor)
         let mockURLSession = MockFileDownloaderURLSession()
@@ -269,9 +269,7 @@ final class FileDownloaderTests {
 
         let mockResumeData = "partial".data(using: .utf8)!
         downloadInterceptor.simulateFailure(URLError(.networkConnectionLost), resumeData: mockResumeData)
-
-        // Consume events until failedButCanResume to let state settle
-        for await _ in firstStream.prefix(2) {}
+        try await Task.sleep(for: .milliseconds(10))
 
         let secondStream = await sut.downloadFileStream()
         var events: [DownloadEvent] = []
