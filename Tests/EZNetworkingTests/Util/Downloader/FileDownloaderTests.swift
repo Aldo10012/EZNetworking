@@ -211,9 +211,10 @@ final class FileDownloaderTests {
             .failed(.downloadFailed(reason: .cannotResume))
         ])
     }
+}
 
-    // MARK: Invalid state transitions
-
+@Suite("Test FileDownloader - invalid state")
+final class FileDownloaderInvalidStateTests {
     @Test("test downloadFileStream when already downloading emits alreadyDownloading")
     func downloadFileStreamWhenAlreadyDownloadingEmitsAlreadyDownloading() async {
         let session = MockSession(urlSession: MockFileDownloaderURLSession(), delegate: SessionDelegate())
@@ -280,6 +281,9 @@ final class FileDownloaderTests {
         #expect(events == [
             .failed(.downloadFailed(reason: .downloadIncompleteButResumable))
         ])
+
+        // Keep firstStream alive so onTermination doesn't trigger cancel()
+        withExtendedLifetime(firstStream) {}
     }
 
     @Test("test calling .pause() when not downloading throws")
@@ -645,5 +649,6 @@ private class MockDelegateDownloadTask: URLSessionDownloadTask, @unchecked Senda
         self.mockResponse = mockResponse
         super.init()
     }
+
     override var response: URLResponse? { mockResponse }
 }

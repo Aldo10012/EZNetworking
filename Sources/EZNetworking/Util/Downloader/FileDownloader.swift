@@ -110,6 +110,7 @@ public actor FileDownloader: FileDownloadable {
     }
 
     // MARK: resume
+
     public func resume() async throws {
         try Task.checkCancellation()
 
