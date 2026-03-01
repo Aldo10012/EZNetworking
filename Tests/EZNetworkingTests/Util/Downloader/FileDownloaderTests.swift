@@ -232,6 +232,58 @@ final class FileDownloaderTests {
         ])
     }
 
+    @Test("test downloadFileStream after completed emits alreadyFinished")
+    func downloadFileStreamAfterCompletedEmitsAlreadyFinished() async {
+        let downloadInterceptor = MockDownloadTaskInterceptor()
+        let delegate = SessionDelegate(downloadTaskInterceptor: downloadInterceptor)
+        let mockURLSession = MockFileDownloaderURLSession()
+        let session = MockSession(urlSession: mockURLSession, delegate: delegate)
+        let sut = FileDownloader(url: mockUrl, session: session)
+
+        let firstStream = await sut.downloadFileStream()
+        downloadInterceptor.simulateDownloadComplete(mockFileLocation)
+
+        // Drain the first stream to let state reach .completed
+        for await _ in firstStream {}
+
+        let secondStream = await sut.downloadFileStream()
+        var events: [DownloadEvent] = []
+        for await event in secondStream {
+            events.append(event)
+        }
+
+        #expect(events == [
+            .failed(.downloadFailed(reason: .alreadyFinished))
+        ])
+    }
+
+    @Test("test downloadFileStream when failedButCanResume emits downloadIncompleteButResumable")
+    func downloadFileStreamWhenFailedButCanResumeEmitsDownloadIncompleteButResumable() async {
+        let downloadInterceptor = MockDownloadTaskInterceptor()
+        let delegate = SessionDelegate(downloadTaskInterceptor: downloadInterceptor)
+        let mockURLSession = MockFileDownloaderURLSession()
+        let session = MockSession(urlSession: mockURLSession, delegate: delegate)
+        let sut = FileDownloader(url: mockUrl, session: session)
+
+        let firstStream = await sut.downloadFileStream()
+
+        let mockResumeData = "partial".data(using: .utf8)!
+        downloadInterceptor.simulateFailure(URLError(.networkConnectionLost), resumeData: mockResumeData)
+
+        // Consume events until failedButCanResume to let state settle
+        for await _ in firstStream.prefix(2) {}
+
+        let secondStream = await sut.downloadFileStream()
+        var events: [DownloadEvent] = []
+        for await event in secondStream {
+            events.append(event)
+        }
+
+        #expect(events == [
+            .failed(.downloadFailed(reason: .downloadIncompleteButResumable))
+        ])
+    }
+
     @Test("test calling .pause() when not downloading throws")
     func callingPauseWhenNotDownloadingThrows() async {
         let session = MockSession(urlSession: MockFileDownloaderURLSession(), delegate: SessionDelegate())
