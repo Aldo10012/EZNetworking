@@ -4,8 +4,8 @@ import Testing
 
 @Suite("Test FileDownloader - Task cancellation")
 final class FileDownloaderTaskCancellationTests {
-    @Test("test pause yields cancelled when Task is cancelled during cancelByProducingResumeData await")
-    func pauseYieldsCancelledWhenTaskCancelledDuringAwait() async throws {
+    @Test("test pause terminates silently when Task is cancelled during cancelByProducingResumeData await")
+    func pauseTerminatesSilentlyWhenTaskCancelledDuringAwait() async throws {
         let downloadInterceptor = MockDownloadTaskInterceptor()
         let delegate = SessionDelegate(downloadTaskInterceptor: downloadInterceptor)
         let mockURLSession = MockFileDownloaderURLSession()
@@ -38,13 +38,12 @@ final class FileDownloaderTaskCancellationTests {
             events.append(event)
         }
         #expect(events == [
-            .started,
-            .progress(0.5),
-            .cancelled
+            .progress(0.5)
         ])
+        #expect(await sut.state == .cancelled)
     }
 
-    @Test("test downloadFileStream when parent task is cancelled emits cancelled")
+    @Test("test downloadFileStream when parent task is cancelled returns empty stream")
     func downloadFileStream_parentTaskCancelled() async {
         let mockURLSession = MockFileDownloaderURLSession()
         let session = MockSession(urlSession: mockURLSession, delegate: SessionDelegate())
@@ -65,7 +64,7 @@ final class FileDownloaderTaskCancellationTests {
         eventsTask.cancel()
 
         let events = await eventsTask.value
-        #expect(events == [.cancelled])
+        #expect(events == [])
         #expect(!mockURLSession.mockDownloadTask.didResume)
     }
 

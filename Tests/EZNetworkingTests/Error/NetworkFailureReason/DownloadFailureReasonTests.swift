@@ -32,6 +32,20 @@ struct DownloadFailureReasonTests {
         #expect(reason1 != reason3)
     }
 
+    @Test("test failedButResumable case equality")
+    func failedButResumableEquality() {
+        let error1 = URLError(.networkConnectionLost)
+        let error2 = URLError(.networkConnectionLost)
+        let error3 = URLError(.timedOut)
+
+        let reason1 = DownloadFailureReason.failedButResumable(underlying: error1)
+        let reason2 = DownloadFailureReason.failedButResumable(underlying: error2)
+        let reason3 = DownloadFailureReason.failedButResumable(underlying: error3)
+
+        #expect(reason1 == reason2)
+        #expect(reason1 != reason3)
+    }
+
     @Test("test cannotResume case equality")
     func cannotResumeEquality() {
         let reason1 = DownloadFailureReason.cannotResume
@@ -90,6 +104,7 @@ struct DownloadFailureReasonTests {
         let notDownloading = DownloadFailureReason.notDownloading
         let notPaused = DownloadFailureReason.notPaused
         let unknownError = DownloadFailureReason.unknownError(underlying: NSError(domain: "Test", code: 1, userInfo: nil))
+        let failedButResumable = DownloadFailureReason.failedButResumable(underlying: URLError(.networkConnectionLost))
 
         #expect(urlError != cannotResume)
         #expect(urlError != alreadyDownloading)
@@ -98,27 +113,35 @@ struct DownloadFailureReasonTests {
         #expect(urlError != notDownloading)
         #expect(urlError != notPaused)
         #expect(urlError != unknownError)
+        #expect(urlError != failedButResumable)
         #expect(cannotResume != alreadyDownloading)
         #expect(cannotResume != alreadyFinished)
         #expect(cannotResume != downloadIncompleteButResumable)
         #expect(cannotResume != notDownloading)
         #expect(cannotResume != notPaused)
         #expect(cannotResume != unknownError)
+        #expect(cannotResume != failedButResumable)
         #expect(alreadyDownloading != alreadyFinished)
         #expect(alreadyDownloading != downloadIncompleteButResumable)
         #expect(alreadyDownloading != notDownloading)
         #expect(alreadyDownloading != notPaused)
         #expect(alreadyDownloading != unknownError)
+        #expect(alreadyDownloading != failedButResumable)
         #expect(alreadyFinished != downloadIncompleteButResumable)
         #expect(alreadyFinished != notDownloading)
         #expect(alreadyFinished != notPaused)
         #expect(alreadyFinished != unknownError)
+        #expect(alreadyFinished != failedButResumable)
         #expect(downloadIncompleteButResumable != notDownloading)
         #expect(downloadIncompleteButResumable != notPaused)
         #expect(downloadIncompleteButResumable != unknownError)
+        #expect(downloadIncompleteButResumable != failedButResumable)
         #expect(notDownloading != notPaused)
         #expect(notDownloading != unknownError)
+        #expect(notDownloading != failedButResumable)
         #expect(notPaused != unknownError)
+        #expect(notPaused != failedButResumable)
+        #expect(unknownError != failedButResumable)
     }
 
     @Test("test urlError vs unknownError even with same NSError")
@@ -128,6 +151,16 @@ struct DownloadFailureReasonTests {
 
         let reason1 = DownloadFailureReason.urlError(underlying: urlError)
         let reason2 = DownloadFailureReason.unknownError(underlying: nsError)
+
+        #expect(reason1 != reason2)
+    }
+
+    @Test("test failedButResumable vs unknownError with same underlying error")
+    func failedButResumableVsUnknownErrorWithSameError() {
+        let error = NSError(domain: "Test", code: 1, userInfo: nil)
+
+        let reason1 = DownloadFailureReason.failedButResumable(underlying: error)
+        let reason2 = DownloadFailureReason.unknownError(underlying: error)
 
         #expect(reason1 != reason2)
     }

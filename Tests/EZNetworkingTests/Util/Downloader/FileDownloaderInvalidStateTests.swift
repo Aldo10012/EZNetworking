@@ -10,6 +10,7 @@ final class FileDownloaderInvalidStateTests {
         let sut = FileDownloader(url: mockUrl, session: session)
 
         _ = await sut.downloadFileStream()
+        #expect(await sut.state == .downloading)
 
         let secondStream = await sut.downloadFileStream()
         var events: [DownloadEvent] = []
@@ -35,6 +36,7 @@ final class FileDownloaderInvalidStateTests {
 
         // Drain the first stream to let state reach .completed
         for await _ in firstStream {}
+        #expect(await sut.state == .completed)
 
         let secondStream = await sut.downloadFileStream()
         var events: [DownloadEvent] = []
@@ -60,6 +62,7 @@ final class FileDownloaderInvalidStateTests {
         let mockResumeData = "partial".data(using: .utf8)!
         downloadInterceptor.simulateFailure(URLError(.networkConnectionLost), resumeData: mockResumeData)
         try await Task.sleep(for: .milliseconds(10))
+        #expect(await sut.state == .failedButCanResume(resumeData: mockResumeData))
 
         let secondStream = await sut.downloadFileStream()
         var events: [DownloadEvent] = []
@@ -80,6 +83,7 @@ final class FileDownloaderInvalidStateTests {
         let session = MockSession(urlSession: MockFileDownloaderURLSession(), delegate: SessionDelegate())
         let sut = FileDownloader(url: mockUrl, session: session)
 
+        #expect(await sut.state == .idle)
         await #expect(throws: NetworkingError.downloadFailed(reason: .notDownloading)) {
             try await sut.pause()
         }
@@ -90,6 +94,7 @@ final class FileDownloaderInvalidStateTests {
         let session = MockSession(urlSession: MockFileDownloaderURLSession(), delegate: SessionDelegate())
         let sut = FileDownloader(url: mockUrl, session: session)
 
+        #expect(await sut.state == .idle)
         await #expect(throws: NetworkingError.downloadFailed(reason: .notPaused)) {
             try await sut.resume()
         }
@@ -100,6 +105,7 @@ final class FileDownloaderInvalidStateTests {
         let session = MockSession(urlSession: MockFileDownloaderURLSession(), delegate: SessionDelegate())
         let sut = FileDownloader(url: mockUrl, session: session)
 
+        #expect(await sut.state == .idle)
         await #expect(throws: NetworkingError.downloadFailed(reason: .notDownloading)) {
             try await sut.cancel()
         }

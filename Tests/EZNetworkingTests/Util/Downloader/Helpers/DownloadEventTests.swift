@@ -15,39 +15,26 @@ final class DownloadEventTests {
     }
 
     @Test("test same case with different inputs are not equatable")
-    func sameCaseWithDifferentINputsAreNotEquatable() {
+    func sameCaseWithDifferentInputsAreNotEquatable() {
         let event1 = DownloadEvent.progress(0.1)
         let event2 = DownloadEvent.progress(0.8)
         let event3 = DownloadEvent.completed(DownloadEventTests.urlA)
         let event4 = DownloadEvent.completed(DownloadEventTests.urlB)
         let event5 = DownloadEvent.failed(.couldNotBuildURLRequest(reason: .noURL))
         let event6 = DownloadEvent.failed(.responseValidationFailed(reason: .noURLResponse))
-        let event7 = DownloadEvent.failedButCanResume(.couldNotBuildURLRequest(reason: .noURL))
-        let event8 = DownloadEvent.failedButCanResume(.responseValidationFailed(reason: .noURLResponse))
 
         #expect(event1 != event2)
         #expect(event3 != event4)
         #expect(event5 != event6)
-        #expect(event7 != event8)
-    }
-
-    @Test("test failed and failedButCanResume with same error are not equal")
-    func failedAndFailedRetryableAreNotEqual() {
-        let error = NetworkingError.couldNotBuildURLRequest(reason: .invalidURL)
-        #expect(DownloadEvent.failed(error) != DownloadEvent.failedButCanResume(error))
     }
 
     private static let list: [DownloadEvent] = [
-        .started,
-        .paused,
-        .resumed,
-        .cancelled,
         .progress(0.2),
         .progress(0.6),
         .completed(urlA),
         .completed(urlB),
         .failed(.couldNotBuildURLRequest(reason: .invalidURL)),
-        .failedButCanResume(.responseValidationFailed(reason: .noURLResponse))
+        .failed(.downloadFailed(reason: .failedButResumable(underlying: URLError(.networkConnectionLost))))
     ]
 
     private static let urlA = URL(string: "https://www.example.com")!
