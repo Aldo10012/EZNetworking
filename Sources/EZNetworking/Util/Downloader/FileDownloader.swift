@@ -177,7 +177,7 @@ public actor FileDownloader: FileDownloadable {
         }
 
         session.delegate.downloadTaskInterceptor?.onEvent = { [weak self] event in
-            Task { @Sendable [weak self] in
+            Task(priority: .high) { @Sendable [weak self] in
                 await self?.handleDownloadInterceptorEvent(event)
             }
         }
