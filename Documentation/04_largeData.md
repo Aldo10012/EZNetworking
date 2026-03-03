@@ -10,22 +10,16 @@ let downloader = FileDownloader(url: URL(string: "https://example.com/file.pdf")
 
 for await event in await downloader.downloadFileStream() {
     switch event {
-    case .started:
-        // download started
     case .progress(let progress):
         // handle progress (0.0 to 1.0)
     case .completed(let localURL):
         // handle downloaded file at localURL
     case .failed(let error):
         // handle error
-    case .failedButCanResume(let error):
-        // download failed but can be resumed by calling resume()
-    case .paused:
-        // download paused
-    case .resumed:
-        // download resumed
-    case .cancelled:
-        // download cancelled
+        if case .downloadFailed(reason: .failedButResumable) = error {
+            // download failed but can be resumed by calling resume()
+            try await downloader.resume()
+        }
     }
 }
 ```
