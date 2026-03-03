@@ -96,11 +96,11 @@ public actor FileDownloader: FileDownloadable {
 
         guard case .pausing = state else { return }
         guard !Task.isCancelled else {
-            terminateSilently(state: .cancelled)
+            terminate(yield: nil, state: .cancelled)
             return
         }
         guard let resumeData else {
-            terminate(with: .failed(.downloadFailed(reason: .cannotResume)), state: .failed)
+            terminate(yield: .failed(.downloadFailed(reason: .cannotResume)), state: .failed)
             return
         }
         state = .paused(resumeData: resumeData)
@@ -140,7 +140,7 @@ public actor FileDownloader: FileDownloadable {
         }
 
         downloadTask?.cancel()
-        terminateSilently(state: .cancelled)
+        terminate(yield: nil, state: .cancelled)
     }
 
     // MARK: - Helpers
@@ -153,18 +153,12 @@ public actor FileDownloader: FileDownloadable {
     }
 
     /// Moves to a terminal state, yields a final event, and closes the stream.
-    private func terminate(with event: DownloadEvent, state newState: State) {
+    private func terminate(yield event: DownloadEvent?, state newState: State) {
         state = newState
         downloadTask = nil
-        continuation?.yield(event)
-        continuation?.finish()
-        continuation = nil
-    }
-
-    /// Moves to a terminal state and closes the stream without yielding any event.
-    private func terminateSilently(state newState: State) {
-        state = newState
-        downloadTask = nil
+        if let event {
+            continuation?.yield(event)
+        }
         continuation?.finish()
         continuation = nil
     }
@@ -194,7 +188,7 @@ public actor FileDownloader: FileDownloadable {
             case .downloading, .pausing: break
             default: return
             }
-            terminate(with: .completed(location), state: .completed)
+            terminate(yield: .completed(location), state: .completed)
 
         case let .onDownloadFailed(error, resumeData):
             guard case .downloading = state else { return }
@@ -208,7 +202,7 @@ public actor FileDownloader: FileDownloadable {
                 continuation?.yield(.failed(resumableError))
             } else {
                 let networkError = mapNetworkingError(from: error)
-                terminate(with: .failed(networkError), state: .failed)
+                terminate(yield: .failed(networkError), state: .failed)
             }
         }
     }
