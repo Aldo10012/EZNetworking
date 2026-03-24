@@ -1,131 +1,232 @@
-import Combine
 import Foundation
 
-public class FileUploader {
+public actor FileUploader: FileUploadable {
+    private let url: URL
+    private let fileURL: URL
     private let session: NetworkSession
     private let validator: ResponseValidator
 
-    private let fallbackUploadTaskInterceptor = DefaultUploadTaskInterceptor()
+    enum State: Equatable {
+        case idle
+        case uploading
+        case pausing
+        case paused(resumeData: Data)
+        case completed
+        case failed
+        case failedButCanResume(resumeData: Data)
+        case cancelled
+    }
+
+    var state: State = .idle
+    private var uploadTask: (any URLSessionUploadTaskProtocol)?
+    private var continuation: AsyncStream<UploadEvent>.Continuation?
+
+    /// Strong reference since SessionDelegate.uploadTaskInterceptor is weak
+    private nonisolated let fallbackUploadTaskInterceptor: DefaultUploadTaskInterceptor
 
     // MARK: init
 
     public init(
+        url: URL,
+        fileURL: URL,
         session: NetworkSession = Session(),
         validator: ResponseValidator = DefaultResponseValidator()
     ) {
+        self.url = url
+        self.fileURL = fileURL
         self.session = session
         self.validator = validator
+        fallbackUploadTaskInterceptor = DefaultUploadTaskInterceptor(validator: validator)
+
+        setupUploadEventHandler(session: session)
     }
 
-    // MARK: - CORE - async/await
+    // MARK: deinit
 
-    public func uploadFile(_ fileURL: URL, with request: any Request, progress: UploadProgressHandler?) async throws -> Data {
+    deinit {
+        session.delegate.uploadTaskInterceptor?.onEvent = { _ in }
+        continuation?.finish()
+    }
+
+    // MARK: - uploadFileStream
+
+    public func uploadFileStream() -> AsyncStream<UploadEvent> {
+        guard !Task.isCancelled else {
+            return AsyncStream { $0.finish() }
+        }
+
+        switch state {
+        case .idle:
+            break
+        case .uploading, .pausing, .paused:
+            return earlyExitStream(yielding: .failed(.uploadFailed(reason: .alreadyUploading)))
+        case .failedButCanResume:
+            return earlyExitStream(yielding: .failed(.uploadFailed(reason: .uploadIncompleteButResumable)))
+        case .completed, .failed, .cancelled:
+            return earlyExitStream(yielding: .failed(.uploadFailed(reason: .alreadyFinished)))
+        }
+
+        let (stream, continuation) = AsyncStream<UploadEvent>.makeStream()
+        self.continuation = continuation
+
+        continuation.onTermination = { @Sendable [weak self] termination in
+            guard case .cancelled = termination else { return }
+            Task { [weak self] in
+                try? await self?.cancel()
+            }
+        }
+
+        state = .uploading
+        let request = URLRequest(url: url)
+        let task = session.urlSession.uploadTaskInspectable(with: request, fromFile: fileURL)
+        uploadTask = task
+        task.resume()
+
+        return stream
+    }
+
+    // MARK: pause
+
+    @available(iOS 17.0, macOS 14.0, *)
+    public func pause() async throws {
         try Task.checkCancellation()
-        configureProgressTracking { percentage in
-            guard !Task.isCancelled else { return }
-            progress?(percentage)
+        guard case .uploading = state else {
+            throw NetworkingError.uploadFailed(reason: .notUploading)
         }
-        do {
-            let urlRequest = try request.getURLRequest()
-            let (data, urlResponse) = try await session.urlSession.upload(for: urlRequest, fromFile: fileURL)
-            try Task.checkCancellation()
-            try validator.validateStatus(from: urlResponse)
-            return data
-        } catch let cancellationError as CancellationError {
-            throw cancellationError
-        } catch {
-            throw mapError(error)
+
+        state = .pausing
+
+        let resumeData = await uploadTask?.cancelByProducingResumeData()
+        uploadTask = nil
+
+        guard case .pausing = state else { return }
+        guard !Task.isCancelled else {
+            terminateSilently(state: .cancelled)
+            return
         }
+        guard let resumeData else {
+            terminate(with: .failed(.uploadFailed(reason: .cannotResume)), state: .failed)
+            return
+        }
+        state = .paused(resumeData: resumeData)
     }
 
-    // MARK: - Adapter - AsyncStream
+    // MARK: resume
 
-    public func uploadFileStream(_ fileURL: URL, with request: any Request) -> AsyncStream<UploadStreamEvent> {
-        AsyncStream { continuation in
-            let task = Task {
-                do {
-                    let data = try await uploadFile(fileURL, with: request) {
-                        continuation.yield(.progress($0))
-                    }
-                    continuation.yield(.success(data))
-                    continuation.finish()
-                } catch is CancellationError {
-                    continuation.finish()
-                } catch {
-                    continuation.yield(.failure(mapError(error)))
-                    continuation.finish()
-                }
-            }
-            continuation.onTermination = { @Sendable _ in
-                task.cancel()
-            }
+    @available(iOS 17.0, macOS 14.0, *)
+    public func resume() async throws {
+        try Task.checkCancellation()
+
+        let resumeData: Data
+        switch state {
+        case let .paused(data):
+            resumeData = data
+        case let .failedButCanResume(data):
+            resumeData = data
+        default:
+            throw NetworkingError.uploadFailed(reason: .notPaused)
         }
+
+        state = .uploading
+        let task = session.urlSession.uploadTaskInspectable(withResumeData: resumeData)
+        uploadTask = task
+        task.resume()
     }
 
-    // MARK: - Adapter - callbacks
+    // MARK: cancel
 
-    @discardableResult
-    public func uploadFileTask(_ fileURL: URL, with request: any Request, progress: UploadProgressHandler?, completion: @escaping UploadCompletionHandler) -> CancellableRequest? {
-        let taskBox = TaskBox()
-        let cancellableRequest = CancellableRequest { [weak self] in
-            taskBox.task = self?.createTaskAndPerform(fileURL, with: request, progress: progress, completion: completion)
-        } onCancel: {
-            taskBox.task?.cancel()
+    public func cancel() throws {
+        switch state {
+        case .uploading, .paused, .pausing, .failedButCanResume:
+            break
+        case .idle:
+            throw NetworkingError.uploadFailed(reason: .notUploading)
+        case .completed, .failed, .cancelled:
+            throw NetworkingError.uploadFailed(reason: .alreadyFinished)
         }
-        cancellableRequest.resume()
-        return cancellableRequest
-    }
 
-    // MARK: - Adapter - Publisher
-
-    public func uploadFilePublisher(_ fileURL: URL, with request: any Request, progress: UploadProgressHandler?) -> AnyPublisher<Data, NetworkingError> {
-        Deferred {
-            let taskBox = TaskBox()
-            return Future<Data, NetworkingError> { [weak self] promise in
-                taskBox.task = self?.createTaskAndPerform(fileURL, with: request, progress: progress, completion: { promise($0) })
-            }
-            .handleEvents(receiveCancel: {
-                taskBox.task?.cancel()
-            })
-        }
-        .eraseToAnyPublisher()
+        uploadTask?.cancel()
+        terminateSilently(state: .cancelled)
     }
 
     // MARK: - Helpers
 
-    private func createTaskAndPerform(
-        _ fileURL: URL,
-        with request: Request,
-        progress: UploadProgressHandler?,
-        completion: @escaping ((Result<Data, NetworkingError>) -> Void)
-    ) -> Task<Void, Never> {
-        Task {
-            do {
-                let data = try await uploadFile(fileURL, with: request, progress: progress)
-                completion(.success(data))
-            } catch is CancellationError {
-                // Do nothing, task has been cancelled
-            } catch {
-                completion(.failure(mapError(error)))
-            }
+    private nonisolated func earlyExitStream(yielding value: UploadEvent) -> AsyncStream<UploadEvent> {
+        AsyncStream { continuation in
+            continuation.yield(value)
+            continuation.finish()
         }
     }
 
-    private func mapError(_ error: Error) -> NetworkingError {
-        if let networkError = error as? NetworkingError { return networkError }
-        if let urlError = error as? URLError { return .requestFailed(reason: .urlError(underlying: urlError)) }
-        return .requestFailed(reason: .unknownError(underlying: error.asSendableError))
+    /// Moves to a terminal state, yields a final event, and closes the stream.
+    private func terminate(with event: UploadEvent, state newState: State) {
+        state = newState
+        uploadTask = nil
+        continuation?.yield(event)
+        continuation?.finish()
+        continuation = nil
     }
 
-    private func configureProgressTracking(progress: UploadProgressHandler?) {
-        guard let progress else { return }
+    /// Moves to a terminal state and closes the stream without yielding any event.
+    private func terminateSilently(state newState: State) {
+        state = newState
+        uploadTask = nil
+        continuation?.finish()
+        continuation = nil
+    }
+
+    // MARK: - Event handling
+
+    private nonisolated func setupUploadEventHandler(session: NetworkSession) {
         if session.delegate.uploadTaskInterceptor == nil {
             session.delegate.uploadTaskInterceptor = fallbackUploadTaskInterceptor
         }
-        session.delegate.uploadTaskInterceptor?.onEvent = { event in
-            if case let .onProgress(percentage) = event {
-                progress(percentage)
+
+        session.delegate.uploadTaskInterceptor?.onEvent = { [weak self] event in
+            Task { @Sendable [weak self] in
+                await self?.handleUploadInterceptorEvent(event)
             }
+        }
+    }
+
+    private func handleUploadInterceptorEvent(_ event: UploadTaskInterceptorEvent) {
+        switch event {
+        case let .onProgress(progress):
+            guard case .uploading = state else { return }
+            continuation?.yield(.progress(progress))
+
+        case let .onUploadCompleted(data):
+            switch state {
+            case .uploading, .pausing: break
+            default: return
+            }
+            terminate(with: .completed(data), state: .completed)
+
+        case let .onUploadFailed(error, resumeData):
+            guard case .uploading = state else { return }
+            uploadTask = nil
+
+            if let resumeData {
+                state = .failedButCanResume(resumeData: resumeData)
+                let resumableError: NetworkingError = .uploadFailed(
+                    reason: .failedButResumable(underlying: error.asSendableError)
+                )
+                continuation?.yield(.failed(resumableError))
+            } else {
+                let networkError = mapNetworkingError(from: error)
+                terminate(with: .failed(networkError), state: .failed)
+            }
+        }
+    }
+
+    private func mapNetworkingError(from error: Error) -> NetworkingError {
+        switch error {
+        case let networkingError as NetworkingError:
+            networkingError
+        case let urlError as URLError:
+            .uploadFailed(reason: .urlError(underlying: urlError))
+        default:
+            .uploadFailed(reason: .unknownError(underlying: error.asSendableError))
         }
     }
 }
