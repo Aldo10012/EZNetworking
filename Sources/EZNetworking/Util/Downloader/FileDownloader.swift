@@ -33,7 +33,7 @@ public actor FileDownloader: FileDownloadable {
         self.url = url
         self.session = session
         self.validator = validator
-        fallbackDownloadTaskInterceptor = DefaultDownloadTaskInterceptor(validator: validator)
+        fallbackDownloadTaskInterceptor = DefaultDownloadTaskInterceptor()
 
         setupDownloadEventHandler(session: session)
     }
@@ -74,7 +74,11 @@ public actor FileDownloader: FileDownloadable {
         }
 
         state = .downloading
-        let task = session.urlSession.downloadTaskInspectable(with: url)
+        let task = session.urlSession.downloadTaskInspectable(with: url) { [weak self] location, response, error in
+            Task { [weak self] in
+                await self?.handleDownloadCompletion(location: location, response: response, error: error)
+            }
+        }
         downloadTask = task
         task.resume()
 
@@ -122,7 +126,11 @@ public actor FileDownloader: FileDownloadable {
         }
 
         state = .downloading
-        let task = session.urlSession.downloadTaskInspectable(withResumeData: resumeData)
+        let task = session.urlSession.downloadTaskInspectable(withResumeData: resumeData) { [weak self] location, response, error in
+            Task { [weak self] in
+                await self?.handleDownloadCompletion(location: location, response: response, error: error)
+            }
+        }
         downloadTask = task
         task.resume()
     }
@@ -183,17 +191,19 @@ public actor FileDownloader: FileDownloadable {
             guard case .downloading = state else { return }
             continuation?.yield(.progress(progress))
 
-        case let .onDownloadCompleted(location):
-            switch state {
-            case .downloading, .pausing: break
-            default: return
-            }
-            terminate(yield: .completed(location), state: .completed)
+        case .onDownloadCompleted, .onDownloadFailed:
+            break
+        }
+    }
 
-        case let .onDownloadFailed(error, resumeData):
+    // MARK: - Completion handler
+
+    private func handleDownloadCompletion(location: URL?, response: URLResponse?, error: Error?) {
+        if let error {
             guard case .downloading = state else { return }
             downloadTask = nil
 
+            let resumeData = (error as? URLError)?.downloadTaskResumeData
             if let resumeData {
                 state = .failedButCanResume(resumeData: resumeData)
                 let resumableError: NetworkingError = .downloadFailed(
@@ -204,6 +214,25 @@ public actor FileDownloader: FileDownloadable {
                 let networkError = mapNetworkingError(from: error)
                 terminate(yield: .failed(networkError), state: .failed)
             }
+            return
+        }
+
+        guard let location else {
+            let unknownError = URLError(.unknown)
+            terminate(yield: .failed(.downloadFailed(reason: .urlError(underlying: unknownError))), state: .failed)
+            return
+        }
+
+        do {
+            try validator.validateStatus(from: response)
+            switch state {
+            case .downloading, .pausing: break
+            default: return
+            }
+            terminate(yield: .completed(location), state: .completed)
+        } catch {
+            let networkError = mapNetworkingError(from: error)
+            terminate(yield: .failed(networkError), state: .failed)
         }
     }
 
