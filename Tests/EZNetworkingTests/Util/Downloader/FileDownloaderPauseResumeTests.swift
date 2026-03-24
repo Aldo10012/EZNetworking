@@ -123,7 +123,7 @@ final class FileDownloaderPauseResumeTests {
         }
         #expect(events == [
             .progress(0.5),
-            .failed(.downloadFailed(reason: .failedButResumable(underlying: URLError(.networkConnectionLost))))
+            .failed(.downloadFailed(reason: .failedButResumable(underlying: error)))
         ])
         #expect(await sut.state == .failedButCanResume(resumeData: mockResumeData))
     }
@@ -183,7 +183,7 @@ final class FileDownloaderPauseResumeTests {
         }
         #expect(events == [
             .progress(0.3),
-            .failed(.downloadFailed(reason: .failedButResumable(underlying: URLError(.networkConnectionLost)))),
+            .failed(.downloadFailed(reason: .failedButResumable(underlying: error))),
             .progress(0.6),
             .completed(mockFileLocation)
         ])
@@ -210,7 +210,7 @@ final class FileDownloaderPauseResumeTests {
             events.append(event)
         }
         #expect(events == [
-            .failed(.downloadFailed(reason: .failedButResumable(underlying: URLError(.networkConnectionLost))))
+            .failed(.downloadFailed(reason: .failedButResumable(underlying: error)))
         ])
         #expect(await sut.state == .cancelled)
     }

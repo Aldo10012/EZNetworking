@@ -197,29 +197,12 @@ public actor FileDownloader: FileDownloadable {
 
     private func handleDownloadCompletion(location: URL?, response: URLResponse?, error: Error?) {
         if let error {
-            guard case .downloading = state else { return }
-            downloadTask = nil
-
-            let urlError = error as? URLError
-            let resumeData = urlError?.downloadTaskResumeData
-            if let resumeData {
-                state = .failedButCanResume(resumeData: resumeData)
-                // Strip resume data from the error to keep it as a clean error descriptor
-                let strippedError = URLError(urlError!.code)
-                let resumableError: NetworkingError = .downloadFailed(
-                    reason: .failedButResumable(underlying: strippedError)
-                )
-                continuation?.yield(.failed(resumableError))
-            } else {
-                let networkError = mapNetworkingError(from: error)
-                terminate(yield: .failed(networkError), state: .failed)
-            }
+            handleError(error: error)
             return
         }
 
         guard let location else {
-            let unknownError = URLError(.unknown)
-            terminate(yield: .failed(.downloadFailed(reason: .urlError(underlying: unknownError))), state: .failed)
+            terminate(yield: .failed(.downloadFailed(reason: .urlError(underlying: URLError(.unknown)))), state: .failed)
             return
         }
 
@@ -231,6 +214,21 @@ public actor FileDownloader: FileDownloadable {
             }
             terminate(yield: .completed(location), state: .completed)
         } catch {
+            let networkError = mapNetworkingError(from: error)
+            terminate(yield: .failed(networkError), state: .failed)
+        }
+    }
+
+    private func handleError(error: Error) {
+        guard case .downloading = state else { return }
+        downloadTask = nil
+
+        let resumeData = (error as? URLError)?.downloadTaskResumeData
+        if let resumeData {
+            state = .failedButCanResume(resumeData: resumeData)
+            let resumableError = NetworkingError.downloadFailed(reason: .failedButResumable(underlying: error))
+            continuation?.yield(.failed(resumableError))
+        } else {
             let networkError = mapNetworkingError(from: error)
             terminate(yield: .failed(networkError), state: .failed)
         }
