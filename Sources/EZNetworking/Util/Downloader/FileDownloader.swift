@@ -199,6 +199,8 @@ public actor FileDownloader: FileDownloadable {
     }
 
     private func handleDownloadCompletion(location: URL?, response: URLResponse?, error: Error?) {
+        guard state == .downloading || state == .pausing else { return }
+
         if let error {
             handleError(error: error)
             return
@@ -211,10 +213,6 @@ public actor FileDownloader: FileDownloadable {
 
         do {
             try validator.validateStatus(from: response)
-            switch state {
-            case .downloading, .pausing: break
-            default: return
-            }
             terminate(yield: .completed(location), state: .completed)
         } catch {
             let networkError = mapNetworkingError(from: error)
@@ -223,12 +221,10 @@ public actor FileDownloader: FileDownloadable {
     }
 
     private func handleError(error: Error) {
-        guard case .downloading = state else { return }
-        downloadTask = nil
-
         let resumeData = (error as? URLError)?.downloadTaskResumeData
         if let resumeData {
             state = .failedButCanResume(resumeData: resumeData)
+            downloadTask = nil
             let resumableError = NetworkingError.downloadFailed(reason: .failedButResumable(underlying: error))
             continuation?.yield(.failed(resumableError))
         } else {
