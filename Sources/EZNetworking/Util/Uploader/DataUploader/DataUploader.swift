@@ -122,6 +122,10 @@ public class DataUploader: DataUploadable {
         if session.delegate.uploadTaskInterceptor == nil {
             session.delegate.uploadTaskInterceptor = fallbackUploadTaskInterceptor
         }
-        session.delegate.uploadTaskInterceptor?.progress = progress
+        session.delegate.uploadTaskInterceptor?.onEvent = { event in
+            if case let .onProgress(percentage) = event {
+                progress(percentage)
+            }
+        }
     }
 }
