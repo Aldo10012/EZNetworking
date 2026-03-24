@@ -1,10 +1,10 @@
 import Foundation
 
 class DefaultUploadTaskInterceptor: UploadTaskInterceptor {
-    var progress: (Double) -> Void
+    var onEvent: (UploadTaskInterceptorEvent) -> Void
 
-    init(progress: @escaping (Double) -> Void = { _ in }) {
-        self.progress = progress
+    init(onEvent: @escaping (UploadTaskInterceptorEvent) -> Void = { _ in }) {
+        self.onEvent = onEvent
     }
 
     func urlSession(_ session: URLSession, task: URLSessionTask, didSendBodyData bytesSent: Int64, totalBytesSent: Int64, totalBytesExpectedToSend: Int64) {
@@ -12,6 +12,18 @@ class DefaultUploadTaskInterceptor: UploadTaskInterceptor {
             return
         }
         let currentProgress = Double(totalBytesSent) / Double(totalBytesExpectedToSend)
-        progress(currentProgress)
+        onEvent(.onProgress(currentProgress))
+    }
+
+    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
+        onEvent(.onUploadCompleted(data))
+    }
+
+    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error) {
+        var resumeData: Data?
+        if #available(iOS 17.0, macOS 14.0, *) {
+            resumeData = (error as? URLError)?.uploadTaskResumeData
+        }
+        onEvent(.onUploadFailed(error, resumeData: resumeData))
     }
 }
