@@ -29,10 +29,7 @@ class DefaultUploadTaskInterceptor: UploadTaskInterceptor {
     }
 
     func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error) {
-        var resumeData: Data?
-        if #available(iOS 17.0, macOS 14.0, watchOS 10.0, tvOS 17.0, visionOS 1.0, *) {
-            resumeData = (error as? URLError)?.uploadTaskResumeData
-        }
+        let resumeData = (error as? URLError)?.uploadTaskResumeData
         onEvent(.onUploadFailed(error, resumeData: resumeData))
     }
 }
