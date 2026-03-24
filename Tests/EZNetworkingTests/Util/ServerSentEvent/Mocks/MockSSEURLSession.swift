@@ -69,4 +69,12 @@ extension MockSSEURLSession {
     func downloadTaskInspectable(withResumeData resumeData: Data) -> URLSessionDownloadTaskProtocol {
         fatalError("Should not be using in this mock")
     }
+
+    func downloadTaskInspectable(with url: URL, completionHandler: @escaping @Sendable (URL?, URLResponse?, Error?) -> Void) -> URLSessionDownloadTaskProtocol {
+        fatalError("Should not be using in this mock")
+    }
+
+    func downloadTaskInspectable(withResumeData resumeData: Data, completionHandler: @escaping @Sendable (URL?, URLResponse?, Error?) -> Void) -> URLSessionDownloadTaskProtocol {
+        fatalError("Should not be using in this mock")
+    }
 }
