@@ -4,9 +4,9 @@ public enum DownloadTaskInterceptorEvent {
     case onProgress(Double)
 }
 
-/// Protocol for intercepting download tasks specifically.
+/// Protocol for intercepting download task progress.
 public protocol DownloadTaskInterceptor: AnyObject {
-    /// Callback for download task events (progress, completion, failure)
+    /// Callback for download task progress events
     var onEvent: (DownloadTaskInterceptorEvent) -> Void { get set }
 
     /// Intercepts when a download task finishes downloading to a location.
@@ -17,7 +17,4 @@ public protocol DownloadTaskInterceptor: AnyObject {
 
     /// Intercepts when a download task is resumed.
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didResumeAtOffset fileOffset: Int64, expectedTotalBytes: Int64)
-
-    /// Intercepts when a download task completes with an error.
-    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error)
 }
