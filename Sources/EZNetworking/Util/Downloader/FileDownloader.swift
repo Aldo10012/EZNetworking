@@ -74,13 +74,7 @@ public actor FileDownloader: FileDownloadable {
         }
 
         state = .downloading
-        let task = session.urlSession.downloadTaskInspectable(with: url) { [weak self] location, response, error in
-            Task { [weak self] in
-                await self?.handleDownloadCompletion(location: location, response: response, error: error)
-            }
-        }
-        downloadTask = task
-        task.resume()
+        createAndResumeDownloadTask()
 
         return stream
     }
@@ -126,13 +120,7 @@ public actor FileDownloader: FileDownloadable {
         }
 
         state = .downloading
-        let task = session.urlSession.downloadTaskInspectable(withResumeData: resumeData) { [weak self] location, response, error in
-            Task { [weak self] in
-                await self?.handleDownloadCompletion(location: location, response: response, error: error)
-            }
-        }
-        downloadTask = task
-        task.resume()
+        createAndResumeDownloadTask(with: resumeData)
     }
 
     // MARK: cancel
@@ -193,7 +181,22 @@ public actor FileDownloader: FileDownloadable {
         }
     }
 
-    // MARK: - Completion handler
+    private func createAndResumeDownloadTask(with resumeData: Data? = nil) {
+        let completion: @Sendable (URL?, URLResponse?, Error?) -> Void = { [weak self] location, response, error in
+            Task { [weak self] in
+                await self?.handleDownloadCompletion(location: location, response: response, error: error)
+            }
+        }
+
+        let task: URLSessionDownloadTaskProtocol
+        if let resumeData {
+            task = session.urlSession.downloadTaskInspectable(withResumeData: resumeData, completionHandler: completion)
+        } else {
+            task = session.urlSession.downloadTaskInspectable(with: url, completionHandler: completion)
+        }
+        downloadTask = task
+        task.resume()
+    }
 
     private func handleDownloadCompletion(location: URL?, response: URLResponse?, error: Error?) {
         if let error {
