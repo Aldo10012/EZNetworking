@@ -8,14 +8,6 @@ class MockFileDownloaderURLSession: URLSessionProtocol {
     var downloadCompletionHandler: (@Sendable (URL?, URLResponse?, Error?) -> Void)?
     var resumeDownloadCompletionHandler: (@Sendable (URL?, URLResponse?, Error?) -> Void)?
 
-    func downloadTaskInspectable(with url: URL) -> URLSessionDownloadTaskProtocol {
-        mockDownloadTask
-    }
-
-    func downloadTaskInspectable(withResumeData resumeData: Data) -> URLSessionDownloadTaskProtocol {
-        mockResumeDownloadTask
-    }
-
     func downloadTaskInspectable(with url: URL, completionHandler: @escaping @Sendable (URL?, URLResponse?, Error?) -> Void) -> URLSessionDownloadTaskProtocol {
         downloadCompletionHandler = completionHandler
         return mockDownloadTask

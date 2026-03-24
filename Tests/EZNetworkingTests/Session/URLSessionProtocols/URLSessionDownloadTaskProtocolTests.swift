@@ -13,18 +13,18 @@ struct URLSessionDownloadTaskProtocolTests {
         nativeTask.cancel()
     }
 
-    @Test("test URLSessionProtocol.downloadTask(with:) returns URLSessionDownloadTaskProtocol")
+    @Test("test URLSessionProtocol.downloadTask(with:completionHandler:) returns URLSessionDownloadTaskProtocol")
     func urlSessionProtocolReturnsProtocol() {
         let session: URLSessionProtocol = URLSession.shared
-        let task = session.downloadTaskInspectable(with: URL(string: "https://example.com")!)
+        let task = session.downloadTaskInspectable(with: URL(string: "https://example.com")!) { _, _, _ in }
         #expect(task is URLSessionDownloadTask)
         task.cancel()
     }
 
-    @Test("test URLSessionProtocol.downloadTask(withResumeData:) returns URLSessionDownloadTaskProtocol")
+    @Test("test URLSessionProtocol.downloadTask(withResumeData:completionHandler:) returns URLSessionDownloadTaskProtocol")
     func urlSessionProtocolReturnsProtocolWithResumeData() {
         let session: URLSessionProtocol = URLSession.shared
-        let task = session.downloadTaskInspectable(withResumeData: Data())
+        let task = session.downloadTaskInspectable(withResumeData: Data()) { _, _, _ in }
         #expect(task is URLSessionDownloadTask)
         task.cancel()
     }
