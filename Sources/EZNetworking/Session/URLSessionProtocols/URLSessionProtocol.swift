@@ -13,6 +13,9 @@ public protocol URLSessionProtocol {
 
     func downloadTaskInspectable(with url: URL) -> URLSessionDownloadTaskProtocol
     func downloadTaskInspectable(withResumeData resumeData: Data) -> URLSessionDownloadTaskProtocol
+
+    func downloadTaskInspectable(with url: URL, completionHandler: @escaping @Sendable (URL?, URLResponse?, Error?) -> Void) -> URLSessionDownloadTaskProtocol
+    func downloadTaskInspectable(withResumeData resumeData: Data, completionHandler: @escaping @Sendable (URL?, URLResponse?, Error?) -> Void) -> URLSessionDownloadTaskProtocol
 }
 
 extension URLSession: URLSessionProtocol {
@@ -23,6 +26,16 @@ extension URLSession: URLSessionProtocol {
 
     public func downloadTaskInspectable(withResumeData resumeData: Data) -> URLSessionDownloadTaskProtocol {
         let task: URLSessionDownloadTask = downloadTask(withResumeData: resumeData)
+        return task as URLSessionDownloadTaskProtocol
+    }
+
+    public func downloadTaskInspectable(with url: URL, completionHandler: @escaping @Sendable (URL?, URLResponse?, Error?) -> Void) -> URLSessionDownloadTaskProtocol {
+        let task: URLSessionDownloadTask = downloadTask(with: url, completionHandler: completionHandler)
+        return task as URLSessionDownloadTaskProtocol
+    }
+
+    public func downloadTaskInspectable(withResumeData resumeData: Data, completionHandler: @escaping @Sendable (URL?, URLResponse?, Error?) -> Void) -> URLSessionDownloadTaskProtocol {
+        let task: URLSessionDownloadTask = downloadTask(withResumeData: resumeData, completionHandler: completionHandler)
         return task as URLSessionDownloadTaskProtocol
     }
 
