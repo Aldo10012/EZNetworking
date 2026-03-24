@@ -190,9 +190,6 @@ public actor FileDownloader: FileDownloadable {
         case let .onProgress(progress):
             guard case .downloading = state else { return }
             continuation?.yield(.progress(progress))
-
-        case .onDownloadCompleted, .onDownloadFailed:
-            break
         }
     }
 
