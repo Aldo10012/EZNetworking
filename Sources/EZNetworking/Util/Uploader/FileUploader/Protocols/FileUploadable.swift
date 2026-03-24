@@ -1,9 +1,17 @@
-import Combine
 import Foundation
 
-public protocol FileUploadable {
-    func uploadFile(_ fileURL: URL, with request: Request, progress: UploadProgressHandler?) async throws -> Data
-    func uploadFileStream(_ fileURL: URL, with request: Request) -> AsyncStream<UploadStreamEvent>
-    func uploadFileTask(_ fileURL: URL, with request: Request, progress: UploadProgressHandler?, completion: @escaping (UploadCompletionHandler)) -> CancellableRequest?
-    func uploadFilePublisher(_ fileURL: URL, with request: Request, progress: UploadProgressHandler?) -> AnyPublisher<Data, NetworkingError>
+public protocol FileUploadable: Actor {
+    /// Starts the upload and returns a stream of events
+    func uploadFileStream() -> AsyncStream<UploadEvent>
+
+    /// Pauses the active upload
+    @available(iOS 17.0, macOS 14.0, *)
+    func pause() async throws
+
+    /// Resumes a paused upload
+    @available(iOS 17.0, macOS 14.0, *)
+    func resume() async throws
+
+    /// Cancels the upload
+    func cancel() throws
 }

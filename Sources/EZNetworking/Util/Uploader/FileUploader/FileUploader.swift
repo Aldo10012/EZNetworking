@@ -1,7 +1,7 @@
 import Combine
 import Foundation
 
-public class FileUploader: FileUploadable {
+public class FileUploader {
     private let session: NetworkSession
     private let validator: ResponseValidator
 
