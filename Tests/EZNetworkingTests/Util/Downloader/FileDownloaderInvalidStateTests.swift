@@ -25,14 +25,12 @@ final class FileDownloaderInvalidStateTests {
 
     @Test("test downloadFileStream after completed emits alreadyFinished")
     func downloadFileStreamAfterCompletedEmitsAlreadyFinished() async {
-        let downloadInterceptor = MockDownloadTaskInterceptor()
-        let delegate = SessionDelegate(downloadTaskInterceptor: downloadInterceptor)
         let mockURLSession = MockFileDownloaderURLSession()
-        let session = MockSession(urlSession: mockURLSession, delegate: delegate)
+        let session = MockSession(urlSession: mockURLSession, delegate: SessionDelegate())
         let sut = FileDownloader(url: mockUrl, session: session)
 
         let firstStream = await sut.downloadFileStream()
-        downloadInterceptor.simulateDownloadComplete(mockFileLocation)
+        mockURLSession.downloadCompletionHandler?(mockFileLocation, mockHTTPResponse(statusCode: 200), nil)
 
         // Drain the first stream to let state reach .completed
         for await _ in firstStream {}
@@ -51,16 +49,15 @@ final class FileDownloaderInvalidStateTests {
 
     @Test("test downloadFileStream when failedButCanResume emits downloadIncompleteButResumable")
     func downloadFileStreamWhenFailedButCanResumeEmitsDownloadIncompleteButResumable() async throws {
-        let downloadInterceptor = MockDownloadTaskInterceptor()
-        let delegate = SessionDelegate(downloadTaskInterceptor: downloadInterceptor)
         let mockURLSession = MockFileDownloaderURLSession()
-        let session = MockSession(urlSession: mockURLSession, delegate: delegate)
+        let session = MockSession(urlSession: mockURLSession, delegate: SessionDelegate())
         let sut = FileDownloader(url: mockUrl, session: session)
 
         let firstStream = await sut.downloadFileStream()
 
         let mockResumeData = "partial".data(using: .utf8)!
-        downloadInterceptor.simulateFailure(URLError(.networkConnectionLost), resumeData: mockResumeData)
+        let error = URLError(.networkConnectionLost, userInfo: [NSURLSessionDownloadTaskResumeData: mockResumeData])
+        mockURLSession.downloadCompletionHandler?(nil, nil, error)
         try await Task.sleep(for: .milliseconds(10))
         #expect(await sut.state == .failedButCanResume(resumeData: mockResumeData))
 
@@ -116,3 +113,7 @@ final class FileDownloaderInvalidStateTests {
 
 private let mockUrl = URL(string: "https://example.com/file.pdf")!
 private let mockFileLocation = URL(fileURLWithPath: "/tmp/test.pdf")
+
+private func mockHTTPResponse(statusCode: Int) -> HTTPURLResponse {
+    HTTPURLResponse(url: mockUrl, statusCode: statusCode, httpVersion: nil, headerFields: nil)!
+}

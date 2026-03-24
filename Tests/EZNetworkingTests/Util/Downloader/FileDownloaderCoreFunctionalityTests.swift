@@ -44,15 +44,13 @@ final class FileDownloaderCoreFunctionalityTests {
 
     @Test("test download success")
     func downloadSuccess() async {
-        let downloadInterceptor = MockDownloadTaskInterceptor()
-        let delegate = SessionDelegate(downloadTaskInterceptor: downloadInterceptor)
         let mockURLSession = MockFileDownloaderURLSession()
-        let session = MockSession(urlSession: mockURLSession, delegate: delegate)
+        let session = MockSession(urlSession: mockURLSession, delegate: SessionDelegate())
         let sut = FileDownloader(url: mockUrl, session: session)
 
         let stream = await sut.downloadFileStream()
 
-        downloadInterceptor.simulateDownloadComplete(mockFileLocation)
+        mockURLSession.downloadCompletionHandler?(mockFileLocation, mockHTTPResponse(statusCode: 200), nil)
 
         var events: [DownloadEvent] = []
         for await event in stream {
@@ -75,7 +73,8 @@ final class FileDownloaderCoreFunctionalityTests {
         let stream = await sut.downloadFileStream()
 
         downloadInterceptor.simulateDownloadProgress(0.5)
-        downloadInterceptor.simulateDownloadComplete(mockFileLocation)
+        try? await Task.sleep(for: .milliseconds(10))
+        mockURLSession.downloadCompletionHandler?(mockFileLocation, mockHTTPResponse(statusCode: 200), nil)
 
         var events: [DownloadEvent] = []
         for await event in stream {
@@ -101,7 +100,8 @@ final class FileDownloaderCoreFunctionalityTests {
         let stream = await sut.downloadFileStream()
 
         downloadInterceptor.simulateDownloadProgress(0.5)
-        downloadInterceptor.simulateFailure(URLError(.networkConnectionLost))
+        try? await Task.sleep(for: .milliseconds(10))
+        mockURLSession.downloadCompletionHandler?(nil, nil, URLError(.networkConnectionLost))
 
         var events: [DownloadEvent] = []
         for await event in stream {
@@ -116,14 +116,13 @@ final class FileDownloaderCoreFunctionalityTests {
 
     @Test("test download failure due to non 2xx status code before complete")
     func downladFailedDueToNon2xxStatusCoderBeforeCanComplete() async {
-        let delegate = SessionDelegate()
-        let session = MockSession(urlSession: MockFileDownloaderURLSession(), delegate: delegate)
+        let mockURLSession = MockFileDownloaderURLSession()
+        let session = MockSession(urlSession: mockURLSession, delegate: SessionDelegate())
         let sut = FileDownloader(url: mockUrl, session: session)
 
         let stream = await sut.downloadFileStream()
 
-        let delegateTask = makeMockDelegateTask(statusCode: 500)
-        delegate.urlSession(.shared, downloadTask: delegateTask, didFinishDownloadingTo: mockFileLocation)
+        mockURLSession.downloadCompletionHandler?(mockFileLocation, mockHTTPResponse(statusCode: 500), nil)
 
         var events: [DownloadEvent] = []
         for await event in stream {
@@ -147,7 +146,8 @@ final class FileDownloaderCoreFunctionalityTests {
         let stream = await sut.downloadFileStream()
 
         downloadInterceptor.simulateDownloadProgress(0.5)
-        downloadInterceptor.simulateFailure(UnknownError.error)
+        try? await Task.sleep(for: .milliseconds(10))
+        mockURLSession.downloadCompletionHandler?(nil, nil, UnknownError.error)
 
         var events: [DownloadEvent] = []
         for await event in stream {
@@ -219,8 +219,6 @@ final class FileDownloaderCoreFunctionalityTests {
 private let mockUrl = URL(string: "https://example.com/file.pdf")!
 private let mockFileLocation = URL(fileURLWithPath: "/tmp/test.pdf")
 
-private func makeMockDelegateTask(statusCode: Int = 200) -> MockURLSessionDownloadTask {
-    MockURLSessionDownloadTask(
-        mockResponse: HTTPURLResponse(url: mockUrl, statusCode: statusCode, httpVersion: nil, headerFields: nil)
-    )
+private func mockHTTPResponse(statusCode: Int) -> HTTPURLResponse {
+    HTTPURLResponse(url: mockUrl, statusCode: statusCode, httpVersion: nil, headerFields: nil)!
 }

@@ -200,11 +200,14 @@ public actor FileDownloader: FileDownloadable {
             guard case .downloading = state else { return }
             downloadTask = nil
 
-            let resumeData = (error as? URLError)?.downloadTaskResumeData
+            let urlError = error as? URLError
+            let resumeData = urlError?.downloadTaskResumeData
             if let resumeData {
                 state = .failedButCanResume(resumeData: resumeData)
+                // Strip resume data from the error to keep it as a clean error descriptor
+                let strippedError = URLError(urlError!.code)
                 let resumableError: NetworkingError = .downloadFailed(
-                    reason: .failedButResumable(underlying: error.asSendableError)
+                    reason: .failedButResumable(underlying: strippedError)
                 )
                 continuation?.yield(.failed(resumableError))
             } else {

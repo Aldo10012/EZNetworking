@@ -62,161 +62,18 @@ final class DefaultDownloadTaskInterceptorTests {
 
     // MARK: - didFinishDownloadingTo
 
-    @Test("test didFinishDownloadingTo emits onDownloadCompleted when response is valid")
-    func didFinishDownloadingTo_emitsCompleted() {
-        var receivedEvent: DownloadTaskInterceptorEvent?
-        let mockValidator = MockResponseValidator(shouldSucceed: true)
-        let sut = DefaultDownloadTaskInterceptor(validator: mockValidator) { event in
-            receivedEvent = event
-        }
-        let task = MockURLSessionDownloadTask(
-            mockResponse: HTTPURLResponse(url: mockUrl, statusCode: 200, httpVersion: nil, headerFields: nil)
-        )
-        sut.urlSession(.shared, downloadTask: task, didFinishDownloadingTo: mockUrl)
-
-        if case .onDownloadCompleted = receivedEvent {
-            // pass
-        } else {
-            Issue.record("Expected .onDownloadCompleted event, got \(String(describing: receivedEvent))")
-        }
-    }
-
-    @Test("test didFinishDownloadingTo emits onDownloadFailed when response validation fails due to bad status code")
-    func didFinishDownloadingTo_emitsFailedOnBadStatus() throws {
-        var receivedEvent: DownloadTaskInterceptorEvent?
-        let mockValidator = MockResponseValidator(shouldSucceed: false)
-        let sut = DefaultDownloadTaskInterceptor(validator: mockValidator) { event in
-            receivedEvent = event
-        }
-        let task = MockURLSessionDownloadTask(
-            mockResponse: HTTPURLResponse(url: mockUrl, statusCode: 500, httpVersion: nil, headerFields: nil)
-        )
-        sut.urlSession(.shared, downloadTask: task, didFinishDownloadingTo: mockUrl)
-
-        if case let .onDownloadFailed(error, resumeData) = receivedEvent {
-            let networkingError = try #require(error as? NetworkingError)
-            #expect(networkingError == NetworkingError.responseValidationFailed(reason: .badHTTPResponse(underlying: .init(statusCode: 500))))
-            #expect(resumeData == nil)
-        } else {
-            Issue.record("Expected .onDownloadFailed event, got \(String(describing: receivedEvent))")
-        }
-    }
-
-    @Test("test didFinishDownloadingTo emits onDownloadFailed when response validation fails due to no response")
-    func didFinishDownloadingTo_emitsFailedWhenResponseIsNil() throws {
-        var receivedEvent: DownloadTaskInterceptorEvent?
-        let mockValidator = DefaultResponseValidator()
-        let sut = DefaultDownloadTaskInterceptor(validator: mockValidator) { event in
-            receivedEvent = event
-        }
-        let task = MockURLSessionDownloadTask(
-            mockResponse: nil
-        )
-        sut.urlSession(.shared, downloadTask: task, didFinishDownloadingTo: mockUrl)
-
-        if case let .onDownloadFailed(error, resumeData) = receivedEvent {
-            let networkingError = try #require(error as? NetworkingError)
-            #expect(networkingError == NetworkingError.responseValidationFailed(reason: .noURLResponse))
-            #expect(resumeData == nil)
-        } else {
-            Issue.record("Expected .onDownloadFailed event, got \(String(describing: receivedEvent))")
-        }
-    }
-
-    @Test("test didFinishDownloadingTo emits onDownloadFailed when response is nil")
-    func didFinishDownloadingTo_emitsFailedOnNilResponse() {
+    @Test("test didFinishDownloadingTo emits onProgress 1.0")
+    func didFinishDownloadingTo_emitsFullProgress() {
         var receivedEvent: DownloadTaskInterceptorEvent?
         let sut = DefaultDownloadTaskInterceptor { event in
             receivedEvent = event
         }
-        let task = MockURLSessionDownloadTask(mockResponse: nil)
-        sut.urlSession(.shared, downloadTask: task, didFinishDownloadingTo: mockUrl)
+        sut.urlSession(.shared, downloadTask: mockDownloadTask, didFinishDownloadingTo: mockUrl)
 
-        if case .onDownloadFailed = receivedEvent {
-            // pass
+        if case let .onProgress(progress) = receivedEvent {
+            #expect(progress == 1.0)
         } else {
-            Issue.record("Expected .onDownloadFailed event, got \(String(describing: receivedEvent))")
-        }
-    }
-
-    // MARK: - didCompleteWithError
-
-    @Test("test didCompleteWithError emits onDownloadFailed with nil resumeData when URLError has no resume data")
-    func didCompleteWithError_emitsFailedWithNilResumeData() {
-        var receivedEvent: DownloadTaskInterceptorEvent?
-        let sut = DefaultDownloadTaskInterceptor { event in
-            receivedEvent = event
-        }
-        let error = URLError(.notConnectedToInternet)
-        sut.urlSession(.shared, task: mockDownloadTask, didCompleteWithError: error)
-
-        if case let .onDownloadFailed(receivedError, resumeData) = receivedEvent {
-            #expect((receivedError as? URLError)?.code == .notConnectedToInternet)
-            #expect(resumeData == nil)
-        } else {
-            Issue.record("Expected .onDownloadFailed event, got \(String(describing: receivedEvent))")
-        }
-    }
-
-    @Test("test didCompleteWithError extracts downloadTaskResumeData from URLError")
-    func didCompleteWithError_extractsResumeData() {
-        var receivedEvent: DownloadTaskInterceptorEvent?
-        let sut = DefaultDownloadTaskInterceptor { event in
-            receivedEvent = event
-        }
-        let mockResumeData = "partial_download".data(using: .utf8)!
-        let userInfo: [String: Any] = [NSURLSessionDownloadTaskResumeData: mockResumeData]
-        let error = URLError(.networkConnectionLost, userInfo: userInfo)
-        sut.urlSession(.shared, task: mockDownloadTask, didCompleteWithError: error)
-
-        if case let .onDownloadFailed(receivedError, resumeData) = receivedEvent {
-            #expect((receivedError as? URLError)?.code == .networkConnectionLost)
-            #expect(resumeData == mockResumeData)
-        } else {
-            Issue.record("Expected .onDownloadFailed event, got \(String(describing: receivedEvent))")
-        }
-    }
-
-    @Test("test didCompleteWithError emits nil resumeData for non-URLError")
-    func didCompleteWithError_nilResumeDataForNonURLError() {
-        var receivedEvent: DownloadTaskInterceptorEvent?
-        let sut = DefaultDownloadTaskInterceptor { event in
-            receivedEvent = event
-        }
-        let error = NSError(domain: "TestDomain", code: 42)
-        sut.urlSession(.shared, task: mockDownloadTask, didCompleteWithError: error)
-
-        if case let .onDownloadFailed(_, resumeData) = receivedEvent {
-            #expect(resumeData == nil)
-        } else {
-            Issue.record("Expected .onDownloadFailed event, got \(String(describing: receivedEvent))")
-        }
-    }
-}
-
-// MARK: - Mock URLSessionDownloadTask
-
-class MockURLSessionDownloadTask: URLSessionDownloadTask, @unchecked Sendable {
-    private let mockResponse: URLResponse?
-
-    init(mockResponse: URLResponse?) {
-        self.mockResponse = mockResponse
-        super.init()
-    }
-
-    override var response: URLResponse? {
-        mockResponse
-    }
-}
-
-// MARK: - Mock ResponseValidator
-
-private struct MockResponseValidator: ResponseValidator {
-    let shouldSucceed: Bool
-
-    func validateStatus(from urlResponse: URLResponse?) throws {
-        if !shouldSucceed {
-            throw NetworkingError.responseValidationFailed(reason: .badHTTPResponse(underlying: HTTPResponse(statusCode: 500, headers: [:])))
+            Issue.record("Expected .onProgress(1.0) event, got \(String(describing: receivedEvent))")
         }
     }
 }
@@ -224,4 +81,6 @@ private struct MockResponseValidator: ResponseValidator {
 // MARK: - Mock variables
 
 private let mockUrl = URL(string: "https://example.com")!
-private var mockDownloadTask: URLSessionDownloadTask { MockURLSessionDownloadTask(mockResponse: nil) }
+private var mockDownloadTask: URLSessionDownloadTask {
+    URLSession.shared.downloadTask(with: URLRequest(url: mockUrl))
+}
