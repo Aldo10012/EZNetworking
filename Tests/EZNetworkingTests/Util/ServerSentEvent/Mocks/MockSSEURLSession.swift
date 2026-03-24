@@ -74,7 +74,7 @@ extension MockSSEURLSession {
         fatalError("Should not be using in this mock")
     }
 
-    @available(iOS 17.0, macOS 14.0, *)
+    @available(iOS 17.0, macOS 14.0, watchOS 10.0, tvOS 17.0, visionOS 1.0, *)
     func uploadTaskInspectable(withResumeData resumeData: Data) -> URLSessionUploadTaskProtocol {
         fatalError("Should not be using in this mock")
     }

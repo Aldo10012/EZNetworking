@@ -5,11 +5,11 @@ public protocol FileUploadable: Actor {
     func uploadFileStream() -> AsyncStream<UploadEvent>
 
     /// Pauses the active upload
-    @available(iOS 17.0, macOS 14.0, *)
+    @available(iOS 17.0, macOS 14.0, watchOS 10.0, tvOS 17.0, visionOS 1.0, *)
     func pause() async throws
 
     /// Resumes a paused upload
-    @available(iOS 17.0, macOS 14.0, *)
+    @available(iOS 17.0, macOS 14.0, watchOS 10.0, tvOS 17.0, visionOS 1.0, *)
     func resume() async throws
 
     /// Cancels the upload
