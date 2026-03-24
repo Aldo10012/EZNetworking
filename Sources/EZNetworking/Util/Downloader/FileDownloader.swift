@@ -202,6 +202,7 @@ public actor FileDownloader: FileDownloadable {
         guard state == .downloading || state == .pausing else { return }
 
         if let error {
+            if case .pausing = state, let urlError = error as? URLError, urlError.code == .cancelled { return }
             handleError(error: error)
             return
         }
