@@ -15,8 +15,6 @@ public protocol URLSessionProtocol {
     func downloadTaskInspectable(withResumeData resumeData: Data) -> URLSessionDownloadTaskProtocol
 
     func uploadTaskInspectable(with request: URLRequest, fromFile fileURL: URL) -> URLSessionUploadTaskProtocol
-
-    @available(iOS 17.0, macOS 14.0, watchOS 10.0, tvOS 17.0, visionOS 1.0, *)
     func uploadTaskInspectable(withResumeData resumeData: Data) -> URLSessionUploadTaskProtocol
 }
 
@@ -36,7 +34,6 @@ extension URLSession: URLSessionProtocol {
         return task as URLSessionUploadTaskProtocol
     }
 
-    @available(iOS 17.0, macOS 14.0, watchOS 10.0, tvOS 17.0, visionOS 1.0, *)
     public func uploadTaskInspectable(withResumeData resumeData: Data) -> URLSessionUploadTaskProtocol {
         let task: URLSessionUploadTask = uploadTask(withResumeData: resumeData)
         return task as URLSessionUploadTaskProtocol

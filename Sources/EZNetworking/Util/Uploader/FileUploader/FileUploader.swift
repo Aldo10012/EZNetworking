@@ -87,7 +87,6 @@ public actor FileUploader: FileUploadable {
 
     // MARK: pause
 
-    @available(iOS 17.0, macOS 14.0, watchOS 10.0, tvOS 17.0, visionOS 1.0, *)
     public func pause() async throws {
         try Task.checkCancellation()
         guard case .uploading = state else {
@@ -113,7 +112,6 @@ public actor FileUploader: FileUploadable {
 
     // MARK: resume
 
-    @available(iOS 17.0, macOS 14.0, watchOS 10.0, tvOS 17.0, visionOS 1.0, *)
     public func resume() async throws {
         try Task.checkCancellation()
 

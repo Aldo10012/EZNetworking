@@ -16,7 +16,6 @@ class MockUploadTask: URLSessionUploadTaskProtocol {
         didCancel = true
     }
 
-    @available(iOS 17.0, macOS 14.0, watchOS 10.0, tvOS 17.0, visionOS 1.0, *)
     func cancelByProducingResumeData() async -> Data? {
         didCancelWhileProducingResumeData = true
         await onCancelByProducingResumeData?()
