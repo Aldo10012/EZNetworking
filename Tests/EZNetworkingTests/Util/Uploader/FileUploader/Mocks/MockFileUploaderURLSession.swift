@@ -2,28 +2,79 @@ import EZNetworking
 import Foundation
 
 class MockFileUploaderURLSession: URLSessionProtocol {
-    var mockUploadTask = MockUploadTask()
-    var mockResumeUploadTask = MockUploadTask()
+    var data: Data?
+    var urlResponse: URLResponse?
+    var error: Error?
+    var completionHandler: ((Data?, URLResponse?, (any Error)?) -> Void)?
 
-    func uploadTaskInspectable(with request: URLRequest, fromFile fileURL: URL) -> URLSessionUploadTaskProtocol {
-        mockUploadTask
+    var sessionDelegate: SessionDelegate?
+    var progressToExecute: [UploadProgress] = []
+
+    init(
+        data: Data?,
+        urlResponse: URLResponse? = nil,
+        error: Error? = nil
+    ) {
+        self.data = data
+        self.urlResponse = urlResponse
+        self.error = error
     }
 
-    func uploadTaskInspectable(withResumeData resumeData: Data) -> URLSessionUploadTaskProtocol {
-        mockResumeUploadTask
+    func upload(for request: URLRequest, fromFile fileURL: URL) async throws -> (Data, URLResponse) {
+        if let error {
+            throw error
+        }
+        guard let data, let urlResponse else {
+            fatalError("Could not configure return tyoe for MockFileUploaderURLSession.upload")
+        }
+        simulateDownloadProgress(for: .init())
+        return (data, urlResponse)
+    }
+}
+
+// MARK: Helpers
+
+extension MockFileUploaderURLSession {
+    enum UploadProgress {
+        case inProgress(percent: Int64)
+        case complete
     }
 
-    // MARK: - Unused methods
+    private func simulateDownloadProgress(for task: URLSessionDownloadTask) {
+        for progressToExecute in progressToExecute {
+            switch progressToExecute {
+            case let .inProgress(percent):
+                // Simulate x% progress
+                sessionDelegate?.urlSession(
+                    .shared,
+                    task: task,
+                    didSendBodyData: 0,
+                    totalBytesSent: percent,
+                    totalBytesExpectedToSend: 100
+                )
 
+            case .complete:
+                // Simulate completion
+                sessionDelegate?.urlSession(
+                    .shared,
+                    task: task,
+                    didSendBodyData: 0,
+                    totalBytesSent: 100,
+                    totalBytesExpectedToSend: 100
+                )
+            }
+        }
+    }
+}
+
+// MARK: unused methods
+
+extension MockFileUploaderURLSession {
     func data(for request: URLRequest) async throws -> (Data, URLResponse) {
         fatalError("Should not be using in this mock")
     }
 
     func upload(for request: URLRequest, from bodyData: Data) async throws -> (Data, URLResponse) {
-        fatalError("Should not be using in this mock")
-    }
-
-    func upload(for request: URLRequest, fromFile fileURL: URL) async throws -> (Data, URLResponse) {
         fatalError("Should not be using in this mock")
     }
 

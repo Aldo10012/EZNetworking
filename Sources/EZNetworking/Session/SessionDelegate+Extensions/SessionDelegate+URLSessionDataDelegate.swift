@@ -22,11 +22,7 @@ extension SessionDelegate: URLSessionDataDelegate {
         dataTask: URLSessionDataTask,
         didReceive data: Data
     ) {
-        if dataTask is URLSessionUploadTask {
-            uploadTaskInterceptor?.urlSession(session, dataTask: dataTask, didReceive: data)
-        } else {
-            dataTaskInterceptor?.urlSession(session, dataTask: dataTask, didReceive: data)
-        }
+        dataTaskInterceptor?.urlSession(session, dataTask: dataTask, didReceive: data)
     }
 
     public func urlSession(

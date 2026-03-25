@@ -122,22 +122,6 @@ final class NetworkingErrorTests {
         #expect(err1 != err2)
     }
 
-    // MARK: .uploadFailed(reason:_)
-
-    @Test("test NetworkingError.uploadFailed(_) equatability")
-    func networkingErrorUploadFailedEquatability() {
-        let err1 = NetworkingError.uploadFailed(reason: .cannotResume)
-        let err2 = NetworkingError.uploadFailed(reason: .cannotResume)
-        #expect(err1 == err2)
-    }
-
-    @Test("test NetworkingError.uploadFailed(_) non equatability")
-    func networkingErrorUploadFailedNonEquatability() {
-        let err1 = NetworkingError.uploadFailed(reason: .cannotResume)
-        let err2 = NetworkingError.uploadFailed(reason: .alreadyUploading)
-        #expect(err1 != err2)
-    }
-
     // MARK: different cases
 
     @Test("test NetworkingError different cases are non equatability")
@@ -152,14 +136,5 @@ final class NetworkingErrorTests {
         let downloadErr = NetworkingError.downloadFailed(reason: .cannotResume)
         let requestErr = NetworkingError.requestFailed(reason: .urlError(underlying: URLError(.badURL)))
         #expect(downloadErr != requestErr)
-    }
-
-    @Test("test NetworkingError.uploadFailed is not equal to other cases")
-    func networkingErrorUploadFailedVsOtherCases() {
-        let uploadErr = NetworkingError.uploadFailed(reason: .cannotResume)
-        let downloadErr = NetworkingError.downloadFailed(reason: .cannotResume)
-        let requestErr = NetworkingError.requestFailed(reason: .urlError(underlying: URLError(.badURL)))
-        #expect(uploadErr != downloadErr)
-        #expect(uploadErr != requestErr)
     }
 }
