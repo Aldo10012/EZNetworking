@@ -2,15 +2,42 @@ import EZNetworking
 import Foundation
 
 class MockUploadTaskInterceptor: UploadTaskInterceptor {
-    var progress: (Double) -> Void
-    init(progress: @escaping (Double) -> Void) {
-        self.progress = progress
+    var onEvent: (UploadTaskInterceptorEvent) -> Void
+
+    init(onEvent: @escaping (UploadTaskInterceptorEvent) -> Void = { _ in }) {
+        self.onEvent = onEvent
     }
 
     var didCallDidSendBodyData = false
+    var didCallDidReceiveData = false
+    var didCallDidCompleteWithError = false
 
     func urlSession(_ session: URLSession, task: URLSessionTask, didSendBodyData bytesSent: Int64, totalBytesSent: Int64, totalBytesExpectedToSend: Int64) {
         didCallDidSendBodyData = true
-        progress(1)
+        guard totalBytesExpectedToSend > 0 else { return }
+        let currentProgress = Double(totalBytesSent) / Double(totalBytesExpectedToSend)
+        onEvent(.onProgress(currentProgress))
+    }
+
+    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
+        didCallDidReceiveData = true
+    }
+
+    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error) {
+        didCallDidCompleteWithError = true
+    }
+
+    // MARK: - Simulation helpers
+
+    func simulateUploadComplete(_ data: Data) {
+        onEvent(.onUploadCompleted(data))
+    }
+
+    func simulateUploadProgress(_ progress: Double) {
+        onEvent(.onProgress(progress))
+    }
+
+    func simulateFailure(_ error: Error, resumeData: Data? = nil) {
+        onEvent(.onUploadFailed(error, resumeData: resumeData))
     }
 }

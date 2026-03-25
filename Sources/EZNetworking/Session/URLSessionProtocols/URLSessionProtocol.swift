@@ -13,6 +13,9 @@ public protocol URLSessionProtocol {
 
     func downloadTaskInspectable(with url: URL) -> URLSessionDownloadTaskProtocol
     func downloadTaskInspectable(withResumeData resumeData: Data) -> URLSessionDownloadTaskProtocol
+
+    func uploadTaskInspectable(with request: URLRequest, fromFile fileURL: URL) -> URLSessionUploadTaskProtocol
+    func uploadTaskInspectable(withResumeData resumeData: Data) -> URLSessionUploadTaskProtocol
 }
 
 extension URLSession: URLSessionProtocol {
@@ -24,6 +27,16 @@ extension URLSession: URLSessionProtocol {
     public func downloadTaskInspectable(withResumeData resumeData: Data) -> URLSessionDownloadTaskProtocol {
         let task: URLSessionDownloadTask = downloadTask(withResumeData: resumeData)
         return task as URLSessionDownloadTaskProtocol
+    }
+
+    public func uploadTaskInspectable(with request: URLRequest, fromFile fileURL: URL) -> URLSessionUploadTaskProtocol {
+        let task: URLSessionUploadTask = uploadTask(with: request, fromFile: fileURL)
+        return task as URLSessionUploadTaskProtocol
+    }
+
+    public func uploadTaskInspectable(withResumeData resumeData: Data) -> URLSessionUploadTaskProtocol {
+        let task: URLSessionUploadTask = uploadTask(withResumeData: resumeData)
+        return task as URLSessionUploadTaskProtocol
     }
 
     public func webSocketTaskInspectable(with request: URLRequest) -> URLSessionWebSocketTaskProtocol {
