@@ -4,7 +4,6 @@ import Testing
 
 @Suite("Test DownloadDestination")
 final class DownloadDestinationTests {
-
     // MARK: - .temporary
 
     @Test("test temporary copies file to temp directory")

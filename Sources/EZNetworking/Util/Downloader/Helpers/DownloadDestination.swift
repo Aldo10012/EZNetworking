@@ -8,7 +8,7 @@ public enum DownloadDestination: Sendable {
     case documents(filename: String)
 
     /// Lets the caller decide where to move the file.
-    case custom(@Sendable (URL /*tempURL*/) throws -> URL)
+    case custom(@Sendable (URL) throws -> URL)
 
     func moveFile(from tempURL: URL, fileManager: FileManager = .default) throws -> URL {
         switch self {
@@ -19,7 +19,7 @@ public enum DownloadDestination: Sendable {
             try fileManager.copyItem(at: tempURL, to: destination)
             return destination
 
-        case .documents(let filename):
+        case let .documents(filename):
             let documentsURL = try fileManager.url(
                 for: .documentDirectory,
                 in: .userDomainMask,
@@ -33,7 +33,7 @@ public enum DownloadDestination: Sendable {
             try fileManager.moveItem(at: tempURL, to: destination)
             return destination
 
-        case .custom(let handler):
+        case let .custom(handler):
             return try handler(tempURL)
         }
     }
