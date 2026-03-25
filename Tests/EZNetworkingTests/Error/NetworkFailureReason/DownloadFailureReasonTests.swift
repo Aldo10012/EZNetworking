@@ -94,6 +94,20 @@ struct DownloadFailureReasonTests {
         #expect(reason1 == reason2)
     }
 
+    @Test("test fileMoveFailed case equality")
+    func fileMoveFailedEquality() {
+        let error1 = NSError(domain: "Test", code: 1, userInfo: nil)
+        let error2 = NSError(domain: "Test", code: 1, userInfo: nil)
+        let error3 = NSError(domain: "Test", code: 2, userInfo: nil)
+
+        let reason1 = DownloadFailureReason.fileMoveFailed(underlying: error1)
+        let reason2 = DownloadFailureReason.fileMoveFailed(underlying: error2)
+        let reason3 = DownloadFailureReason.fileMoveFailed(underlying: error3)
+
+        #expect(reason1 == reason2)
+        #expect(reason1 != reason3)
+    }
+
     @Test("test different cases are not equal")
     func differentCasesInequality() {
         let urlError = DownloadFailureReason.urlError(underlying: URLError(.badURL))
@@ -105,6 +119,7 @@ struct DownloadFailureReasonTests {
         let notPaused = DownloadFailureReason.notPaused
         let unknownError = DownloadFailureReason.unknownError(underlying: NSError(domain: "Test", code: 1, userInfo: nil))
         let failedButResumable = DownloadFailureReason.failedButResumable(underlying: URLError(.networkConnectionLost))
+        let fileMoveFailed = DownloadFailureReason.fileMoveFailed(underlying: NSError(domain: "Test", code: 3, userInfo: nil))
 
         #expect(urlError != cannotResume)
         #expect(urlError != alreadyDownloading)
@@ -114,6 +129,7 @@ struct DownloadFailureReasonTests {
         #expect(urlError != notPaused)
         #expect(urlError != unknownError)
         #expect(urlError != failedButResumable)
+        #expect(urlError != fileMoveFailed)
         #expect(cannotResume != alreadyDownloading)
         #expect(cannotResume != alreadyFinished)
         #expect(cannotResume != downloadIncompleteButResumable)
@@ -121,27 +137,35 @@ struct DownloadFailureReasonTests {
         #expect(cannotResume != notPaused)
         #expect(cannotResume != unknownError)
         #expect(cannotResume != failedButResumable)
+        #expect(cannotResume != fileMoveFailed)
         #expect(alreadyDownloading != alreadyFinished)
         #expect(alreadyDownloading != downloadIncompleteButResumable)
         #expect(alreadyDownloading != notDownloading)
         #expect(alreadyDownloading != notPaused)
         #expect(alreadyDownloading != unknownError)
         #expect(alreadyDownloading != failedButResumable)
+        #expect(alreadyDownloading != fileMoveFailed)
         #expect(alreadyFinished != downloadIncompleteButResumable)
         #expect(alreadyFinished != notDownloading)
         #expect(alreadyFinished != notPaused)
         #expect(alreadyFinished != unknownError)
         #expect(alreadyFinished != failedButResumable)
+        #expect(alreadyFinished != fileMoveFailed)
         #expect(downloadIncompleteButResumable != notDownloading)
         #expect(downloadIncompleteButResumable != notPaused)
         #expect(downloadIncompleteButResumable != unknownError)
         #expect(downloadIncompleteButResumable != failedButResumable)
+        #expect(downloadIncompleteButResumable != fileMoveFailed)
         #expect(notDownloading != notPaused)
         #expect(notDownloading != unknownError)
         #expect(notDownloading != failedButResumable)
+        #expect(notDownloading != fileMoveFailed)
         #expect(notPaused != unknownError)
         #expect(notPaused != failedButResumable)
+        #expect(notPaused != fileMoveFailed)
         #expect(unknownError != failedButResumable)
+        #expect(unknownError != fileMoveFailed)
+        #expect(failedButResumable != fileMoveFailed)
     }
 
     @Test("test urlError vs unknownError even with same NSError")
@@ -160,6 +184,16 @@ struct DownloadFailureReasonTests {
         let error = NSError(domain: "Test", code: 1, userInfo: nil)
 
         let reason1 = DownloadFailureReason.failedButResumable(underlying: error)
+        let reason2 = DownloadFailureReason.unknownError(underlying: error)
+
+        #expect(reason1 != reason2)
+    }
+
+    @Test("test fileMoveFailed vs unknownError with same underlying error")
+    func fileMoveFailedVsUnknownErrorWithSameError() {
+        let error = NSError(domain: "Test", code: 1, userInfo: nil)
+
+        let reason1 = DownloadFailureReason.fileMoveFailed(underlying: error)
         let reason2 = DownloadFailureReason.unknownError(underlying: error)
 
         #expect(reason1 != reason2)

@@ -9,6 +9,9 @@ public enum DownloadFailureReason: Equatable, Sendable {
     case notDownloading
     case notPaused
 
+    // file related errors
+    case fileMoveFailed(underlying: SendableError)
+
     // network related errors
     case urlError(underlying: URLError)
     case unknownError(underlying: SendableError)
@@ -25,6 +28,8 @@ public enum DownloadFailureReason: Equatable, Sendable {
              (.notDownloading, .notDownloading),
              (.notPaused, .notPaused):
             true
+        case let (.fileMoveFailed(underlying: lhsError), .fileMoveFailed(underlying: rhsError)):
+            (lhsError as NSError) == (rhsError as NSError)
         case let (.unknownError(underlying: lhsError), .unknownError(underlying: rhsError)):
             (lhsError as NSError) == (rhsError as NSError)
         case let (.failedButResumable(underlying: lhsError), .failedButResumable(underlying: rhsError)):
