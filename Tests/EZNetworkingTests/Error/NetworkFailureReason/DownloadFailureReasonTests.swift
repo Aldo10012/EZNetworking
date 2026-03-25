@@ -110,62 +110,12 @@ struct DownloadFailureReasonTests {
 
     @Test("test different cases are not equal")
     func differentCasesInequality() {
-        let urlError = DownloadFailureReason.urlError(underlying: URLError(.badURL))
-        let cannotResume = DownloadFailureReason.cannotResume
-        let alreadyDownloading = DownloadFailureReason.alreadyDownloading
-        let alreadyFinished = DownloadFailureReason.alreadyFinished
-        let downloadIncompleteButResumable = DownloadFailureReason.downloadIncompleteButResumable
-        let notDownloading = DownloadFailureReason.notDownloading
-        let notPaused = DownloadFailureReason.notPaused
-        let unknownError = DownloadFailureReason.unknownError(underlying: NSError(domain: "Test", code: 1, userInfo: nil))
-        let failedButResumable = DownloadFailureReason.failedButResumable(underlying: URLError(.networkConnectionLost))
-        let fileMoveFailed = DownloadFailureReason.fileMoveFailed(underlying: NSError(domain: "Test", code: 3, userInfo: nil))
-
-        #expect(urlError != cannotResume)
-        #expect(urlError != alreadyDownloading)
-        #expect(urlError != alreadyFinished)
-        #expect(urlError != downloadIncompleteButResumable)
-        #expect(urlError != notDownloading)
-        #expect(urlError != notPaused)
-        #expect(urlError != unknownError)
-        #expect(urlError != failedButResumable)
-        #expect(urlError != fileMoveFailed)
-        #expect(cannotResume != alreadyDownloading)
-        #expect(cannotResume != alreadyFinished)
-        #expect(cannotResume != downloadIncompleteButResumable)
-        #expect(cannotResume != notDownloading)
-        #expect(cannotResume != notPaused)
-        #expect(cannotResume != unknownError)
-        #expect(cannotResume != failedButResumable)
-        #expect(cannotResume != fileMoveFailed)
-        #expect(alreadyDownloading != alreadyFinished)
-        #expect(alreadyDownloading != downloadIncompleteButResumable)
-        #expect(alreadyDownloading != notDownloading)
-        #expect(alreadyDownloading != notPaused)
-        #expect(alreadyDownloading != unknownError)
-        #expect(alreadyDownloading != failedButResumable)
-        #expect(alreadyDownloading != fileMoveFailed)
-        #expect(alreadyFinished != downloadIncompleteButResumable)
-        #expect(alreadyFinished != notDownloading)
-        #expect(alreadyFinished != notPaused)
-        #expect(alreadyFinished != unknownError)
-        #expect(alreadyFinished != failedButResumable)
-        #expect(alreadyFinished != fileMoveFailed)
-        #expect(downloadIncompleteButResumable != notDownloading)
-        #expect(downloadIncompleteButResumable != notPaused)
-        #expect(downloadIncompleteButResumable != unknownError)
-        #expect(downloadIncompleteButResumable != failedButResumable)
-        #expect(downloadIncompleteButResumable != fileMoveFailed)
-        #expect(notDownloading != notPaused)
-        #expect(notDownloading != unknownError)
-        #expect(notDownloading != failedButResumable)
-        #expect(notDownloading != fileMoveFailed)
-        #expect(notPaused != unknownError)
-        #expect(notPaused != failedButResumable)
-        #expect(notPaused != fileMoveFailed)
-        #expect(unknownError != failedButResumable)
-        #expect(unknownError != fileMoveFailed)
-        #expect(failedButResumable != fileMoveFailed)
+        let allCases = allDistinctCases
+        for i in 0..<allCases.count {
+            for j in (i + 1)..<allCases.count {
+                #expect(allCases[i] != allCases[j])
+            }
+        }
     }
 
     @Test("test urlError vs unknownError even with same NSError")
@@ -199,3 +149,18 @@ struct DownloadFailureReasonTests {
         #expect(reason1 != reason2)
     }
 }
+
+// MARK: - Helpers
+
+private let allDistinctCases: [DownloadFailureReason] = [
+    .urlError(underlying: URLError(.badURL)),
+    .cannotResume,
+    .alreadyDownloading,
+    .alreadyFinished,
+    .downloadIncompleteButResumable,
+    .notDownloading,
+    .notPaused,
+    .unknownError(underlying: NSError(domain: "Test", code: 1, userInfo: nil)),
+    .failedButResumable(underlying: URLError(.networkConnectionLost)),
+    .fileMoveFailed(underlying: NSError(domain: "Test", code: 3, userInfo: nil))
+]
