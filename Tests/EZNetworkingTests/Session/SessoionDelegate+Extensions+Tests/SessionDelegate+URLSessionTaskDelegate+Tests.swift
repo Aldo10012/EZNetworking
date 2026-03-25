@@ -73,15 +73,13 @@ final class SessionDelegateURLSessionTaskDelegateTests {
         #expect(taskLifecycleInterceptor.didCompleteWithError)
     }
 
-    @Test("test SessionDelegate DidCompleteWithError nil error does not forward to download, upload, or websocket interceptors")
+    @Test("test SessionDelegate DidCompleteWithError nil error does not forward to download or websocket interceptors")
     func sessionDelegateDidCompleteWithNilError() {
         let downloadInterceptor = SpyDownloadTaskInterceptor()
-        let uploadInterceptor = SpyUploadTaskInterceptor()
         let webSocketInterceptor = SpyWebSocketTaskInterceptor()
         let taskLifecycleInterceptor = MockTaskLifecycleInterceptor()
         let delegate = SessionDelegate()
         delegate.downloadTaskInterceptor = downloadInterceptor
-        delegate.uploadTaskInterceptor = uploadInterceptor
         delegate.webSocketTaskInterceptor = webSocketInterceptor
         delegate.taskLifecycleInterceptor = taskLifecycleInterceptor
 
@@ -89,45 +87,22 @@ final class SessionDelegateURLSessionTaskDelegateTests {
 
         #expect(taskLifecycleInterceptor.didCompleteWithError)
         #expect(!downloadInterceptor.didCompleteWithError)
-        #expect(!uploadInterceptor.didCompleteWithError)
         #expect(!webSocketInterceptor.didCompleteWithError)
     }
 
-    @Test("test SessionDelegate DidCompleteWithError generic task does not forward to download, upload, or websocket interceptors")
+    @Test("test SessionDelegate DidCompleteWithError generic task does not forward to download or websocket interceptors")
     func sessionDelegateDidCompleteWithError_genericTask() {
         let downloadInterceptor = SpyDownloadTaskInterceptor()
-        let uploadInterceptor = SpyUploadTaskInterceptor()
         let webSocketInterceptor = SpyWebSocketTaskInterceptor()
         let delegate = SessionDelegate()
         delegate.downloadTaskInterceptor = downloadInterceptor
-        delegate.uploadTaskInterceptor = uploadInterceptor
         delegate.webSocketTaskInterceptor = webSocketInterceptor
 
         let error = NSError(domain: "TestError", code: 1, userInfo: nil)
         delegate.urlSession(.shared, task: mockURLSessionTask, didCompleteWithError: error)
 
         #expect(!downloadInterceptor.didCompleteWithError)
-        #expect(!uploadInterceptor.didCompleteWithError)
         #expect(!webSocketInterceptor.didCompleteWithError)
-    }
-
-    @Test("test SessionDelegate DidCompleteWithError forwards to uploadTaskInterceptor for upload tasks")
-    func sessionDelegateDidCompleteWithError_uploadTask() {
-        let uploadInterceptor = SpyUploadTaskInterceptor()
-        let downloadInterceptor = SpyDownloadTaskInterceptor()
-        let delegate = SessionDelegate()
-        delegate.uploadTaskInterceptor = uploadInterceptor
-        delegate.downloadTaskInterceptor = downloadInterceptor
-
-        let error = NSError(domain: "TestError", code: 1, userInfo: nil)
-        let request = URLRequest(url: URL(string: "https://example.com")!)
-        let fileURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("test.txt")
-        let uploadTask = URLSession.shared.uploadTask(with: request, fromFile: fileURL)
-        delegate.urlSession(.shared, task: uploadTask, didCompleteWithError: error)
-        uploadTask.cancel()
-
-        #expect(uploadInterceptor.didCompleteWithError)
-        #expect(!downloadInterceptor.didCompleteWithError)
     }
 
     @Test("test SessionDelegateT askIsWaitingForConnectivity")
@@ -205,20 +180,6 @@ private class SpyDownloadTaskInterceptor: DownloadTaskInterceptor {
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {}
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {}
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didResumeAtOffset fileOffset: Int64, expectedTotalBytes: Int64) {}
-    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error) {
-        didCompleteWithError = true
-    }
-}
-
-private class SpyUploadTaskInterceptor: UploadTaskInterceptor {
-    var onEvent: (UploadTaskInterceptorEvent) -> Void = { _ in }
-    var didCompleteWithError = false
-    var didReceiveData = false
-
-    func urlSession(_ session: URLSession, task: URLSessionTask, didSendBodyData bytesSent: Int64, totalBytesSent: Int64, totalBytesExpectedToSend: Int64) {}
-    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
-        didReceiveData = true
-    }
     func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error) {
         didCompleteWithError = true
     }
