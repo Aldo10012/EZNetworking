@@ -12,7 +12,7 @@ final class FileDownloaderPauseResumeTests {
         let delegate = SessionDelegate(downloadTaskInterceptor: downloadInterceptor)
         let mockURLSession = MockFileDownloaderURLSession()
         let session = MockSession(urlSession: mockURLSession, delegate: delegate)
-        let sut = FileDownloader(url: mockUrl, session: session)
+        let sut = FileDownloader(url: mockUrl, destination: passthroughDestination, session: session)
 
         let stream = await sut.downloadFileStream()
 
@@ -155,7 +155,7 @@ final class FileDownloaderPauseResumeTests {
         let delegate = SessionDelegate(downloadTaskInterceptor: downloadInterceptor)
         let mockURLSession = MockFileDownloaderURLSession()
         let session = MockSession(urlSession: mockURLSession, delegate: delegate)
-        let sut = FileDownloader(url: mockUrl, session: session)
+        let sut = FileDownloader(url: mockUrl, destination: passthroughDestination, session: session)
 
         let stream = await sut.downloadFileStream()
 
@@ -235,3 +235,4 @@ final class FileDownloaderPauseResumeTests {
 
 private let mockUrl = URL(string: "https://example.com/file.pdf")!
 private let mockFileLocation = URL(fileURLWithPath: "/tmp/test.pdf")
+private let passthroughDestination: DownloadDestination = .custom { url in url }

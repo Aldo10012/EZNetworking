@@ -4,6 +4,7 @@ public actor FileDownloader: FileDownloadable {
     private let url: URL
     private let session: NetworkSession
     private let validator: ResponseValidator
+    private let destination: DownloadDestination
 
     enum State: Equatable {
         case idle
@@ -27,10 +28,12 @@ public actor FileDownloader: FileDownloadable {
 
     public init(
         url: URL,
+        destination: DownloadDestination = .temporary,
         session: NetworkSession = Session(),
         validator: ResponseValidator = DefaultResponseValidator()
     ) {
         self.url = url
+        self.destination = destination
         self.session = session
         self.validator = validator
         fallbackDownloadTaskInterceptor = DefaultDownloadTaskInterceptor(validator: validator)
@@ -194,7 +197,15 @@ public actor FileDownloader: FileDownloadable {
             case .downloading, .pausing: break
             default: return
             }
-            terminate(with: .completed(location), state: .completed)
+            do {
+                let finalURL = try destination.moveFile(from: location)
+                terminate(with: .completed(finalURL), state: .completed)
+            } catch {
+                let moveError: NetworkingError = .downloadFailed(
+                    reason: .fileMoveFailed(underlying: error.asSendableError)
+                )
+                terminate(with: .failed(moveError), state: .failed)
+            }
 
         case let .onDownloadFailed(error, resumeData):
             guard case .downloading = state else { return }
