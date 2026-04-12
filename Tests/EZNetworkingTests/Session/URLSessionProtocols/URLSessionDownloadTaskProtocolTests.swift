@@ -16,7 +16,7 @@ struct URLSessionDownloadTaskProtocolTests {
     @Test("test URLSessionProtocol.downloadTask(with:) returns URLSessionDownloadTaskProtocol")
     func urlSessionProtocolReturnsProtocol() {
         let session: URLSessionProtocol = URLSession.shared
-        let task = session.downloadTaskInspectable(with: URL(string: "https://example.com")!)
+        let task = session.downloadTaskInspectable(with: URLRequest(url: URL(string: "https://example.com")!))
         #expect(task is URLSessionDownloadTask)
         task.cancel()
     }

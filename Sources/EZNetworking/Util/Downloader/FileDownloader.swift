@@ -74,7 +74,7 @@ public actor FileDownloader: FileDownloadable {
         }
 
         state = .downloading
-        let task = session.urlSession.downloadTaskInspectable(with: url)
+        let task = session.urlSession.downloadTaskInspectable(with: URLRequest(url: url))
         downloadTask = task
         task.resume()
 
