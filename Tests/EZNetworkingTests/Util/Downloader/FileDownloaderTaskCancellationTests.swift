@@ -10,7 +10,7 @@ final class FileDownloaderTaskCancellationTests {
         let delegate = SessionDelegate(downloadTaskInterceptor: downloadInterceptor)
         let mockURLSession = MockFileDownloaderURLSession()
         let session = MockSession(urlSession: mockURLSession, delegate: delegate)
-        let sut = FileDownloader(url: mockUrl, session: session)
+        let sut = FileDownloader(request: mockRequest, session: session)
 
         let stream = await sut.downloadFileStream()
 
@@ -47,7 +47,7 @@ final class FileDownloaderTaskCancellationTests {
     func downloadFileStream_parentTaskCancelled() async {
         let mockURLSession = MockFileDownloaderURLSession()
         let session = MockSession(urlSession: mockURLSession, delegate: SessionDelegate())
-        let sut = FileDownloader(url: mockUrl, session: session)
+        let sut = FileDownloader(request: mockRequest, session: session)
 
         let eventsTask = Task {
             // Spin until this task is cancelled before calling downloadFileStream
@@ -72,7 +72,7 @@ final class FileDownloaderTaskCancellationTests {
     func streamConsumerCancellation_cancelsDownloadTask() async throws {
         let mockURLSession = MockFileDownloaderURLSession()
         let session = MockSession(urlSession: mockURLSession, delegate: SessionDelegate())
-        let sut = FileDownloader(url: mockUrl, session: session)
+        let sut = FileDownloader(request: mockRequest, session: session)
 
         let stream = await sut.downloadFileStream()
         #expect(mockURLSession.mockDownloadTask.didResume)
@@ -91,4 +91,5 @@ final class FileDownloaderTaskCancellationTests {
 // MARK: - Helpers
 
 private let mockUrl = URL(string: "https://example.com/file.pdf")!
+private let mockRequest = DownloadRequest(url: "https://example.com/file.pdf")
 private let mockFileLocation = URL(fileURLWithPath: "/tmp/test.pdf")

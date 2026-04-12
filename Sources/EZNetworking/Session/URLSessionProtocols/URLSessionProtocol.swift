@@ -11,13 +11,13 @@ public protocol URLSessionProtocol {
 
     func bytes(for request: URLRequest) async throws -> (AsyncThrowingStream<UInt8, Error>, URLResponse)
 
-    func downloadTaskInspectable(with url: URL) -> URLSessionDownloadTaskProtocol
+    func downloadTaskInspectable(with request: URLRequest) -> URLSessionDownloadTaskProtocol
     func downloadTaskInspectable(withResumeData resumeData: Data) -> URLSessionDownloadTaskProtocol
 }
 
 extension URLSession: URLSessionProtocol {
-    public func downloadTaskInspectable(with url: URL) -> URLSessionDownloadTaskProtocol {
-        let task: URLSessionDownloadTask = downloadTask(with: url)
+    public func downloadTaskInspectable(with request: URLRequest) -> URLSessionDownloadTaskProtocol {
+        let task: URLSessionDownloadTask = downloadTask(with: request)
         return task as URLSessionDownloadTaskProtocol
     }
 

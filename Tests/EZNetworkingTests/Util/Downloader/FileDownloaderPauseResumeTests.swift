@@ -12,7 +12,7 @@ final class FileDownloaderPauseResumeTests {
         let delegate = SessionDelegate(downloadTaskInterceptor: downloadInterceptor)
         let mockURLSession = MockFileDownloaderURLSession()
         let session = MockSession(urlSession: mockURLSession, delegate: delegate)
-        let sut = FileDownloader(url: mockUrl, session: session)
+        let sut = FileDownloader(request: mockRequest, session: session)
 
         let stream = await sut.downloadFileStream()
 
@@ -46,7 +46,7 @@ final class FileDownloaderPauseResumeTests {
         let delegate = SessionDelegate(downloadTaskInterceptor: downloadInterceptor)
         let mockURLSession = MockFileDownloaderURLSession()
         let session = MockSession(urlSession: mockURLSession, delegate: delegate)
-        let sut = FileDownloader(url: mockUrl, session: session)
+        let sut = FileDownloader(request: mockRequest, session: session)
 
         let stream = await sut.downloadFileStream()
 
@@ -76,7 +76,7 @@ final class FileDownloaderPauseResumeTests {
         let delegate = SessionDelegate(downloadTaskInterceptor: downloadInterceptor)
         let mockURLSession = MockFileDownloaderURLSession()
         let session = MockSession(urlSession: mockURLSession, delegate: delegate)
-        let sut = FileDownloader(url: mockUrl, session: session)
+        let sut = FileDownloader(request: mockRequest, session: session)
 
         let stream = await sut.downloadFileStream()
 
@@ -106,7 +106,7 @@ final class FileDownloaderPauseResumeTests {
         let delegate = SessionDelegate(downloadTaskInterceptor: downloadInterceptor)
         let mockURLSession = MockFileDownloaderURLSession()
         let session = MockSession(urlSession: mockURLSession, delegate: delegate)
-        let sut = FileDownloader(url: mockUrl, session: session)
+        let sut = FileDownloader(request: mockRequest, session: session)
 
         let stream = await sut.downloadFileStream()
 
@@ -131,7 +131,7 @@ final class FileDownloaderPauseResumeTests {
         let delegate = SessionDelegate(downloadTaskInterceptor: downloadInterceptor)
         let mockURLSession = MockFileDownloaderURLSession()
         let session = MockSession(urlSession: mockURLSession, delegate: delegate)
-        let sut = FileDownloader(url: mockUrl, session: session)
+        let sut = FileDownloader(request: mockRequest, session: session)
 
         let stream = await sut.downloadFileStream()
 
@@ -155,7 +155,7 @@ final class FileDownloaderPauseResumeTests {
         let delegate = SessionDelegate(downloadTaskInterceptor: downloadInterceptor)
         let mockURLSession = MockFileDownloaderURLSession()
         let session = MockSession(urlSession: mockURLSession, delegate: delegate)
-        let sut = FileDownloader(url: mockUrl, session: session)
+        let sut = FileDownloader(request: mockRequest, session: session)
 
         let stream = await sut.downloadFileStream()
 
@@ -189,7 +189,7 @@ final class FileDownloaderPauseResumeTests {
         let delegate = SessionDelegate(downloadTaskInterceptor: downloadInterceptor)
         let mockURLSession = MockFileDownloaderURLSession()
         let session = MockSession(urlSession: mockURLSession, delegate: delegate)
-        let sut = FileDownloader(url: mockUrl, session: session)
+        let sut = FileDownloader(request: mockRequest, session: session)
 
         let stream = await sut.downloadFileStream()
 
@@ -215,7 +215,7 @@ final class FileDownloaderPauseResumeTests {
         let delegate = SessionDelegate(downloadTaskInterceptor: downloadInterceptor)
         let mockURLSession = MockFileDownloaderURLSession()
         let session = MockSession(urlSession: mockURLSession, delegate: delegate)
-        let sut = FileDownloader(url: mockUrl, session: session)
+        let sut = FileDownloader(request: mockRequest, session: session)
 
         let stream = await sut.downloadFileStream()
 
@@ -234,4 +234,5 @@ final class FileDownloaderPauseResumeTests {
 // MARK: - Helpers
 
 private let mockUrl = URL(string: "https://example.com/file.pdf")!
+private let mockRequest = DownloadRequest(url: "https://example.com/file.pdf")
 private let mockFileLocation = URL(fileURLWithPath: "/tmp/test.pdf")

@@ -4,9 +4,30 @@
 
 `FileDownloader` is an actor-based downloader that supports pause, resume, and cancel. It exposes a single `AsyncStream<DownloadEvent>` API.
 
+### Initialization
+
+`FileDownloader` provides two initializers:
+
+**From a URL string** — the quickest path for a simple GET download:
+```swift
+let downloader = FileDownloader(url: "https://example.com/file.pdf")
+```
+
+**From a `DownloadRequest`** — when you need to attach headers (e.g., authorization) or customize the request:
+```swift
+let downloader = FileDownloader(
+    request: DownloadRequest(
+        url: "https://example.com/file.pdf",
+        additionalheaders: [.authorization(.bearer("TOKEN"))]
+    )
+)
+```
+
+Both initializers also accept an optional `session: NetworkSession` and `validator: ResponseValidator`. The string-based initializer is a convenience that wraps its argument in a `DownloadRequest` internally, so the two forms are equivalent when no headers are needed.
+
 ### Basic Usage
 ```swift
-let downloader = FileDownloader(url: URL(string: "https://example.com/file.pdf")!)
+let downloader = FileDownloader(url: "https://example.com/file.pdf")
 
 for await event in await downloader.downloadFileStream() {
     switch event {
@@ -26,7 +47,7 @@ for await event in await downloader.downloadFileStream() {
 
 ### Pause, Resume, and Cancel
 ```swift
-let downloader = FileDownloader(url: URL(string: "https://example.com/file.pdf")!)
+let downloader = FileDownloader(url: "https://example.com/file.pdf")
 
 // Start consuming events in a background task
 let eventsTask = Task {
@@ -54,7 +75,10 @@ let configuration = URLSessionConfiguration.background(withIdentifier: "com.myap
 let session = Session(configuration: configuration)
 
 let downloader = FileDownloader(
-    url: URL(string: "https://example.com/largefile.zip")!,
+    request: DownloadRequest(
+        url: "https://example.com/largefile.zip",
+        additionalheaders: [.authorization(.bearer("TOKEN"))]
+    ),
     session: session
 )
 

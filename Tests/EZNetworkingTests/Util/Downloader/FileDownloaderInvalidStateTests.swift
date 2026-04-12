@@ -7,7 +7,7 @@ final class FileDownloaderInvalidStateTests {
     @Test("test downloadFileStream when already downloading emits alreadyDownloading")
     func downloadFileStreamWhenAlreadyDownloadingEmitsAlreadyDownloading() async {
         let session = MockSession(urlSession: MockFileDownloaderURLSession(), delegate: SessionDelegate())
-        let sut = FileDownloader(url: mockUrl, session: session)
+        let sut = FileDownloader(request: mockRequest, session: session)
 
         _ = await sut.downloadFileStream()
         #expect(await sut.state == .downloading)
@@ -29,7 +29,7 @@ final class FileDownloaderInvalidStateTests {
         let delegate = SessionDelegate(downloadTaskInterceptor: downloadInterceptor)
         let mockURLSession = MockFileDownloaderURLSession()
         let session = MockSession(urlSession: mockURLSession, delegate: delegate)
-        let sut = FileDownloader(url: mockUrl, session: session)
+        let sut = FileDownloader(request: mockRequest, session: session)
 
         let firstStream = await sut.downloadFileStream()
         downloadInterceptor.simulateDownloadComplete(mockFileLocation)
@@ -55,7 +55,7 @@ final class FileDownloaderInvalidStateTests {
         let delegate = SessionDelegate(downloadTaskInterceptor: downloadInterceptor)
         let mockURLSession = MockFileDownloaderURLSession()
         let session = MockSession(urlSession: mockURLSession, delegate: delegate)
-        let sut = FileDownloader(url: mockUrl, session: session)
+        let sut = FileDownloader(request: mockRequest, session: session)
 
         let firstStream = await sut.downloadFileStream()
 
@@ -81,7 +81,7 @@ final class FileDownloaderInvalidStateTests {
     @Test("test calling .pause() when not downloading throws")
     func callingPauseWhenNotDownloadingThrows() async {
         let session = MockSession(urlSession: MockFileDownloaderURLSession(), delegate: SessionDelegate())
-        let sut = FileDownloader(url: mockUrl, session: session)
+        let sut = FileDownloader(request: mockRequest, session: session)
 
         #expect(await sut.state == .idle)
         await #expect(throws: NetworkingError.downloadFailed(reason: .notDownloading)) {
@@ -92,7 +92,7 @@ final class FileDownloaderInvalidStateTests {
     @Test("test calling .resume() when not downloading throws")
     func callingResumeWhenNotDownloadingThrows() async {
         let session = MockSession(urlSession: MockFileDownloaderURLSession(), delegate: SessionDelegate())
-        let sut = FileDownloader(url: mockUrl, session: session)
+        let sut = FileDownloader(request: mockRequest, session: session)
 
         #expect(await sut.state == .idle)
         await #expect(throws: NetworkingError.downloadFailed(reason: .notPaused)) {
@@ -103,7 +103,7 @@ final class FileDownloaderInvalidStateTests {
     @Test("test calling .cancel() when not downloading throws")
     func callingCancelWhenNotDownloadingThrows() async {
         let session = MockSession(urlSession: MockFileDownloaderURLSession(), delegate: SessionDelegate())
-        let sut = FileDownloader(url: mockUrl, session: session)
+        let sut = FileDownloader(request: mockRequest, session: session)
 
         #expect(await sut.state == .idle)
         await #expect(throws: NetworkingError.downloadFailed(reason: .notDownloading)) {
@@ -115,4 +115,5 @@ final class FileDownloaderInvalidStateTests {
 // MARK: - Helpers
 
 private let mockUrl = URL(string: "https://example.com/file.pdf")!
+private let mockRequest = DownloadRequest(url: "https://example.com/file.pdf")
 private let mockFileLocation = URL(fileURLWithPath: "/tmp/test.pdf")
