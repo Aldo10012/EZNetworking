@@ -217,7 +217,7 @@ final class FileDownloaderCoreFunctionalityTests {
 // MARK: - Helpers
 
 private let mockUrl = URL(string: "https://example.com/file.pdf")!
-private let mockRequest = URLRequest(url: mockUrl)
+private let mockRequest = DownloadRequest(url: "https://example.com/file.pdf")
 private let mockFileLocation = URL(fileURLWithPath: "/tmp/test.pdf")
 
 private func makeMockDelegateTask(statusCode: Int = 200) -> MockURLSessionDownloadTask {

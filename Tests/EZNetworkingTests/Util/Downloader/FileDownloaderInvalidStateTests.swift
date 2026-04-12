@@ -115,5 +115,5 @@ final class FileDownloaderInvalidStateTests {
 // MARK: - Helpers
 
 private let mockUrl = URL(string: "https://example.com/file.pdf")!
-private let mockRequest = URLRequest(url: mockUrl)
+private let mockRequest = DownloadRequest(url: "https://example.com/file.pdf")
 private let mockFileLocation = URL(fileURLWithPath: "/tmp/test.pdf")

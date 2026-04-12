@@ -1,7 +1,7 @@
 import Foundation
 
 public actor FileDownloader: FileDownloadable {
-    private let request: URLRequest
+    private let request: DownloadRequest
     private let session: NetworkSession
     private let validator: ResponseValidator
 
@@ -26,7 +26,19 @@ public actor FileDownloader: FileDownloadable {
     // MARK: init
 
     public init(
-        request: URLRequest,
+        url: String,
+        session: NetworkSession = Session(),
+        validator: ResponseValidator = DefaultResponseValidator()
+    ) {
+        self.init(
+            request: DownloadRequest(url: url),
+            session: session,
+            validator: validator
+        )
+    }
+
+    public init(
+        request: DownloadRequest,
         session: NetworkSession = Session(),
         validator: ResponseValidator = DefaultResponseValidator()
     ) {
@@ -63,6 +75,13 @@ public actor FileDownloader: FileDownloadable {
             return earlyExitStream(yielding: .failed(.downloadFailed(reason: .alreadyFinished)))
         }
 
+        let urlRequest: URLRequest
+        do {
+            urlRequest = try request.getURLRequest()
+        } catch {
+            return earlyExitStream(yielding: .failed(mapNetworkingError(from: error)))
+        }
+
         let (stream, continuation) = AsyncStream<DownloadEvent>.makeStream()
         self.continuation = continuation
 
@@ -74,7 +93,7 @@ public actor FileDownloader: FileDownloadable {
         }
 
         state = .downloading
-        let task = session.urlSession.downloadTaskInspectable(with: request)
+        let task = session.urlSession.downloadTaskInspectable(with: urlRequest)
         downloadTask = task
         task.resume()
 
