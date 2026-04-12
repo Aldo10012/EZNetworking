@@ -4,6 +4,27 @@
 
 `FileDownloader` is an actor-based downloader that supports pause, resume, and cancel. It exposes a single `AsyncStream<DownloadEvent>` API.
 
+### Initialization
+
+`FileDownloader` provides two initializers:
+
+**From a URL string** — the quickest path for a simple GET download:
+```swift
+let downloader = FileDownloader(url: "https://example.com/file.pdf")
+```
+
+**From a `DownloadRequest`** — when you need to attach headers (e.g., authorization) or customize the request:
+```swift
+let downloader = FileDownloader(
+    request: DownloadRequest(
+        url: "https://example.com/file.pdf",
+        additionalheaders: [.authorization(.bearer("TOKEN"))]
+    )
+)
+```
+
+Both initializers also accept an optional `session: NetworkSession` and `validator: ResponseValidator`. The string-based initializer is a convenience that wraps its argument in a `DownloadRequest` internally, so the two forms are equivalent when no headers are needed.
+
 ### Basic Usage
 ```swift
 let downloader = FileDownloader(url: "https://example.com/file.pdf")
