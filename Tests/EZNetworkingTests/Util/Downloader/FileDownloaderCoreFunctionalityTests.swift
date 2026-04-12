@@ -10,7 +10,7 @@ final class FileDownloaderCoreFunctionalityTests {
     func callingDownloadFaileStreamCallsDownloadTaskResume() async {
         let mockURLSession = MockFileDownloaderURLSession()
         let session = MockSession(urlSession: mockURLSession, delegate: SessionDelegate())
-        let sut = FileDownloader(url: mockUrl, session: session)
+        let sut = FileDownloader(request: mockRequest, session: session)
 
         _ = await sut.downloadFileStream()
         #expect(mockURLSession.mockDownloadTask.didResume)
@@ -21,7 +21,7 @@ final class FileDownloaderCoreFunctionalityTests {
     func callingFileDownloaderCancelCallsDownloadTaskCancel() async throws {
         let mockURLSession = MockFileDownloaderURLSession()
         let session = MockSession(urlSession: mockURLSession, delegate: SessionDelegate())
-        let sut = FileDownloader(url: mockUrl, session: session)
+        let sut = FileDownloader(request: mockRequest, session: session)
 
         _ = await sut.downloadFileStream()
         try await sut.cancel()
@@ -33,7 +33,7 @@ final class FileDownloaderCoreFunctionalityTests {
     func callingDownloadFaileStreamCallsDownloadTask() async throws {
         let mockURLSession = MockFileDownloaderURLSession()
         let session = MockSession(urlSession: mockURLSession, delegate: SessionDelegate())
-        let sut = FileDownloader(url: mockUrl, session: session)
+        let sut = FileDownloader(request: mockRequest, session: session)
 
         _ = await sut.downloadFileStream()
         try await sut.pause()
@@ -48,7 +48,7 @@ final class FileDownloaderCoreFunctionalityTests {
         let delegate = SessionDelegate(downloadTaskInterceptor: downloadInterceptor)
         let mockURLSession = MockFileDownloaderURLSession()
         let session = MockSession(urlSession: mockURLSession, delegate: delegate)
-        let sut = FileDownloader(url: mockUrl, session: session)
+        let sut = FileDownloader(request: mockRequest, session: session)
 
         let stream = await sut.downloadFileStream()
 
@@ -70,7 +70,7 @@ final class FileDownloaderCoreFunctionalityTests {
         let delegate = SessionDelegate(downloadTaskInterceptor: downloadInterceptor)
         let mockURLSession = MockFileDownloaderURLSession()
         let session = MockSession(urlSession: mockURLSession, delegate: delegate)
-        let sut = FileDownloader(url: mockUrl, session: session)
+        let sut = FileDownloader(request: mockRequest, session: session)
 
         let stream = await sut.downloadFileStream()
 
@@ -96,7 +96,7 @@ final class FileDownloaderCoreFunctionalityTests {
         let delegate = SessionDelegate(downloadTaskInterceptor: downloadInterceptor)
         let mockURLSession = MockFileDownloaderURLSession()
         let session = MockSession(urlSession: mockURLSession, delegate: delegate)
-        let sut = FileDownloader(url: mockUrl, session: session)
+        let sut = FileDownloader(request: mockRequest, session: session)
 
         let stream = await sut.downloadFileStream()
 
@@ -118,7 +118,7 @@ final class FileDownloaderCoreFunctionalityTests {
     func downladFailedDueToNon2xxStatusCoderBeforeCanComplete() async {
         let delegate = SessionDelegate()
         let session = MockSession(urlSession: MockFileDownloaderURLSession(), delegate: delegate)
-        let sut = FileDownloader(url: mockUrl, session: session)
+        let sut = FileDownloader(request: mockRequest, session: session)
 
         let stream = await sut.downloadFileStream()
 
@@ -142,7 +142,7 @@ final class FileDownloaderCoreFunctionalityTests {
         let delegate = SessionDelegate(downloadTaskInterceptor: downloadInterceptor)
         let mockURLSession = MockFileDownloaderURLSession()
         let session = MockSession(urlSession: mockURLSession, delegate: delegate)
-        let sut = FileDownloader(url: mockUrl, session: session)
+        let sut = FileDownloader(request: mockRequest, session: session)
 
         let stream = await sut.downloadFileStream()
 
@@ -168,7 +168,7 @@ final class FileDownloaderCoreFunctionalityTests {
         let delegate = SessionDelegate(downloadTaskInterceptor: downloadInterceptor)
         let mockURLSession = MockFileDownloaderURLSession()
         let session = MockSession(urlSession: mockURLSession, delegate: delegate)
-        let sut = FileDownloader(url: mockUrl, session: session)
+        let sut = FileDownloader(request: mockRequest, session: session)
 
         let stream = await sut.downloadFileStream()
 
@@ -194,7 +194,7 @@ final class FileDownloaderCoreFunctionalityTests {
         let delegate = SessionDelegate(downloadTaskInterceptor: downloadInterceptor)
         let mockURLSession = MockFileDownloaderURLSession()
         let session = MockSession(urlSession: mockURLSession, delegate: delegate)
-        let sut = FileDownloader(url: mockUrl, session: session)
+        let sut = FileDownloader(request: mockRequest, session: session)
 
         let stream = await sut.downloadFileStream()
 
@@ -217,6 +217,7 @@ final class FileDownloaderCoreFunctionalityTests {
 // MARK: - Helpers
 
 private let mockUrl = URL(string: "https://example.com/file.pdf")!
+private let mockRequest = URLRequest(url: mockUrl)
 private let mockFileLocation = URL(fileURLWithPath: "/tmp/test.pdf")
 
 private func makeMockDelegateTask(statusCode: Int = 200) -> MockURLSessionDownloadTask {

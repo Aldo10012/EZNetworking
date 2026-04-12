@@ -6,7 +6,7 @@
 
 ### Basic Usage
 ```swift
-let downloader = FileDownloader(url: URL(string: "https://example.com/file.pdf")!)
+let downloader = FileDownloader(request: URLRequest(url: URL(string: "https://example.com/file.pdf")!))
 
 for await event in await downloader.downloadFileStream() {
     switch event {
@@ -26,7 +26,7 @@ for await event in await downloader.downloadFileStream() {
 
 ### Pause, Resume, and Cancel
 ```swift
-let downloader = FileDownloader(url: URL(string: "https://example.com/file.pdf")!)
+let downloader = FileDownloader(request: URLRequest(url: URL(string: "https://example.com/file.pdf")!))
 
 // Start consuming events in a background task
 let eventsTask = Task {
@@ -54,7 +54,7 @@ let configuration = URLSessionConfiguration.background(withIdentifier: "com.myap
 let session = Session(configuration: configuration)
 
 let downloader = FileDownloader(
-    url: URL(string: "https://example.com/largefile.zip")!,
+    request: URLRequest(url: URL(string: "https://example.com/largefile.zip")!),
     session: session
 )
 

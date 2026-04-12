@@ -1,7 +1,7 @@
 import Foundation
 
 public actor FileDownloader: FileDownloadable {
-    private let url: URL
+    private let request: URLRequest
     private let session: NetworkSession
     private let validator: ResponseValidator
 
@@ -26,11 +26,11 @@ public actor FileDownloader: FileDownloadable {
     // MARK: init
 
     public init(
-        url: URL,
+        request: URLRequest,
         session: NetworkSession = Session(),
         validator: ResponseValidator = DefaultResponseValidator()
     ) {
-        self.url = url
+        self.request = request
         self.session = session
         self.validator = validator
         fallbackDownloadTaskInterceptor = DefaultDownloadTaskInterceptor(validator: validator)
@@ -74,7 +74,7 @@ public actor FileDownloader: FileDownloadable {
         }
 
         state = .downloading
-        let task = session.urlSession.downloadTaskInspectable(with: URLRequest(url: url))
+        let task = session.urlSession.downloadTaskInspectable(with: request)
         downloadTask = task
         task.resume()
 
