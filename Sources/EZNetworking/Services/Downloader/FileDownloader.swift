@@ -4,18 +4,6 @@ public actor FileDownloader: FileDownloadable {
     private let request: DownloadRequest
     private let session: NetworkSession
     private let validator: ResponseValidator
-
-    enum DownloadState: Equatable {
-        case idle
-        case downloading
-        case pausing
-        case paused(resumeData: Data)
-        case completed
-        case failed
-        case failedButCanResume(resumeData: Data)
-        case cancelled
-    }
-
     private var state: DownloadState = .idle
     private var downloadTask: (any URLSessionDownloadTaskProtocol)?
     private var continuation: AsyncStream<DownloadEvent>.Continuation?
