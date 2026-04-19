@@ -92,7 +92,7 @@ public actor FileDownloader: FileDownloadable {
 
         guard case .pausing = state else { return }
         guard !Task.isCancelled else {
-            terminateSilently(state: .cancelled)
+            terminate(with: nil, state: .cancelled)
             return
         }
         guard let resumeData else {
@@ -136,7 +136,7 @@ public actor FileDownloader: FileDownloadable {
         }
 
         downloadTask?.cancel()
-        terminateSilently(state: .cancelled)
+        terminate(with: nil, state: .cancelled)
     }
 }
 
@@ -164,18 +164,14 @@ extension FileDownloader {
     }
 
     /// Moves to a terminal state, yields a final event, and closes the stream.
-    private func terminate(with event: DownloadEvent, state newState: DownloadState) {
+    /// if event is nil, stream yields before close
+    /// if event is not nil, stream closes without yielding
+    private func terminate(with event: DownloadEvent?, state newState: DownloadState) {
         state = newState
         downloadTask = nil
-        continuation?.yield(event)
-        continuation?.finish()
-        continuation = nil
-    }
-
-    /// Moves to a terminal state and closes the stream without yielding any event.
-    private func terminateSilently(state newState: DownloadState) {
-        state = newState
-        downloadTask = nil
+        if let event {
+            continuation?.yield(event)
+        }
         continuation?.finish()
         continuation = nil
     }
