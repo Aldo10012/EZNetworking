@@ -51,16 +51,8 @@ public actor FileDownloader: FileDownloadable {
         guard !Task.isCancelled else {
             return AsyncStream { $0.finish() }
         }
-
-        switch state {
-        case .idle:
-            break
-        case .downloading, .pausing, .paused:
-            return earlyExitStream(yielding: .failed(.downloadFailed(reason: .alreadyDownloading)))
-        case .failedButCanResume:
-            return earlyExitStream(yielding: .failed(.downloadFailed(reason: .downloadIncompleteButResumable)))
-        case .completed, .failed, .cancelled:
-            return earlyExitStream(yielding: .failed(.downloadFailed(reason: .alreadyFinished)))
+        if let failureReason = validateCanStartDownload() {
+            return earlyExitStream(yielding: .failed(.downloadFailed(reason: failureReason)))
         }
 
         let (stream, continuation) = AsyncStream<DownloadEvent>.makeStream()
@@ -146,8 +138,23 @@ public actor FileDownloader: FileDownloadable {
         downloadTask?.cancel()
         terminateSilently(state: .cancelled)
     }
+}
 
-    // MARK: - Helpers
+// MARK: - Helpers
+
+extension FileDownloader {
+    private func validateCanStartDownload() -> DownloadFailureReason? {
+        switch state {
+        case .idle:
+            return nil  // OK to proceed
+        case .downloading, .pausing, .paused:
+            return .alreadyDownloading
+        case .failedButCanResume:
+            return .downloadIncompleteButResumable
+        case .completed, .failed, .cancelled:
+            return .alreadyFinished
+        }
+    }
 
     private nonisolated func earlyExitStream(yielding value: DownloadEvent) -> AsyncStream<DownloadEvent> {
         AsyncStream { continuation in
