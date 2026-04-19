@@ -106,17 +106,9 @@ public actor FileDownloader: FileDownloadable {
 
     public func resume() async throws {
         try Task.checkCancellation()
-
-        let resumeData: Data
-        switch state {
-        case let .paused(data):
-            resumeData = data
-        case let .failedButCanResume(data):
-            resumeData = data
-        default:
+        guard let resumeData = state.resumeData else {
             throw NetworkingError.downloadFailed(reason: .notPaused)
         }
-
         state = .downloading
         let task = session.urlSession.downloadTaskInspectable(withResumeData: resumeData)
         downloadTask = task
