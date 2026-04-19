@@ -5,7 +5,7 @@ public actor FileDownloader: FileDownloadable {
     private let session: NetworkSession
     private let validator: ResponseValidator
 
-    enum State: Equatable {
+    enum DownloadState: Equatable {
         case idle
         case downloading
         case pausing
@@ -16,7 +16,7 @@ public actor FileDownloader: FileDownloadable {
         case cancelled
     }
 
-    private var state: State = .idle
+    private var state: DownloadState = .idle
     private var downloadTask: (any URLSessionDownloadTaskProtocol)?
     private var continuation: AsyncStream<DownloadEvent>.Continuation?
 
@@ -172,7 +172,7 @@ public actor FileDownloader: FileDownloadable {
     }
 
     /// Moves to a terminal state, yields a final event, and closes the stream.
-    private func terminate(with event: DownloadEvent, state newState: State) {
+    private func terminate(with event: DownloadEvent, state newState: DownloadState) {
         state = newState
         downloadTask = nil
         continuation?.yield(event)
@@ -181,7 +181,7 @@ public actor FileDownloader: FileDownloadable {
     }
 
     /// Moves to a terminal state and closes the stream without yielding any event.
-    private func terminateSilently(state newState: State) {
+    private func terminateSilently(state newState: DownloadState) {
         state = newState
         downloadTask = nil
         continuation?.finish()
