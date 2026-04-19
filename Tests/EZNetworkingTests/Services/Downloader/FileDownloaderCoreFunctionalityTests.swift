@@ -14,7 +14,6 @@ final class FileDownloaderCoreFunctionalityTests {
 
         _ = await sut.downloadFileStream()
         #expect(mockURLSession.mockDownloadTask.didResume)
-        #expect(await sut.state == .downloading)
     }
 
     @Test("test calling FileDownloader.cancel() calls downloadTask.cancel()")
@@ -26,7 +25,6 @@ final class FileDownloaderCoreFunctionalityTests {
         _ = await sut.downloadFileStream()
         try await sut.cancel()
         #expect(mockURLSession.mockDownloadTask.didCancel)
-        #expect(await sut.state == .cancelled)
     }
 
     @Test("test calling FileDownloader.pause() calls downloadTask.cancelWhileProducingResumeData()")
@@ -61,7 +59,6 @@ final class FileDownloaderCoreFunctionalityTests {
         #expect(events == [
             .completed(mockFileLocation)
         ])
-        #expect(await sut.state == .completed)
     }
 
     @Test("test download success with progress")
@@ -85,7 +82,6 @@ final class FileDownloaderCoreFunctionalityTests {
             .progress(0.5),
             .completed(mockFileLocation)
         ])
-        #expect(await sut.state == .completed)
     }
 
     // MARK: Download failure
@@ -111,7 +107,6 @@ final class FileDownloaderCoreFunctionalityTests {
             .progress(0.5),
             .failed(.downloadFailed(reason: .urlError(underlying: URLError(.networkConnectionLost))))
         ])
-        #expect(await sut.state == .failed)
     }
 
     @Test("test download failure due to non 2xx status code before complete")
@@ -132,7 +127,6 @@ final class FileDownloaderCoreFunctionalityTests {
         #expect(events == [
             .failed(.responseValidationFailed(reason: .badHTTPResponse(underlying: HTTPResponse(statusCode: 500))))
         ])
-        #expect(await sut.state == .failed)
     }
 
     @Test("test download failure due to unknown error before complete")
@@ -157,7 +151,6 @@ final class FileDownloaderCoreFunctionalityTests {
             .progress(0.5),
             .failed(.downloadFailed(reason: .unknownError(underlying: UnknownError.error)))
         ])
-        #expect(await sut.state == .failed)
     }
 
     // MARK: Cancel
@@ -183,7 +176,6 @@ final class FileDownloaderCoreFunctionalityTests {
         #expect(events == [
             .progress(0.5)
         ])
-        #expect(await sut.state == .cancelled)
     }
 
     // MARK: Pause
@@ -210,7 +202,6 @@ final class FileDownloaderCoreFunctionalityTests {
             .progress(0.5),
             .failed(.downloadFailed(reason: .cannotResume))
         ])
-        #expect(await sut.state == .failed)
     }
 }
 

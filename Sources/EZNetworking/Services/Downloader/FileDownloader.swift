@@ -16,7 +16,7 @@ public actor FileDownloader: FileDownloadable {
         case cancelled
     }
 
-    var state: State = .idle
+    private var state: State = .idle
     private var downloadTask: (any URLSessionDownloadTaskProtocol)?
     private var continuation: AsyncStream<DownloadEvent>.Continuation?
 

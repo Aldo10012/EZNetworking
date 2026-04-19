@@ -40,7 +40,6 @@ final class FileDownloaderTaskCancellationTests {
         #expect(events == [
             .progress(0.5)
         ])
-        #expect(await sut.state == .cancelled)
     }
 
     @Test("test downloadFileStream when parent task is cancelled returns empty stream")
