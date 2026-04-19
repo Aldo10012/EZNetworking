@@ -92,11 +92,11 @@ public actor FileDownloader: FileDownloadable {
 
         guard case .pausing = state else { return }
         guard !Task.isCancelled else {
-            terminate(with: nil, state: .cancelled)
+            terminate(yield: nil, state: .cancelled)
             return
         }
         guard let resumeData else {
-            terminate(with: .failed(.downloadFailed(reason: .cannotResume)), state: .failed)
+            terminate(yield: .failed(.downloadFailed(reason: .cannotResume)), state: .failed)
             return
         }
         state = .paused(resumeData: resumeData)
@@ -136,7 +136,7 @@ public actor FileDownloader: FileDownloadable {
         }
 
         downloadTask?.cancel()
-        terminate(with: nil, state: .cancelled)
+        terminate(yield: nil, state: .cancelled)
     }
 }
 
@@ -163,10 +163,10 @@ extension FileDownloader {
         }
     }
 
-    /// Moves to a terminal state, yields a final event, and closes the stream.
-    /// if event is nil, stream yields before close
-    /// if event is not nil, stream closes without yielding
-    private func terminate(with event: DownloadEvent?, state newState: DownloadState) {
+    /// Moves to a terminal state and closes the stream.
+    /// - If `event` is non-nil, it is yielded before the stream is finished.
+    /// - If `event` is nil, the stream is finished without yielding.
+    private func terminate(yield event: DownloadEvent?, state newState: DownloadState) {
         state = newState
         downloadTask = nil
         if let event {
@@ -201,7 +201,7 @@ extension FileDownloader {
             case .downloading, .pausing: break
             default: return
             }
-            terminate(with: .completed(location), state: .completed)
+            terminate(yield: .completed(location), state: .completed)
 
         case let .onDownloadFailed(error, resumeData):
             guard case .downloading = state else { return }
@@ -215,7 +215,7 @@ extension FileDownloader {
                 continuation?.yield(.failed(resumableError))
             } else {
                 let networkError = mapNetworkingError(from: error)
-                terminate(with: .failed(networkError), state: .failed)
+                terminate(yield: .failed(networkError), state: .failed)
             }
         }
     }
