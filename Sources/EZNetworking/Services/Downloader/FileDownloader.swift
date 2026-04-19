@@ -63,13 +63,6 @@ public actor FileDownloader: FileDownloadable {
             return earlyExitStream(yielding: .failed(.downloadFailed(reason: .alreadyFinished)))
         }
 
-        let urlRequest: URLRequest
-        do {
-            urlRequest = try request.getURLRequest()
-        } catch {
-            return earlyExitStream(yielding: .failed(mapNetworkingError(from: error)))
-        }
-
         let (stream, continuation) = AsyncStream<DownloadEvent>.makeStream()
         self.continuation = continuation
 
@@ -80,12 +73,16 @@ public actor FileDownloader: FileDownloadable {
             }
         }
 
-        state = .downloading
-        let task = session.urlSession.downloadTaskInspectable(with: urlRequest)
-        downloadTask = task
-        task.resume()
-
-        return stream
+        do {
+            let urlRequest = try request.getURLRequest()
+            state = .downloading
+            let task = session.urlSession.downloadTaskInspectable(with: urlRequest)
+            downloadTask = task
+            task.resume()
+            return stream
+        } catch {
+            return earlyExitStream(yielding: .failed(mapNetworkingError(from: error)))
+        }
     }
 
     // MARK: pause
