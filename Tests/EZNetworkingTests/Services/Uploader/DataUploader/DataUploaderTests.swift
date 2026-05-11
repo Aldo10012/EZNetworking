@@ -3,16 +3,20 @@ import Combine
 import Foundation
 import Testing
 
-@Suite("Test FileUploadable async stream")
-final class FileUploaderAsyncStreamTests {
+@Suite("Test DataUploadable")
+final class DataUploaderTests {
     // MARK: SUCCESS
 
-    @Test("test .uploadFileStream() Success")
-    func uploadFileStream_streamSuccess() async throws {
-        let sut = FileUploader(session: MockSession(urlSession: createMockURLSession()))
+    @Test("test .uploadDataStream() Success")
+    func uploadDataStream_streamSuccess() async throws {
+        let sut = DataUploader(
+            session: MockSession(
+                urlSession: createMockURLSession()
+            )
+        )
 
         var events: [UploadStreamEvent] = []
-        for await event in sut.uploadFileStream(mockFileURL, with: mockRequest) {
+        for await event in sut.uploadDataStream(mockData, with: mockRequest) {
             events.append(event)
         }
 
@@ -27,9 +31,9 @@ final class FileUploaderAsyncStreamTests {
 
     // MARK: ERROR - status code
 
-    @Test("test .uploadFileStream() Fails When StatusCode Is not 200")
-    func uploadFileStream_withRedirectStatusCode() async throws {
-        let sut = FileUploader(
+    @Test("test .uploadDataStream() Fails When StatusCode Is not 200")
+    func uploadDataStream_withRedirectStatusCode() async throws {
+        let sut = DataUploader(
             session: MockSession(
                 urlSession: createMockURLSession(
                     urlResponse: buildResponse(statusCode: 400)
@@ -37,7 +41,7 @@ final class FileUploaderAsyncStreamTests {
             )
         )
         var events: [UploadStreamEvent] = []
-        for await event in sut.uploadFileStream(mockFileURL, with: mockRequest) {
+        for await event in sut.uploadDataStream(mockData, with: mockRequest) {
             events.append(event)
         }
 
@@ -52,9 +56,9 @@ final class FileUploaderAsyncStreamTests {
 
     // MARK: Error - url has error
 
-    @Test("test .uploadFileStream() Fails when URLSession has error")
-    func uploadFileStream_whenURLSessionHasError_throwsError() async throws {
-        let sut = FileUploader(
+    @Test("test .uploadDataStream() Fails when URLSession has error")
+    func uploadDataStream_whenURLSessionHasError_throwsError() async throws {
+        let sut = DataUploader(
             session: MockSession(
                 urlSession: createMockURLSession(
                     error: NetworkingError.responseValidationFailed(reason: .badHTTPResponse(underlying: .init(statusCode: 500)))
@@ -62,7 +66,7 @@ final class FileUploaderAsyncStreamTests {
             )
         )
         var events: [UploadStreamEvent] = []
-        for await event in sut.uploadFileStream(mockFileURL, with: mockRequest) {
+        for await event in sut.uploadDataStream(mockData, with: mockRequest) {
             events.append(event)
         }
 
@@ -75,9 +79,9 @@ final class FileUploaderAsyncStreamTests {
         }
     }
 
-    @Test("test .uploadFileStream() Fails when URLSession has URLError")
-    func uploadFileStream_whenURLSessionHasURLError_throwsError() async throws {
-        let sut = FileUploader(
+    @Test("test .uploadDataStream() Fails when URLSession has URLError")
+    func uploadDataStream_whenURLSessionHasURLError_throwsError() async throws {
+        let sut = DataUploader(
             session: MockSession(
                 urlSession: createMockURLSession(
                     error: URLError(.notConnectedToInternet)
@@ -85,7 +89,7 @@ final class FileUploaderAsyncStreamTests {
             )
         )
         var events: [UploadStreamEvent] = []
-        for await event in sut.uploadFileStream(mockFileURL, with: mockRequest) {
+        for await event in sut.uploadDataStream(mockData, with: mockRequest) {
             events.append(event)
         }
 
@@ -100,17 +104,17 @@ final class FileUploaderAsyncStreamTests {
 
     // MARK: - Tracking
 
-    @Test("test .uploadFileStream() Upload Progress Can Be Tracked")
-    func uploadFileStream_progressCanBeTracked() async throws {
+    @Test("test .uploadDataStream() Upload Progress Can Be Tracked")
+    func uploadDataStream_progressCanBeTracked() async throws {
         let urlSession = createMockURLSession()
         urlSession.progressToExecute = [
             .inProgress(percent: 50)
         ]
 
-        let sut = FileUploader(mockSession: urlSession)
+        let sut = DataUploader(mockSession: urlSession)
         var didTrackProgress = false
 
-        for await event in sut.uploadFileStream(mockFileURL, with: mockRequest) {
+        for await event in sut.uploadDataStream(mockData, with: mockRequest) {
             switch event {
             case .progress:
                 didTrackProgress = true
@@ -121,18 +125,18 @@ final class FileUploaderAsyncStreamTests {
         #expect(didTrackProgress)
     }
 
-    @Test("test .uploadFileStream() Upload Progress Tracking Happens Before Final Result")
-    func uploadFileStream_progressTrackingHappensBeforeFinalResult() async throws {
+    @Test("test .uploadDataStream() Upload Progress Tracking Happens Before Final Result")
+    func uploadDataStream_progressTrackingHappensBeforeFinalResult() async throws {
         let urlSession = createMockURLSession()
 
         urlSession.progressToExecute = [
             .inProgress(percent: 50)
         ]
 
-        let sut = FileUploader(mockSession: urlSession)
+        let sut = DataUploader(mockSession: urlSession)
         var progressAndReturnList = [String]()
 
-        for await event in sut.uploadFileStream(mockFileURL, with: mockRequest) {
+        for await event in sut.uploadDataStream(mockData, with: mockRequest) {
             switch event {
             case .progress:
                 progressAndReturnList.append("did track progress")
@@ -148,8 +152,8 @@ final class FileUploaderAsyncStreamTests {
         #expect(progressAndReturnList[1] == "did return")
     }
 
-    @Test("test .uploadFileStream() Upload Progress Tracking Order")
-    func uploadFileStream_progressTrackingOrder() async throws {
+    @Test("test .uploadDataStream() Upload Progress Tracking Order")
+    func uploadDataStream_progressTrackingOrder() async throws {
         let urlSession = createMockURLSession()
 
         urlSession.progressToExecute = [
@@ -159,11 +163,11 @@ final class FileUploaderAsyncStreamTests {
             .complete
         ]
 
-        let sut = FileUploader(mockSession: urlSession)
+        let sut = DataUploader(mockSession: urlSession)
         var progressValues: [Double] = []
         var didReceiveSuccess = false
 
-        for await event in sut.uploadFileStream(mockFileURL, with: mockRequest) {
+        for await event in sut.uploadDataStream(mockData, with: mockRequest) {
             switch event {
             case let .progress(value):
                 progressValues.append(value)
@@ -180,8 +184,8 @@ final class FileUploaderAsyncStreamTests {
 
     // MARK: Traching with delegate
 
-    @Test("test .uploadFileStream() Upload Progress Can Be Tracked when Injecting SessionDelegat")
-    func uploadFileStream_progressCanBeTrackedWhenInjectingSessionDelegate() async throws {
+    @Test("test .uploadDataStream() Upload Progress Can Be Tracked when Injecting SessionDelegat")
+    func uploadDataStream_progressCanBeTrackedWhenInjectingSessionDelegate() async throws {
         let urlSession = createMockURLSession()
 
         let delegate = SessionDelegate()
@@ -190,13 +194,13 @@ final class FileUploaderAsyncStreamTests {
             .inProgress(percent: 50)
         ]
 
-        let sut = FileUploader(
+        let sut = DataUploader(
             session: MockSession(urlSession: urlSession, delegate: delegate)
         )
 
         var didTrackProgress = false
 
-        for await event in sut.uploadFileStream(mockFileURL, with: mockRequest) {
+        for await event in sut.uploadDataStream(mockData, with: mockRequest) {
             switch event {
             case .progress:
                 didTrackProgress = true
@@ -210,8 +214,8 @@ final class FileUploaderAsyncStreamTests {
 
     // MARK: Traching with interceptor
 
-    @Test("test .uploadFileStream() Upload Progress Can Be Tracked when Injecting DownloadTaskInterceptor")
-    func uploadFileStream_progressCanBeTrackedWhenInjectingDownloadTaskInterceptor() async throws {
+    @Test("test .uploadDataStream() Upload Progress Can Be Tracked when Injecting DownloadTaskInterceptor")
+    func uploadDataStream_progressCanBeTrackedWhenInjectingDownloadTaskInterceptor() async throws {
         let urlSession = createMockURLSession()
 
         var didTrackProgressStreamEvent = false
@@ -227,11 +231,11 @@ final class FileUploaderAsyncStreamTests {
             .inProgress(percent: 50)
         ]
 
-        let sut = FileUploader(
+        let sut = DataUploader(
             session: MockSession(urlSession: urlSession, delegate: delegate)
         )
 
-        for await event in sut.uploadFileStream(mockFileURL, with: mockRequest) {
+        for await event in sut.uploadDataStream(mockData, with: mockRequest) {
             switch event {
             case .progress: didTrackProgressStreamEvent = true
             case .success: break
@@ -247,18 +251,18 @@ final class FileUploaderAsyncStreamTests {
 
 // MARK: - helpers
 
-private func createFileUploader(
+private func createDataUploader(
     urlSession: URLSessionProtocol = createMockURLSession()
-) -> FileUploader {
-    FileUploader(session: MockSession(urlSession: urlSession))
+) -> DataUploader {
+    DataUploader(session: MockSession(urlSession: urlSession))
 }
 
 private func createMockURLSession(
     data: Data? = Data(),
     urlResponse: URLResponse? = buildResponse(statusCode: 200),
     error: Error? = nil
-) -> MockFileUploaderURLSession {
-    MockFileUploaderURLSession(data: data, urlResponse: urlResponse, error: error)
+) -> MockDataUploaderURLSession {
+    MockDataUploaderURLSession(data: data, urlResponse: urlResponse, error: error)
 }
 
 private func buildResponse(statusCode: Int) -> HTTPURLResponse {
@@ -278,10 +282,10 @@ private struct MockRequest: Request {
     var body: HTTPBody? { nil }
 }
 
-extension FileUploader {
+extension DataUploader {
     /// Test-only initializer that mimics the production logic but uses MockFileDownloaderURLSession.
     fileprivate convenience init(
-        mockSession: MockFileUploaderURLSession,
+        mockSession: MockDataUploaderURLSession,
         validator: ResponseValidator = DefaultResponseValidator(),
         decoder: JSONDecoder = EZJSONDecoder()
     ) {
@@ -294,5 +298,5 @@ extension FileUploader {
     }
 }
 
-private let mockFileURL = URL(fileURLWithPath: "")
+private let mockData = MockData.mockPersonJsonData
 private let mockRequest = MockRequest()
