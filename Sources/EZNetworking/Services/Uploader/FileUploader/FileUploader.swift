@@ -17,29 +17,6 @@ public class FileUploader: FileUploadable {
         self.validator = validator
     }
 
-    // MARK: - CORE - async/await
-
-    public func uploadFile(_ fileURL: URL, with request: any Request, progress: UploadProgressHandler?) async throws -> Data {
-        try Task.checkCancellation()
-        configureProgressTracking { percentage in
-            guard !Task.isCancelled else { return }
-            progress?(percentage)
-        }
-        do {
-            let urlRequest = try request.getURLRequest()
-            let (data, urlResponse) = try await session.urlSession.upload(for: urlRequest, fromFile: fileURL)
-            try Task.checkCancellation()
-            try validator.validateStatus(from: urlResponse)
-            return data
-        } catch let cancellationError as CancellationError {
-            throw cancellationError
-        } catch {
-            throw mapError(error)
-        }
-    }
-
-    // MARK: - Adapter - AsyncStream
-
     public func uploadFileStream(_ fileURL: URL, with request: any Request) -> AsyncStream<UploadStreamEvent> {
         AsyncStream { continuation in
             let task = Task {
@@ -62,52 +39,22 @@ public class FileUploader: FileUploadable {
         }
     }
 
-    // MARK: - Adapter - callbacks
-
-    @discardableResult
-    public func uploadFileTask(_ fileURL: URL, with request: any Request, progress: UploadProgressHandler?, completion: @escaping UploadCompletionHandler) -> CancellableRequest? {
-        let taskBox = TaskBox()
-        let cancellableRequest = CancellableRequest { [weak self] in
-            taskBox.task = self?.createTaskAndPerform(fileURL, with: request, progress: progress, completion: completion)
-        } onCancel: {
-            taskBox.task?.cancel()
+    private func uploadFile(_ fileURL: URL, with request: any Request, progress: UploadProgressHandler?) async throws -> Data {
+        try Task.checkCancellation()
+        configureProgressTracking { percentage in
+            guard !Task.isCancelled else { return }
+            progress?(percentage)
         }
-        cancellableRequest.resume()
-        return cancellableRequest
-    }
-
-    // MARK: - Adapter - Publisher
-
-    public func uploadFilePublisher(_ fileURL: URL, with request: any Request, progress: UploadProgressHandler?) -> AnyPublisher<Data, NetworkingError> {
-        Deferred {
-            let taskBox = TaskBox()
-            return Future<Data, NetworkingError> { [weak self] promise in
-                taskBox.task = self?.createTaskAndPerform(fileURL, with: request, progress: progress, completion: { promise($0) })
-            }
-            .handleEvents(receiveCancel: {
-                taskBox.task?.cancel()
-            })
-        }
-        .eraseToAnyPublisher()
-    }
-
-    // MARK: - Helpers
-
-    private func createTaskAndPerform(
-        _ fileURL: URL,
-        with request: Request,
-        progress: UploadProgressHandler?,
-        completion: @escaping ((Result<Data, NetworkingError>) -> Void)
-    ) -> Task<Void, Never> {
-        Task {
-            do {
-                let data = try await uploadFile(fileURL, with: request, progress: progress)
-                completion(.success(data))
-            } catch is CancellationError {
-                // Do nothing, task has been cancelled
-            } catch {
-                completion(.failure(mapError(error)))
-            }
+        do {
+            let urlRequest = try request.getURLRequest()
+            let (data, urlResponse) = try await session.urlSession.upload(for: urlRequest, fromFile: fileURL)
+            try Task.checkCancellation()
+            try validator.validateStatus(from: urlResponse)
+            return data
+        } catch let cancellationError as CancellationError {
+            throw cancellationError
+        } catch {
+            throw mapError(error)
         }
     }
 

@@ -3,8 +3,8 @@ import Combine
 import Foundation
 import Testing
 
-@Suite("Test FileUploadable async stream")
-final class FileUploaderAsyncStreamTests {
+@Suite("Test FileUploadable")
+final class FileUploaderTests {
     // MARK: SUCCESS
 
     @Test("test .uploadFileStream() Success")

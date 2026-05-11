@@ -17,8 +17,6 @@ public class DataUploader: DataUploadable {
         self.validator = validator
     }
 
-    // MARK: - CORE - async/await
-
     public func uploadDataStream(_ data: Data, with request: Request) -> AsyncStream<UploadStreamEvent> {
         AsyncStream { continuation in
             let task = Task {
