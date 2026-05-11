@@ -16,8 +16,6 @@ public struct RequestPerformer: RequestPerformable {
         self.decoder = decoder
     }
 
-    // MARK: - CORE - async/await
-
     public func perform<T: Decodable & Sendable>(
         request: Request,
         decodeTo decodableObject: T.Type
@@ -36,62 +34,7 @@ public struct RequestPerformer: RequestPerformable {
         }
     }
 
-    // MARK: - Adapter - callbacks
-
-    @discardableResult
-    public func performTask<T: Decodable & Sendable>(
-        request: Request,
-        decodeTo decodableObject: T.Type,
-        completion: @escaping (Result<T, NetworkingError>) -> Void
-    ) -> CancellableRequest {
-        let taskBox = TaskBox()
-        let cancellableRequest = CancellableRequest {
-            taskBox.task = createTaskAndPerform(request: request, decodeTo: decodableObject, completion: completion)
-        } onCancel: {
-            taskBox.task?.cancel()
-        }
-        cancellableRequest.resume()
-        return cancellableRequest
-    }
-
-    // MARK: - Adapter - Publisher
-
-    public func performPublisher<T: Decodable & Sendable>(
-        request: Request,
-        decodeTo decodableObject: T.Type
-    ) -> AnyPublisher<T, NetworkingError> {
-        Deferred {
-            let taskBox = TaskBox()
-            return Future<T, NetworkingError> { promise in
-                taskBox.task = createTaskAndPerform(request: request, decodeTo: decodableObject, completion: { promise($0) })
-            }
-            .handleEvents(receiveCancel: {
-                taskBox.task?.cancel()
-            })
-        }
-        .eraseToAnyPublisher()
-    }
-
     // MARK: - Helpers
-
-    private func createTaskAndPerform<T: Decodable & Sendable>(
-        request: Request,
-        decodeTo decodableObject: T.Type,
-        completion: @escaping ((Result<T, NetworkingError>) -> Void)
-    ) -> Task<Void, Never> {
-        Task {
-            do {
-                let result = try await perform(request: request, decodeTo: decodableObject)
-                guard !Task.isCancelled else { return }
-                completion(.success(result))
-            } catch is CancellationError {
-                // Task has been cancelled, do not return
-            } catch {
-                guard !Task.isCancelled else { return }
-                completion(.failure(mapError(error)))
-            }
-        }
-    }
 
     private func mapError(_ error: Error) -> NetworkingError {
         if let networkError = error as? NetworkingError { return networkError }
