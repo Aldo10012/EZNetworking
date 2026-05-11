@@ -89,19 +89,10 @@ for await event in await downloader.downloadFileStream() {
 
 ## Data Upload
 
-### Async Await
-```swift
-do {
-  let resultData = try await DataUploader().uploadData(data, with: request, progress: { progress in
-    // track progress
-  })
-  // handle success
-} catch {
-  // handle error
-}
-```
+To upload data from memory to a server, use `DataUploader`. 
 
-### AsyncStream
+### Example usage:
+
 ```swift
 for await event in DataUploader().uploadDataStream(data, with: request) {
   switch event {
@@ -110,36 +101,6 @@ for await event in DataUploader().uploadDataStream(data, with: request) {
   case .failure(let error): // handle error
   }
 }
-```
-
-### Completion Handler
-```swift
-DataUploader().uploadData(data, with: request, progress: { progress in
-  // track progress
-}, completion: { result in
-  switch result {
-  case: .success(let data):
-    // handle success
-  case: .failure(let error):
-    // handle error
-  }
-})
-```
-
-### Combine Publisher
-```swift
-DataUploader().uploadDataPublisher(data, with: request: progress: { progress in
-  // track progress
-})
-.sink { completion in
-  switch completion {
-  case .failure: // handle error
-  case .finished: // handle completion
-  }
-} receiveValue: { data in
-  // handle data
-}
-.store(in: &cancellables)
 ```
 
 ## File Upload
@@ -156,19 +117,8 @@ To get a file that exists in your files directory, do this
 let customFileURL = URL(fileURLWithPath: "/Users/username/Documents/myFile.pdf")
 ```
 
-### Async Await
-```swift
-do {
-  let resultData = try await FileUploader().uploadFile(fileURL, with: request, progress: { progress in
-    // track progress
-  })
-  // handle success
-} catch {
-  // handle error
-}
-```
+### Example usage:
 
-### AsyncStream
 ```swift
 for await event in FileUploader().uploadFileStream(fileURL, with: request) {
   switch event {
@@ -177,36 +127,6 @@ for await event in FileUploader().uploadFileStream(fileURL, with: request) {
   case .failure(let error): // handle error
   }
 }
-```
-
-### Completion Handler
-```swift
-FileUploader().uploadFileTask(fileURL, with: request, progress: { progress in
-  // track progress
-}, completion: { result in
-  switch result {
-  case: .success(let data):
-    // handle success
-  case: .failure(let error):
-    // handle error
-  }
-})
-```
-
-### Combine Publisher
-```swift
-FileUploader().uploadFilePublisher(fileURL, with: request: progress: { progress in
-  // track progress
-})
-.sink { completion in
-  switch completion {
-  case .failure: // handle error
-  case .finished: // handle completion
-  }
-} receiveValue: { data in
-  // handle data
-}
-.store(in: &cancellables)
 ```
 
 ## Multipart-form Upload
