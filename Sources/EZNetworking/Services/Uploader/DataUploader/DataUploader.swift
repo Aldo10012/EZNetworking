@@ -5,15 +5,15 @@ public actor DataUploader: Uploadable {
         AsyncStream<UploadEvent> { $0.finish() }
         // TODO: implement
     }
-    
+
     public func pause() async throws {
         // TODO: implement
     }
-    
+
     public func resume() async throws {
         // TODO: implement
     }
-    
+
     public func cancel() throws {
         // TODO: implement
     }
