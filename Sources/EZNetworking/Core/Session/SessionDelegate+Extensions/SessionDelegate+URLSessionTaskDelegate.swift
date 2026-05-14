@@ -37,12 +37,14 @@ extension SessionDelegate: URLSessionTaskDelegate {
     ) {
         taskLifecycleInterceptor?.urlSession(session, task: task, didCompleteWithError: error)
 
-        guard let error else { return }
-
         switch task {
+        case is URLSessionUploadTask:
+            uploadTaskInterceptor?.urlSession(session, task: task, didCompleteWithError: error)
         case is URLSessionDownloadTask:
+            guard let error else { return }
             downloadTaskInterceptor?.urlSession(session, task: task, didCompleteWithError: error)
         case is URLSessionWebSocketTask:
+            guard let error else { return }
             webSocketTaskInterceptor?.urlSession(session, task: task, didCompleteWithError: error)
         default:
             break

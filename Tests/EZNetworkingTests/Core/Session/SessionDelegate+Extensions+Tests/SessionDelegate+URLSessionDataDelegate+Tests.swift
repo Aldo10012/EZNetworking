@@ -70,6 +70,57 @@ final class SessionDelegateURLSessionDataDelegateTest {
         delegate.urlSession(.shared, dataTask: mockUrlSessionDataTask, didBecome: URLSessionStreamTask())
         #expect(dataTaskInterceptor.didBecomeStreamTask)
     }
+
+    // MARK: upload task forwarding
+
+    @Test("test SessionDelegate.didReceiveData forwards to uploadTaskInterceptor when dataTask is URLSessionUploadTask")
+    func sessionDelegateDidReceiveDataForwardsToUploadInterceptorForUploadTask() {
+        let uploadInterceptor = SpyUploadTaskInterceptor()
+        let delegate = SessionDelegate()
+        delegate.uploadTaskInterceptor = uploadInterceptor
+
+        delegate.urlSession(.shared, dataTask: mockUrlSessionUploadTask, didReceive: Data("response".utf8))
+        #expect(uploadInterceptor.didReceiveData)
+    }
+
+    @Test("test SessionDelegate.didReceiveData does not forward to uploadTaskInterceptor for non-upload data task")
+    func sessionDelegateDidReceiveDataNotForwardedToUploadInterceptorForPlainDataTask() {
+        let uploadInterceptor = SpyUploadTaskInterceptor()
+        let delegate = SessionDelegate()
+        delegate.uploadTaskInterceptor = uploadInterceptor
+
+        delegate.urlSession(.shared, dataTask: mockUrlSessionDataTask, didReceive: Data("response".utf8))
+        #expect(!uploadInterceptor.didReceiveData)
+    }
+
+    @Test("test SessionDelegate.didReceiveData still forwards to dataTaskInterceptor even for upload tasks")
+    func sessionDelegateDidReceiveDataStillForwardsToDataInterceptorForUploadTask() {
+        let dataTaskInterceptor = MockDataTaskInterceptor()
+        let uploadInterceptor = SpyUploadTaskInterceptor()
+        let delegate = SessionDelegate()
+        delegate.dataTaskInterceptor = dataTaskInterceptor
+        delegate.uploadTaskInterceptor = uploadInterceptor
+
+        delegate.urlSession(.shared, dataTask: mockUrlSessionUploadTask, didReceive: Data("response".utf8))
+        #expect(dataTaskInterceptor.didRecieveData)
+        #expect(uploadInterceptor.didReceiveData)
+    }
+}
+
+// MARK: spy upload interceptor
+
+private class SpyUploadTaskInterceptor: UploadTaskInterceptor {
+    var onEvent: (UploadTaskInterceptorEvent) -> Void = { _ in }
+
+    var didReceiveData = false
+
+    func urlSession(_ session: URLSession, task: URLSessionTask, didSendBodyData bytesSent: Int64, totalBytesSent: Int64, totalBytesExpectedToSend: Int64) {}
+
+    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
+        didReceiveData = true
+    }
+
+    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {}
 }
 
 // MARK: mocks classes
@@ -109,4 +160,8 @@ private class MockDataTaskInterceptor: DataTaskInterceptor {
 
 private var mockUrlSessionDataTask: URLSessionDataTask {
     URLSession.shared.dataTask(with: URLRequest(url: URL(string: "https://www.example.com")!))
+}
+
+private var mockUrlSessionUploadTask: URLSessionUploadTask {
+    URLSession.shared.uploadTask(with: URLRequest(url: URL(string: "https://www.example.com")!), from: Data())
 }
