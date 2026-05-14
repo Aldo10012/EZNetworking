@@ -1,3 +1,3 @@
 import Foundation
 
-public class DataUploader: DataUploadable {}
+public actor DataUploader: Uploadable {}
