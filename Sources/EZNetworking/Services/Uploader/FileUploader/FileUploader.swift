@@ -1,4 +1,3 @@
-import Combine
 import Foundation
 
 public class FileUploader: FileUploadable {
