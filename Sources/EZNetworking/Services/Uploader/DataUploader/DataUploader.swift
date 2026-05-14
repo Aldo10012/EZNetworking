@@ -2,7 +2,8 @@ import Foundation
 
 public actor DataUploader: Uploadable {
     public func upload() -> AsyncStream<UploadEvent> {
-        fatalError("TODO: implement")
+        AsyncStream<UploadEvent> { $0.finish() }
+        // TODO: implement
     }
     
     public func pause() async throws {
