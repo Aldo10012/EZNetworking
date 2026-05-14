@@ -3,16 +3,15 @@ import Foundation
 public protocol URLSessionProtocol {
     func data(for request: URLRequest) async throws -> (Data, URLResponse)
 
-    func upload(for request: URLRequest, from bodyData: Data) async throws -> (Data, URLResponse)
-
-    func upload(for request: URLRequest, fromFile fileURL: URL) async throws -> (Data, URLResponse)
-
     func webSocketTaskInspectable(with request: URLRequest) -> URLSessionWebSocketTaskProtocol
 
     func bytes(for request: URLRequest) async throws -> (AsyncThrowingStream<UInt8, Error>, URLResponse)
 
     func downloadTaskInspectable(with request: URLRequest) -> URLSessionDownloadTaskProtocol
     func downloadTaskInspectable(withResumeData resumeData: Data) -> URLSessionDownloadTaskProtocol
+
+    func uploadTaskInspectable(with request: URLRequest, fromFile fileURL: URL) -> URLSessionUploadTaskProtocol
+    func uploadTaskInspectable(withResumeData resumeData: Data) -> URLSessionUploadTaskProtocol
 }
 
 extension URLSession: URLSessionProtocol {
@@ -24,6 +23,16 @@ extension URLSession: URLSessionProtocol {
     public func downloadTaskInspectable(withResumeData resumeData: Data) -> URLSessionDownloadTaskProtocol {
         let task: URLSessionDownloadTask = downloadTask(withResumeData: resumeData)
         return task as URLSessionDownloadTaskProtocol
+    }
+
+    public func uploadTaskInspectable(with request: URLRequest, fromFile fileURL: URL) -> URLSessionUploadTaskProtocol {
+        let task: URLSessionUploadTask = uploadTask(with: request, fromFile: fileURL)
+        return task as URLSessionUploadTaskProtocol
+    }
+
+    public func uploadTaskInspectable(withResumeData resumeData: Data) -> URLSessionUploadTaskProtocol {
+        let task: URLSessionUploadTask = uploadTask(withResumeData: resumeData)
+        return task as URLSessionUploadTaskProtocol
     }
 
     public func webSocketTaskInspectable(with request: URLRequest) -> URLSessionWebSocketTaskProtocol {

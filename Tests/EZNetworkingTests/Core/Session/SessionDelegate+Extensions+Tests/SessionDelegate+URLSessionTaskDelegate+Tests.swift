@@ -115,6 +115,68 @@ final class SessionDelegateURLSessionTaskDelegateTests {
 
         #expect(taskLifecycleInterceptor.taskIsWaitingForConnectivity)
     }
+
+    // MARK: upload task forwarding
+
+    @Test("test SessionDelegate DidSendBodyData forwards to uploadTaskInterceptor")
+    func sessionDelegateDidSendBodyDataForwardsToUploadInterceptor() {
+        let uploadInterceptor = SpyUploadTaskInterceptor()
+        let delegate = SessionDelegate()
+        delegate.uploadTaskInterceptor = uploadInterceptor
+
+        delegate.urlSession(.shared, task: mockURLSessionTask, didSendBodyData: 10, totalBytesSent: 50, totalBytesExpectedToSend: 100)
+
+        #expect(uploadInterceptor.didSendBodyData)
+    }
+
+    @Test("test SessionDelegate DidCompleteWithError forwards upload task success (nil error) to uploadTaskInterceptor")
+    func sessionDelegateDidCompleteWithNilErrorForwardsUploadTaskToUploadInterceptor() {
+        let uploadInterceptor = SpyUploadTaskInterceptor()
+        let delegate = SessionDelegate()
+        delegate.uploadTaskInterceptor = uploadInterceptor
+
+        delegate.urlSession(.shared, task: URLSessionUploadTask(), didCompleteWithError: nil)
+
+        #expect(uploadInterceptor.didCompleteWithErrorCalled)
+        #expect(uploadInterceptor.lastError == nil)
+    }
+
+    @Test("test SessionDelegate DidCompleteWithError forwards upload task failure to uploadTaskInterceptor")
+    func sessionDelegateDidCompleteWithErrorForwardsUploadTaskToUploadInterceptor() {
+        let uploadInterceptor = SpyUploadTaskInterceptor()
+        let delegate = SessionDelegate()
+        delegate.uploadTaskInterceptor = uploadInterceptor
+
+        let error = NSError(domain: "TestError", code: 1, userInfo: nil)
+        delegate.urlSession(.shared, task: URLSessionUploadTask(), didCompleteWithError: error)
+
+        #expect(uploadInterceptor.didCompleteWithErrorCalled)
+        #expect((uploadInterceptor.lastError as NSError?)?.domain == "TestError")
+    }
+
+    @Test("test SessionDelegate DidCompleteWithError does not forward non-upload task to uploadTaskInterceptor")
+    func sessionDelegateDidCompleteWithError_nonUploadTaskNotForwardedToUploadInterceptor() {
+        let uploadInterceptor = SpyUploadTaskInterceptor()
+        let delegate = SessionDelegate()
+        delegate.uploadTaskInterceptor = uploadInterceptor
+
+        let error = NSError(domain: "TestError", code: 1, userInfo: nil)
+        delegate.urlSession(.shared, task: URLSessionDownloadTask(), didCompleteWithError: error)
+
+        #expect(!uploadInterceptor.didCompleteWithErrorCalled)
+    }
+
+    @Test("test SessionDelegate DidCompleteWithError still forwards download task failure to downloadTaskInterceptor after upload wiring added")
+    func sessionDelegateDidCompleteWithError_downloadStillForwards() {
+        let downloadInterceptor = SpyDownloadTaskInterceptor()
+        let delegate = SessionDelegate()
+        delegate.downloadTaskInterceptor = downloadInterceptor
+
+        let error = NSError(domain: "TestError", code: 1, userInfo: nil)
+        delegate.urlSession(.shared, task: URLSessionDownloadTask(), didCompleteWithError: error)
+
+        #expect(downloadInterceptor.didCompleteWithError)
+    }
 }
 
 // MARK: Mock classes
@@ -193,5 +255,27 @@ private class SpyWebSocketTaskInterceptor: WebSocketTaskInterceptor {
     func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didCloseWith closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?) {}
     func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error) {
         didCompleteWithError = true
+    }
+}
+
+private class SpyUploadTaskInterceptor: UploadTaskInterceptor {
+    var onEvent: (UploadTaskInterceptorEvent) -> Void = { _ in }
+
+    var didSendBodyData = false
+    var didReceiveData = false
+    var didCompleteWithErrorCalled = false
+    var lastError: Error?
+
+    func urlSession(_ session: URLSession, task: URLSessionTask, didSendBodyData bytesSent: Int64, totalBytesSent: Int64, totalBytesExpectedToSend: Int64) {
+        didSendBodyData = true
+    }
+
+    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
+        didReceiveData = true
+    }
+
+    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+        didCompleteWithErrorCalled = true
+        lastError = error
     }
 }
