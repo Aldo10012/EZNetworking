@@ -19,14 +19,6 @@ class MockFileDownloaderURLSession: URLSessionProtocol {
         fatalError("Should not be using in this mock")
     }
 
-    func upload(for request: URLRequest, from bodyData: Data) async throws -> (Data, URLResponse) {
-        fatalError("Should not be using in this mock")
-    }
-
-    func upload(for request: URLRequest, fromFile fileURL: URL) async throws -> (Data, URLResponse) {
-        fatalError("Should not be using in this mock")
-    }
-
     func webSocketTaskInspectable(with request: URLRequest) -> URLSessionWebSocketTaskProtocol {
         fatalError("Should not be using in this mock")
     }

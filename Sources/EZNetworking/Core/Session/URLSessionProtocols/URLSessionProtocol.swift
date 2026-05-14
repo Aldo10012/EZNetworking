@@ -3,10 +3,6 @@ import Foundation
 public protocol URLSessionProtocol {
     func data(for request: URLRequest) async throws -> (Data, URLResponse)
 
-    func upload(for request: URLRequest, from bodyData: Data) async throws -> (Data, URLResponse)
-
-    func upload(for request: URLRequest, fromFile fileURL: URL) async throws -> (Data, URLResponse)
-
     func webSocketTaskInspectable(with request: URLRequest) -> URLSessionWebSocketTaskProtocol
 
     func bytes(for request: URLRequest) async throws -> (AsyncThrowingStream<UInt8, Error>, URLResponse)
