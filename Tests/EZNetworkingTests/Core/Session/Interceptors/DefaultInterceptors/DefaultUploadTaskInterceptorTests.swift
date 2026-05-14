@@ -178,6 +178,37 @@ final class DefaultUploadTaskInterceptorTests {
             Issue.record("Expected .onUploadFailed event, got \(String(describing: receivedEvent))")
         }
     }
+
+    // MARK: - receivedData buffer is cleared after completion
+
+    @Test("test receivedData buffer is cleared after didCompleteWithError so a reused interceptor does not leak bytes into the next cycle")
+    func didCompleteWithError_clearsReceivedDataBuffer() {
+        var receivedEvents: [UploadTaskInterceptorEvent] = []
+        let sut = DefaultUploadTaskInterceptor(validator: MockResponseValidator(shouldSucceed: true)) { event in
+            receivedEvents.append(event)
+        }
+        let task = MockURLSessionUploadTask(
+            mockResponse: HTTPURLResponse(url: mockUrl, statusCode: 200, httpVersion: nil, headerFields: nil)
+        )
+
+        // First upload cycle
+        sut.urlSession(.shared, dataTask: task, didReceive: Data("first ".utf8))
+        sut.urlSession(.shared, dataTask: task, didReceive: Data("cycle".utf8))
+        sut.urlSession(.shared, task: task, didCompleteWithError: nil)
+
+        // Second upload cycle on the SAME interceptor instance
+        sut.urlSession(.shared, dataTask: task, didReceive: Data("second cycle".utf8))
+        sut.urlSession(.shared, task: task, didCompleteWithError: nil)
+
+        let completedPayloads: [Data] = receivedEvents.compactMap { event in
+            if case let .onUploadCompleted(data) = event { return data }
+            return nil
+        }
+        #expect(completedPayloads == [
+            Data("first cycle".utf8),
+            Data("second cycle".utf8)
+        ])
+    }
 }
 
 // MARK: - Mock URLSessionUploadTask

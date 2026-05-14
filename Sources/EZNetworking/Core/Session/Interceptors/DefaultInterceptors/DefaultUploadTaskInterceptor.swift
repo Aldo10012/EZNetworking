@@ -25,6 +25,7 @@ class DefaultUploadTaskInterceptor: UploadTaskInterceptor {
     }
 
     func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+        defer { receivedData.removeAll(keepingCapacity: false) }
         if let error {
             // URLSession does not surface a public resume-data key in URLError.userInfo for upload tasks
             // the way it does for downloads (`NSURLSessionDownloadTaskResumeData`). Spontaneous-failure
