@@ -182,7 +182,7 @@ final class DefaultUploadTaskInterceptorTests {
 
 // MARK: - Mock URLSessionUploadTask
 
-private class MockURLSessionUploadTask: URLSessionUploadTask, @unchecked Sendable {
+class MockURLSessionUploadTask: URLSessionUploadTask, @unchecked Sendable {
     private let mockResponse: URLResponse?
 
     init(mockResponse: URLResponse?) {
