@@ -1,24 +1,96 @@
 import Foundation
 
 public actor DataUploader: Uploadable {
+
+    private nonisolated let tempFileURL: URL?
+    private let dataSaver: DataToTempFileSaver
+    private let fileUploader: Uploadable
+
+    public init(
+        data: Data,
+        request: UploadRequest,
+        session: NetworkSession = Session(),
+        validator: ResponseValidator = DefaultResponseValidator()
+    ) throws {
+        let dataSaver = DefaultDataToTempFileSaver()
+        let tempFileURL = try dataSaver.saveToTempFile(data)
+        let fileUploader = FileUploader(
+            fileURL: tempFileURL,
+            request: request,
+            session: session,
+            validator: validator
+        )
+        self.init(
+            tempFileURL: tempFileURL,
+            dataSaver: dataSaver,
+            fileUploader: fileUploader
+        )
+    }
+
+    internal init(
+        tempFileURL: URL?,
+        dataSaver: DataToTempFileSaver,
+        fileUploader: Uploadable
+    ) {
+        self.tempFileURL = tempFileURL
+        self.dataSaver = dataSaver
+        self.fileUploader = fileUploader
+    }
+
+    deinit {
+        if let tempFileURL {
+            try? dataSaver.clearTempFile(at: tempFileURL)
+        }
+    }
+
     public func upload() -> AsyncStream<UploadEvent> {
-        // swiftlint:disable:next todo
-        // TODO: implement
-        AsyncStream<UploadEvent> { $0.finish() }
+        AsyncStream { continuation in
+            let task = Task { [fileUploader, dataSaver, tempFileURL] in
+                for await event in await fileUploader.upload() {
+                    continuation.yield(event)
+                }
+                continuation.finish()
+                if let tempFileURL {
+                    try? dataSaver.clearTempFile(at: tempFileURL)
+                }
+            }
+            continuation.onTermination = { @Sendable [fileUploader] termination in
+                guard case .cancelled = termination else { return }
+                task.cancel()
+                Task { try? await fileUploader.cancel() }
+            }
+        }
     }
 
     public func pause() async throws {
-        // swiftlint:disable:next todo
-        // TODO: implement
+        try await fileUploader.pause()
     }
 
     public func resume() async throws {
-        // swiftlint:disable:next todo
-        // TODO: implement
+        try await fileUploader.resume()
     }
 
     public func cancel() throws {
-        // swiftlint:disable:next todo
-        // TODO: implement
+        Task { [fileUploader] in
+            try await fileUploader.cancel()
+        }
+    }
+}
+
+protocol DataToTempFileSaver: Sendable {
+    func saveToTempFile(_ data: Data) throws -> URL
+    func clearTempFile(at url: URL) throws
+}
+
+struct DefaultDataToTempFileSaver: DataToTempFileSaver {
+    func saveToTempFile(_ data: Data) throws -> URL {
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString)
+        try data.write(to: url, options: .atomic)
+        return url
+    }
+
+    func clearTempFile(at url: URL) throws {
+        try FileManager.default.removeItem(at: url)
     }
 }
