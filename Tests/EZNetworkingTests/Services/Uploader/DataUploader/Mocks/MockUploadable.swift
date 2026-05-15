@@ -41,7 +41,7 @@ actor MockUploadable: Uploadable {
         if let resumeError { throw resumeError }
     }
 
-    func cancel() throws {
+    func cancel() async throws {
         cancelCallCount += 1
         if let cancelError { throw cancelError }
         continuation?.finish()

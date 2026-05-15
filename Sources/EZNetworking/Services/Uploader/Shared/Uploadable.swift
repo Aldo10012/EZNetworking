@@ -11,5 +11,5 @@ public protocol Uploadable: Actor {
     func resume() async throws
 
     /// Cancels the upload
-    func cancel() throws
+    func cancel() async throws
 }

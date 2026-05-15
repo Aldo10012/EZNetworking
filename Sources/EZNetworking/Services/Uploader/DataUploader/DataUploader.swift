@@ -70,10 +70,8 @@ public actor DataUploader: Uploadable {
         try await fileUploader.resume()
     }
 
-    public func cancel() throws {
-        Task { [fileUploader] in
-            try await fileUploader.cancel()
-        }
+    public func cancel() async throws {
+        try await fileUploader.cancel()
     }
 }
 
