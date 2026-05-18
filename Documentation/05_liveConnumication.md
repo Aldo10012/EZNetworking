@@ -235,7 +235,7 @@ let ws = WebSocket(request: request)
 
 Both init methods of `WebSocket` also takes a `PingConfig`, which is used to control ping-pong logic.
 It takes the following as init arguments:
-- `pingInterval: IntervalDuration` - how often ping message gets sent to server (to keep connection alive)
+- `pingInterval: Duration` - how often ping message gets sent to server (to keep connection alive)
 - `maxPingFailures: UInt` - max number of times ping-pong fail before disconnecting
 
 ```swift

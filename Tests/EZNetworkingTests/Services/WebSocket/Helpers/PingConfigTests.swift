@@ -24,29 +24,3 @@ final class PingConfigTests {
         #expect(true, "waitForPingInterval did return")
     }
 }
-
-@Suite("Test IntervalDuration")
-final class IntervalDurationTests {
-    @Test("test IntervalDuration equality")
-    func intervalDurationEquality() {
-        let oneSecond = IntervalDuration.seconds(1)
-        let tenSecond = IntervalDuration.seconds(10)
-        let oneMilliseconds = IntervalDuration.milliseconds(1)
-        let tenMilliseconds = IntervalDuration.milliseconds(10)
-        let oneNanoseconds = IntervalDuration.nanoseconds(1)
-        let tenNanoseconds = IntervalDuration.nanoseconds(10)
-
-        #expect(oneSecond == oneSecond)
-        #expect(oneSecond != tenSecond)
-
-        #expect(oneMilliseconds == oneMilliseconds)
-        #expect(oneMilliseconds != tenMilliseconds)
-
-        #expect(oneNanoseconds == oneNanoseconds)
-        #expect(oneNanoseconds != tenNanoseconds)
-
-        #expect(oneSecond != oneMilliseconds)
-        #expect(oneMilliseconds != oneNanoseconds)
-        #expect(oneNanoseconds != oneSecond)
-    }
-}
