@@ -2,7 +2,7 @@ import EZNetworking
 import Foundation
 
 class MockDownloadTaskInterceptor: DownloadTaskInterceptor {
-    var onEvent: (DownloadTaskInterceptorEvent) -> Void = { _ in }
+    var onEvent: @Sendable (DownloadTaskInterceptorEvent) -> Void = { _ in }
     init() {}
 
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {}
@@ -19,6 +19,6 @@ class MockDownloadTaskInterceptor: DownloadTaskInterceptor {
     }
 
     func simulateFailure(_ error: Error, resumeData: Data? = nil) {
-        onEvent(.onDownloadFailed(error, resumeData: resumeData))
+        onEvent(.onDownloadFailed(error.asSendableError, resumeData: resumeData))
     }
 }

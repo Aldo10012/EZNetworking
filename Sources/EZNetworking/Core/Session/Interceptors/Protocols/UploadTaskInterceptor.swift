@@ -1,15 +1,15 @@
 import Foundation
 
-public enum UploadTaskInterceptorEvent {
+public enum UploadTaskInterceptorEvent: Sendable {
     case onProgress(Double)
     case onUploadCompleted(Data)
-    case onUploadFailed(Error, resumeData: Data?)
+    case onUploadFailed(SendableError, resumeData: Data?)
 }
 
 /// Protocol for intercepting upload tasks specifically.
 public protocol UploadTaskInterceptor: AnyObject {
     /// Callback for upload task events (progress, completion, failure)
-    var onEvent: (UploadTaskInterceptorEvent) -> Void { get set }
+    var onEvent: @Sendable (UploadTaskInterceptorEvent) -> Void { get set }
 
     /// Intercepts progress updates as the request body is sent.
     func urlSession(_ session: URLSession, task: URLSessionTask, didSendBodyData bytesSent: Int64, totalBytesSent: Int64, totalBytesExpectedToSend: Int64)

@@ -8,14 +8,14 @@ class MockWebSocketTaskInterceptor: WebSocketTaskInterceptor {
     private let session = URLSession.shared
     private lazy var task: URLSessionWebSocketTask = session.webSocketTask(with: webSocketUrl, protocols: [])
 
-    var onEvent: ((WebSocketTaskEvent) -> Void)?
+    var onEvent: (@Sendable (WebSocketTaskEvent) -> Void)?
 
     func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didOpenWithProtocol protocol: String?) {
         onEvent?(.didOpenWithProtocol(protocolStr: `protocol`))
     }
 
     func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: any Error) {
-        onEvent?(.didOpenWithError(error: error))
+        onEvent?(.didOpenWithError(error: error.asSendableError))
     }
 
     func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didCloseWith closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?) {

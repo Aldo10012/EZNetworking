@@ -2,7 +2,7 @@ import EZNetworking
 import Foundation
 
 class MockUploadTaskInterceptor: UploadTaskInterceptor {
-    var onEvent: (UploadTaskInterceptorEvent) -> Void = { _ in }
+    var onEvent: @Sendable (UploadTaskInterceptorEvent) -> Void = { _ in }
     init() {}
 
     func urlSession(_ session: URLSession, task: URLSessionTask, didSendBodyData bytesSent: Int64, totalBytesSent: Int64, totalBytesExpectedToSend: Int64) {}
@@ -18,6 +18,6 @@ class MockUploadTaskInterceptor: UploadTaskInterceptor {
     }
 
     func simulateFailure(_ error: Error, resumeData: Data? = nil) {
-        onEvent(.onUploadFailed(error, resumeData: resumeData))
+        onEvent(.onUploadFailed(error.asSendableError, resumeData: resumeData))
     }
 }

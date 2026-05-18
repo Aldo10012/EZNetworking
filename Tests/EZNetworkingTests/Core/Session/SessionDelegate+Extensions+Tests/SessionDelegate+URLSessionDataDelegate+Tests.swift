@@ -110,7 +110,7 @@ final class SessionDelegateURLSessionDataDelegateTest {
 // MARK: spy upload interceptor
 
 private class SpyUploadTaskInterceptor: UploadTaskInterceptor {
-    var onEvent: (UploadTaskInterceptorEvent) -> Void = { _ in }
+    var onEvent: @Sendable (UploadTaskInterceptorEvent) -> Void = { _ in }
 
     var didReceiveData = false
 

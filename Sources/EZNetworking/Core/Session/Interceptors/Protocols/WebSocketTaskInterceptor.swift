@@ -2,7 +2,7 @@ import Foundation
 
 /// Protocol for intercepting WebSocket tasks specifically.
 public protocol WebSocketTaskInterceptor: AnyObject {
-    var onEvent: ((WebSocketTaskEvent) -> Void)? { get set }
+    var onEvent: (@Sendable (WebSocketTaskEvent) -> Void)? { get set }
 
     /// Intercepts when a WebSocket task opens with a protocol.
     func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didOpenWithProtocol protocol: String?)
@@ -14,8 +14,8 @@ public protocol WebSocketTaskInterceptor: AnyObject {
     func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error)
 }
 
-public enum WebSocketTaskEvent {
+public enum WebSocketTaskEvent: Sendable {
     case didOpenWithProtocol(protocolStr: String?)
-    case didOpenWithError(error: Error)
+    case didOpenWithError(error: SendableError)
     case didClose(code: URLSessionWebSocketTask.CloseCode, reason: Data?)
 }
