@@ -87,51 +87,118 @@ for await event in await downloader.downloadFileStream() {
 }
 ```
 
-## Data Upload
+## Uploads
 
-To upload data from memory to a server, use `DataUploader`. 
+`FileUploader` and `DataUploader` are actor-based uploaders that conform to `Uploadable`. Both expose the same API: call `upload()` to receive an `AsyncStream<UploadEvent>`, and use `pause()`, `resume()`, and `cancel()` to control the upload.
 
-### Example usage:
+`FileUploader` uploads from a file on disk using `URLSession`'s `uploadTask(with:fromFile:)`. `DataUploader` writes in-memory `Data` to a temporary file and delegates to an internal `FileUploader`, cleaning up the temp file when the upload finishes or is cancelled. The reason in-memory `Data` is written to a temp file is to support pause/resumem capabilities, which can only be done when uploading data form a file on disk.
+
+### UploadRequest
+
+Configure the destination URL and headers with `UploadRequest`:
 
 ```swift
-for await event in DataUploader().uploadDataStream(data, with: request) {
-  switch event {
-  case .progress(let value): // handle progress
-  case .success(let data): // handle success
-  case .failure(let error): // handle error
-  }
+let request = UploadRequest(
+    url: "https://example.com/upload",
+    additionalheaders: [.authorization(.bearer("TOKEN"))]
+)
+```
+
+`UploadRequest` always uses `POST` and does not carry a request body. Upload payloads are supplied separately to `FileUploader` or `DataUploader`, because `URLSession` upload tasks read from a file (or resume data) and ignore `URLRequest.httpBody`.
+
+Both uploaders also accept an optional `session: NetworkSession` and `validator: ResponseValidator`.
+
+### Upload events
+
+```swift
+for await event in stream {
+    switch event {
+    case .progress(let progress):
+        // 0.0 to 1.0
+    case .completed(let responseData):
+        // server response body
+    case .failed(let error):
+        // handle error
+    }
 }
 ```
 
 ## File Upload
 
-To get a file that exists in your bundle, do this
+Use `FileUploader` when the payload already exists as a file on disk (bundle resource, documents directory, temp file, etc.):
 
 ```swift
-fileURL = Bundle.main.url(forResource: "myDocument", withExtension: "txt")
+let fileURL = Bundle.main.url(forResource: "myDocument", withExtension: "txt")!
+// or
+let fileURL = URL(fileURLWithPath: "/Users/username/Documents/myFile.pdf")
 ```
 
-To get a file that exists in your files directory, do this
+### Basic usage
 
 ```swift
-let customFileURL = URL(fileURLWithPath: "/Users/username/Documents/myFile.pdf")
-```
+let uploader = FileUploader(fileURL: fileURL, request: request)
 
-### Example usage:
-
-```swift
-for await event in FileUploader().uploadFileStream(fileURL, with: request) {
-  switch event {
-  case .progress(let value): // handle progress
-  case .success(let data): // handle success
-  case .failure(let error): // handle error
-  }
+for await event in await uploader.upload() {
+    switch event {
+    case .progress(let progress):
+        // handle progress
+    case .completed(let responseData):
+        // handle success
+    case .failed(let error):
+        // handle error
+        if case .uploadFailed(reason: .failedButResumable) = error {
+            try await uploader.resume()
+        }
+    }
 }
 ```
 
-## Multipart-form Upload
+### Pause, resume, and cancel
 
 ```swift
+let uploader = FileUploader(fileURL: fileURL, request: request)
+
+let eventsTask = Task {
+    for await event in await uploader.upload() {
+        // handle events
+    }
+}
+
+try await uploader.pause()
+try await uploader.resume()
+try await uploader.cancel()
+```
+
+When the network fails but URLSession provides resume data, the stream yields `.failed` with `UploadFailureReason.failedButResumable` and stays open so you can call `resume()` and continue receiving events on the same stream.
+
+## Data Upload
+
+Use `DataUploader` to upload `Data` from memory (JSON blobs, encoded models, multipart bodies built in memory, etc.):
+
+```swift
+let uploader = try DataUploader(data: payload, request: request)
+
+for await event in await uploader.upload() {
+    switch event {
+    case .progress(let progress):
+        // handle progress
+    case .completed(let responseData):
+        // handle success
+    case .failed(let error):
+        // handle error
+    }
+}
+```
+
+`DataUploader` supports the same `pause()`, `resume()`, and `cancel()` methods as `FileUploader`, forwarding them to the underlying file upload.
+
+## Multipart-form upload
+
+Build the multipart body with `MultipartFormData`, then upload it through `DataUploader`:
+
+```swift
+let boundary = "SOME_BOUNDARY"
+
 let parts: [MultipartFormPart] = [
     MultipartFormPart.fieldPart(
         name: "username",
@@ -149,30 +216,29 @@ let parts: [MultipartFormPart] = [
         mimeType: .json
     )
 ]
-let multippartFormData = MultipartFormData(parts: parts, boundary: "SOME_BOUNDARY")
+let multipartFormData = MultipartFormData(parts: parts, boundary: boundary)
 
-// example usage on Request
+guard let body = Data(multipartFormData: multipartFormData) else { return }
 
-let request = RequestFactoryImpl().build(
-    httpMethod: .POST,
-    baseUrlString: "https://www.example.com/upload",
-    parameters: nil,
-    headers: [
-        .contentType(.multipartFormData(boundary: "SOME_BOUNDARY"))
-    ],
-    body: nil
-    // dont inject multippartFormData into the request body. Inject it into DataUploader instead.
-    // Reason for this is DataUploader internally uses `URLSession.shared.uploadTask()` which is optimized for uploading data to a server. It takes `data` as an argument and ignores the data provided in `URLRequest.httpBody`
+let request = UploadRequest(
+    url: "https://www.example.com/upload",
+    additionalheaders: [
+        .contentType(.multipartFormData(boundary: boundary))
+    ]
 )
 
-// use DataUploader for uploading the data to a server
+let uploader = try DataUploader(data: body, request: request)
 
-for await event in DataUploader().uploadDataStream(multippartFormData.toData()!, with: request) {
-  switch event {
-  case .progress(let value): // handle progress
-  case .success(let data): // handle success
-  case .failure(let error): // handle error
-  }
+for await event in await uploader.upload() {
+    switch event {
+    case .progress(let progress):
+        // handle progress
+    case .completed(let responseData):
+        // handle success
+    case .failed(let error):
+        // handle error
+    }
 }
-
 ```
+
+Use the same `boundary` string in both `MultipartFormData` and the `Content-Type` header. Do not assign the multipart body to `UploadRequest` or any other request `body` property—the upload actors pass the payload via `URLSession`'s file-based upload API instead.
