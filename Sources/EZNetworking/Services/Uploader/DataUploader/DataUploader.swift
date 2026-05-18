@@ -44,9 +44,12 @@ public actor DataUploader: Uploadable {
     }
 
     public func upload() -> AsyncStream<UploadEvent> {
-        AsyncStream { continuation in
-            let task = Task { [weak self] in
-                guard let self = self else { return }
+        let fileUploader = self.fileUploader
+        let dataSaver = self.dataSaver
+        let tempFileURL = self.tempFileURL
+
+        return AsyncStream { continuation in
+            let task = Task {
                 var didStartUploading = false
                 var shouldClearTempFile = false
                 for await event in await fileUploader.upload() {
@@ -70,8 +73,8 @@ public actor DataUploader: Uploadable {
             continuation.onTermination = { @Sendable termination in
                 guard case .cancelled = termination else { return }
                 task.cancel()
-                Task { [weak self] in
-                    try? await self?.fileUploader.cancel()
+                Task {
+                    try? await fileUploader.cancel()
                 }
             }
         }
