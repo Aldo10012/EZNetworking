@@ -4,7 +4,6 @@ import Testing
 
 @Suite("Test DataUploader")
 final class DataUploaderTests {
-
     // MARK: - upload() event forwarding
 
     @Test("upload() invokes fileUploader.upload() once")

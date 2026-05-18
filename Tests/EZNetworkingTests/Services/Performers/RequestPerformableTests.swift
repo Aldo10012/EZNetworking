@@ -196,7 +196,7 @@ private struct MockRequestWithNilBuild: Request {
 }
 
 private class MockJSONDecoder: JSONDecoder, @unchecked Sendable {
-    override func decode<T>(_ type: T.Type, from data: Data) throws -> T where T : Decodable {
+    override func decode<T>(_ type: T.Type, from data: Data) throws -> T where T: Decodable {
         throw UnknownDecodingError.unknown
     }
 

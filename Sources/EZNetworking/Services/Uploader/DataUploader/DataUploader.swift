@@ -1,7 +1,6 @@
 import Foundation
 
 public actor DataUploader: Uploadable {
-
     private nonisolated let tempFileURL: URL?
     private let dataSaver: DataToTempFileSaver
     private let fileUploader: Uploadable
@@ -27,7 +26,7 @@ public actor DataUploader: Uploadable {
         )
     }
 
-    internal init(
+    init(
         tempFileURL: URL?,
         dataSaver: DataToTempFileSaver,
         fileUploader: Uploadable
@@ -44,9 +43,9 @@ public actor DataUploader: Uploadable {
     }
 
     public func upload() -> AsyncStream<UploadEvent> {
-        let fileUploader = self.fileUploader
-        let dataSaver = self.dataSaver
-        let tempFileURL = self.tempFileURL
+        let fileUploader = fileUploader
+        let dataSaver = dataSaver
+        let tempFileURL = tempFileURL
 
         return AsyncStream { continuation in
             let task = Task {

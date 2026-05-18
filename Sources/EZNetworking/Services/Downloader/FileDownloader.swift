@@ -138,13 +138,13 @@ extension FileDownloader {
     private func validateCanStartDownload() -> DownloadFailureReason? {
         switch state {
         case .idle:
-            return nil  // OK to proceed
+            nil // OK to proceed
         case .downloading, .pausing, .paused:
-            return .alreadyDownloading
+            .alreadyDownloading
         case .failedButCanResume:
-            return .downloadIncompleteButResumable
+            .downloadIncompleteButResumable
         case .completed, .failed, .cancelled:
-            return .alreadyFinished
+            .alreadyFinished
         }
     }
 

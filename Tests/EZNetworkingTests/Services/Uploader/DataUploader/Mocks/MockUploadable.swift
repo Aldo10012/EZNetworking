@@ -16,7 +16,7 @@ actor MockUploadable: Uploadable {
 
     init() {
         let (stream, continuation) = AsyncStream<UploadEvent>.makeStream()
-        self.pendingStream = stream
+        pendingStream = stream
         self.continuation = continuation
     }
 

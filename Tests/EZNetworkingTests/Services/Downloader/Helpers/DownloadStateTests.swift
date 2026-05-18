@@ -5,7 +5,7 @@ import Testing
 @Suite("Test DownloadState")
 final class DownloadStateTests {
     @Test("test DownloadState equivalence")
-    func testDownloadStateEquivalence() {
+    func downloadStateEquivalence() {
         let data = Data()
         #expect(DownloadState.idle == DownloadState.idle)
         #expect(DownloadState.downloading == DownloadState.downloading)
@@ -21,7 +21,7 @@ final class DownloadStateTests {
         DownloadState.paused(resumeData: "pause-data".data(using: .utf8)!),
         DownloadState.failedButCanResume(resumeData: "resume-data".data(using: .utf8)!)
     ])
-    func testResumableStates(state: DownloadState) {
+    func resumableStates(state: DownloadState) {
         // Assert that data is not nil and matches expected input
         #expect(state.resumeData != nil)
 
@@ -42,7 +42,7 @@ final class DownloadStateTests {
         DownloadState.failed,
         DownloadState.cancelled
     ])
-    func testNonResumableStates(state: DownloadState) {
+    func nonResumableStates(state: DownloadState) {
         #expect(state.resumeData == nil)
     }
 }

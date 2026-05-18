@@ -13,11 +13,11 @@ enum DownloadState: Equatable {
     var resumeData: Data? {
         switch self {
         case let .paused(data):
-            return data
+            data
         case let .failedButCanResume(data):
-            return data
+            data
         default:
-            return nil
+            nil
         }
     }
 }

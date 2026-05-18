@@ -129,13 +129,13 @@ extension FileUploader {
     private func validateCanStartUpload() -> UploadFailureReason? {
         switch state {
         case .idle:
-            return nil  // OK to proceed
+            nil // OK to proceed
         case .uploading, .pausing, .paused:
-            return .alreadyUploading
+            .alreadyUploading
         case .failedButCanResume:
-            return .uploadIncompleteButResumable
+            .uploadIncompleteButResumable
         case .completed, .failed, .cancelled:
-            return .alreadyFinished
+            .alreadyFinished
         }
     }
 
