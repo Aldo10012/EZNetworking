@@ -1,29 +1,27 @@
 # EZNetworking
 
 [![Swift](https://img.shields.io/badge/Swift-5.9-orange.svg)](https://swift.org)
-[![Platform](https://img.shields.io/badge/platform-iOS%2015.0%2B-blue.svg)](https://developer.apple.com/ios/)
+[![Platform](https://img.shields.io/badge/platform-iOS%2017.0%2B-blue.svg)](https://developer.apple.com/ios/)
 [![SPM Compatible](https://img.shields.io/badge/SPM-compatible-brightgreen.svg)](https://swift.org/package-manager/)
 
-EZNetworking is a powerful, lightweight Swift networking library that simplifies API interactions in your iOS applications. Built with modern Swift features, it provides an intuitive interface for making HTTP requests, handling responses, and managing network operations.
+EZNetworking is a powerful, lightweight Swift networking library that simplifies API interactions in your Apple platform applications. Built with modern Swift features, it provides an intuitive interface for making HTTP requests, handling responses, and managing network operations.
 
 ## Key Features 🚀
 
-- **Modern Swift Support**: Built with Swift 5.9 and iOS 15.0+, macOS 12+, watchOS 8+, tvOS 15+, visionOS 1+
+- **Modern Swift Support**: Built with Swift 5.9 and iOS 17.0+, macOS 14.0+, watchOS 10.0+, tvOS 17.0+, visionOS 1.0+
 - **Async/Await Integration**: First-class support for Swift concurrency
-- **Combine Support**: Publishers for requests, downloads, uploads, WebSocket, and SSE
-- **Callback Support**: Completion handler-based API across the board
 - **AsyncStream Support**: Streaming progress for uploads, downloads, and real-time events
 - **Type-Safe Networking**: Strong typing for requests and responses
 - **Flexible Request Building**: Multiple approaches to creating requests
 - **Comprehensive Interceptors**: Full request/response pipeline control
-- **Built-in Caching**: Efficient response caching system
+- **Cache Control**: Configurable `URLRequest` cache policies and optional cache interceptors
 - **File Download**: Easy-to-use file downloader
 - **File Upload**: Easy-to-use file uploader
 - **Data Upload**: Easy-to-use data uploader
 - **Multipart Form Data**: Construct multipart requests with boundary handling and MIME types
 - **WebSocket**: Real-time, bi-directional client-to-server communication
 - **Server-Sent Events**: Lightweight, server-to-client streaming with automatic reconnection
-- **Extensive Testing**: 100% unit test coverage
+- **Extensive Testing**: Comprehensive unit test suite
 
 ## Table of Contents 📑
 
@@ -48,14 +46,14 @@ Add EZNetworking to your project using Swift Package Manager:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/Aldo10012/EZNetworking.git", from: "5.2.0")
+    .package(url: "https://github.com/Aldo10012/EZNetworking.git", from: "5.5.3")
 ]
 ```
 
 Or through Xcode:
 1. Go to File > Add Packages
 2. Enter: `https://github.com/Aldo10012/EZNetworking.git`
-3. Select version: 5.2.0 or later
+3. Select version: 5.5.3 or later
 
 ## Quick Start Guide 🚀
 
@@ -65,7 +63,7 @@ Here's a simple example to get you started:
 // Create a request
 let request = RequestFactoryImpl().build(
     httpMethod: .GET,
-    urlString: "https://api.example.com/data",
+    baseUrlString: "https://api.example.com/data",
     parameters: [.init(key: "userId", value: "123")]
 )
 
@@ -89,7 +87,7 @@ do {
 
 `swiftlint Sources Tests`
 
-- Analyzes the Swift code and reports violations of the rules defined in .swiftlint.yaml configuration file.
+- Analyzes the Swift code and reports violations of the rules defined in .swiftlint.yml configuration file.
 
 `swiftlint --fix Sources Tests`
 
@@ -99,7 +97,7 @@ do {
 
 ## Contributing 🤝
 
-Contributions to are always welcomed! For more details see [CONTRIBUTING.md](CONTRIBUTING.md).
+Contributions are always welcome! For more details see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License 📄
 
