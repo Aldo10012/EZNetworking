@@ -118,6 +118,7 @@ final class RequestPerformableTests {
         )
         do {
             _ = try await sut.perform(request: MockRequest(), decodeTo: Person.self)
+            Issue.record("Expected decoding error, but call succeeded.")
         } catch {
             if case NetworkingError.decodingFailed(reason: .decodingError(underlying: _)) = error {
                 #expect(Bool(true))
@@ -135,6 +136,7 @@ final class RequestPerformableTests {
         )
         do {
             _ = try await sut.perform(request: MockRequest(), decodeTo: Person.self)
+            Issue.record("Expected decoding error, but call succeeded.")
         } catch {
             if case NetworkingError.decodingFailed(reason: .other(underlying: _)) = error {
                 #expect(Bool(true))
