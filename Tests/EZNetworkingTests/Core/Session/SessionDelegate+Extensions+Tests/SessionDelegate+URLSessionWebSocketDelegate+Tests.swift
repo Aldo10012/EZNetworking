@@ -50,7 +50,7 @@ final class SessionDelegateURLSessionWebSocketDelegateTests {
 // MARK: mock class
 
 private class SpyWebSocketTaskInterceptor: WebSocketTaskInterceptor {
-    var onEvent: ((WebSocketTaskEvent) -> Void)? = { _ in }
+    var onEvent: (@Sendable (WebSocketTaskEvent) -> Void)? = { _ in }
 
     var didOpenWithProtocol = false
     var receivedProtocol: String?

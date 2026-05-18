@@ -2,12 +2,12 @@ import Foundation
 
 /// Default implementation of DownloadTaskInterceptor
 class DefaultDownloadTaskInterceptor: DownloadTaskInterceptor {
-    var onEvent: (DownloadTaskInterceptorEvent) -> Void
+    var onEvent: @Sendable (DownloadTaskInterceptorEvent) -> Void
     private let validator: ResponseValidator
 
     init(
         validator: ResponseValidator = DefaultResponseValidator(),
-        onEvent: @escaping (DownloadTaskInterceptorEvent) -> Void = { _ in }
+        onEvent: @Sendable @escaping (DownloadTaskInterceptorEvent) -> Void = { _ in }
     ) {
         self.validator = validator
         self.onEvent = onEvent
@@ -18,7 +18,7 @@ class DefaultDownloadTaskInterceptor: DownloadTaskInterceptor {
             try validator.validateStatus(from: downloadTask.response)
             onEvent(.onDownloadCompleted(location))
         } catch {
-            onEvent(.onDownloadFailed(error, resumeData: nil))
+            onEvent(.onDownloadFailed(error.asSendableError, resumeData: nil))
         }
     }
 
@@ -36,6 +36,6 @@ class DefaultDownloadTaskInterceptor: DownloadTaskInterceptor {
 
     func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error) {
         let resumeData = (error as? URLError)?.downloadTaskResumeData
-        onEvent(.onDownloadFailed(error, resumeData: resumeData))
+        onEvent(.onDownloadFailed(error.asSendableError, resumeData: resumeData))
     }
 }

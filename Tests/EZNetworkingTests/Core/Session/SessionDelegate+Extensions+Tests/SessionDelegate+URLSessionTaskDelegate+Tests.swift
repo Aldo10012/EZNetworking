@@ -236,7 +236,7 @@ private var mockURLSessionTaskMetrics: URLSessionTaskMetrics {
 }
 
 private class SpyDownloadTaskInterceptor: DownloadTaskInterceptor {
-    var onEvent: (DownloadTaskInterceptorEvent) -> Void = { _ in }
+    var onEvent: @Sendable (DownloadTaskInterceptorEvent) -> Void = { _ in }
     var didCompleteWithError = false
 
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {}
@@ -248,7 +248,7 @@ private class SpyDownloadTaskInterceptor: DownloadTaskInterceptor {
 }
 
 private class SpyWebSocketTaskInterceptor: WebSocketTaskInterceptor {
-    var onEvent: ((WebSocketTaskEvent) -> Void)? = { _ in }
+    var onEvent: (@Sendable (WebSocketTaskEvent) -> Void)? = { _ in }
     var didCompleteWithError = false
 
     func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didOpenWithProtocol protocol: String?) {}
@@ -259,7 +259,7 @@ private class SpyWebSocketTaskInterceptor: WebSocketTaskInterceptor {
 }
 
 private class SpyUploadTaskInterceptor: UploadTaskInterceptor {
-    var onEvent: (UploadTaskInterceptorEvent) -> Void = { _ in }
+    var onEvent: @Sendable (UploadTaskInterceptorEvent) -> Void = { _ in }
 
     var didSendBodyData = false
     var didReceiveData = false

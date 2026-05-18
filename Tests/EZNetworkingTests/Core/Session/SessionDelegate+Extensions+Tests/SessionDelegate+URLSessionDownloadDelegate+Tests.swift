@@ -53,7 +53,7 @@ final class SessionDelegateURLSessionDownloadDelegateTests {
 // MARK: mock class
 
 private class DownloadTaskInterceptorMock: DownloadTaskInterceptor {
-    var onEvent: (DownloadTaskInterceptorEvent) -> Void = { _ in }
+    var onEvent: @Sendable (DownloadTaskInterceptorEvent) -> Void = { _ in }
 
     var didFinishDownloading = false
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {

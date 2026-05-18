@@ -1,15 +1,15 @@
 import Foundation
 
-public enum DownloadTaskInterceptorEvent {
+public enum DownloadTaskInterceptorEvent: Sendable {
     case onProgress(Double)
     case onDownloadCompleted(URL)
-    case onDownloadFailed(Error, resumeData: Data?)
+    case onDownloadFailed(SendableError, resumeData: Data?)
 }
 
 /// Protocol for intercepting download tasks specifically.
 public protocol DownloadTaskInterceptor: AnyObject {
     /// Callback for download task events (progress, completion, failure)
-    var onEvent: (DownloadTaskInterceptorEvent) -> Void { get set }
+    var onEvent: @Sendable (DownloadTaskInterceptorEvent) -> Void { get set }
 
     /// Intercepts when a download task finishes downloading to a location.
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL)
