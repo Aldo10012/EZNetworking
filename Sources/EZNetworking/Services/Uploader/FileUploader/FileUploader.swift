@@ -108,7 +108,7 @@ public actor FileUploader: Uploadable {
 
     // MARK: cancel
 
-    public func cancel() throws {
+    public func cancel() async throws {
         switch state {
         case .uploading, .paused, .pausing, .failedButCanResume:
             break
