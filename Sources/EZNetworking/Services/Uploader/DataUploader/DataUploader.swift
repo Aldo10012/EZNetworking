@@ -47,11 +47,23 @@ public actor DataUploader: Uploadable {
         AsyncStream { continuation in
             let task = Task { [weak self] in
                 guard let self = self else { return }
+                var didStartUploading = false
+                var shouldClearTempFile = false
                 for await event in await fileUploader.upload() {
+                    switch event {
+                    case .progress:
+                        didStartUploading = true
+                    case .completed:
+                        shouldClearTempFile = true
+                    case .failed:
+                        if didStartUploading {
+                            shouldClearTempFile = true
+                        }
+                    }
                     continuation.yield(event)
                 }
                 continuation.finish()
-                if let tempFileURL = tempFileURL {
+                if shouldClearTempFile, let tempFileURL {
                     try? dataSaver.clearTempFile(at: tempFileURL)
                 }
             }

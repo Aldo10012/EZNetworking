@@ -94,7 +94,49 @@ final class DataUploaderTests {
 
     // MARK: - Temp file lifecycle
 
-    @Test("upload() clears the temp file after the inner stream finishes")
+    @Test("upload() does not clear the temp file after an early-exit failed event")
+    func uploadDoesNotClearTempFileOnEarlyExitFailure() async throws {
+        let mockSaver = MockDataToTempFileSaver()
+        let mockUploader = MockUploadable()
+        let sut = DataUploader(
+            tempFileURL: mockTempFileURL,
+            dataSaver: mockSaver,
+            fileUploader: mockUploader
+        )
+
+        let stream = await sut.upload()
+        await mockUploader.emit(.failed(.uploadFailed(reason: .alreadyFinished)))
+        await mockUploader.finishStream()
+        for await _ in stream {}
+
+        try await Task.sleep(for: .milliseconds(20))
+
+        #expect(mockSaver.clearCount == 0)
+    }
+
+    @Test("upload() clears the temp file after upload started and the inner stream finishes")
+    func uploadClearsTempFileAfterUploadStarted() async throws {
+        let mockSaver = MockDataToTempFileSaver()
+        let mockUploader = MockUploadable()
+        let sut = DataUploader(
+            tempFileURL: mockTempFileURL,
+            dataSaver: mockSaver,
+            fileUploader: mockUploader
+        )
+
+        let stream = await sut.upload()
+        await mockUploader.emit(.progress(0.5))
+        await mockUploader.emit(.failed(.uploadFailed(reason: .cannotResume)))
+        await mockUploader.finishStream()
+        for await _ in stream {}
+
+        try await Task.sleep(for: .milliseconds(20))
+
+        #expect(mockSaver.clearCount == 1)
+        #expect(mockSaver.clearedURLs == [mockTempFileURL])
+    }
+
+    @Test("upload() clears the temp file after the inner stream finishes with completed")
     func uploadClearsTempFileAfterStreamFinishes() async throws {
         let mockSaver = MockDataToTempFileSaver()
         let mockUploader = MockUploadable()
