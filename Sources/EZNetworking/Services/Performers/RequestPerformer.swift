@@ -8,7 +8,7 @@ public struct RequestPerformer: RequestPerformable {
     public init(
         session: NetworkSession = Session(),
         validator: ResponseValidator = DefaultResponseValidator(),
-        decoder: JSONDecoder = EZJSONDecoder()
+        decoder: JSONDecoder = JSONDecoder()
     ) {
         self.session = session
         self.validator = validator
@@ -25,7 +25,7 @@ public struct RequestPerformer: RequestPerformable {
             let (data, urlResponse) = try await session.urlSession.data(for: urlRequest)
             try Task.checkCancellation()
             try validator.validateStatus(from: urlResponse)
-            return try decoder.decode(decodableObject, from: data)
+            return try decode(data, decodeTo: decodableObject)
         } catch let cancellationError as CancellationError {
             throw cancellationError
         } catch {
@@ -34,6 +34,16 @@ public struct RequestPerformer: RequestPerformable {
     }
 
     // MARK: - Helpers
+
+    private func decode<T: Decodable & Sendable>(_ data: Data, decodeTo decodableObject: T.Type) throws -> T {
+        do {
+            return try decoder.decode(decodableObject, from: data)
+        } catch let error as DecodingError {
+            throw NetworkingError.decodingFailed(reason: .decodingError(underlying: error))
+        } catch {
+            throw NetworkingError.decodingFailed(reason: .other(underlying: error.asSendableError))
+        }
+    }
 
     private func mapError(_ error: Error) -> NetworkingError {
         if let networkError = error as? NetworkingError { return networkError }
