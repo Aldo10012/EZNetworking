@@ -119,7 +119,24 @@ final class RequestPerformableTests {
         do {
             _ = try await sut.perform(request: MockRequest(), decodeTo: Person.self)
         } catch {
-            if case NetworkingError.decodingFailed = error {
+            if case NetworkingError.decodingFailed(reason: .decodingError(underlying: _)) = error {
+                #expect(Bool(true))
+            } else {
+                Issue.record()
+            }
+        }
+    }
+
+    @Test("test perform(request:_, decodeTo:_) fails JSONDecoder throws unknown decoding error")
+    func performAndDecode_throwsErrorWhen_JSONDecoderThrowsUnknownDecodingError() async throws {
+        let sut = createRequestPerformer(
+            urlSession: createMockURLSession(data: MockData.invalidMockPersonJsonData),
+            decoder: MockJSONDecoder()
+        )
+        do {
+            _ = try await sut.perform(request: MockRequest(), decodeTo: Person.self)
+        } catch {
+            if case NetworkingError.decodingFailed(reason: .other(underlying: _)) = error {
                 #expect(Bool(true))
             } else {
                 Issue.record()
@@ -133,7 +150,7 @@ final class RequestPerformableTests {
 private func createRequestPerformer(
     urlSession: URLSessionProtocol = createMockURLSession(),
     validator: ResponseValidator = DefaultResponseValidator(),
-    decoder: JSONDecoder = EZJSONDecoder()
+    decoder: JSONDecoder = JSONDecoder()
 ) -> RequestPerformer {
     RequestPerformer(session: MockSession(urlSession: urlSession), validator: validator, decoder: decoder)
 }
@@ -174,4 +191,14 @@ private struct MockRequestWithNilBuild: Request {
     var headers: [HTTPHeader]? { nil }
     var body: HTTPBody? { nil }
     var urlRequest: URLRequest? { nil }
+}
+
+private class MockJSONDecoder: JSONDecoder, @unchecked Sendable {
+    override func decode<T>(_ type: T.Type, from data: Data) throws -> T where T : Decodable {
+        throw UnknownDecodingError.unknown
+    }
+
+    enum UnknownDecodingError: Error {
+        case unknown
+    }
 }
