@@ -1,7 +1,7 @@
 # EZNetworking
 
 [![Swift](https://img.shields.io/badge/Swift-5.9-orange.svg)](https://swift.org)
-[![Platform](https://img.shields.io/badge/platform-iOS%2017.0%2B-blue.svg)](https://developer.apple.com/ios/)
+[![Platform](https://img.shields.io/badge/platform-iOS_17+_macOS_14+_watchOS_10+_tvOS_17+_visionOS_1+-blue.svg)](https://developer.apple.com/)
 [![SPM Compatible](https://img.shields.io/badge/SPM-compatible-brightgreen.svg)](https://swift.org/package-manager/)
 
 EZNetworking is a powerful, lightweight Swift networking library that simplifies API interactions in your Apple platform applications. Built with modern Swift features, it provides an intuitive interface for making HTTP requests, handling responses, and managing network operations.
