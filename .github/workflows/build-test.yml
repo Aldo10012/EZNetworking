@@ -51,6 +51,7 @@ jobs:
   test:
     name: Test
     runs-on: macos-14
+    timeout-minutes: 10
     needs: [build-macOS, build-iOS, build-watchOS, build-tvOS, build-visionOS]
     
     steps:
@@ -71,9 +72,78 @@ jobs:
             ${{ runner.os }}-spm-test-6.2-
             ${{ runner.os }}-spm-
       
+      - name: List all tests
+        run: swift test list 2>/dev/null | sort > /tmp/all_tests.txt || true
+
       - name: Run Tests
-        run: swift test --enable-code-coverage
-      
+        run: |
+          set -o pipefail
+          swift test --enable-code-coverage 2>&1 | tee /tmp/test_output.log
+
+      - name: Report hung and skipped tests
+        if: cancelled()
+        run: |
+          python3 - <<'PYEOF'
+          import re, os, sys
+
+          log_path = '/tmp/test_output.log'
+          all_tests_path = '/tmp/all_tests.txt'
+          summary_path = os.environ.get('GITHUB_STEP_SUMMARY', '/dev/stdout')
+
+          try:
+              with open(log_path) as f:
+                  lines = f.readlines()
+          except FileNotFoundError:
+              with open(summary_path, 'a') as out:
+                  out.write("## ⏱️ Timeout Report\n\nNo test log found — the hang occurred before tests started.\n")
+              sys.exit(0)
+
+          started = {}
+          finished = set()
+
+          for line in lines:
+              # Swift Testing emits: ◇ Test "foo()" started.
+              m = re.search(r'Test[^"]*"([^"]+)"\s+started', line)
+              if m:
+                  started[m.group(1)] = line.strip()
+              # Swift Testing emits: ✔ Test "foo()" passed  /  ✘ Test "foo()" failed
+              m = re.search(r'Test[^"]*"([^"]+)"\s+(?:passed|failed)', line)
+              if m:
+                  finished.add(m.group(1))
+
+          hung = [name for name in started if name not in finished]
+
+          try:
+              with open(all_tests_path) as f:
+                  all_tests = [l.strip() for l in f if l.strip()]
+          except FileNotFoundError:
+              all_tests = []
+
+          never_started = [t for t in all_tests if not any(t in s for s in started) and not any(t in f for f in finished)]
+
+          with open(summary_path, 'a') as out:
+              out.write("## ⏱️ Test Timeout Report\n\n")
+              out.write(f"| | Count |\n|---|---|\n")
+              out.write(f"| ✅ Completed | {len(finished)} |\n")
+              out.write(f"| 🔴 Started but never finished | {len(hung)} |\n")
+              out.write(f"| ⬜ Never started | {len(never_started) if all_tests else '(list unavailable)'} |\n\n")
+
+              if hung:
+                  out.write("### 🔴 Likely stuck test\n\n")
+                  for name in hung:
+                      out.write(f"- `{name}`\n")
+                  out.write("\n")
+
+              if never_started:
+                  out.write("### ⬜ Tests that never ran\n\n")
+                  for name in never_started:
+                      out.write(f"- `{name}`\n")
+                  out.write("\n")
+
+              if not hung and not never_started:
+                  out.write("_No in-progress test detected — the hang may be in teardown or coverage generation._\n")
+          PYEOF
+
       # --- Coverage Reporting (Non-blocking) ---
 
       - name: Generate Coverage Report (LCOV)
