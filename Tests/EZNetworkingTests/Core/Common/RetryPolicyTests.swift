@@ -100,4 +100,17 @@ struct RetryPolicyTests {
         #expect(config.hasReachedMaxAttempts(999) == false)
         #expect(config.hasReachedMaxAttempts(UInt.max) == false)
     }
+
+    // MARK: - RetryPolicy.none
+
+    @Test("test .none values are correctly assigned")
+    func noneDefaultValues() {
+        let config = RetryPolicy.none
+
+        #expect(config.enabled == false)
+        #expect(config.maxAttempts == nil)
+        #expect(config.initialDelay == 0)
+        #expect(config.maxDelay == 0)
+        #expect(config.backoffMultiplier == 0)
+    }
 }

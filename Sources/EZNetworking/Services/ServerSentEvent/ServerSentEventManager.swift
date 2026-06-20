@@ -18,7 +18,7 @@ public actor ServerSentEventManager: ServerSentEventClient {
 
     /// Last event ID received; sent as `Last-Event-ID` header on reconnect per SSE spec.
     private var lastEventId: String?
-    private let retryPolicy: RetryPolicy?
+    private let retryPolicy: RetryPolicy
     private var retryIntervalGivenByServer: TimeInterval?
 
     // Streams
@@ -36,7 +36,7 @@ public actor ServerSentEventManager: ServerSentEventClient {
     public init(
         url: String,
         session: NetworkSession = Session(),
-        retryPolicy: RetryPolicy? = nil,
+        retryPolicy: RetryPolicy = .none,
         responseValidator: ResponseValidator = DefaultResponseValidator(expectedHttpHeaders: [.contentType(.eventStream)])
     ) {
         self.init(
@@ -50,7 +50,7 @@ public actor ServerSentEventManager: ServerSentEventClient {
     public init(
         request: SSERequest,
         session: NetworkSession = Session(),
-        retryPolicy: RetryPolicy? = nil,
+        retryPolicy: RetryPolicy = .none,
         responseValidator: ResponseValidator = DefaultResponseValidator(expectedHttpHeaders: [.contentType(.eventStream)])
     ) {
         sseRequest = request
@@ -91,8 +91,8 @@ public actor ServerSentEventManager: ServerSentEventClient {
         }
         connectionState = .connecting
 
-        if let retryPolicy = retryPolicy, retryPolicy.enabled {
-            try await attemptConnectWithReconnection(retryPolicy: retryPolicy)
+        if retryPolicy.enabled {
+            try await attemptConnectWithReconnection()
         } else {
             try await attemptSingleConnect()
         }
@@ -146,7 +146,7 @@ extension ServerSentEventManager {
         }
     }
 
-    private func attemptConnectWithReconnection(retryPolicy: RetryPolicy) async throws {
+    private func attemptConnectWithReconnection() async throws {
         var attemptCount: UInt = 0
         var lastError: Error?
 
@@ -155,7 +155,7 @@ extension ServerSentEventManager {
                 let fallbackError = NetworkingError.serverSentEventFailed(reason: .maxReconnectAttemptsReached)
                 throw lastError ?? fallbackError
             }
-            await waitWithDelayBeforeAttemptingReconnect(attemptCount: attemptCount, retryPolicy: retryPolicy)
+            await waitWithDelayBeforeAttemptingReconnect(attemptCount: attemptCount)
             attemptCount += 1
             do {
                 try await attemptSingleConnect()
@@ -167,7 +167,7 @@ extension ServerSentEventManager {
         }
     }
 
-    private func waitWithDelayBeforeAttemptingReconnect(attemptCount: UInt, retryPolicy: RetryPolicy) async {
+    private func waitWithDelayBeforeAttemptingReconnect(attemptCount: UInt) async {
         guard attemptCount > 0 else { return }
 
         if attemptCount == 1, let serverRetry = retryIntervalGivenByServer {
@@ -213,9 +213,9 @@ extension ServerSentEventManager {
 
         switch reason {
         case .streamEnded, .streamError:
-            guard let retryPolicy = retryPolicy, retryPolicy.enabled else { return }
+            guard retryPolicy.enabled else { return }
             Task {
-                await attemptReconnectionAfterStreamFailure(retryPolicy: retryPolicy)
+                await attemptReconnectionAfterStreamFailure()
             }
         default:
             break
@@ -232,7 +232,7 @@ extension ServerSentEventManager {
     }
 
     /// Handles reconnection after an established stream fails.
-    private func attemptReconnectionAfterStreamFailure(retryPolicy: RetryPolicy) async {
+    private func attemptReconnectionAfterStreamFailure() async {
         connectionState = .connecting
         var attemptCount: UInt = 0
 
@@ -240,7 +240,7 @@ extension ServerSentEventManager {
             if retryPolicy.hasReachedMaxAttempts(attemptCount) {
                 return // Give up silently (already disconnected)
             }
-            await waitWithDelayBeforeAttemptingReconnect(attemptCount: attemptCount, retryPolicy: retryPolicy)
+            await waitWithDelayBeforeAttemptingReconnect(attemptCount: attemptCount)
             attemptCount += 1
             do {
                 try await attemptSingleConnect()

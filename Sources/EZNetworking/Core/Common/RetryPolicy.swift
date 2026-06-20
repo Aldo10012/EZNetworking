@@ -58,3 +58,9 @@ extension RetryPolicy {
         return currentAttemptCount >= maxAttempts
     }
 }
+
+public extension RetryPolicy {
+    static var none: RetryPolicy {
+        RetryPolicy(enabled: false, maxAttempts: nil, initialDelay: 0, maxDelay: 0, backoffMultiplier: 0)
+    }
+}

@@ -10,7 +10,7 @@ struct ServerSentEventManagerWithRetryPolicyTests {
     func connectsOnlyOnceIfretryPolicyIsNil() async throws {
         let underlyingError = URLError(.notConnectedToInternet)
         let mockSession = createMockURLSession(error: underlyingError)
-        let manager = createSSEManager(request: sseRequest, urlSession: mockSession, retryPolicy: nil)
+        let manager = createSSEManager(request: sseRequest, urlSession: mockSession, retryPolicy: .none)
 
         try? await manager.connect()
         #expect(mockSession.numberOfRequestsMade == 1)
@@ -187,7 +187,7 @@ struct ServerSentEventManagerWithRetryPolicyTests {
 private func createSSEManager(
     request: SSERequest,
     urlSession: URLSessionProtocol = createMockURLSession(),
-    retryPolicy: RetryPolicy? = nil
+    retryPolicy: RetryPolicy = .none
 ) -> ServerSentEventManager {
     ServerSentEventManager(request: request, session: MockSession(urlSession: urlSession), retryPolicy: retryPolicy)
 }
