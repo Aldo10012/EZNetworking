@@ -91,8 +91,8 @@ public actor ServerSentEventManager: ServerSentEventClient {
         }
         connectionState = .connecting
 
-        if let config = retryPolicy, config.enabled {
-            try await attemptConnectWithReconnection(config: config)
+        if let retryPolicy = retryPolicy, retryPolicy.enabled {
+            try await attemptConnectWithReconnection(retryPolicy: retryPolicy)
         } else {
             try await attemptSingleConnect()
         }
@@ -146,16 +146,16 @@ extension ServerSentEventManager {
         }
     }
 
-    private func attemptConnectWithReconnection(config: RetryPolicy) async throws {
+    private func attemptConnectWithReconnection(retryPolicy: RetryPolicy) async throws {
         var attemptCount: UInt = 0
         var lastError: Error?
 
         while true {
-            if config.hasReachedMaxAttempts(attemptCount) {
+            if retryPolicy.hasReachedMaxAttempts(attemptCount) {
                 let fallbackError = NetworkingError.serverSentEventFailed(reason: .maxReconnectAttemptsReached)
                 throw lastError ?? fallbackError
             }
-            await waitWithDelayBeforeAttemptingReconnect(attemptCount: attemptCount, config: config)
+            await waitWithDelayBeforeAttemptingReconnect(attemptCount: attemptCount, retryPolicy: retryPolicy)
             attemptCount += 1
             do {
                 try await attemptSingleConnect()
@@ -167,13 +167,13 @@ extension ServerSentEventManager {
         }
     }
 
-    private func waitWithDelayBeforeAttemptingReconnect(attemptCount: UInt, config: RetryPolicy) async {
+    private func waitWithDelayBeforeAttemptingReconnect(attemptCount: UInt, retryPolicy: RetryPolicy) async {
         guard attemptCount > 0 else { return }
 
         if attemptCount == 1, let serverRetry = retryIntervalGivenByServer {
             try? await Task.sleep(nanoseconds: UInt64(serverRetry * 1_000_000_000))
         } else {
-            let delay = config.calculateDelay(for: attemptCount) // Exponential backoff
+            let delay = retryPolicy.calculateDelay(for: attemptCount) // Exponential backoff
             try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
         }
     }
@@ -213,9 +213,9 @@ extension ServerSentEventManager {
 
         switch reason {
         case .streamEnded, .streamError:
-            guard let config = retryPolicy, config.enabled else { return }
+            guard let retryPolicy = retryPolicy, retryPolicy.enabled else { return }
             Task {
-                await attemptReconnectionAfterStreamFailure(config: config)
+                await attemptReconnectionAfterStreamFailure(retryPolicy: retryPolicy)
             }
         default:
             break
@@ -232,15 +232,15 @@ extension ServerSentEventManager {
     }
 
     /// Handles reconnection after an established stream fails.
-    private func attemptReconnectionAfterStreamFailure(config: RetryPolicy) async {
+    private func attemptReconnectionAfterStreamFailure(retryPolicy: RetryPolicy) async {
         connectionState = .connecting
         var attemptCount: UInt = 0
 
         while true {
-            if config.hasReachedMaxAttempts(attemptCount) {
+            if retryPolicy.hasReachedMaxAttempts(attemptCount) {
                 return // Give up silently (already disconnected)
             }
-            await waitWithDelayBeforeAttemptingReconnect(attemptCount: attemptCount, config: config)
+            await waitWithDelayBeforeAttemptingReconnect(attemptCount: attemptCount, retryPolicy: retryPolicy)
             attemptCount += 1
             do {
                 try await attemptSingleConnect()
