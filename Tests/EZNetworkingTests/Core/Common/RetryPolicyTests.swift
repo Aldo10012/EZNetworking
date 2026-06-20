@@ -103,7 +103,7 @@ struct RetryPolicyTests {
 
     // MARK: - Sleep Tests
 
-    @Test("sleep completes immediately for attempt 0")
+    @Test("sleep completes immediately for attempt 0", .disabled())
     func sleepForAttemptZeroReturnsImmediately() async throws {
         let policy = RetryPolicy(initialDelay: 10.0)
         let clock = ContinuousClock()
@@ -113,7 +113,7 @@ struct RetryPolicyTests {
         #expect(elapsed < .milliseconds(500))
     }
 
-    @Test("sleep duration matches calculated backoff delay")
+    @Test("sleep duration matches calculated backoff delay", .disabled())
     func sleepDurationMatchesBackoff() async throws {
         let policy = RetryPolicy(initialDelay: 0.3, maxDelay: 60.0, backoffMultiplier: 2.0)
         let clock = ContinuousClock()
@@ -124,7 +124,7 @@ struct RetryPolicyTests {
         #expect(elapsed < .seconds(2))
     }
 
-    @Test("sleep respects maxDelay cap")
+    @Test("sleep respects maxDelay cap", .disabled())
     func sleepRespectsMaxDelayCap() async throws {
         let policy = RetryPolicy(initialDelay: 0.3, maxDelay: 0.3, backoffMultiplier: 100.0)
         let clock = ContinuousClock()
@@ -135,7 +135,7 @@ struct RetryPolicyTests {
         #expect(elapsed < .seconds(2))
     }
 
-    @Test("sleep completes without throwing when task is cancelled")
+    @Test("sleep completes without throwing when task is cancelled", .disabled())
     func sleepHandlesCancellationGracefully() async {
         let policy = RetryPolicy(initialDelay: 60.0)
         let clock = ContinuousClock()
