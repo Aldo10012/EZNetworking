@@ -173,8 +173,7 @@ extension ServerSentEventManager {
         if attemptCount == 1, let serverRetry = retryIntervalGivenByServer {
             try? await Task.sleep(nanoseconds: UInt64(serverRetry * 1_000_000_000))
         } else {
-            let delay = retryPolicy.calculateDelay(for: attemptCount) // Exponential backoff
-            try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
+            try? await retryPolicy.sleep(forAttempt: attemptCount)
         }
     }
 

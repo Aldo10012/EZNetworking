@@ -101,6 +101,54 @@ struct RetryPolicyTests {
         #expect(config.hasReachedMaxAttempts(UInt.max) == false)
     }
 
+    // MARK: - Sleep Tests
+
+    @Test("sleep completes immediately for attempt 0")
+    func sleepForAttemptZeroReturnsImmediately() async throws {
+        let policy = RetryPolicy(initialDelay: 10.0)
+        let clock = ContinuousClock()
+        let elapsed = await clock.measure {
+            try? await policy.sleep(forAttempt: 0)
+        }
+        #expect(elapsed < .milliseconds(500))
+    }
+
+    @Test("sleep duration matches calculated backoff delay")
+    func sleepDurationMatchesBackoff() async throws {
+        let policy = RetryPolicy(initialDelay: 0.3, maxDelay: 60.0, backoffMultiplier: 2.0)
+        let clock = ContinuousClock()
+        let elapsed = await clock.measure {
+            try? await policy.sleep(forAttempt: 1) // 0.3 * 2^0 = 0.3s
+        }
+        #expect(elapsed >= .milliseconds(250))
+        #expect(elapsed < .seconds(2))
+    }
+
+    @Test("sleep respects maxDelay cap")
+    func sleepRespectsMaxDelayCap() async throws {
+        let policy = RetryPolicy(initialDelay: 0.3, maxDelay: 0.3, backoffMultiplier: 100.0)
+        let clock = ContinuousClock()
+        let elapsed = await clock.measure {
+            try? await policy.sleep(forAttempt: 5) // uncapped: enormous; capped at 0.3s
+        }
+        #expect(elapsed >= .milliseconds(250))
+        #expect(elapsed < .seconds(2))
+    }
+
+    @Test("sleep completes without throwing when task is cancelled")
+    func sleepHandlesCancellationGracefully() async {
+        let policy = RetryPolicy(initialDelay: 60.0)
+        let clock = ContinuousClock()
+        let task = Task {
+            await clock.measure {
+                try? await policy.sleep(forAttempt: 1) // would sleep 60s without cancellation
+            }
+        }
+        task.cancel()
+        let elapsed = await task.value
+        #expect(elapsed < .seconds(1))
+    }
+
     // MARK: - RetryPolicy.none
 
     @Test("test .none values are correctly assigned")
