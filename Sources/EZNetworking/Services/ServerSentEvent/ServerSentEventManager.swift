@@ -171,7 +171,7 @@ extension ServerSentEventManager {
         guard attemptCount > 0 else { return }
 
         if attemptCount == 1, let serverRetry = retryIntervalGivenByServer {
-            try? await Task.sleep(nanoseconds: UInt64(serverRetry * 1_000_000_000))
+            try? await Task.sleep(for: .seconds(serverRetry))
         } else {
             try? await retryPolicy.sleep(forAttempt: attemptCount)
         }

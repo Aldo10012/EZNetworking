@@ -39,7 +39,7 @@ extension RetryPolicy {
     /// - Parameter attemptCount: The current attempt number (1-indexed) used to derive the delay.
     func sleep(forAttempt attemptCount: UInt) async throws {
         let delay = calculateDelay(for: attemptCount)
-        try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
+        try await Task.sleep(for: .seconds(delay))
     }
 
     /// Calculates the reconnection delay for a given attempt number.
