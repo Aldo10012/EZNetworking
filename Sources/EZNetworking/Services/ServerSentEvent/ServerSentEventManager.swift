@@ -18,7 +18,7 @@ public actor ServerSentEventManager: ServerSentEventClient {
 
     /// Last event ID received; sent as `Last-Event-ID` header on reconnect per SSE spec.
     private var lastEventId: String?
-    private let retryPolicy: RetryPolicy?
+    private let retryPolicy: RetryPolicy
     private var retryIntervalGivenByServer: TimeInterval?
 
     // Streams
@@ -36,7 +36,7 @@ public actor ServerSentEventManager: ServerSentEventClient {
     public init(
         url: String,
         session: NetworkSession = Session(),
-        retryPolicy: RetryPolicy? = nil,
+        retryPolicy: RetryPolicy = .none,
         responseValidator: ResponseValidator = DefaultResponseValidator(expectedHttpHeaders: [.contentType(.eventStream)])
     ) {
         self.init(
@@ -50,7 +50,7 @@ public actor ServerSentEventManager: ServerSentEventClient {
     public init(
         request: SSERequest,
         session: NetworkSession = Session(),
-        retryPolicy: RetryPolicy? = nil,
+        retryPolicy: RetryPolicy = .none,
         responseValidator: ResponseValidator = DefaultResponseValidator(expectedHttpHeaders: [.contentType(.eventStream)])
     ) {
         sseRequest = request
@@ -91,8 +91,8 @@ public actor ServerSentEventManager: ServerSentEventClient {
         }
         connectionState = .connecting
 
-        if let config = retryPolicy, config.enabled {
-            try await attemptConnectWithReconnection(config: config)
+        if retryPolicy.enabled {
+            try await attemptConnectWithReconnection()
         } else {
             try await attemptSingleConnect()
         }
@@ -146,16 +146,16 @@ extension ServerSentEventManager {
         }
     }
 
-    private func attemptConnectWithReconnection(config: RetryPolicy) async throws {
+    private func attemptConnectWithReconnection() async throws {
         var attemptCount: UInt = 0
         var lastError: Error?
 
         while true {
-            if config.hasReachedMaxAttempts(attemptCount) {
+            if retryPolicy.hasReachedMaxAttempts(attemptCount) {
                 let fallbackError = NetworkingError.serverSentEventFailed(reason: .maxReconnectAttemptsReached)
                 throw lastError ?? fallbackError
             }
-            await waitWithDelayBeforeAttemptingReconnect(attemptCount: attemptCount, config: config)
+            await waitWithDelayBeforeAttemptingReconnect(attemptCount: attemptCount)
             attemptCount += 1
             do {
                 try await attemptSingleConnect()
@@ -167,14 +167,13 @@ extension ServerSentEventManager {
         }
     }
 
-    private func waitWithDelayBeforeAttemptingReconnect(attemptCount: UInt, config: RetryPolicy) async {
+    private func waitWithDelayBeforeAttemptingReconnect(attemptCount: UInt) async {
         guard attemptCount > 0 else { return }
 
         if attemptCount == 1, let serverRetry = retryIntervalGivenByServer {
-            try? await Task.sleep(nanoseconds: UInt64(serverRetry * 1_000_000_000))
+            try? await Task.sleep(for: .seconds(serverRetry))
         } else {
-            let delay = config.calculateDelay(for: attemptCount) // Exponential backoff
-            try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
+            try? await retryPolicy.sleep(forAttempt: attemptCount)
         }
     }
 
@@ -213,9 +212,9 @@ extension ServerSentEventManager {
 
         switch reason {
         case .streamEnded, .streamError:
-            guard let config = retryPolicy, config.enabled else { return }
+            guard retryPolicy.enabled else { return }
             Task {
-                await attemptReconnectionAfterStreamFailure(config: config)
+                await attemptReconnectionAfterStreamFailure()
             }
         default:
             break
@@ -232,15 +231,15 @@ extension ServerSentEventManager {
     }
 
     /// Handles reconnection after an established stream fails.
-    private func attemptReconnectionAfterStreamFailure(config: RetryPolicy) async {
+    private func attemptReconnectionAfterStreamFailure() async {
         connectionState = .connecting
         var attemptCount: UInt = 0
 
         while true {
-            if config.hasReachedMaxAttempts(attemptCount) {
+            if retryPolicy.hasReachedMaxAttempts(attemptCount) {
                 return // Give up silently (already disconnected)
             }
-            await waitWithDelayBeforeAttemptingReconnect(attemptCount: attemptCount, config: config)
+            await waitWithDelayBeforeAttemptingReconnect(attemptCount: attemptCount)
             attemptCount += 1
             do {
                 try await attemptSingleConnect()

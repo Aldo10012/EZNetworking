@@ -30,6 +30,18 @@ public struct RetryPolicy: Sendable {
 }
 
 extension RetryPolicy {
+    /// Suspends the current task for the backoff delay calculated for the given attempt.
+    ///
+    /// Combines `calculateDelay(for:)` with an async sleep, allowing callers to pause
+    /// between retry attempts without managing the delay arithmetic themselves.
+    /// Throws `CancellationError` if the task is cancelled; callers can use `try?` for silent handling.
+    ///
+    /// - Parameter attemptCount: The current attempt number (1-indexed) used to derive the delay.
+    func sleep(forAttempt attemptCount: UInt) async throws {
+        let delay = calculateDelay(for: attemptCount)
+        try await Task.sleep(for: .seconds(delay))
+    }
+
     /// Calculates the reconnection delay for a given attempt number.
     ///
     /// Uses exponential backoff: `initialDelay * backoffMultiplier^(attemptNumber - 1)`,
@@ -56,5 +68,11 @@ extension RetryPolicy {
             return false
         }
         return currentAttemptCount >= maxAttempts
+    }
+}
+
+public extension RetryPolicy {
+    static var none: RetryPolicy {
+        RetryPolicy(enabled: false, maxAttempts: nil, initialDelay: 0, maxDelay: 0, backoffMultiplier: 0)
     }
 }

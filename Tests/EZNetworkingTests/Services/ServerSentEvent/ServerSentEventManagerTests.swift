@@ -415,7 +415,7 @@ struct ServerSentEventManagerTests {
 private func createSSEManager(
     request: SSERequest,
     urlSession: URLSessionProtocol = createMockURLSession(),
-    retryPolicy: RetryPolicy? = nil
+    retryPolicy: RetryPolicy = .none
 ) -> ServerSentEventManager {
     ServerSentEventManager(request: request, session: MockSession(urlSession: urlSession), retryPolicy: retryPolicy)
 }
