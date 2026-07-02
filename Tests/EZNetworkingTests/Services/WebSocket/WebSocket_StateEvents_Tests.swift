@@ -4,14 +4,51 @@ import Testing
 
 @Suite("Test WebSocket.stateEvents()")
 final class WebSocketStateEventsTests {
+    var pingConfig: PingConfig!
+    var wsTask: MockURLSessionWebSocketTask!
+    var urlSession: MockWebSockerURLSession!
+    var wsInterceptor: MockWebSocketTaskInterceptor!
+    var delegate: SessionDelegate!
+    var session: MockSession!
+
+    // MARK: - setup
+
+    init() {
+        self.setup(pingConfig: PingConfig(pingInterval: .seconds(1), maxPingFailures: 1))
+        self.setupSession(withTask: MockURLSessionWebSocketTask())
+    }
+
+    func setup(pingConfig: PingConfig) {
+        self.pingConfig = pingConfig
+    }
+
+    func setupSession(withTask wsTask: MockURLSessionWebSocketTask) {
+        self.wsTask = wsTask
+        self.urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
+        self.wsInterceptor = MockWebSocketTaskInterceptor()
+        self.delegate = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
+        self.session = MockSession(urlSession: urlSession, delegate: delegate)
+    }
+
+    func getSut() -> WebSocket {
+        return WebSocket(request: webSocketRequest, pingConfig: pingConfig, session: session)
+    }
+
+    // MARK: - teardown
+
+    deinit {
+        self.wsTask = nil
+        self.urlSession = nil
+        self.wsInterceptor = nil
+        self.delegate = nil
+        self.session = nil
+    }
+
+    // MARK: .stateEvents()
+
     @Test("test stateEvents when connecting")
     func stateEventsWhenConnecting() async throws {
-        let pingConfig = PingConfig(pingInterval: .seconds(1), maxPingFailures: 1)
-        let wsTask = MockURLSessionWebSocketTask()
-        let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
-        let wsInterceptor = MockWebSocketTaskInterceptor()
-        let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
-        let sut = WebSocket(request: webSocketRequest, pingConfig: pingConfig, session: MockSession(urlSession: urlSession, delegate: session))
+        let sut = getSut()
 
         var receivedState = [WebSocketConnectionState]()
         let expectedStates: [WebSocketConnectionState] = [
@@ -25,9 +62,7 @@ final class WebSocketStateEventsTests {
             }
         }
 
-        let connectionTask = Task {
-            try await sut.connect()
-        }
+        let connectionTask = try createConnectTaskExpectingThrow(sut)
 
         try await Task.sleep(nanoseconds: 100)
         wsInterceptor.simulateOpenWithProtocol("test")
@@ -40,12 +75,7 @@ final class WebSocketStateEventsTests {
 
     @Test("test stateEvents when connecting fails due to error")
     func stateEventsWhenConnectingFailsDueToError() async throws {
-        let pingConfig = PingConfig(pingInterval: .seconds(1), maxPingFailures: 1)
-        let wsTask = MockURLSessionWebSocketTask()
-        let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
-        let wsInterceptor = MockWebSocketTaskInterceptor()
-        let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
-        let sut = WebSocket(request: webSocketRequest, pingConfig: pingConfig, session: MockSession(urlSession: urlSession, delegate: session))
+        let sut = getSut()
 
         var receivedState = [WebSocketConnectionState]()
         let expectedStates: [WebSocketConnectionState] = [
@@ -61,19 +91,18 @@ final class WebSocketStateEventsTests {
             }
         }
 
-        let connectTask = Task {
-            do {
-                try await sut.connect()
-                Issue.record("Expected connection to fail")
-            } catch {
-                // Expected to fail
-            }
-        }
+        let connectTask = try createConnectTaskExpectingThrow(sut)
 
         try await Task.sleep(nanoseconds: 100)
         wsInterceptor.simulateDidCompleteWithError(error: DummyError.error)
 
-        _ = await connectTask.value
+        do {
+            try await connectTask.value
+            Issue.record("Expected connection to fail")
+        } catch {
+            // Expected to fail
+        }
+
         _ = await stateTask.value
 
         #expect(receivedState == expectedStates)
@@ -81,12 +110,7 @@ final class WebSocketStateEventsTests {
 
     @Test("test stateEvents when connecting then later connection is lost")
     func stateEventsWhenConnectingThenLaterConnectionIsLost() async throws {
-        let pingConfig = PingConfig(pingInterval: .seconds(1), maxPingFailures: 1)
-        let wsTask = MockURLSessionWebSocketTask()
-        let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
-        let wsInterceptor = MockWebSocketTaskInterceptor()
-        let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
-        let sut = WebSocket(request: webSocketRequest, pingConfig: pingConfig, session: MockSession(urlSession: urlSession, delegate: session))
+        let sut = getSut()
 
         var receivedState = [WebSocketConnectionState]()
         let expectedStates: [WebSocketConnectionState] = [
@@ -103,9 +127,7 @@ final class WebSocketStateEventsTests {
             }
         }
 
-        let connectionTask = Task {
-            try await sut.connect()
-        }
+        let connectionTask = try createConnectTaskExpectingThrow(sut)
 
         try await Task.sleep(nanoseconds: 100)
         wsInterceptor.simulateOpenWithProtocol("test")
@@ -122,12 +144,7 @@ final class WebSocketStateEventsTests {
 
     @Test("test stateEvents when connecting then disconnect")
     func stateEventsWhenConnectingThenDisconnecting() async throws {
-        let pingConfig = PingConfig(pingInterval: .seconds(1), maxPingFailures: 1)
-        let wsTask = MockURLSessionWebSocketTask()
-        let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
-        let wsInterceptor = MockWebSocketTaskInterceptor()
-        let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
-        let sut = WebSocket(request: webSocketRequest, pingConfig: pingConfig, session: MockSession(urlSession: urlSession, delegate: session))
+        let sut = getSut()
 
         var receivedState = [WebSocketConnectionState]()
         let expectedStates: [WebSocketConnectionState] = [
@@ -142,9 +159,7 @@ final class WebSocketStateEventsTests {
             }
         }
 
-        let connectionTask = Task {
-            try await sut.connect()
-        }
+        let connectionTask = try createConnectTaskExpectingThrow(sut)
 
         try await Task.sleep(nanoseconds: 100)
         wsInterceptor.simulateOpenWithProtocol("test")
@@ -158,12 +173,9 @@ final class WebSocketStateEventsTests {
 
     @Test("test stateEvents when connecting and ping-pong fails")
     func stateEventsWhenConnectingThenPingPongError() async throws {
-        let pingConfig = PingConfig(pingInterval: .nanoseconds(1), maxPingFailures: 3)
-        let wsTask = MockURLSessionWebSocketTask(pingThrowsError: true)
-        let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
-        let wsInterceptor = MockWebSocketTaskInterceptor()
-        let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
-        let sut = WebSocket(request: webSocketRequest, pingConfig: pingConfig, session: MockSession(urlSession: urlSession, delegate: session))
+        setup(pingConfig: PingConfig(pingInterval: .nanoseconds(1), maxPingFailures: 3))
+        setupSession(withTask: MockURLSessionWebSocketTask(pingThrowsError: true))
+        let sut = getSut()
 
         var receivedState = [WebSocketConnectionState]()
         let expectedStates: [WebSocketConnectionState] = [
@@ -180,9 +192,7 @@ final class WebSocketStateEventsTests {
             }
         }
 
-        let connectionTask = Task {
-            try await sut.connect()
-        }
+        let connectionTask = try createConnectTaskExpectingThrow(sut)
 
         try await Task.sleep(nanoseconds: 100)
         wsInterceptor.simulateOpenWithProtocol("test")
@@ -197,12 +207,7 @@ final class WebSocketStateEventsTests {
 
     @Test("test stateEvents when connecting and receive message fails")
     func stateEventsWhenConnectingReceiveMessageFails() async throws {
-        let pingConfig = PingConfig(pingInterval: .seconds(1), maxPingFailures: 1)
-        let wsTask = MockURLSessionWebSocketTask()
-        let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
-        let wsInterceptor = MockWebSocketTaskInterceptor()
-        let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
-        let sut = WebSocket(request: webSocketRequest, pingConfig: pingConfig, session: MockSession(urlSession: urlSession, delegate: session))
+        let sut = getSut()
 
         var receivedState = [WebSocketConnectionState]()
         let expectedStates: [WebSocketConnectionState] = [
@@ -219,9 +224,7 @@ final class WebSocketStateEventsTests {
             }
         }
 
-        let connectionTask = Task {
-            try await sut.connect()
-        }
+        let connectionTask = try createConnectTaskExpectingThrow(sut)
 
         try await Task.sleep(nanoseconds: 1000)
         wsInterceptor.simulateOpenWithProtocol("test")
@@ -236,12 +239,7 @@ final class WebSocketStateEventsTests {
 
     @Test("test stateEvents stream persists connecting then disconnect then reconnecting")
     func stateEventsStreamPersistsAfterConnectingDisconnectingAndReconnecting() async throws {
-        let pingConfig = PingConfig(pingInterval: .seconds(1), maxPingFailures: 1)
-        let wsTask = MockURLSessionWebSocketTask()
-        let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
-        let wsInterceptor = MockWebSocketTaskInterceptor()
-        let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
-        let sut = WebSocket(request: webSocketRequest, pingConfig: pingConfig, session: MockSession(urlSession: urlSession, delegate: session))
+        let sut = getSut()
 
         var receivedState = [WebSocketConnectionState]()
         let expectedStates: [WebSocketConnectionState] = [
@@ -258,18 +256,14 @@ final class WebSocketStateEventsTests {
             }
         }
 
-        let connectionTask = Task {
-            try await sut.connect()
-        }
+        let connectionTask = try createConnectTaskExpectingThrow(sut)
         try await Task.sleep(nanoseconds: 1000)
         wsInterceptor.simulateOpenWithProtocol("initial connect")
         _ = try await connectionTask.value
 
         try await sut.disconnect()
 
-        let reconnectionTask = Task {
-            try await sut.connect()
-        }
+        let reconnectionTask = try createConnectTaskExpectingThrow(sut)
         try await Task.sleep(nanoseconds: 1000)
         wsInterceptor.simulateOpenWithProtocol("reconnect")
         _ = try await reconnectionTask.value
@@ -280,12 +274,7 @@ final class WebSocketStateEventsTests {
 
     @Test("test stateEvents stream ends on WebSocket.terminate()")
     func stateEventsEndsOnWebSocketTerminate() async throws {
-        let pingConfig = PingConfig(pingInterval: .seconds(1), maxPingFailures: 1)
-        let wsTask = MockURLSessionWebSocketTask()
-        let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
-        let wsInterceptor = MockWebSocketTaskInterceptor()
-        let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
-        let sut = WebSocket(request: webSocketRequest, pingConfig: pingConfig, session: MockSession(urlSession: urlSession, delegate: session))
+        let sut = getSut()
 
         var receivedStates = [WebSocketConnectionState]()
         let expectedStates: [WebSocketConnectionState] = [
@@ -301,9 +290,7 @@ final class WebSocketStateEventsTests {
             stateEventStreamEnded = true
         }
 
-        let connectionTask = Task {
-            try await sut.connect()
-        }
+        let connectionTask = try createConnectTaskExpectingThrow(sut)
         try await Task.sleep(nanoseconds: 100)
         wsInterceptor.simulateOpenWithProtocol("test")
         _ = try await connectionTask.value
@@ -314,6 +301,19 @@ final class WebSocketStateEventsTests {
 
         #expect(receivedStates == expectedStates)
         #expect(stateEventStreamEnded == true)
+    }
+}
+
+// MARK: Helpers
+extension WebSocketStateEventsTests {
+    func createConnectTaskExpectingThrow(_ sut: WebSocket) throws -> Task<Void, Error> {
+        Task {
+            do {
+                try await sut.connect()
+            } catch {
+                throw error
+            }
+        }
     }
 }
 
