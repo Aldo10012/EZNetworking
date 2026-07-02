@@ -50,22 +50,8 @@ final class WebSocketSendTests {
     func sendingMessageSuccessfullyIfSentAfterConnect() async throws {
         let sut = getSut()
 
-        var didSend = false
-
-        let task = Task {
-            do {
-                try await sut.connect()
-                try await sut.send(.string("test send"))
-                didSend = true
-            } catch {
-                Issue.record("Unexpected error: \(error)")
-            }
-        }
-
-        try await Task.sleep(nanoseconds: 100)
-        wsInterceptor.simulateOpenWithProtocol(nil)
-        await task.value
-        #expect(didSend)
+        try await performConnect(sut, simulating: .didOpenWithProtocol(nil))
+        try await sut.send(.string("test send"))
     }
 
     @Test("test string message fails if send without connecting first")
@@ -96,23 +82,63 @@ final class WebSocketSendTests {
         setupSession(withTask: MockURLSessionWebSocketTask(sendThrowsError: true))
         let sut = getSut()
 
+        try await performConnect(sut, simulating: .didOpenWithProtocol(nil))
+
         var capturedError: NetworkingError?
-        let task = Task {
-            do {
-                try await sut.connect()
-                try await sut.send(.string("test send"))
-                Issue.record("Expected .send() to fail")
-            } catch let error as NetworkingError {
-                capturedError = error
-            } catch {
-                Issue.record("Expected WebSocketError")
-            }
+        do {
+            try await sut.send(.string("test send"))
+            Issue.record("Expected .send() to fail")
+        } catch let error as NetworkingError {
+            capturedError = error
+        } catch {
+            Issue.record("Expected WebSocketError")
+        }
+        #expect(capturedError == .webSocketFailed(reason: .sendFailed(underlying: MockURLSessionWebSocketTaskError.failedToSendMessage)))
+    }
+}
+
+// MARK: Helpers
+
+/// The interceptor event to fire in order to unblock `WebSocket.connect()`, which
+/// suspends inside `waitForConnection()` until the interceptor reports an outcome.
+fileprivate enum ConnectSimulation {
+    case didOpenWithProtocol(String?)
+    case didCompleteWithError(any Error)
+    case didCloseWithCloseCode(URLSessionWebSocketTask.CloseCode, reason: Data?)
+}
+
+extension WebSocketSendTests {
+    /// Starts `sut.connect()`, waits for it to reach the suspension point inside
+    /// `waitForConnection()`, fires the given interceptor event to unblock it, then
+    /// awaits the result. Throws whatever `connect()` throws.
+    fileprivate func performConnect(
+        _ sut: WebSocket,
+        simulating simulation: ConnectSimulation,
+        sleepNanoseconds: UInt64 = 100
+    ) async throws {
+        let task = try createConnectTaskExpectingThrow(sut)
+
+        try await Task.sleep(nanoseconds: sleepNanoseconds)
+        switch simulation {
+        case .didOpenWithProtocol(let proto):
+            wsInterceptor.simulateOpenWithProtocol(proto)
+        case .didCompleteWithError(let error):
+            wsInterceptor.simulateDidCompleteWithError(error: error)
+        case .didCloseWithCloseCode(let code, let reason):
+            wsInterceptor.simulateDidCloseWithCloseCode(didCloseWith: code, reason: reason)
         }
 
-        try await Task.sleep(nanoseconds: 100)
-        wsInterceptor.simulateOpenWithProtocol(nil)
-        await task.value
-        #expect(capturedError == .webSocketFailed(reason: .sendFailed(underlying: MockURLSessionWebSocketTaskError.failedToSendMessage)))
+        try await task.value
+    }
+
+    func createConnectTaskExpectingThrow(_ sut: WebSocket) throws -> Task<Void, Error> {
+        Task {
+            do {
+                try await sut.connect()
+            } catch {
+                throw error
+            }
+        }
     }
 }
 
