@@ -16,8 +16,8 @@ final class WebSocketConnectTests {
     // MARK: - setup
 
     init() {
-        self.setup(pingConfig: PingConfig(pingInterval: .nanoseconds(1), maxPingFailures: 0))
-        self.setupSession(withTask: MockURLSessionWebSocketTask())
+        setup(pingConfig: PingConfig(pingInterval: .nanoseconds(1), maxPingFailures: 0))
+        setupSession(withTask: MockURLSessionWebSocketTask())
     }
 
     func setup(pingConfig: PingConfig) {
@@ -26,14 +26,14 @@ final class WebSocketConnectTests {
 
     func setupSession(withTask wsTask: MockURLSessionWebSocketTask) {
         self.wsTask = wsTask
-        self.urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
-        self.wsInterceptor = MockWebSocketTaskInterceptor()
-        self.delegate = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
-        self.session = MockSession(urlSession: urlSession, delegate: delegate)
+        urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
+        wsInterceptor = MockWebSocketTaskInterceptor()
+        delegate = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
+        session = MockSession(urlSession: urlSession, delegate: delegate)
     }
 
     func getSut() -> WebSocket {
-        return WebSocket(request: webSocketRequest, pingConfig: pingConfig, session: session)
+        WebSocket(request: webSocketRequest, pingConfig: pingConfig, session: session)
     }
 
     // MARK: - teardown
@@ -145,7 +145,7 @@ final class WebSocketConnectTests {
 
 /// The interceptor event to fire in order to unblock `WebSocket.connect()`, which
 /// suspends inside `waitForConnection()` until the interceptor reports an outcome.
-fileprivate enum ConnectSimulation {
+private enum ConnectSimulation {
     case didOpenWithProtocol(String?)
     case didCompleteWithError(any Error)
     case didCloseWithCloseCode(URLSessionWebSocketTask.CloseCode, reason: Data?)
@@ -155,7 +155,7 @@ extension WebSocketConnectTests {
     /// Starts `sut.connect()`, waits for it to reach the suspension point inside
     /// `waitForConnection()`, fires the given interceptor event to unblock it, then
     /// awaits the result. Throws whatever `connect()` throws.
-    fileprivate func performConnect(
+    private func performConnect(
         _ sut: WebSocket,
         simulating simulation: ConnectSimulation,
         sleepNanoseconds: UInt64 = 100
@@ -164,11 +164,11 @@ extension WebSocketConnectTests {
 
         try await Task.sleep(nanoseconds: sleepNanoseconds)
         switch simulation {
-        case .didOpenWithProtocol(let proto):
+        case let .didOpenWithProtocol(proto):
             wsInterceptor.simulateOpenWithProtocol(proto)
-        case .didCompleteWithError(let error):
+        case let .didCompleteWithError(error):
             wsInterceptor.simulateDidCompleteWithError(error: error)
-        case .didCloseWithCloseCode(let code, let reason):
+        case let .didCloseWithCloseCode(code, reason):
             wsInterceptor.simulateDidCloseWithCloseCode(didCloseWith: code, reason: reason)
         }
 
