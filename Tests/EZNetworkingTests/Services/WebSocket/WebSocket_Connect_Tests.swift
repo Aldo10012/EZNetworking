@@ -6,16 +6,55 @@ import Testing
 
 @Suite("Test WebSocket.connect()")
 final class WebSocketConnectTests {
+    var pingConfig: PingConfig!
+    var wsTask: MockURLSessionWebSocketTask!
+    var urlSession: MockWebSockerURLSession!
+    var wsInterceptor: MockWebSocketTaskInterceptor!
+    var delegate: SessionDelegate!
+    var session: MockSession!
+    var sut: WebSocket!
+
+    // MARK: - setup
+
+    init() {
+        self.setup(pingConfig: PingConfig(pingInterval: .nanoseconds(1), maxPingFailures: 0))
+        self.setupSession(withTask: MockURLSessionWebSocketTask())
+    }
+
+    func setup(pingConfig: PingConfig) {
+        self.pingConfig = pingConfig
+    }
+
+    func setupSession(withTask wsTask: MockURLSessionWebSocketTask) {
+        self.wsTask = wsTask
+        self.urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
+        self.wsInterceptor = MockWebSocketTaskInterceptor()
+        self.delegate = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
+        self.session = MockSession(urlSession: urlSession, delegate: delegate)
+    }
+
+    func getSut() -> WebSocket {
+        return WebSocket(request: webSocketRequest, pingConfig: pingConfig, session: session)
+    }
+
+    // MARK: - teardown
+
+    deinit {
+        self.wsTask = nil
+        self.urlSession = nil
+        self.wsInterceptor = nil
+        self.delegate = nil
+        self.session = nil
+        self.sut = nil
+    }
+
+    // MARK: .connect()
+
     @Test("test calling .connect succeeds")
     func callingConnectDoesNotThrow() async throws {
-        let wsTask = MockURLSessionWebSocketTask()
-        let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
-        let wsInterceptor = MockWebSocketTaskInterceptor()
-        let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
-        let sut = WebSocket(request: webSocketRequest, session: MockSession(urlSession: urlSession, delegate: session))
+        let sut = getSut()
 
         var didConnect = false
-
         let task = Task {
             do {
                 try await sut.connect()
@@ -34,14 +73,9 @@ final class WebSocketConnectTests {
 
     @Test("test calling .connect throws error if WebSocketTaskInterceptor didCompleteWithError")
     func callingConnectThrowsErrorIfInterceptorDidCompleteWithError() async throws {
-        let wsTask = MockURLSessionWebSocketTask()
-        let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
-        let wsInterceptor = MockWebSocketTaskInterceptor()
-        let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
-        let sut = WebSocket(request: webSocketRequest, session: MockSession(urlSession: urlSession, delegate: session))
+        let sut = getSut()
 
         var errorThrown: NetworkingError?
-
         let task = Task {
             do {
                 try await sut.connect()
@@ -62,14 +96,9 @@ final class WebSocketConnectTests {
 
     @Test("test calling .connect throws error if WebSocketTaskInterceptor didClsoeWithCode")
     func callingConnectThrowsErrorIfInterceptorDidCloseWithCode() async throws {
-        let wsTask = MockURLSessionWebSocketTask()
-        let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
-        let wsInterceptor = MockWebSocketTaskInterceptor()
-        let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
-        let sut = WebSocket(request: webSocketRequest, session: MockSession(urlSession: urlSession, delegate: session))
+        let sut = getSut()
 
         var errorThrown: NetworkingError?
-
         let task = Task {
             do {
                 try await sut.connect()
@@ -90,11 +119,7 @@ final class WebSocketConnectTests {
 
     @Test("test calling .connect does call .webSocketTaskInspectable()")
     func callingConnectDoesCallWebSocketTaskInspectable() async throws {
-        let wsTask = MockURLSessionWebSocketTask()
-        let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
-        let wsInterceptor = MockWebSocketTaskInterceptor()
-        let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
-        let sut = WebSocket(request: webSocketRequest, session: MockSession(urlSession: urlSession, delegate: session))
+        let sut = getSut()
 
         let task = Task {
             do {
@@ -113,11 +138,7 @@ final class WebSocketConnectTests {
 
     @Test("test calling .connect does call URLSessionWebSocketTask.resume()")
     func callingConnectDoesCallURLSessionWebSocketTaskResume() async throws {
-        let wsTask = MockURLSessionWebSocketTask()
-        let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
-        let wsInterceptor = MockWebSocketTaskInterceptor()
-        let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
-        let sut = WebSocket(request: webSocketRequest, session: MockSession(urlSession: urlSession, delegate: session))
+        let sut = getSut()
 
         let task = Task {
             do {
@@ -133,20 +154,10 @@ final class WebSocketConnectTests {
 
         #expect(wsTask.didCallResume)
     }
-}
 
-// MARK: .connect() + ping pong
-
-@Suite("Test WebSocket.connect() with ping pont")
-final class WebSocketConnectPingPongTests {
     @Test("test calling .connect does call URLSessionWebSocketTask.sendPing()")
     func callingConnectDoesCallURLSessionWebSocketTaskSendPing() async throws {
-        let pingConfig = PingConfig(pingInterval: .nanoseconds(1), maxPingFailures: 0)
-        let wsTask = MockURLSessionWebSocketTask()
-        let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
-        let wsInterceptor = MockWebSocketTaskInterceptor()
-        let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
-        let sut = WebSocket(request: webSocketRequest, pingConfig: pingConfig, session: MockSession(urlSession: urlSession, delegate: session))
+        let sut = getSut()
 
         let task = Task {
             do {
@@ -165,14 +176,13 @@ final class WebSocketConnectPingPongTests {
         #expect(wsTask.didCallSendPing)
     }
 
+    // MARK: .connect() + ping pong
+
     @Test("test calling .connect fails if ping does not receive pong after 3 failed attempts")
     func callingConnectFailsIfPingDoesNotReceivePongAfter3FailedAttempts() async throws {
-        let pingConfig = PingConfig(pingInterval: .nanoseconds(1), maxPingFailures: 3)
-        let wsTask = MockURLSessionWebSocketTask(pingThrowsError: true)
-        let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
-        let wsInterceptor = MockWebSocketTaskInterceptor()
-        let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
-        let sut = WebSocket(request: webSocketRequest, pingConfig: pingConfig, session: MockSession(urlSession: urlSession, delegate: session))
+        setup(pingConfig: PingConfig(pingInterval: .nanoseconds(1), maxPingFailures: 3))
+        setupSession(withTask: MockURLSessionWebSocketTask(pingThrowsError: true))
+        let sut = getSut()
 
         let task = Task {
             do {
@@ -182,7 +192,8 @@ final class WebSocketConnectPingPongTests {
             }
         }
 
-        try await Task.sleep(nanoseconds: 100)
+        try await Task.sleep(nanoseconds: 1_000_000_000)
+
         wsInterceptor.simulateOpenWithProtocol(nil)
         await task.value
 
@@ -193,12 +204,9 @@ final class WebSocketConnectPingPongTests {
 
     @Test("test captured error from calling .connect if ping does not receive pong")
     func capturedErrorFromCallingConnectIfPingDoesNotReceivePong() async throws {
-        let pingConfig = PingConfig(pingInterval: .nanoseconds(1), maxPingFailures: 1)
-        let wsTask = MockURLSessionWebSocketTask(pingThrowsError: true)
-        let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
-        let wsInterceptor = MockWebSocketTaskInterceptor()
-        let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
-        let sut = WebSocket(request: webSocketRequest, pingConfig: pingConfig, session: MockSession(urlSession: urlSession, delegate: session))
+        setup(pingConfig: PingConfig(pingInterval: .nanoseconds(1), maxPingFailures: 1))
+        setupSession(withTask: MockURLSessionWebSocketTask(pingThrowsError: true))
+        let sut = getSut()
 
         let task = Task {
             do {
