@@ -7,6 +7,7 @@ class MockRequestPerformerURLSession: URLSessionProtocol {
     var error: Error?
     var completion: ((Data?, URLResponse?, Error?) -> Void)?
     var sessionDelegate: SessionDelegate?
+    var numberOfRequestsMade = 0
 
     init(data: Data? = nil, urlResponse: URLResponse? = nil, error: Error? = nil) {
         self.data = data
@@ -15,6 +16,7 @@ class MockRequestPerformerURLSession: URLSessionProtocol {
     }
 
     func data(for request: URLRequest) async throws -> (Data, URLResponse) {
+        numberOfRequestsMade += 1
         if let error {
             throw error
         }

@@ -3,15 +3,18 @@ import Foundation
 public struct RequestPerformer: RequestPerformable {
     private let session: NetworkSession
     private let validator: ResponseValidator
+    private let retryPolicy: RetryPolicy
     private let decoder: JSONDecoder
 
     public init(
         session: NetworkSession = Session(),
         validator: ResponseValidator = DefaultResponseValidator(),
+        retryPolicy: RetryPolicy = .none,
         decoder: JSONDecoder = JSONDecoder()
     ) {
         self.session = session
         self.validator = validator
+        self.retryPolicy = retryPolicy
         self.decoder = decoder
     }
 
@@ -20,6 +23,19 @@ public struct RequestPerformer: RequestPerformable {
         decodeTo decodableObject: T.Type
     ) async throws -> T {
         try Task.checkCancellation()
+        if retryPolicy.enabled {
+            return try await performWithRetry(request: request, decodeTo: decodableObject)
+        } else {
+            return try await performSingle(request: request, decodeTo: decodableObject)
+        }
+    }
+
+    // MARK: - Helpers
+
+    private func performSingle<T: Decodable & Sendable>(
+        request: Request,
+        decodeTo decodableObject: T.Type
+    ) async throws -> T {
         do {
             let urlRequest = try request.getURLRequest()
             let (data, urlResponse) = try await session.urlSession.data(for: urlRequest)
@@ -33,7 +49,25 @@ public struct RequestPerformer: RequestPerformable {
         }
     }
 
-    // MARK: - Helpers
+    private func performWithRetry<T: Decodable & Sendable>(
+        request: Request,
+        decodeTo decodableObject: T.Type
+    ) async throws -> T {
+        var attemptCount: UInt = 0
+        while true {
+            do {
+                return try await performSingle(request: request, decodeTo: decodableObject)
+            } catch let cancellationError as CancellationError {
+                throw cancellationError
+            } catch {
+                attemptCount += 1
+                if retryPolicy.hasReachedMaxAttempts(attemptCount) {
+                    throw error
+                }
+                try await retryPolicy.sleep(forAttempt: attemptCount)
+            }
+        }
+    }
 
     private func decode<T: Decodable & Sendable>(_ data: Data, decodeTo decodableObject: T.Type) throws -> T {
         do {
