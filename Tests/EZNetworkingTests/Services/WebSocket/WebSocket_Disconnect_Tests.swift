@@ -3,32 +3,16 @@ import Foundation
 import Testing
 
 @Suite("Test WebSocket.disconnect()")
-final class WebSocketDisconnectTests {
+final class WebSocketDisconnectTests: WebSocketTestCase {
+    // MARK: .disconnect()
+
     @Test("test calling .disconnect() does call WebSocketTask.cancel()")
     func callingDisconnectDoesCallWebSocketTaskCancel() async throws {
-        let pingConfig = PingConfig(pingInterval: .seconds(1), maxPingFailures: 1)
-        let wsTask = MockURLSessionWebSocketTask()
-        let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
-        let wsInterceptor = MockWebSocketTaskInterceptor()
-        let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
-        let sut = WebSocket(request: webSocketRequest, pingConfig: pingConfig, session: MockSession(urlSession: urlSession, delegate: session))
+        let sut = getSut()
 
-        var didDisconnect = false
-        let task = Task {
-            do {
-                try await sut.connect()
-                try await sut.disconnect()
-                didDisconnect = true
-            } catch {
-                Issue.record("Unexpected error: \(error)")
-            }
-        }
+        try await performConnect(sut, simulating: .didOpenWithProtocol(nil))
+        try await sut.disconnect()
 
-        try await Task.sleep(nanoseconds: 100)
-        wsInterceptor.simulateOpenWithProtocol(nil)
-        await task.value
-
-        #expect(didDisconnect)
         #expect(wsTask.didCallCancel == true)
         #expect(wsTask.didCancelWithCloseCode == .normalClosure)
         #expect(wsTask.didCancelWithReason == nil)
@@ -36,12 +20,7 @@ final class WebSocketDisconnectTests {
 
     @Test("test calling .disconnect() throws if did not call .connect() first")
     func callingDisconnectFailsIfNotConnected() async throws {
-        let pingConfig = PingConfig(pingInterval: .seconds(1), maxPingFailures: 1)
-        let wsTask = MockURLSessionWebSocketTask()
-        let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
-        let wsInterceptor = MockWebSocketTaskInterceptor()
-        let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
-        let sut = WebSocket(request: webSocketRequest, pingConfig: pingConfig, session: MockSession(urlSession: urlSession, delegate: session))
+        let sut = getSut()
 
         var disconnectDidThrow = false
         do {
@@ -52,8 +31,4 @@ final class WebSocketDisconnectTests {
         }
         #expect(disconnectDidThrow)
     }
-}
-
-private enum DummyError: Error {
-    case error
 }

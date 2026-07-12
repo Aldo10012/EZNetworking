@@ -3,42 +3,20 @@ import Foundation
 import Testing
 
 @Suite("Test WebSocket.send()")
-final class WebSocketSendTests {
+final class WebSocketSendTests: WebSocketTestCase {
+    // MARK: .send()
+
     @Test("test string message successfully send after connection is made")
     func sendingMessageSuccessfullyIfSentAfterConnect() async throws {
-        let pingConfig = PingConfig(pingInterval: .seconds(1), maxPingFailures: 1)
-        let wsTask = MockURLSessionWebSocketTask()
-        let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
-        let wsInterceptor = MockWebSocketTaskInterceptor()
-        let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
-        let sut = WebSocket(request: webSocketRequest, pingConfig: pingConfig, session: MockSession(urlSession: urlSession, delegate: session))
+        let sut = getSut()
 
-        var didSend = false
-
-        let task = Task {
-            do {
-                try await sut.connect()
-                try await sut.send(.string("test send"))
-                didSend = true
-            } catch {
-                Issue.record("Unexpected error: \(error)")
-            }
-        }
-
-        try await Task.sleep(nanoseconds: 100)
-        wsInterceptor.simulateOpenWithProtocol(nil)
-        await task.value
-        #expect(didSend)
+        try await performConnect(sut, simulating: .didOpenWithProtocol(nil))
+        try await sut.send(.string("test send"))
     }
 
     @Test("test string message fails if send without connecting first")
     func sendingMessageFailsIfSentWithoutConnectingFirst() async throws {
-        let pingConfig = PingConfig(pingInterval: .seconds(1), maxPingFailures: 1)
-        let wsTask = MockURLSessionWebSocketTask()
-        let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
-        let wsInterceptor = MockWebSocketTaskInterceptor()
-        let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
-        let sut = WebSocket(request: webSocketRequest, pingConfig: pingConfig, session: MockSession(urlSession: urlSession, delegate: session))
+        let sut = getSut()
 
         var capturedError: NetworkingError?
         let task = Task {
@@ -61,33 +39,20 @@ final class WebSocketSendTests {
 
     @Test("test string message fails if send() throws error")
     func sendingMessageFailsIfSendThrowsError() async throws {
-        let pingConfig = PingConfig(pingInterval: .seconds(1), maxPingFailures: 1)
-        let wsTask = MockURLSessionWebSocketTask(sendThrowsError: true)
-        let urlSession = MockWebSockerURLSession(webSocketTask: wsTask)
-        let wsInterceptor = MockWebSocketTaskInterceptor()
-        let session = SessionDelegate(webSocketTaskInterceptor: wsInterceptor)
-        let sut = WebSocket(request: webSocketRequest, pingConfig: pingConfig, session: MockSession(urlSession: urlSession, delegate: session))
+        setupSession(withTask: MockURLSessionWebSocketTask(sendThrowsError: true))
+        let sut = getSut()
+
+        try await performConnect(sut, simulating: .didOpenWithProtocol(nil))
 
         var capturedError: NetworkingError?
-        let task = Task {
-            do {
-                try await sut.connect()
-                try await sut.send(.string("test send"))
-                Issue.record("Expected .send() to fail")
-            } catch let error as NetworkingError {
-                capturedError = error
-            } catch {
-                Issue.record("Expected WebSocketError")
-            }
+        do {
+            try await sut.send(.string("test send"))
+            Issue.record("Expected .send() to fail")
+        } catch let error as NetworkingError {
+            capturedError = error
+        } catch {
+            Issue.record("Expected WebSocketError")
         }
-
-        try await Task.sleep(nanoseconds: 100)
-        wsInterceptor.simulateOpenWithProtocol(nil)
-        await task.value
         #expect(capturedError == .webSocketFailed(reason: .sendFailed(underlying: MockURLSessionWebSocketTaskError.failedToSendMessage)))
     }
-}
-
-private enum DummyError: Error {
-    case error
 }
