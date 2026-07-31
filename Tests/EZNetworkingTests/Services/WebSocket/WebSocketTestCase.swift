@@ -5,11 +5,16 @@ import Testing
 /// Shared setup/teardown and helpers for the `WebSocket.*` test suites.
 ///
 /// Each suite subclasses this instead of redefining its own mocks, `getSut()`,
-/// and `performConnect(...)` helper. Suites that need a non-default `PingConfig`
-/// or `MockURLSessionWebSocketTask` (e.g. `WebSocketConnectTests`) override `init()`
-/// and call `super.init(pingConfig:wsTask:)`; the rest inherit the default `init()`.
+/// and `performConnect(...)` helper. Suites that need a non-default `pingInterval`/
+/// `maxPingFailures` or `MockURLSessionWebSocketTask` (e.g. `WebSocketConnectTests`)
+/// override `init()` and call `super.init(pingInterval:maxPingFailures:wsTask:)`;
+/// the rest inherit the default `init()`.
+///
+/// `pingConfig` is always built with `pingClock`, a `MockClock`, so the ping loop's
+/// delays resolve instantly and tests can assert on the recorded `pingClock.sleptDurations`.
 class WebSocketTestCase {
     var pingConfig: PingConfig!
+    let pingClock = MockClock()
     var wsTask: MockURLSessionWebSocketTask!
     var urlSession: MockWebSockerURLSession!
     var wsInterceptor: MockWebSocketTaskInterceptor!
@@ -19,15 +24,16 @@ class WebSocketTestCase {
     // MARK: - setup
 
     init(
-        pingConfig: PingConfig = PingConfig(pingInterval: .seconds(1), maxPingFailures: 1),
+        pingInterval: Duration = .seconds(1),
+        maxPingFailures: UInt = 1,
         wsTask: MockURLSessionWebSocketTask = MockURLSessionWebSocketTask()
     ) {
-        setup(pingConfig: pingConfig)
+        setup(pingInterval: pingInterval, maxPingFailures: maxPingFailures)
         setupSession(withTask: wsTask)
     }
 
-    func setup(pingConfig: PingConfig) {
-        self.pingConfig = pingConfig
+    func setup(pingInterval: Duration, maxPingFailures: UInt) {
+        pingConfig = PingConfig(pingInterval: pingInterval, maxPingFailures: maxPingFailures, clock: pingClock)
     }
 
     func setupSession(withTask wsTask: MockURLSessionWebSocketTask) {

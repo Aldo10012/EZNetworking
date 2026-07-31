@@ -7,7 +7,7 @@ import Testing
 @Suite("Test WebSocket.connect()")
 final class WebSocketConnectTests: WebSocketTestCase {
     init() {
-        super.init(pingConfig: PingConfig(pingInterval: .nanoseconds(1), maxPingFailures: 0))
+        super.init(pingInterval: .seconds(30), maxPingFailures: 0)
     }
 
     // MARK: .connect()
@@ -82,7 +82,7 @@ final class WebSocketConnectTests: WebSocketTestCase {
 
     @Test("test calling .connect fails if ping does not receive pong after 3 failed attempts")
     func callingConnectFailsIfPingDoesNotReceivePongAfter3FailedAttempts() async throws {
-        setup(pingConfig: PingConfig(pingInterval: .nanoseconds(1), maxPingFailures: 3))
+        setup(pingInterval: .seconds(30), maxPingFailures: 3)
         setupSession(withTask: MockURLSessionWebSocketTask(pingThrowsError: true))
         let sut = getSut()
 
@@ -90,11 +90,12 @@ final class WebSocketConnectTests: WebSocketTestCase {
         try await Task.sleep(nanoseconds: 1_000_000_000)
 
         #expect(wsTask.pingFailureCount == 3)
+        #expect(pingClock.sleptDurations == [.seconds(30), .seconds(30), .seconds(30)])
     }
 
     @Test("test captured error from calling .connect if ping does not receive pong")
     func capturedErrorFromCallingConnectIfPingDoesNotReceivePong() async throws {
-        setup(pingConfig: PingConfig(pingInterval: .nanoseconds(1), maxPingFailures: 1))
+        setup(pingInterval: .seconds(30), maxPingFailures: 1)
         setupSession(withTask: MockURLSessionWebSocketTask(pingThrowsError: true))
         let sut = getSut()
 
@@ -102,5 +103,6 @@ final class WebSocketConnectTests: WebSocketTestCase {
         try await Task.sleep(nanoseconds: 1_000_000_000)
 
         #expect(wsTask.pingError as? MockURLSessionWebSocketTaskError == MockURLSessionWebSocketTaskError.pingError)
+        #expect(pingClock.sleptDurations == [.seconds(30)])
     }
 }

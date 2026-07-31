@@ -27,5 +27,10 @@ final class MockClock: Clock, @unchecked Sendable {
     func sleep(until deadline: Instant, tolerance: Duration? = nil) async throws {
         try Task.checkCancellation()
         sleptDurations.append(now.duration(to: deadline))
+        // `Task.checkCancellation()` and the array append above never suspend, so without an
+        // explicit yield this "sleep" never hands control back to the scheduler. Ping-style loops
+        // that call this in a tight cycle would then monopolize their actor's executor forever,
+        // starving cancellation and any other work on that actor.
+        await Task.yield()
     }
 }
