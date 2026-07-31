@@ -3,7 +3,7 @@ import Foundation
 /// Configuration for automatic reconnection behavior, including strategy and retry limits for SSE connections.
 public struct RetryPolicy: Sendable {
     /// Determines if the client should automatically attempt to reconnect after unexpected stream errors.
-    public let enabled: Bool
+    internal let enabled: Bool
     /// The maximum number of retry attempts; set to nil for unlimited attempts.
     public let maxAttempts: UInt?
     /// The starting delay in seconds for the first reconnection attempt.
@@ -12,20 +12,41 @@ public struct RetryPolicy: Sendable {
     public let maxDelay: TimeInterval
     /// The multiplier used to calculate exponential backoff for subsequent retries.
     public let backoffMultiplier: Double
+    /// The clock used to schedule reconnection delays; injectable for deterministic testing.
+    private let clock: any Clock<Duration>
 
     /// Initializes a new configuration with specific reconnection and backoff parameters.
     public init(
-        enabled: Bool = true,
         maxAttempts: UInt? = nil,
         initialDelay: TimeInterval = 1.0,
         maxDelay: TimeInterval = 60.0,
         backoffMultiplier: Double = 2.0
+    ) {
+        self.init(
+            enabled: true,
+            maxAttempts: maxAttempts,
+            initialDelay: initialDelay,
+            maxDelay: maxDelay,
+            backoffMultiplier: backoffMultiplier,
+            clock: ContinuousClock()
+        )
+    }
+
+    /// Initializes a new configuration with specific reconnection and backoff parameters.
+    internal init(
+        enabled: Bool = true,
+        maxAttempts: UInt? = nil,
+        initialDelay: TimeInterval = 1.0,
+        maxDelay: TimeInterval = 60.0,
+        backoffMultiplier: Double = 2.0,
+        clock: any Clock<Duration> = ContinuousClock()
     ) {
         self.enabled = enabled
         self.maxAttempts = maxAttempts
         self.initialDelay = initialDelay
         self.maxDelay = maxDelay
         self.backoffMultiplier = backoffMultiplier
+        self.clock = clock
     }
 }
 
@@ -36,10 +57,15 @@ extension RetryPolicy {
     /// between retry attempts without managing the delay arithmetic themselves.
     /// Throws `CancellationError` if the task is cancelled; callers can use `try?` for silent handling.
     ///
-    /// - Parameter attemptCount: The current attempt number (1-indexed) used to derive the delay.
+    /// The `clock` parameter defaults to `ContinuousClock` in production, but can be swapped
+    /// for a test double so unit tests don't need to wait on real wall-clock time.
+    ///
+    /// - Parameters:
+    ///   - attemptCount: The current attempt number (1-indexed) used to derive the delay.
+    ///   - clock: The clock used to perform the suspension. Defaults to `ContinuousClock()`.
     func sleep(forAttempt attemptCount: UInt) async throws {
         let delay = calculateDelay(for: attemptCount)
-        try await Task.sleep(for: .seconds(delay))
+        try await clock.sleep(for: .seconds(delay))
     }
 
     /// Calculates the reconnection delay for a given attempt number.

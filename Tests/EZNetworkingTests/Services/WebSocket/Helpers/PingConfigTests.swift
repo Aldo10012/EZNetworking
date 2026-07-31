@@ -17,10 +17,11 @@ final class PingConfigTests {
         #expect(sut.maxPingFailures == 1)
     }
 
-    @Test("test .waitForPingInterval()")
+    @Test("test .waitForPingInterval() sleeps for the configured pingInterval")
     func testWaitForPingInterval() async {
-        let sut = PingConfig(pingInterval: .nanoseconds(1))
+        let clock = MockClock()
+        let sut = PingConfig(pingInterval: .seconds(3), clock: clock)
         await sut.waitForPingInterval()
-        #expect(true, "waitForPingInterval did return")
+        #expect(clock.sleptDurations == [.seconds(3)])
     }
 }

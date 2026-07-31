@@ -114,7 +114,7 @@ final class WebSocketStateEventsTests: WebSocketTestCase {
 
     @Test("test stateEvents when connecting and ping-pong fails")
     func stateEventsWhenConnectingThenPingPongError() async throws {
-        setup(pingConfig: PingConfig(pingInterval: .nanoseconds(1), maxPingFailures: 3))
+        setup(pingInterval: .seconds(30), maxPingFailures: 3)
         setupSession(withTask: MockURLSessionWebSocketTask(pingThrowsError: true))
         let sut = getSut()
 
@@ -139,6 +139,7 @@ final class WebSocketStateEventsTests: WebSocketTestCase {
 
         _ = await stateTask.value
         #expect(receivedState == expectedStates)
+        #expect(pingClock.sleptDurations == [.seconds(30), .seconds(30), .seconds(30)])
     }
 
     @Test("test stateEvents when connecting and receive message fails")
