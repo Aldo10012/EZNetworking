@@ -18,39 +18,47 @@ struct ServerSentEventManagerWithRetryPolicyTests {
 
     @Test("test .connect() attempts connect only once if retryPolicy.enabled is false")
     func connectsOnlyOnceIfretryPolicyEnabledIsFalse() async throws {
-        let retryPolicy = RetryPolicy(enabled: false)
+        let clock = MockClock()
+        let retryPolicy = RetryPolicy(enabled: false, clock: clock)
         let underlyingError = URLError(.notConnectedToInternet)
         let mockSession = createMockURLSession(error: underlyingError)
         let manager = createSSEManager(request: sseRequest, urlSession: mockSession, retryPolicy: retryPolicy)
 
         try? await manager.connect()
         #expect(mockSession.numberOfRequestsMade == 1)
+        #expect(clock.sleptDurations.isEmpty)
     }
 
     @Test("test .connect() attempts connect 3 times if retryPolicy.maxAttempts is 3")
     func connectsThreeTimesIfretryPolicyMaxAttemptsIs3() async throws {
-        let retryPolicy = RetryPolicy(enabled: true, maxAttempts: 3)
+        let clock = MockClock()
+        let retryPolicy = RetryPolicy(enabled: true, maxAttempts: 3, clock: clock)
         let underlyingError = URLError(.notConnectedToInternet)
         let mockSession = createMockURLSession(error: underlyingError)
         let manager = createSSEManager(request: sseRequest, urlSession: mockSession, retryPolicy: retryPolicy)
 
         try? await manager.connect()
         #expect(mockSession.numberOfRequestsMade == 3)
+        // Exponential backoff before attempts 2 and 3: 1.0 * 2^0 = 1.0s, then 1.0 * 2^1 = 2.0s
+        #expect(clock.sleptDurations == [.seconds(1.0), .seconds(2.0)])
     }
 
     @Test("test .connect() with no error attempts connect 1 time even with retryPolicy set")
     func connectsOnlyOnceIfNoErrorEvenWithretryPolicySetUp() async throws {
-        let retryPolicy = RetryPolicy(enabled: true, maxAttempts: 3)
+        let clock = MockClock()
+        let retryPolicy = RetryPolicy(enabled: true, maxAttempts: 3, clock: clock)
         let mockSession = createMockURLSession()
         let manager = createSSEManager(request: sseRequest, urlSession: mockSession, retryPolicy: retryPolicy)
 
         try? await manager.connect()
         #expect(mockSession.numberOfRequestsMade == 1)
+        #expect(clock.sleptDurations.isEmpty)
     }
 
     @Test("test manual disconnect prevents automatic reconnection")
     func manualDisconnectPreventsAutomaticReconnection() async throws {
-        let retryPolicy = RetryPolicy(enabled: true, maxAttempts: 5)
+        let clock = MockClock()
+        let retryPolicy = RetryPolicy(enabled: true, maxAttempts: 5, clock: clock)
         let mockSession = createMockURLSession()
         let manager = createSSEManager(
             request: sseRequest,
@@ -64,11 +72,13 @@ struct ServerSentEventManagerWithRetryPolicyTests {
         try? await Task.sleep(for: .seconds(0.5))
 
         #expect(mockSession.numberOfRequestsMade == 1)
+        #expect(clock.sleptDurations.isEmpty)
     }
 
     @Test("test terminate prevents automatic reconnection")
     func terminatePreventsAutomaticReconnection() async throws {
-        let retryPolicy = RetryPolicy(enabled: true, maxAttempts: 5)
+        let clock = MockClock()
+        let retryPolicy = RetryPolicy(enabled: true, maxAttempts: 5, clock: clock)
         let mockSession = createMockURLSession()
         let manager = createSSEManager(
             request: sseRequest,
@@ -82,13 +92,16 @@ struct ServerSentEventManagerWithRetryPolicyTests {
         try? await Task.sleep(for: .seconds(0.5))
 
         #expect(mockSession.numberOfRequestsMade == 1)
+        #expect(clock.sleptDurations.isEmpty)
     }
 
     @Test("test maxAttempts zero means no retries")
     func maxAttemptsZeroMeansNoRetries() async throws {
+        let clock = MockClock()
         let retryPolicy = RetryPolicy(
             enabled: true,
-            maxAttempts: 0
+            maxAttempts: 0,
+            clock: clock
         )
         let underlyingError = URLError(.notConnectedToInternet)
         let mockSession = createMockURLSession(error: underlyingError)
@@ -99,11 +112,13 @@ struct ServerSentEventManagerWithRetryPolicyTests {
         )
         try? await manager.connect()
         #expect(mockSession.numberOfRequestsMade == 0)
+        #expect(clock.sleptDurations.isEmpty)
     }
 
     @Test("test reconnect attempt when stream ends without error")
     func reconnectAttemptWhenStreamEndsWithoutError() async throws {
-        let retryPolicy = RetryPolicy(enabled: true, maxAttempts: 1)
+        let clock = MockClock()
+        let retryPolicy = RetryPolicy(enabled: true, maxAttempts: 1, clock: clock)
         let mockSession = createMockURLSession()
         let manager = createSSEManager(
             request: sseRequest,
@@ -140,11 +155,14 @@ struct ServerSentEventManagerWithRetryPolicyTests {
             SSEConnectionState.connected
         ])
         #expect(mockSession.capturedRequests.last?.value(forHTTPHeaderField: "Last-Event-ID") == "event-123")
+        // The reconnect succeeds on its first attempt, so retryPolicy's backoff delay never gets used.
+        #expect(clock.sleptDurations.isEmpty)
     }
 
     @Test("test ServerSentEventManager reconnects when stream ends with error")
     func reconnectAttemptWhenStreamEndsWithError() async throws {
-        let retryPolicy = RetryPolicy(enabled: true, maxAttempts: 1)
+        let clock = MockClock()
+        let retryPolicy = RetryPolicy(enabled: true, maxAttempts: 1, clock: clock)
         let mockSession = createMockURLSession()
         let manager = createSSEManager(
             request: sseRequest,
@@ -179,6 +197,8 @@ struct ServerSentEventManagerWithRetryPolicyTests {
             SSEConnectionState.connected
         ])
         #expect(mockSession.capturedRequests.last?.value(forHTTPHeaderField: "Last-Event-ID") == "event-123")
+        // The reconnect succeeds on its first attempt, so retryPolicy's backoff delay never gets used.
+        #expect(clock.sleptDurations.isEmpty)
     }
 }
 
