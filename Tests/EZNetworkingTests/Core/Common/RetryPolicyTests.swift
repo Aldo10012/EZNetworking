@@ -103,50 +103,40 @@ struct RetryPolicyTests {
 
     // MARK: - Sleep Tests
 
-    @Test("sleep completes immediately for attempt 0", .disabled())
+    @Test("sleep requests zero duration for attempt 0")
     func sleepForAttemptZeroReturnsImmediately() async throws {
-        let policy = RetryPolicy(initialDelay: 10.0)
-        let clock = ContinuousClock()
-        let elapsed = await clock.measure {
-            try? await policy.sleep(forAttempt: 0)
-        }
-        #expect(elapsed < .milliseconds(500))
+        let clock = MockClock()
+        let policy = RetryPolicy(initialDelay: 10.0, clock: clock)
+        try await policy.sleep(forAttempt: 0)
+        #expect(clock.sleptDurations == [.seconds(0)])
     }
 
-    @Test("sleep duration matches calculated backoff delay", .disabled())
+    @Test("sleep duration matches calculated backoff delay")
     func sleepDurationMatchesBackoff() async throws {
-        let policy = RetryPolicy(initialDelay: 0.3, maxDelay: 60.0, backoffMultiplier: 2.0)
-        let clock = ContinuousClock()
-        let elapsed = await clock.measure {
-            try? await policy.sleep(forAttempt: 1) // 0.3 * 2^0 = 0.3s
-        }
-        #expect(elapsed >= .milliseconds(250))
-        #expect(elapsed < .seconds(2))
+        let clock = MockClock()
+        let policy = RetryPolicy(initialDelay: 0.3, maxDelay: 60.0, backoffMultiplier: 2.0, clock: clock)
+        try await policy.sleep(forAttempt: 1) // 0.3 * 2^0 = 0.3s
+        #expect(clock.sleptDurations == [.seconds(0.3)])
     }
 
-    @Test("sleep respects maxDelay cap", .disabled())
+    @Test("sleep respects maxDelay cap")
     func sleepRespectsMaxDelayCap() async throws {
-        let policy = RetryPolicy(initialDelay: 0.3, maxDelay: 0.3, backoffMultiplier: 100.0)
-        let clock = ContinuousClock()
-        let elapsed = await clock.measure {
-            try? await policy.sleep(forAttempt: 5) // uncapped: enormous; capped at 0.3s
-        }
-        #expect(elapsed >= .milliseconds(250))
-        #expect(elapsed < .seconds(2))
+        let clock = MockClock()
+        let policy = RetryPolicy(initialDelay: 0.3, maxDelay: 0.3, backoffMultiplier: 100.0, clock: clock)
+        try await policy.sleep(forAttempt: 5) // uncapped: enormous; capped at 0.3s
+        #expect(clock.sleptDurations == [.seconds(0.3)])
     }
 
-    @Test("sleep completes without throwing when task is cancelled", .disabled())
+    @Test("sleep completes without throwing when task is cancelled")
     func sleepHandlesCancellationGracefully() async {
-        let policy = RetryPolicy(initialDelay: 60.0)
-        let clock = ContinuousClock()
+        let clock = MockClock()
+        let policy = RetryPolicy(initialDelay: 60.0, clock: clock)
         let task = Task {
-            await clock.measure {
-                try? await policy.sleep(forAttempt: 1) // would sleep 60s without cancellation
-            }
+            try? await policy.sleep(forAttempt: 1) // would sleep 60s without cancellation
         }
         task.cancel()
-        let elapsed = await task.value
-        #expect(elapsed < .seconds(1))
+        await task.value
+        #expect(clock.sleptDurations.isEmpty)
     }
 
     // MARK: - RetryPolicy.none
